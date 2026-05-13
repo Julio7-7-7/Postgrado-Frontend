@@ -1,0 +1,33 @@
+/* Contenedor principal para centrar la tarjeta en la página */
+.form-container {
+display: flex;
+justify-content: center;
+padding: 40px 20px;
+}
+
+/* Limitamos el ancho de la tarjeta para que no se estire demasiado */
+mat-card {
+width: 100%;
+max-width: 500px;
+}
+
+/* Distribución vertical de los campos del formulario */
+.form-layout {
+display: flex;
+flex-direction: column;
+gap: 16px;
+margin-top: 15px;
+}
+
+/* Alineación de los botones de acción al final */
+.actions {
+display: flex;
+justify-content: flex-end;
+gap: 12px;
+margin-top: 24px;
+}
+
+/* Ajuste para que los campos de Material ocupen todo el ancho de la tarjeta */
+mat-form-field {
+width: 100%;
+}
