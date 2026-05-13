@@ -1,13 +1,15 @@
-import { ApplicationConfig } from '@angular/core';
-import { provideRouter } from '@angular/router';
-import { provideHttpClient } from '@angular/common/http';
-import { routes } from './app.routes';
-import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { Component, signal } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
 
-export const appConfig: ApplicationConfig = {
-  providers: [
-    provideRouter(routes),
-    provideHttpClient(),
-    provideAnimationsAsync()
-  ]
-};
+// UBICACIÓN: src/app/app.ts
+@Component({
+  selector: 'app-root', 
+  standalone: true,     
+  imports: [RouterOutlet], 
+  templateUrl: './app.html',
+  styleUrl: './app.css'
+})
+export class AppComponent {
+  // Cambiamos la variable normal por un Signal de Angular 19
+  title = signal('Postgrado-Frontend');
+}
