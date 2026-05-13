@@ -1,0 +1,71 @@
+.navbar-header {
+height: 70px;
+border-bottom: 4px solid #d32f2f; /* El acento rojo del logo al final del navbar */
+display: flex;
+justify-content: space-between;
+padding: 0 20px;
+}
+
+.logo-container {
+display: flex;
+align-items: center;
+gap: 15px;
+}
+
+.brand-box {
+display: flex;
+flex-direction: column;
+align-items: center;
+line-height: 1;
+}
+
+.fich-text {
+font-size: 0.7rem;
+font-weight: 700;
+letter-spacing: 2px;
+}
+
+.upc-text {
+font-size: 1.5rem;
+font-weight: 900;
+color: white;
+}
+
+.divider-vertical {
+width: 1px;
+height: 30px;
+background-color: rgba(255, 255, 255, 0.3);
+}
+
+.divider-vertical.mini {
+height: 20px;
+margin: 0 10px;
+}
+
+.system-title {
+font-weight: 300;
+font-size: 1.1rem;
+letter-spacing: 1px;
+}
+
+.spacer {
+flex: 1 1 auto;
+}
+
+.nav-links {
+display: flex;
+align-items: center;
+}
+
+.nav-item {
+font-weight: 500;
+transition: all 0.3s ease;
+}
+
+.nav-item:hover {
+background-color: rgba(211, 47, 47, 0.2); /* Fondo rojizo suave al pasar el mouse */
+}
+
+.profile-button {
+color: white;
+}

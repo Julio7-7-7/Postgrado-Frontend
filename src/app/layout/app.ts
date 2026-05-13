@@ -1,15 +1,14 @@
 import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { NavbarComponent } from '../shared/components/navbar/navbar';
 
-// UBICACIÓN: src/app/app.ts
 @Component({
-  selector: 'app-root', 
-  standalone: true,     
-  imports: [RouterOutlet], 
+  selector: 'app-root',
+  standalone: true,
+  imports: [RouterOutlet, NavbarComponent], // Importamos el componente del Navbar aquí
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
 export class AppComponent {
-  // Cambiamos la variable normal por un Signal de Angular 19
   title = signal('Postgrado-Frontend');
 }
