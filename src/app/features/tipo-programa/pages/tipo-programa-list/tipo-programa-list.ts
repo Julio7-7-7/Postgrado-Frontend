@@ -2,7 +2,7 @@ import { Component, OnInit, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { Observable } from 'rxjs'; // <--- IMPORTANTE: Necesario para el casting
+import { Observable } from 'rxjs';
 
 // Angular Material
 import { MatTableModule } from '@angular/material/table';
@@ -10,7 +10,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTabsModule } from '@angular/material/tabs';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatSlideToggleModule, MatSlideToggleChange } from '@angular/material/slide-toggle';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -18,9 +18,8 @@ import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 
 // Componentes compartidos, Servicios y Modelos
-// Se ajusta la ruta según image_94013b.png
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog'; 
-import { TipoProgramaService } from '../../services/tipo-programa.service'; // <--- Asegúrate que el import del service sea correcto
+import { TipoProgramaService } from '../../services/tipo-programa.service'; 
 import { TipoPrograma } from '../../models/tipo-programa.model';
 
 @Component({
@@ -96,9 +95,14 @@ export class TipoProgramaListComponent implements OnInit {
     });
   }
 
-  toggleEstado(registro: TipoPrograma): void {
-    const esActivo = registro.estado === 'activo';
-    const accion = esActivo ? 'desactivar' : 'reactivar';
+  /**
+   * Captura el cambio de estado. 
+   * @param event El evento del MatSlideToggle para poder revertirlo si se cancela.
+   * @param registro El objeto TipoPrograma a modificar.
+   */
+  toggleEstado(event: MatSlideToggleChange, registro: TipoPrograma): void {
+    const esActivoOriginal = registro.estado === 'activo';
+    const accion = esActivoOriginal ? 'desactivar' : 'reactivar';
 
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '420px',
@@ -110,17 +114,17 @@ export class TipoProgramaListComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((confirmado: boolean) => {
       if (confirmado) {
-        this.ejecutarCambioEstado(registro, esActivo);
+        this.ejecutarCambioEstado(registro, esActivoOriginal);
       } else {
-        this.listaTotal.update(lista => [...lista]);
+        event.source.checked = esActivoOriginal;
       }
     });
   }
 
-  private ejecutarCambioEstado(registro: TipoPrograma, esActivo: boolean): void {
-    const nuevoEstado = esActivo ? 'inactivo' : 'activo';
+  private ejecutarCambioEstado(registro: TipoPrograma, esActivoAnterior: boolean): void {
+    const nuevoEstado = esActivoAnterior ? 'inactivo' : 'activo';
     
-    // CORRECCIÓN CLAVE: Casting a Observable<TipoPrograma> para evitar el error 'unknown'
+    // El casting a Observable es necesario si el service devuelve unknown o un tipo genérico
     (this.service.update(registro.id_tipo_programa, { estado: nuevoEstado }) as Observable<TipoPrograma>)
       .subscribe({
         next: (registroActualizado: TipoPrograma) => {
@@ -137,7 +141,9 @@ export class TipoProgramaListComponent implements OnInit {
         error: (err) => {
           console.error(err);
           this.snackbar.open('Error crítico: No se pudo actualizar el estado', 'Cerrar', { duration: 4000 });
-          this.listaTotal.update(lista => [...lista]);
+          
+          // Si falla el servidor, recargamos los datos para asegurar sincronía
+          this.cargarDatos();
         }
       });
   }

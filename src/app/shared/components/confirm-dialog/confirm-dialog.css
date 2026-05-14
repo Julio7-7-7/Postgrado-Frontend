@@ -1,5 +1,5 @@
 .dialog-title {
-  color: #1a3a6c; /* Azul Institucional */
+  color: #1a3a6c;
   margin-bottom: 8px;
 }
 
@@ -16,7 +16,6 @@ mat-dialog-actions {
   gap: 8px;
 }
 
-/* Opcional: ajustar el botón de cancelar para que no resalte tanto */
 button[mat-button] {
   color: #718096;
 }
