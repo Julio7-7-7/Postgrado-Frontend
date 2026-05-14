@@ -16,6 +16,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
+import { MatMenuModule } from '@angular/material/menu'; // <comment-tag>Necesario para el botón de ordenamiento</comment-tag>
 
 // Componentes compartidos, Servicios y Modelos
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog'; 
@@ -40,6 +41,7 @@ import { TipoPrograma } from '../../models/tipo-programa.model';
     MatProgressSpinnerModule,
     MatSnackBarModule,
     MatDialogModule,
+    MatMenuModule, // <comment-tag>Importado para habilitar el selector de orden</comment-tag>
     ConfirmDialogComponent
   ],
   templateUrl: './tipo-programa-list.html',
@@ -50,31 +52,49 @@ export class TipoProgramaListComponent implements OnInit {
   private dialog = inject(MatDialog);
   private snackbar = inject(MatSnackBar);
 
+  // Estados Base
   listaTotal = signal<TipoPrograma[]>([]);
   terminoBusqueda = signal('');
   isLoading = signal(true);
   error = signal<string | null>(null);
 
-  listaActivos = computed(() => {
-    const busqueda = this.terminoBusqueda().toLowerCase();
-    return this.listaTotal().filter(item => 
-      item.estado === 'activo' && 
-      item.nombre.toLowerCase().includes(busqueda)
-    );
-  });
+  // <comment-tag>Nuevo Signal para el criterio de ordenamiento</comment-tag>
+  criterioOrden = signal<'id' | 'nombre' | 'cupo'>('id');
 
-  listaInactivos = computed(() => {
-    const busqueda = this.terminoBusqueda().toLowerCase();
-    return this.listaTotal().filter(item => 
-      item.estado === 'inactivo' && 
-      item.nombre.toLowerCase().includes(busqueda)
-    );
-  });
+  // Listas Computadas con Filtro + Ordenamiento
+  listaActivos = computed(() => this.filtrarYOrdenar('activo'));
+  listaInactivos = computed(() => this.filtrarYOrdenar('inactivo'));
 
   columnas: string[] = ['id', 'nombre', 'cupo', 'estado', 'acciones'];
 
   ngOnInit(): void {
     this.cargarDatos();
+  }
+
+  /**
+   * Lógica centralizada para filtrar por texto y luego aplicar el orden seleccionado
+   */
+  private filtrarYOrdenar(estado: 'activo' | 'inactivo') {
+    const busqueda = this.terminoBusqueda().toLowerCase();
+    const criterio = this.criterioOrden();
+
+    // 1. Filtrar
+    let resultado = this.listaTotal().filter(item => 
+      item.estado === estado && 
+      item.nombre.toLowerCase().includes(busqueda)
+    );
+
+    // 2. Ordenar (Clonamos con [...] para no mutar el original)
+    return [...resultado].sort((a, b) => {
+      if (criterio === 'nombre') {
+        return a.nombre.localeCompare(b.nombre);
+      }
+      if (criterio === 'cupo') {
+        return (a.cupo_minimo || 0) - (b.cupo_minimo || 0);
+      }
+      // Por defecto ordena por ID
+      return a.id_tipo_programa - b.id_tipo_programa;
+    });
   }
 
   cargarDatos(): void {
@@ -95,11 +115,6 @@ export class TipoProgramaListComponent implements OnInit {
     });
   }
 
-  /**
-   * Captura el cambio de estado. 
-   * @param event El evento del MatSlideToggle para poder revertirlo si se cancela.
-   * @param registro El objeto TipoPrograma a modificar.
-   */
   toggleEstado(event: MatSlideToggleChange, registro: TipoPrograma): void {
     const esActivoOriginal = registro.estado === 'activo';
     const accion = esActivoOriginal ? 'desactivar' : 'reactivar';
@@ -124,7 +139,6 @@ export class TipoProgramaListComponent implements OnInit {
   private ejecutarCambioEstado(registro: TipoPrograma, esActivoAnterior: boolean): void {
     const nuevoEstado = esActivoAnterior ? 'inactivo' : 'activo';
     
-    // El casting a Observable es necesario si el service devuelve unknown o un tipo genérico
     (this.service.update(registro.id_tipo_programa, { estado: nuevoEstado }) as Observable<TipoPrograma>)
       .subscribe({
         next: (registroActualizado: TipoPrograma) => {
@@ -141,8 +155,6 @@ export class TipoProgramaListComponent implements OnInit {
         error: (err) => {
           console.error(err);
           this.snackbar.open('Error crítico: No se pudo actualizar el estado', 'Cerrar', { duration: 4000 });
-          
-          // Si falla el servidor, recargamos los datos para asegurar sincronía
           this.cargarDatos();
         }
       });
