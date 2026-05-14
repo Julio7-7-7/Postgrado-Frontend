@@ -1,69 +1,165 @@
+/* Contenedor Principal */
 .page-container {
-padding: 24px;
+  padding: 32px;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
+/* Encabezado */
 .header-section {
-display: flex;
-justify-content: space-between;
-align-items: center;
-margin-bottom: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
 }
 
 .header-section h2 {
-margin: 0;
-color: #1a3a6c; /* Azul Institucional */
-font-weight: 500;
+  margin: 0;
+  color: #1a3a6c; /* Azul Institucional */
+  font-weight: 600;
+  font-size: 1.75rem;
 }
 
-.table-wrapper {
-border-radius: 8px;
-overflow: hidden;
-background: white;
+.subtitle {
+  color: #666;
+  font-size: 0.95rem;
+  margin-top: 4px;
+}
+
+/* Sección de Búsqueda */
+.search-container {
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+}
+
+.search-field {
+  width: 100%;
+  max-width: 480px;
+}
+
+/* Contenedor de Pestañas (Tabs) */
+.tabs-wrapper {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden; /* Para que el borde redondeado afecte a la tabla */
+}
+
+.tab-icon {
+  margin-right: 8px;
+  font-size: 20px;
+  height: 20px;
+  width: 20px;
+}
+
+/* Badges (Contadores en las pestañas) */
+.tab-badge {
+  background-color: #1a3a6c;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  margin-left: 10px;
+  font-weight: 500;
+}
+
+.tab-badge.secondary {
+  background-color: #6c757d;
+}
+
+/* Estilos de la Tabla */
+.table-content {
+  padding: 12px 20px 20px 20px;
 }
 
 table {
-width: 100%;
+  width: 100%;
 }
 
-/* Estilos para las etiquetas de estado (Badges) */
-.badge {
-padding: 4px 12px;
-border-radius: 16px;
-font-size: 12px;
-font-weight: 600;
-display: inline-block;
+/* Efecto hover en las filas */
+tr.mat-mdc-row:hover {
+  background-color: #f9fbff;
+  transition: background-color 0.2s ease;
 }
 
-.badge.activo {
-background-color: #e8f5e9;
-color: #2e7d32;
-border: 1px solid #c8e6c9;
-}
-
-.badge.inactivo {
-background-color: #ffebee;
-color: #c62828;
-border: 1px solid #ffcdd2;
-}
-
-/* Estilos para el mensaje de lista vacía */
-.no-data {
-padding: 40px;
-text-align: center;
-color: #666;
-}
-
-.no-data p {
-margin: 0;
-font-size: 16px;
-}
-
-/* Ajuste de columnas de acción para que no ocupen demasiado espacio */
-.mat-column-acciones {
-width: 120px;
-text-align: center;
-}
-
+/* Columnas específicas */
 .mat-column-id {
-width: 80px;
+  width: 70px;
+  font-weight: 500;
+  color: #888;
+}
+
+.mat-column-nombre {
+  min-width: 250px;
+}
+
+.mat-column-estado {
+  width: 160px;
+}
+
+.mat-column-acciones {
+  width: 80px;
+  text-align: center;
+}
+
+/* --- NUEVOS ESTADOS: CARGA Y ERROR --- */
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+  gap: 20px;
+  color: #555;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 12px;
+}
+
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 60px 20px;
+  gap: 16px;
+  text-align: center;
+  background: #fff5f5;
+  border: 1px solid #feb2b2;
+  border-radius: 12px;
+  margin: 20px 0;
+  color: #c53030;
+}
+
+.error-state mat-icon {
+  font-size: 56px;
+  width: 56px;
+  height: 56px;
+}
+
+/* Estados Vacíos (Sin resultados) */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: #94a3b8;
+}
+
+.empty-state mat-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+.empty-state p {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+/* Ajustes para el Slide Toggle dentro de la tabla */
+mat-slide-toggle {
+  font-size: 0.85rem;
 }
