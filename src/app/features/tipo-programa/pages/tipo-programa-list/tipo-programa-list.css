@@ -48,14 +48,14 @@ box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03), 0 1px 2px rgba(15, 23, 42, 0.02);
 
 .search-field {
 flex: 1;
-max-width: 480px;
+max-width: 880px;
 }
 
 /* Ajuste interno del buscador para que sea más esbelto */
 ::ng-deep .search-field .mat-mdc-text-field-wrapper {
-border-radius: 12px !important;
-background: #f8fafc !important; 
-transition: background 0.3s ease;
+  background: #f8fafc;
+  border-radius: 28px; /* <-- Cambia aquí (antes 14px) */
+  transition: background 0.2s ease, box-shadow 0.2s ease;
 }
 
 ::ng-deep .search-field.mat-focused .mat-mdc-text-field-wrapper {
@@ -66,6 +66,46 @@ box-shadow: 0 0 0 3px rgba(26, 58, 108, 0.05);
 /* Ocultar el espacio de error de Material para ganar altura */
 ::ng-deep .search-field .mat-mdc-form-field-subscript-wrapper {
 display: none !important;
+}
+
+::ng-deep .search-field .mdc-notched-outline__leading {
+  border-radius: 28px 0 0 28px !important; /* Redondea el inicio */
+  width: 20px !important; /* Un poco más de espacio para la curva */
+}
+
+::ng-deep .search-field .mdc-notched-outline__trailing {
+  border-radius: 0 28px 28px 0 !important; /* Redondea el final */
+}
+
+/* 1. Ajustar el contenedor del sufijo para que no se pegue al borde redondeado */
+::ng-deep .search-field .mat-mdc-form-field-icon-suffix {
+  padding-right: 8px !important; /* Da aire entre la X y la curva final */
+  display: flex;
+  align-items: center;
+}
+
+/* 2. Corregir el tamaño y alineación del botón de borrado */
+::ng-deep .search-field .mat-mdc-icon-button.mat-mdc-button-base {
+  width: 32px !important;
+  height: 32px !important;
+  padding: 4px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* 3. Evitar que el círculo de "ripple" (el efecto al hacer clic) se vea cortado */
+::ng-deep .search-field .mat-mdc-button-touch-target {
+  width: 32px !important;
+  height: 32px !important;
+}
+
+/* 4. Asegurar que el icono dentro sea pequeño y centrado */
+::ng-deep .search-field .clear-btn mat-icon {
+  font-size: 18px !important;
+  width: 18px !important;
+  height: 18px !important;
+  margin: 0 !important;
 }
 
 /* ================================
