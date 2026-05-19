@@ -31,7 +31,7 @@
             <mat-select formControlName="id_tipo_programa">
               @for (tipo of tiposPrograma(); track tipo.id_tipo_programa) {
                 <mat-option [value]="tipo.id_tipo_programa">
-                  {{ tipo.nombre }}
+                  {{ tipo.nombre }}{{ tipo.estado === 'inactivo' ? ' (Inactivo)' : '' }}
                 </mat-option>
               }
             </mat-select>

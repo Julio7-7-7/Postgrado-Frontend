@@ -6,8 +6,10 @@ export interface Programa {
   tipo_programa: {
     id_tipo_programa: number;
     nombre: string;
-    estado: string;
+    estado: 'activo' | 'inactivo';
     cupo_minimo: number | null;
+    created_at: string;
+    updated_at: string;
   };
   created_at: string;
   updated_at: string;
