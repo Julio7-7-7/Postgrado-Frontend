@@ -14,6 +14,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog';
 import { ProgramaService } from '../../services/programa.service';
@@ -37,6 +38,7 @@ import { Programa } from '../../models/programa.model';
     MatProgressSpinnerModule,
     MatSnackBarModule,
     MatMenuModule,
+    MatDialogModule,
     ConfirmDialogComponent,
   ],
   templateUrl: './programa-list.html',
@@ -45,6 +47,7 @@ import { Programa } from '../../models/programa.model';
 export class ProgramaListComponent implements OnInit {
   private service = inject(ProgramaService);
   private snackbar = inject(MatSnackBar);
+  private dialog = inject(MatDialog);
 
   listaTotal = signal<Programa[]>([]);
   terminoBusqueda = signal('');
@@ -102,35 +105,40 @@ export class ProgramaListComponent implements OnInit {
     const esActivoOriginal = registro.estado === 'activo';
     const accion = esActivoOriginal ? 'desactivar' : 'reactivar';
 
-    if (!confirm(`¿Está seguro de que desea ${accion} el programa "${registro.nombre_programa}"?`)) {
-      event.source.checked = esActivoOriginal;
-      return;
-    }
-
-    const nuevoEstado = esActivoOriginal ? 'inactivo' : 'activo';
-
-    this.service.update(registro.id_programa, { estado: nuevoEstado }).subscribe({
-      next: (registroActualizado: Programa) => {
-        this.listaTotal.update(lista =>
-          lista.map(t =>
-            t.id_programa === registro.id_programa ? registroActualizado : t
-          )
-        );
-        this.snackbar.open(
-          `Programa "${registro.nombre_programa}" ${nuevoEstado === 'activo' ? 'activado' : 'desactivado'} con éxito`,
-          'OK',
-          { duration: 3000 }
-        );
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '420px',
+      data: {
+        titulo: 'Confirmar Cambio de Estado',
+        mensaje: `¿Está seguro de que desea ${accion} el programa "${registro.nombre_programa}"?`,
       },
-      error: (err: unknown) => {
-        console.error(err);
-        this.snackbar.open(
-          'Error crítico: No se pudo actualizar el estado',
-          'Cerrar',
-          { duration: 4000 }
-        );
-        this.cargarDatos();
-      },
+    });
+
+    dialogRef.afterClosed().subscribe((confirmado: boolean) => {
+      if (confirmado) {
+        const nuevoEstado = esActivoOriginal ? 'inactivo' : 'activo';
+
+        this.service.update(registro.id_programa, { estado: nuevoEstado }).subscribe({
+          next: (registroActualizado: Programa) => {
+            this.listaTotal.update(lista =>
+              lista.map(t =>
+                t.id_programa === registro.id_programa ? registroActualizado : t
+              )
+            );
+            this.snackbar.open(
+              `Programa "${registro.nombre_programa}" ${nuevoEstado === 'activo' ? 'activado' : 'desactivado'} con éxito`,
+              'OK',
+              { duration: 3000 }
+            );
+          },
+          error: (err: unknown) => {
+            console.error(err);
+            this.snackbar.open('Error crítico: No se pudo actualizar el estado', 'Cerrar', { duration: 4000 });
+            this.cargarDatos();
+          },
+        });
+      } else {
+        event.source.checked = esActivoOriginal;
+      }
     });
   }
 }
