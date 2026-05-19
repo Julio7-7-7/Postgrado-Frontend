@@ -1,69 +1,270 @@
+/* ================================
+CONTENEDOR PRINCIPAL
+================================ */
 .page-container {
-padding: 24px;
+padding: 20px 24px 30px; 
+max-width: 1300px; 
+margin: 0 auto;
 }
 
+/* ================================
+HEADER
+================================ */
 .header-section {
 display: flex;
 justify-content: space-between;
 align-items: center;
-margin-bottom: 24px;
+margin-bottom: 20px;
 }
 
 .header-section h2 {
 margin: 0;
-color: #1a3a6c; /* Azul Institucional */
-font-weight: 500;
+color: #1a3a6c;
+font-weight: 800;
+font-size: 1.8rem;
+letter-spacing: -0.5px;
 }
 
-.table-wrapper {
-border-radius: 8px;
-overflow: hidden;
+.subtitle {
+color: #64748b;
+font-size: 0.9rem;
+margin-top: 2px;
+}
+
+/* ================================
+TOOLBAR (Buscador + Orden)
+=============================== */
+.toolbar-actions {
+display: flex;
+align-items: center;
+gap: 16px;
+margin-bottom: 18px;
+padding: 12px 20px;
+background: #ffffff;
+border-radius: 16px;
+border: 1px solid #f1f5f9;
+box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03), 0 1px 2px rgba(15, 23, 42, 0.02);
+}
+
+.search-field {
+flex: 1;
+max-width: 880px;
+}
+
+/* Ajuste interno del buscador para que sea más esbelto */
+::ng-deep .search-field .mat-mdc-text-field-wrapper {
+  background: #f8fafc;
+  border-radius: 28px; /* <-- Cambia aquí (antes 14px) */
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+::ng-deep .search-field.mat-focused .mat-mdc-text-field-wrapper {
+background: #ffffff !important;
+box-shadow: 0 0 0 3px rgba(26, 58, 108, 0.05);
+}
+
+/* Ocultar el espacio de error de Material para ganar altura */
+::ng-deep .search-field .mat-mdc-form-field-subscript-wrapper {
+display: none !important;
+}
+
+::ng-deep .search-field .mdc-notched-outline__leading {
+  border-radius: 28px 0 0 28px !important; /* Redondea el inicio */
+  width: 20px !important; /* Un poco más de espacio para la curva */
+}
+
+::ng-deep .search-field .mdc-notched-outline__trailing {
+  border-radius: 0 28px 28px 0 !important; /* Redondea el final */
+}
+
+/* 1. Ajustar el contenedor del sufijo para que no se pegue al borde redondeado */
+::ng-deep .search-field .mat-mdc-form-field-icon-suffix {
+  padding-right: 8px !important; /* Da aire entre la X y la curva final */
+  display: flex;
+  align-items: center;
+}
+
+/* 2. Corregir el tamaño y alineación del botón de borrado */
+::ng-deep .search-field .mat-mdc-icon-button.mat-mdc-button-base {
+  width: 32px !important;
+  height: 32px !important;
+  padding: 4px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* 3. Evitar que el círculo de "ripple" (el efecto al hacer clic) se vea cortado */
+::ng-deep .search-field .mat-mdc-button-touch-target {
+  width: 32px !important;
+  height: 32px !important;
+}
+
+/* 4. Asegurar que el icono dentro sea pequeño y centrado */
+::ng-deep .search-field .clear-btn mat-icon {
+  font-size: 18px !important;
+  width: 18px !important;
+  height: 18px !important;
+  margin: 0 !important;
+}
+
+/* ================================
+ORDENAMIENTO E ICONOS DINÁMICOS
+================================ */
+.sort-section {
+display: flex;
+align-items: center;
+gap: 10px;
+}
+
+.sort-label {
+color: #94a3b8;
+font-size: 0.7rem;
+font-weight: 700;
+text-transform: uppercase;
+letter-spacing: 0.08em;
+}
+
+.sort-button {
+height: 42px !important;
+border-radius: 10px !important;
+border: 1px solid #e2e8f0 !important;
 background: white;
+transition: all 0.2s ease;
 }
 
-table {
+/* Cambio de color del icono cuando el botón está "activo" o hovered */
+.sort-button:hover, .sort-button.active {
+background: #f1f5f9;
+border-color: #cbd5e1 !important;
+}
+
+.sort-button:hover mat-icon, .sort-button.active mat-icon {
+color: #1a3a6c; /* El azul institucional resalta al interactuar */
+transform: scale(1.1);
+}
+
+/* ================================
+BOTÓN NUEVO
+================================ */
+.btn-nuevo {
+  margin-left: auto;  
+  height: 44px;
+  border-radius: 12px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.3px;
+  box-shadow: 0 4px 12px rgba(26, 58, 108, 0.2) !important;
+}
+
+/* ================================
+TABS Y TABLA
+================================ */
+
+
+.mat-column-id {
+  width: 60px;
+} 
+.tabs-wrapper {
+background: #ffffff;
+border-radius: 16px;
+border: 1px solid #f1f5f9;
+overflow: hidden;
+box-shadow: 0 10px 25px rgba(15, 23, 42, 0.04);
+}
+
+/* Estilo de los tabs seleccionados */
+::ng-deep .mat-mdc-tab.mdc-tab--active .mdc-tab__text-label {
+color: #1a3a6c !important;
+font-weight: 700 !important;
+}
+
+::ng-deep .mat-mdc-tab.mdc-tab--active mat-icon {
+color: #1a3a6c !important;
+}
+
+.tab-badge {
+background-color: #1a3a6c;
+color: white;
+min-width: 20px;
+height: 20px;
+display: inline-flex;
+align-items: center;
+justify-content: center;
+padding: 0 6px;
+border-radius: 8px;
+font-size: 0.7rem;
+margin-left: 8px;
+}
+
+/* ================================
+TABLA COMPACTA
+================================ */
+.full-width-table {
 width: 100%;
 }
 
-/* Estilos para las etiquetas de estado (Badges) */
-.badge {
-padding: 4px 12px;
-border-radius: 16px;
-font-size: 12px;
+tr.mat-mdc-header-row {
+background-color: #f8fafc;
+}
+
+th.mat-mdc-header-cell {
+color: #64748b;
+font-weight: 700;
+font-size: 0.72rem;
+text-transform: uppercase;
+letter-spacing: 0.05em;
+padding: 14px 16px !important; /* Padding reducido */
+}
+
+td.mat-mdc-cell {
+padding: 12px 16px !important; /* Padding reducido de 18px a 12px */
+font-size: 0.92rem;
+border-bottom: 1px solid #f1f5f9;
+}
+
+tr.mat-mdc-row:hover {
+background-color: #fbfcfe;
+}
+
+/* Estilo para ID tipo "Badge" sutil */
+.id-cell {
+font-family: 'Roboto Mono', monospace;
 font-weight: 600;
-display: inline-block;
+color: #1a3a6c;
+background: #f1f5f9;
+padding: 2px 8px;
+border-radius: 6px;
+font-size: 0.85rem;
 }
 
-.badge.activo {
-background-color: #e8f5e9;
-color: #2e7d32;
-border: 1px solid #c8e6c9;
+/* ================================
+ESTADOS VACÍOS (Compactos)
+================================ */
+.loading-container, .empty-state {
+padding: 40px 20px; 
 }
 
-.badge.inactivo {
-background-color: #ffebee;
-color: #c62828;
-border: 1px solid #ffcdd2;
+.empty-state mat-icon {
+font-size: 40px;
+width: 40px;
+height: 40px;
+opacity: 0.3;
 }
 
-/* Estilos para el mensaje de lista vacía */
-.no-data {
-padding: 40px;
-text-align: center;
-color: #666;
+/* ================================
+RESPONSIVO
+================================ */
+@media (max-width: 960px) {
+.toolbar-actions {
+flex-direction: column;
+align-items: stretch;
+padding: 16px;
 }
-
-.no-data p {
-margin: 0;
-font-size: 16px;
+.search-field {
+max-width: 100%;
 }
-
-/* Ajuste de columnas de acción para que no ocupen demasiado espacio */
-.mat-column-acciones {
-width: 120px;
-text-align: center;
-}
-
-.mat-column-id {
-width: 80px;
+ .btn-nuevo {
+    margin-left: 0;
+    width: 100%;
+  } 
 }

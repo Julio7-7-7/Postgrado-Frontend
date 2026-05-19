@@ -9,6 +9,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatDividerModule } from '@angular/material/divider'; // <-- Agregado para solucionar el NG8001
+import { MatIconModule } from '@angular/material/icon';       // <-- Agregado para los <mat-icon> del HTML
 
 import { TipoProgramaService } from '../../services/tipo-programa.service';
 
@@ -23,13 +25,15 @@ import { TipoProgramaService } from '../../services/tipo-programa.service';
     MatInputModule, 
     MatSelectModule, 
     MatButtonModule,
-    MatCardModule
+    MatCardModule,
+    MatDividerModule, // <-- Incluido en los imports del componente
+    MatIconModule     // <-- Incluido en los imports del componente
   ],
   templateUrl: './tipo-programa-form.html',
   styleUrl: './tipo-programa-form.css'
 })
 export class TipoProgramaFormComponent implements OnInit {
-  // Inyecciones modernas (Angular 19)
+  // Inyecciones modernas
   private fb = inject(FormBuilder);
   private service = inject(TipoProgramaService);
   private router = inject(Router);
