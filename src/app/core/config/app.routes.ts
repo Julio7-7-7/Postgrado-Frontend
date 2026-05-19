@@ -12,6 +12,12 @@ export const routes: Routes = [
       import('../../features/tipo-programa/routes/tipo-programa.routes')
       .then(m => m.TIPO_PROGRAMA_ROUTES)
   },
+  {
+    path: 'programas',
+    loadChildren: () =>
+      import('../../features/programa/routes/programa.routes')
+      .then(m => m.PROGRAMA_ROUTES)
+  },
   { path: '**', redirectTo: '' }
 ];
 

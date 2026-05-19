@@ -13,11 +13,13 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 
-import { TipoProgramaService } from '../../services/tipo-programa.service';
-import { TipoProgramaCreate } from '../../models/tipo-programa.model';
+import { ProgramaService } from '../../services/programa.service';
+import { TipoProgramaService } from '../../../tipo-programa/services/tipo-programa.service';
+import { ProgramaCreate } from '../../models/programa.model';
+import { TipoPrograma } from '../../../tipo-programa/models/tipo-programa.model';
 
 @Component({
-  selector: 'app-tipo-programa-form',
+  selector: 'app-programa-form',
   standalone: true,
   imports: [
     CommonModule,
@@ -32,12 +34,13 @@ import { TipoProgramaCreate } from '../../models/tipo-programa.model';
     MatIconModule,
     MatSnackBarModule,
   ],
-  templateUrl: './tipo-programa-form.html',
-  styleUrl: './tipo-programa-form.css'
+  templateUrl: './programa-form.html',
+  styleUrl: './programa-form.css',
 })
-export class TipoProgramaFormComponent implements OnInit {
+export class ProgramaFormComponent implements OnInit {
   private fb = inject(FormBuilder);
-  private service = inject(TipoProgramaService);
+  private service = inject(ProgramaService);
+  private tipoProgramaService = inject(TipoProgramaService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private snackbar = inject(MatSnackBar);
@@ -47,16 +50,19 @@ export class TipoProgramaFormComponent implements OnInit {
   idEditando: number | null = null;
   loading = signal(false);
   cargandoDatos = signal(false);
+  tiposPrograma = signal<TipoPrograma[]>([]);
 
   constructor() {
     this.form = this.fb.group({
-      nombre: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
+      nombre_programa: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(200)]],
+      id_tipo_programa: [null, Validators.required],
       estado: ['activo', Validators.required],
-      cupo_minimo: [null, [Validators.min(1)]]
     });
   }
 
   ngOnInit(): void {
+    this.cargarTiposPrograma();
+
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.idEditando = +id;
@@ -64,18 +70,27 @@ export class TipoProgramaFormComponent implements OnInit {
     }
   }
 
+  private cargarTiposPrograma() {
+    this.tipoProgramaService.getAll().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (data) => {
+        this.tiposPrograma.set(data.filter(t => t.estado === 'activo'));
+      },
+    });
+  }
+
   private cargarDatosParaEditar(id: number) {
     this.cargandoDatos.set(true);
     this.service.getById(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (data) => {
-        this.form.patchValue(data, { emitEvent: false });
+        const { nombre_programa, id_tipo_programa, estado } = data;
+        this.form.patchValue({ nombre_programa, id_tipo_programa, estado }, { emitEvent: false });
         this.cargandoDatos.set(false);
       },
       error: () => {
         this.cargandoDatos.set(false);
         this.snackbar.open('Error al cargar los datos del registro', 'Cerrar', { duration: 4000 });
-        this.router.navigate(['/tipos-programa']);
-      }
+        this.router.navigate(['/programas']);
+      },
     });
   }
 
@@ -83,7 +98,7 @@ export class TipoProgramaFormComponent implements OnInit {
     if (this.form.invalid) return;
 
     this.loading.set(true);
-    const datos = this.form.value as TipoProgramaCreate;
+    const datos = this.form.value as ProgramaCreate;
 
     const peticion = this.idEditando
       ? this.service.update(this.idEditando, datos)
@@ -93,10 +108,10 @@ export class TipoProgramaFormComponent implements OnInit {
       next: () => {
         this.loading.set(false);
         const mensaje = this.idEditando
-          ? 'Registro actualizado con éxito'
-          : 'Registro creado con éxito';
+          ? 'Programa actualizado con éxito'
+          : 'Programa creado con éxito';
         this.snackbar.open(mensaje, 'OK', { duration: 3000 });
-        this.router.navigate(['/tipos-programa']);
+        this.router.navigate(['/programas']);
       },
       error: (err) => {
         this.loading.set(false);
@@ -105,7 +120,7 @@ export class TipoProgramaFormComponent implements OnInit {
           'Cerrar',
           { duration: 4000 }
         );
-      }
+      },
     });
   }
 }
