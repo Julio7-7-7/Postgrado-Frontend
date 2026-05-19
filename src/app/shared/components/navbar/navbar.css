@@ -69,3 +69,16 @@ background-color: rgba(211, 47, 47, 0.2); /* Fondo rojizo suave al pasar el mous
 .profile-button {
 color: white;
 }
+
+.system-title-link {
+  text-decoration: none;
+  color: inherit;
+
+  font-weight: 500;
+
+  transition: opacity 0.2s ease;
+}
+
+.system-title-link:hover {
+  opacity: 0.8;
+}

@@ -1,36 +1,46 @@
 <div class="form-container">
-
   <mat-card class="form-card">
-
     <div class="form-header">
       <h2>{{ idEditando ? 'Editar Programa' : 'Nuevo Programa' }}</h2>
-      <p>Complete la información del tipo de programa académico</p>
+      <p>Complete la información del programa académico</p>
     </div>
 
     <mat-divider></mat-divider>
 
     <mat-card-content>
       <form [formGroup]="form" (ngSubmit)="guardar()" class="form-layout">
-
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Nombre del Programa</mat-label>
           <input
             matInput
-            formControlName="nombre"
-            placeholder="Ej: Maestría en Tecnologías de la Información"
-          >
+            formControlName="nombre_programa"
+            placeholder="Ej: Maestría en Ciberseguridad"
+          />
           <mat-icon matPrefix>school</mat-icon>
-          
-          <mat-error *ngIf="form.get('nombre')?.hasError('required')">
+          <mat-error *ngIf="form.get('nombre_programa')?.hasError('required')">
             El nombre es obligatorio
           </mat-error>
-          <mat-error *ngIf="form.get('nombre')?.hasError('minlength')">
+          <mat-error *ngIf="form.get('nombre_programa')?.hasError('minlength')">
             Mínimo 3 caracteres
           </mat-error>
         </mat-form-field>
 
         <div class="form-row">
-          
+          <mat-form-field appearance="outline">
+            <mat-label>Tipo de Programa</mat-label>
+            <mat-select formControlName="id_tipo_programa">
+              @for (tipo of tiposPrograma(); track tipo.id_tipo_programa) {
+                <mat-option [value]="tipo.id_tipo_programa">
+                  {{ tipo.nombre }}{{ tipo.estado === 'inactivo' ? ' (Inactivo)' : '' }}
+                </mat-option>
+              }
+            </mat-select>
+            <mat-icon matPrefix>category</mat-icon>
+            <mat-error *ngIf="form.get('id_tipo_programa')?.hasError('required')">
+              Seleccione un tipo
+            </mat-error>
+          </mat-form-field>
+
           <mat-form-field appearance="outline">
             <mat-label>Estado del Registro</mat-label>
             <mat-select formControlName="estado">
@@ -39,29 +49,13 @@
             </mat-select>
             <mat-icon matPrefix>toggle_on</mat-icon>
           </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Cupo Mínimo Requerido</mat-label>
-            <input
-              matInput
-              type="number"
-              formControlName="cupo_minimo"
-              placeholder="Opcional"
-            >
-            <mat-icon matPrefix>groups</mat-icon>
-            <mat-hint>Mínimo de alumnos para abrir</mat-hint>
-            <mat-error *ngIf="form.get('cupo_minimo')?.hasError('min')">
-              Debe ser mayor a 0
-            </mat-error>
-          </mat-form-field>
-
         </div>
 
         <div class="actions">
           <button
             mat-stroked-button
             type="button"
-            routerLink="/tipos-programa"
+            routerLink="/programas"
             class="btn-cancelar"
           >
             Cancelar
@@ -75,12 +69,10 @@
             class="btn-guardar"
           >
             <mat-icon>{{ loading() ? 'hourglass_empty' : (idEditando ? 'edit' : 'save') }}</mat-icon>
-            {{ loading() ? (idEditando ? 'Actualizando...' : 'Guardando...') : (idEditando ? 'Actualizar Registro' : 'Guardar Nuevo') }}
+            {{ loading() ? (idEditando ? 'Actualizando...' : 'Guardando...') : (idEditando ? 'Actualizar Programa' : 'Guardar Nuevo') }}
           </button>
         </div>
-
       </form>
     </mat-card-content>
-
   </mat-card>
 </div>

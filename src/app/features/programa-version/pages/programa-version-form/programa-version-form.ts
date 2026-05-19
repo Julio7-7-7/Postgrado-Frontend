@@ -6,18 +6,17 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 
-import { TipoProgramaService } from '../../services/tipo-programa.service';
-import { TipoProgramaCreate } from '../../models/tipo-programa.model';
+import { ProgramaVersionService } from '../../services/programa-version.service';
+import { ProgramaService } from '../../../programa/services/programa.service';
 
 @Component({
-  selector: 'app-tipo-programa-form',
+  selector: 'app-programa-version-form',
   standalone: true,
   imports: [
     CommonModule,
@@ -25,57 +24,79 @@ import { TipoProgramaCreate } from '../../models/tipo-programa.model';
     RouterLink,
     MatFormFieldModule,
     MatInputModule,
-    MatSelectModule,
     MatButtonModule,
     MatCardModule,
     MatDividerModule,
     MatIconModule,
     MatSnackBarModule,
   ],
-  templateUrl: './tipo-programa-form.html',
-  styleUrl: './tipo-programa-form.css'
+  templateUrl: './programa-version-form.html',
+  styleUrl: './programa-version-form.css',
 })
-export class TipoProgramaFormComponent implements OnInit {
+export class ProgramaVersionFormComponent implements OnInit {
   private fb = inject(FormBuilder);
-  private service = inject(TipoProgramaService);
+  private versionService = inject(ProgramaVersionService);
+  private programaService = inject(ProgramaService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private snackbar = inject(MatSnackBar);
   private destroyRef = inject(DestroyRef);
 
   form: FormGroup;
+  idPrograma = signal<number>(0);
   idEditando: number | null = null;
   loading = signal(false);
   cargandoDatos = signal(false);
+  nombrePrograma = signal('');
 
   constructor() {
     this.form = this.fb.group({
-      nombre: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
-      estado: ['activo', Validators.required],
-      cupo_minimo: [null, [Validators.min(1)]]
+      descripcion: ['', [Validators.maxLength(500)]],
     });
   }
 
   ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
-      this.idEditando = +id;
+    const id = this.route.parent?.snapshot.paramMap.get('id');
+    if (!id) {
+      this.snackbar.open('Programa no especificado', 'Cerrar', { duration: 4000 });
+      this.router.navigate(['/programas']);
+      return;
+    }
+    this.idPrograma.set(+id);
+    this.cargarPrograma(+id);
+
+    const versionId = this.route.snapshot.paramMap.get('versionId');
+    if (versionId) {
+      this.idEditando = +versionId;
       this.cargarDatosParaEditar(this.idEditando);
     }
   }
 
+  private cargarPrograma(id: number) {
+    this.programaService.getById(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (data) => {
+        this.nombrePrograma.set(data.nombre_programa);
+        if (data.estado !== 'activo' && !this.idEditando) {
+          this.snackbar.open('No se pueden agregar versiones a un programa inactivo', 'Cerrar', { duration: 4000 });
+          this.router.navigate(['/programas', id, 'versiones']);
+        }
+      },
+      error: () => this.router.navigate(['/programas']),
+    });
+  }
+
   private cargarDatosParaEditar(id: number) {
     this.cargandoDatos.set(true);
-    this.service.getById(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    this.versionService.getById(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (data) => {
-        this.form.patchValue(data, { emitEvent: false });
+        this.form.patchValue({ descripcion: data.descripcion }, { emitEvent: false });
         this.cargandoDatos.set(false);
       },
       error: () => {
         this.cargandoDatos.set(false);
-        this.snackbar.open('Error al cargar los datos del registro', 'Cerrar', { duration: 4000 });
-        this.router.navigate(['/tipos-programa']);
-      }
+        this.snackbar.open('Error al cargar los datos de la versión', 'Cerrar', { duration: 4000 });
+        this.router.navigate(['/programas', this.idPrograma(), 'versiones']);
+      },
     });
   }
 
@@ -83,20 +104,23 @@ export class TipoProgramaFormComponent implements OnInit {
     if (this.form.invalid) return;
 
     this.loading.set(true);
-    const datos = this.form.value as TipoProgramaCreate;
+    const datos = {
+      id_programa: this.idPrograma(),
+      descripcion: this.form.value.descripcion || null,
+    };
 
     const peticion = this.idEditando
-      ? this.service.update(this.idEditando, datos)
-      : this.service.create(datos);
+      ? this.versionService.update(this.idEditando, datos)
+      : this.versionService.create(datos);
 
     peticion.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.loading.set(false);
         const mensaje = this.idEditando
-          ? 'Registro actualizado con éxito'
-          : 'Registro creado con éxito';
+          ? 'Versión actualizada con éxito'
+          : 'Versión creada con éxito';
         this.snackbar.open(mensaje, 'OK', { duration: 3000 });
-        this.router.navigate(['/tipos-programa']);
+        this.router.navigate(['/programas', this.idPrograma(), 'versiones']);
       },
       error: (err) => {
         this.loading.set(false);
@@ -105,7 +129,7 @@ export class TipoProgramaFormComponent implements OnInit {
           'Cerrar',
           { duration: 4000 }
         );
-      }
+      },
     });
   }
 }

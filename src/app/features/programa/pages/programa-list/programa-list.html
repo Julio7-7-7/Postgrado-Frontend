@@ -1,0 +1,191 @@
+<div class="page-container">
+
+  <div class="header-section">
+    <div>
+      <h2>Gestión de Programas</h2>
+      <p class="subtitle">Administre los programas académicos de posgrado</p>
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="50" color="primary"></mat-spinner>
+      <p>Sincronizando datos con el servidor...</p>
+    </div>
+  } @else if (error()) {
+    <div class="error-state">
+      <mat-icon color="warn">error_outline</mat-icon>
+      <p>{{ error() }}</p>
+      <button mat-flat-button color="primary" (click)="cargarDatos()">
+        <mat-icon>refresh</mat-icon> Reintentar conexión
+      </button>
+    </div>
+  } @else {
+    <div class="toolbar-actions">
+      <mat-form-field appearance="outline" class="search-field" subscriptSizing="dynamic">
+        <mat-icon matPrefix>search</mat-icon>
+        <mat-label>Filtrar por nombre...</mat-label>
+        <input
+          matInput
+          [ngModel]="terminoBusqueda()"
+          (ngModelChange)="terminoBusqueda.set($event)"
+          placeholder="Ej: Ciberseguridad"
+        />
+        @if (terminoBusqueda()) {
+          <button mat-icon-button matSuffix (click)="terminoBusqueda.set('')">
+            <mat-icon>close</mat-icon>
+          </button>
+        }
+      </mat-form-field>
+
+      <div class="sort-section">
+        <span class="sort-label">Ordenar por:</span>
+        <button
+          mat-stroked-button
+          [matMenuTriggerFor]="menuOrden"
+          class="sort-button"
+        >
+          @if (criterioOrden() === 'id') {
+            <mat-icon>fingerprint</mat-icon>
+          }
+          @if (criterioOrden() === 'nombre') {
+            <mat-icon>sort_by_alpha</mat-icon>
+          }
+          <span class="current-sort">
+            {{ criterioOrden() === 'id' ? 'ID' : 'Nombre' }}
+          </span>
+          <mat-icon>arrow_drop_down</mat-icon>
+        </button>
+
+        <mat-menu #menuOrden="matMenu">
+          <button mat-menu-item (click)="criterioOrden.set('id')">
+            <mat-icon>fingerprint</mat-icon><span>ID</span>
+          </button>
+          <button mat-menu-item (click)="criterioOrden.set('nombre')">
+            <mat-icon>sort_by_alpha</mat-icon><span>Nombre</span>
+          </button>
+        </mat-menu>
+      </div>
+
+      <button
+        mat-raised-button
+        color="primary"
+        routerLink="nuevo"
+        class="btn-nuevo"
+      >
+        <mat-icon>add</mat-icon>
+        <span>Nuevo Programa</span>
+      </button>
+    </div>
+
+    <div class="mat-elevation-z4 tabs-wrapper">
+      <mat-tab-group centered animationDuration="400ms">
+        <mat-tab>
+          <ng-template mat-tab-label>
+            <mat-icon class="tab-icon">check_circle</mat-icon>
+            <span>Activos</span>
+            @if (listaActivos().length > 0) {
+              <span class="tab-badge">{{ listaActivos().length }}</span>
+            }
+          </ng-template>
+          <div class="table-content">
+            <ng-container
+              *ngTemplateOutlet="tablaTemplate; context: { $implicit: listaActivos(), tipo: 'activo' }"
+            ></ng-container>
+          </div>
+        </mat-tab>
+
+        <mat-tab>
+          <ng-template mat-tab-label>
+            <mat-icon class="tab-icon">archive</mat-icon>
+            <span>Inactivos</span>
+            @if (listaInactivos().length > 0) {
+              <span class="tab-badge secondary">{{ listaInactivos().length }}</span>
+            }
+          </ng-template>
+          <div class="table-content">
+            <ng-container
+              *ngTemplateOutlet="tablaTemplate; context: { $implicit: listaInactivos(), tipo: 'inactivo' }"
+            ></ng-container>
+          </div>
+        </mat-tab>
+      </mat-tab-group>
+    </div>
+  }
+</div>
+
+<ng-template #tablaTemplate let-lista let-tipo="tipo">
+  <table mat-table [dataSource]="lista" class="full-width-table">
+    <ng-container matColumnDef="id">
+      <th mat-header-cell *matHeaderCellDef>ID</th>
+      <td mat-cell *matCellDef="let element" class="id-cell">
+        {{ element.id_programa }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="nombre">
+      <th mat-header-cell *matHeaderCellDef>Nombre</th>
+      <td mat-cell *matCellDef="let element" class="name-cell">
+        {{ element.nombre_programa }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="tipo">
+      <th mat-header-cell *matHeaderCellDef>Tipo</th>
+      <td mat-cell *matCellDef="let element">
+        <span class="tipo-badge">{{ element.tipo_programa.nombre }}</span>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="estado">
+      <th mat-header-cell *matHeaderCellDef>Estado</th>
+      <td mat-cell *matCellDef="let element">
+        <mat-slide-toggle
+          color="primary"
+          [checked]="element.estado === 'activo'"
+          (change)="toggleEstado($event, element)"
+        >
+          {{ element.estado | titlecase }}
+        </mat-slide-toggle>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="acciones">
+      <th mat-header-cell *matHeaderCellDef>Acciones</th>
+      <td mat-cell *matCellDef="let element" class="acciones-cell">
+        <button
+          mat-icon-button
+          color="accent"
+          [routerLink]="[element.id_programa, 'versiones']"
+          matTooltip="Ver versiones"
+        >
+          <mat-icon>layers</mat-icon>
+        </button>
+        @if (element.estado === 'activo') {
+          <button
+            mat-icon-button
+            color="primary"
+            [routerLink]="['editar', element.id_programa]"
+            matTooltip="Editar"
+          >
+            <mat-icon>edit</mat-icon>
+          </button>
+        } @else {
+          <mat-icon class="lock-icon" matTooltip="Registro archivado"
+            >lock_outline</mat-icon
+          >
+        }
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="columnas"></tr>
+    <tr mat-row *matRowDef="let row; columns: columnas"></tr>
+  </table>
+
+  @if (lista.length === 0) {
+    <div class="empty-state">
+      <mat-icon>{{ tipo === 'activo' ? 'search_off' : 'inventory_2' }}</mat-icon>
+      <p>{{ tipo === 'activo' ? 'No se encontraron programas.' : 'Archivo vacío.' }}</p>
+    </div>
+  }
+</ng-template>

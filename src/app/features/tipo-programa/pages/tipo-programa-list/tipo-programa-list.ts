@@ -2,7 +2,6 @@ import { Component, OnInit, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { Observable } from 'rxjs';
 
 // Angular Material
 import { MatTableModule } from '@angular/material/table';
@@ -16,7 +15,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
-import { MatMenuModule } from '@angular/material/menu'; // <comment-tag>Necesario para el botón de ordenamiento</comment-tag>
+import { MatMenuModule } from '@angular/material/menu';
 
 // Componentes compartidos, Servicios y Modelos
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog'; 
@@ -41,8 +40,7 @@ import { TipoPrograma } from '../../models/tipo-programa.model';
     MatProgressSpinnerModule,
     MatSnackBarModule,
     MatDialogModule,
-    MatMenuModule, // <comment-tag>Importado para habilitar el selector de orden</comment-tag>
-    ConfirmDialogComponent
+    MatMenuModule,
   ],
   templateUrl: './tipo-programa-list.html',
   styleUrl: './tipo-programa-list.css'
@@ -58,7 +56,6 @@ export class TipoProgramaListComponent implements OnInit {
   isLoading = signal(true);
   error = signal<string | null>(null);
 
-  // <comment-tag>Nuevo Signal para el criterio de ordenamiento</comment-tag>
   criterioOrden = signal<'id' | 'nombre' | 'cupo'>('id');
 
   // Listas Computadas con Filtro + Ordenamiento
@@ -139,24 +136,23 @@ export class TipoProgramaListComponent implements OnInit {
   private ejecutarCambioEstado(registro: TipoPrograma, esActivoAnterior: boolean): void {
     const nuevoEstado = esActivoAnterior ? 'inactivo' : 'activo';
     
-    (this.service.update(registro.id_tipo_programa, { estado: nuevoEstado }) as Observable<TipoPrograma>)
-      .subscribe({
-        next: (registroActualizado: TipoPrograma) => {
-          this.listaTotal.update(lista => 
-            lista.map(t => t.id_tipo_programa === registro.id_tipo_programa ? registroActualizado : t)
-          );
-            
-          this.snackbar.open(
-            `Programa "${registro.nombre}" ${nuevoEstado === 'activo' ? 'activado' : 'desactivado'} con éxito`, 
-            'OK', 
-            { duration: 3000 }
-          );
-        },
-        error: (err) => {
-          console.error(err);
-          this.snackbar.open('Error crítico: No se pudo actualizar el estado', 'Cerrar', { duration: 4000 });
-          this.cargarDatos();
-        }
-      });
+    this.service.update(registro.id_tipo_programa, { estado: nuevoEstado }).subscribe({
+      next: (registroActualizado: TipoPrograma) => {
+        this.listaTotal.update(lista =>
+          lista.map(t => t.id_tipo_programa === registro.id_tipo_programa ? registroActualizado : t)
+        );
+
+        this.snackbar.open(
+          `Programa "${registro.nombre}" ${nuevoEstado === 'activo' ? 'activado' : 'desactivado'} con éxito`,
+          'OK',
+          { duration: 3000 }
+        );
+      },
+      error: (err: unknown) => {
+        console.error(err);
+        this.snackbar.open('Error crítico: No se pudo actualizar el estado', 'Cerrar', { duration: 4000 });
+        this.cargarDatos();
+      }
+    });
   }
 }
