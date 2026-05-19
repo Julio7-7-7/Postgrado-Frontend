@@ -1,0 +1,110 @@
+<div class="page-container">
+  <div class="header-section">
+    <div class="header-left">
+      <button mat-icon-button routerLink="/programas" class="back-btn" matTooltip="Volver a programas">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div>
+        <h2>
+          @if (programa()) {
+            Versiones de: {{ programa()!.nombre_programa }}
+          } @else {
+            Versiones
+          }
+        </h2>
+        <p class="subtitle">Gestione las versiones del programa académico</p>
+      </div>
+    </div>
+
+    <button
+      mat-raised-button
+      color="primary"
+      routerLink="nuevo"
+      class="btn-nuevo"
+      [disabled]="programa()?.estado !== 'activo'"
+      [matTooltip]="(programa()?.estado !== 'activo') ? 'No se pueden agregar versiones a un programa inactivo' : 'Agregar nueva versión'"
+    >
+      <mat-icon>add</mat-icon>
+      <span>Nueva Versión</span>
+    </button>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="50" color="primary"></mat-spinner>
+      <p>Cargando versiones...</p>
+    </div>
+  } @else if (error()) {
+    <div class="error-state">
+      <mat-icon color="warn">error_outline</mat-icon>
+      <p>{{ error() }}</p>
+      <button mat-flat-button color="primary" (click)="cargarVersiones()">
+        <mat-icon>refresh</mat-icon> Reintentar
+      </button>
+    </div>
+  } @else {
+    <div class="table-wrapper">
+      <table mat-table [dataSource]="versiones()" class="full-width-table">
+        <ng-container matColumnDef="version">
+          <th mat-header-cell *matHeaderCellDef>Versión</th>
+          <td mat-cell *matCellDef="let element">
+            <span class="version-badge">v{{ element.version }}</span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="descripcion">
+          <th mat-header-cell *matHeaderCellDef>Descripción</th>
+          <td mat-cell *matCellDef="let element" class="desc-cell">
+            {{ element.descripcion || '—' }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="vigente">
+          <th mat-header-cell *matHeaderCellDef>Vigente</th>
+          <td mat-cell *matCellDef="let element">
+            <mat-slide-toggle
+              color="primary"
+              [checked]="element.vigente"
+              (change)="toggleVigente($event, element)"
+            >
+              {{ element.vigente ? 'Sí' : 'No' }}
+            </mat-slide-toggle>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="acciones">
+          <th mat-header-cell *matHeaderCellDef>Acciones</th>
+          <td mat-cell *matCellDef="let element">
+            <button
+              mat-icon-button
+              color="primary"
+              [routerLink]="['editar', element.id_programa_version]"
+              matTooltip="Editar versión"
+            >
+              <mat-icon>edit</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="columnas"></tr>
+        <tr mat-row *matRowDef="let row; columns: columnas"></tr>
+      </table>
+
+      @if (versiones().length === 0) {
+        <div class="empty-state">
+          <mat-icon>layers_clear</mat-icon>
+          <p>Este programa aún no tiene versiones.</p>
+          <button
+            mat-stroked-button
+            color="primary"
+            routerLink="nuevo"
+            [disabled]="programa()?.estado !== 'activo'"
+            [matTooltip]="(programa()?.estado !== 'activo') ? 'No se pueden agregar versiones a un programa inactivo' : ''"
+          >
+            <mat-icon>add</mat-icon> Crear primera versión
+          </button>
+        </div>
+      }
+    </div>
+  }
+</div>

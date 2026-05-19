@@ -1,0 +1,60 @@
+<div class="form-container">
+  <mat-card class="form-card">
+    <div class="form-header">
+      <button mat-icon-button [routerLink]="['/programas', idPrograma(), 'versiones']" class="back-btn">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div>
+        <h2>{{ idEditando ? 'Editar Versión' : 'Nueva Versión' }}</h2>
+        @if (nombrePrograma()) {
+          <p class="subtitle">Programa: {{ nombrePrograma() }}</p>
+        }
+      </div>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <mat-card-content>
+      <form [formGroup]="form" (ngSubmit)="guardar()" class="form-layout">
+        @if (idEditando) {
+          <p class="info-text">Editando la descripción de la versión. El número de versión no se puede modificar.</p>
+        } @else {
+          <p class="info-text">La versión se asignará automáticamente como la siguiente disponible.</p>
+        }
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Descripción de la Versión</mat-label>
+          <textarea
+            matInput
+            formControlName="descripcion"
+            placeholder="Ej: Actualización del plan de estudios 2026"
+            rows="4"
+          ></textarea>
+          <mat-hint align="end">{{ form.get('descripcion')?.value?.length || 0 }}/500</mat-hint>
+        </mat-form-field>
+
+        <div class="actions">
+          <button
+            mat-stroked-button
+            type="button"
+            [routerLink]="['/programas', idPrograma(), 'versiones']"
+            class="btn-cancelar"
+          >
+            Cancelar
+          </button>
+
+          <button
+            mat-raised-button
+            color="primary"
+            type="submit"
+            [disabled]="form.invalid || loading()"
+            class="btn-guardar"
+          >
+            <mat-icon>{{ loading() ? 'hourglass_empty' : (idEditando ? 'edit' : 'add_circle') }}</mat-icon>
+            {{ loading() ? (idEditando ? 'Actualizando...' : 'Guardando...') : (idEditando ? 'Actualizar' : 'Crear Versión') }}
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

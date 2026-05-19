@@ -39,7 +39,6 @@ import { Programa } from '../../models/programa.model';
     MatSnackBarModule,
     MatMenuModule,
     MatDialogModule,
-    ConfirmDialogComponent,
   ],
   templateUrl: './programa-list.html',
   styleUrl: './programa-list.css',

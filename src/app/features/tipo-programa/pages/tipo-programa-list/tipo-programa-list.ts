@@ -41,7 +41,6 @@ import { TipoPrograma } from '../../models/tipo-programa.model';
     MatSnackBarModule,
     MatDialogModule,
     MatMenuModule,
-    ConfirmDialogComponent
   ],
   templateUrl: './tipo-programa-list.html',
   styleUrl: './tipo-programa-list.css'

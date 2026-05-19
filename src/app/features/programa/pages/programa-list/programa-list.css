@@ -187,6 +187,12 @@ tr.mat-mdc-row:hover {
   background-color: #fbfcfe;
 }
 
+.acciones-cell {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
 .id-cell {
   font-family: 'Roboto Mono', monospace;
   font-weight: 600;
