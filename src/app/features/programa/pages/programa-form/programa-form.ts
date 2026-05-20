@@ -83,7 +83,7 @@ export class ProgramaFormComponent implements OnInit {
     this.service.getById(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (data) => {
         const { nombre_programa, id_tipo_programa, estado } = data;
-        this.form.patchValue({ nombre_programa, id_tipo_programa, estado }, { emitEvent: false });
+        this.form.patchValue({ nombre_programa, id_tipo_programa, estado });
 
         const activos = this.tiposPrograma();
         const existe = activos.some(t => t.id_tipo_programa === id_tipo_programa);

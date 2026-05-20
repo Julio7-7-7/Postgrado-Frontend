@@ -1,0 +1,112 @@
+<div class="page-container">
+  <div class="header-section">
+    <div class="header-left">
+      <button mat-icon-button (click)="volverAVersiones()" class="back-btn" matTooltip="Volver a versiones">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div>
+        <h2>
+          @if (version()) {
+            Módulos de: {{ version()!.programa.nombre_programa }} v{{ version()!.version }}
+          } @else {
+            Módulos
+          }
+        </h2>
+        <p class="subtitle">Gestione los módulos de esta versión del programa</p>
+      </div>
+    </div>
+
+    <button
+      mat-raised-button
+      color="primary"
+      routerLink="nuevo"
+      class="btn-nuevo"
+    >
+      <mat-icon>add</mat-icon>
+      <span>Nuevo Módulo</span>
+    </button>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="50" color="primary"></mat-spinner>
+      <p>Cargando módulos...</p>
+    </div>
+  } @else if (error()) {
+    <div class="error-state">
+      <mat-icon color="warn">error_outline</mat-icon>
+      <p>{{ error() }}</p>
+      <button mat-flat-button color="primary" (click)="cargarModulos()">
+        <mat-icon>refresh</mat-icon> Reintentar
+      </button>
+    </div>
+  } @else {
+    <div class="table-wrapper">
+      <table mat-table [dataSource]="modulos()" class="full-width-table">
+        <ng-container matColumnDef="sigla">
+          <th mat-header-cell *matHeaderCellDef>Sigla</th>
+          <td mat-cell *matCellDef="let element">
+            <span class="sigla-badge">{{ element.sigla }}</span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="nombre">
+          <th mat-header-cell *matHeaderCellDef>Nombre</th>
+          <td mat-cell *matCellDef="let element" class="nombre-cell">
+            {{ element.nombre_modulo }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="horas">
+          <th mat-header-cell *matHeaderCellDef>Horas</th>
+          <td mat-cell *matCellDef="let element">{{ element.horas_academicas }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="creditos">
+          <th mat-header-cell *matHeaderCellDef>Créditos</th>
+          <td mat-cell *matCellDef="let element">{{ element.creditos }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="estado">
+          <th mat-header-cell *matHeaderCellDef>Estado</th>
+          <td mat-cell *matCellDef="let element">
+            <mat-slide-toggle
+              color="primary"
+              [checked]="element.estado === 'activo'"
+              (change)="toggleEstado($event, element)"
+            >
+              {{ element.estado | titlecase }}
+            </mat-slide-toggle>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="acciones">
+          <th mat-header-cell *matHeaderCellDef>Acciones</th>
+          <td mat-cell *matCellDef="let element">
+            <button
+              mat-icon-button
+              color="primary"
+              [routerLink]="['editar', element.id_modulo]"
+              matTooltip="Editar módulo"
+            >
+              <mat-icon>edit</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="columnas"></tr>
+        <tr mat-row *matRowDef="let row; columns: columnas"></tr>
+      </table>
+
+      @if (modulos().length === 0) {
+        <div class="empty-state">
+          <mat-icon>bookmark_border</mat-icon>
+          <p>Esta versión aún no tiene módulos.</p>
+          <button mat-stroked-button color="primary" routerLink="nuevo">
+            <mat-icon>add</mat-icon> Crear primer módulo
+          </button>
+        </div>
+      }
+    </div>
+  }
+</div>

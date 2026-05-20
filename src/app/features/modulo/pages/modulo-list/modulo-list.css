@@ -78,7 +78,7 @@ tr.mat-mdc-row:hover {
   background-color: #fbfcfe;
 }
 
-.version-badge {
+.sigla-badge {
   display: inline-flex;
   align-items: center;
   background: #eef2ff;
@@ -90,13 +90,9 @@ tr.mat-mdc-row:hover {
   font-family: 'Roboto Mono', monospace;
 }
 
-.acciones-cell {
-  white-space: nowrap;
-}
-
-.desc-cell {
+.nombre-cell {
   color: #334155;
-  max-width: 400px;
+  max-width: 350px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

@@ -6,4 +6,9 @@ export const PROGRAMA_VERSION_ROUTES: Routes = [
   { path: '', component: ProgramaVersionListComponent },
   { path: 'nuevo', component: ProgramaVersionFormComponent },
   { path: 'editar/:versionId', component: ProgramaVersionFormComponent },
+  {
+    path: ':versionId/modulos',
+    loadChildren: () =>
+      import('../../modulo/routes/modulo.routes').then(m => m.MODULO_ROUTES),
+  },
 ];

@@ -89,7 +89,7 @@ export class ProgramaVersionFormComponent implements OnInit {
     this.cargandoDatos.set(true);
     this.versionService.getById(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (data) => {
-        this.form.patchValue({ descripcion: data.descripcion }, { emitEvent: false });
+        this.form.patchValue({ descripcion: data.descripcion });
         this.cargandoDatos.set(false);
       },
       error: () => {
