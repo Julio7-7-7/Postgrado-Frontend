@@ -28,7 +28,7 @@
           <mat-form-field appearance="outline">
             <mat-label>Gestión</mat-label>
             <input matInput formControlName="gestion" placeholder="Ej: 1-2026 (se auto-asigna si se deja vacío)">
-            <mat-hint>Se calcula automáticamente si se deja vacío</mat-hint>
+            <mat-hint>Auto: {{ gestionSugerida() }}. La fecha de inicio debe coincidir con el semestre indicado</mat-hint>
           </mat-form-field>
         </div>
 
