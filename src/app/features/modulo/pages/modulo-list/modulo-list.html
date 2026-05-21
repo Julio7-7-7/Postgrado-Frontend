@@ -16,15 +16,22 @@
       </div>
     </div>
 
-    <button
-      mat-raised-button
-      color="primary"
-      routerLink="nuevo"
-      class="btn-nuevo"
-    >
-      <mat-icon>add</mat-icon>
-      <span>Nuevo Módulo</span>
-    </button>
+    @if (bloqueado()) {
+      <div class="bloqueado-banner">
+        <mat-icon>lock</mat-icon>
+        <span>Esta versión tiene ediciones — el plan de estudios está congelado. No se pueden añadir ni desactivar módulos.</span>
+      </div>
+    } @else {
+      <button
+        mat-raised-button
+        color="primary"
+        routerLink="nuevo"
+        class="btn-nuevo"
+      >
+        <mat-icon>add</mat-icon>
+        <span>Nuevo Módulo</span>
+      </button>
+    }
   </div>
 
   @if (isLoading()) {
@@ -73,6 +80,7 @@
             <mat-slide-toggle
               color="primary"
               [checked]="element.estado === 'activo'"
+              [disabled]="bloqueado() && element.estado === 'activo'"
               (change)="toggleEstado($event, element)"
             >
               {{ element.estado | titlecase }}
@@ -102,9 +110,11 @@
         <div class="empty-state">
           <mat-icon>bookmark_border</mat-icon>
           <p>Esta versión aún no tiene módulos.</p>
-          <button mat-stroked-button color="primary" routerLink="nuevo">
-            <mat-icon>add</mat-icon> Crear primer módulo
-          </button>
+          @if (!bloqueado()) {
+            <button mat-stroked-button color="primary" routerLink="nuevo">
+              <mat-icon>add</mat-icon> Crear primer módulo
+            </button>
+          }
         </div>
       }
     </div>

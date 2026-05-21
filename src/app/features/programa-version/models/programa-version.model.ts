@@ -8,6 +8,7 @@ export interface ProgramaVersion {
   foto: string | null;
   vigente: boolean;
   programa: Programa;
+  ediciones_count: number;
   created_at: string;
   updated_at: string;
 }

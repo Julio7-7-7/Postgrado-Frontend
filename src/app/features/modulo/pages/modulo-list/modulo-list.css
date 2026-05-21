@@ -43,6 +43,26 @@
   box-shadow: 0 4px 12px rgba(26, 58, 108, 0.2) !important;
 }
 
+.bloqueado-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff3e0;
+  border: 1px solid #ffb74d;
+  border-radius: 12px;
+  padding: 10px 16px;
+  color: #e65100;
+  font-size: 0.85rem;
+  font-weight: 500;
+  max-width: 400px;
+}
+
+.bloqueado-banner mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
 .table-wrapper {
   background: #ffffff;
   border-radius: 16px;
