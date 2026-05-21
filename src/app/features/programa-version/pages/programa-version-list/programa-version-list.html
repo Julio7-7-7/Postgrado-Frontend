@@ -85,6 +85,14 @@
             </button>
             <button
               mat-icon-button
+              color="accent"
+              [routerLink]="[element.id_programa_version, 'ediciones']"
+              matTooltip="Administrar ediciones"
+            >
+              <mat-icon>calendar_month</mat-icon>
+            </button>
+            <button
+              mat-icon-button
               color="primary"
               [routerLink]="['editar', element.id_programa_version]"
               matTooltip="Editar versión"

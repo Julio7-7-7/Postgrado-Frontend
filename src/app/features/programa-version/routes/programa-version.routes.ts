@@ -11,4 +11,9 @@ export const PROGRAMA_VERSION_ROUTES: Routes = [
     loadChildren: () =>
       import('../../modulo/routes/modulo.routes').then(m => m.MODULO_ROUTES),
   },
+  {
+    path: ':versionId/ediciones',
+    loadChildren: () =>
+      import('../../edicion/routes/edicion.routes').then(m => m.EDICION_ROUTES),
+  },
 ];

@@ -1,0 +1,116 @@
+<div class="page-container">
+  <div class="header-section">
+    <div class="header-left">
+      <button mat-icon-button (click)="volverAVersiones()" class="back-btn" matTooltip="Volver a versiones">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div>
+        <h2>
+          @if (version()) {
+            Ediciones de: {{ version()!.programa.nombre_programa }} v{{ version()!.version }}
+          } @else {
+            Ediciones
+          }
+        </h2>
+        <p class="subtitle">Gestione las ediciones o cohortes de esta versión del programa</p>
+      </div>
+    </div>
+
+    <button mat-raised-button color="primary" routerLink="nuevo" class="btn-nuevo">
+      <mat-icon>add</mat-icon>
+      <span>Nueva Edición</span>
+    </button>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="50" color="primary"></mat-spinner>
+      <p>Cargando ediciones...</p>
+    </div>
+  } @else if (error()) {
+    <div class="error-state">
+      <mat-icon color="warn">error_outline</mat-icon>
+      <p>{{ error() }}</p>
+      <button mat-flat-button color="primary" (click)="cargarEdiciones()">
+        <mat-icon>refresh</mat-icon> Reintentar
+      </button>
+    </div>
+  } @else {
+    <div class="table-wrapper">
+      <table mat-table [dataSource]="ediciones()" class="full-width-table">
+        <ng-container matColumnDef="edicion">
+          <th mat-header-cell *matHeaderCellDef>Edición</th>
+          <td mat-cell *matCellDef="let element">
+            <span class="edicion-badge">#{{ element.edicion }}</span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="gestion">
+          <th mat-header-cell *matHeaderCellDef>Gestión</th>
+          <td mat-cell *matCellDef="let element">{{ element.gestion }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="modalidad">
+          <th mat-header-cell *matHeaderCellDef>Modalidad</th>
+          <td mat-cell *matCellDef="let element">{{ element.modalidad.nombre }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="estado">
+          <th mat-header-cell *matHeaderCellDef>Estado</th>
+          <td mat-cell *matCellDef="let element">
+            <span class="estado-chip {{ estadoClass(element.estado) }}">{{ element.estado }}</span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="fechas">
+          <th mat-header-cell *matHeaderCellDef>Fechas</th>
+          <td mat-cell *matCellDef="let element" class="fechas-cell">
+            @if (element.fecha_inicio && element.fecha_fin) {
+              {{ element.fecha_inicio | date:'shortDate' }} — {{ element.fecha_fin | date:'shortDate' }}
+            } @else {
+              <span class="sin-datos">—</span>
+            }
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="precio">
+          <th mat-header-cell *matHeaderCellDef>Precio</th>
+          <td mat-cell *matCellDef="let element">
+            @if (element.precio) {
+              ${{ element.precio | number:'1.2-2' }}
+            } @else {
+              <span class="sin-datos">—</span>
+            }
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="acciones">
+          <th mat-header-cell *matHeaderCellDef>Acciones</th>
+          <td mat-cell *matCellDef="let element" class="acciones-cell">
+            <button
+              mat-icon-button
+              color="primary"
+              [routerLink]="['editar', element.id_programa_version_edicion]"
+              matTooltip="Editar edición"
+            >
+              <mat-icon>edit</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="columnas"></tr>
+        <tr mat-row *matRowDef="let row; columns: columnas"></tr>
+      </table>
+
+      @if (ediciones().length === 0) {
+        <div class="empty-state">
+          <mat-icon>calendar_month</mat-icon>
+          <p>Esta versión aún no tiene ediciones.</p>
+          <button mat-stroked-button color="primary" routerLink="nuevo">
+            <mat-icon>add</mat-icon> Crear primera edición
+          </button>
+        </div>
+      }
+    </div>
+  }
+</div>
