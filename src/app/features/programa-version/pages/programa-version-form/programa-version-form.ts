@@ -12,6 +12,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 import { ProgramaVersionService } from '../../services/programa-version.service';
 import { ProgramaService } from '../../../programa/services/programa.service';
@@ -33,6 +34,7 @@ import { environment } from '../../../../../environments/environment';
     MatIconModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
+    MatCheckboxModule,
   ],
   templateUrl: './programa-version-form.html',
   styleUrl: './programa-version-form.css',
@@ -61,6 +63,7 @@ export class ProgramaVersionFormComponent implements OnInit {
   constructor() {
     this.form = this.fb.group({
       descripcion: ['', [Validators.maxLength(500)]],
+      es_historico: [false],
     });
   }
 
@@ -147,10 +150,15 @@ export class ProgramaVersionFormComponent implements OnInit {
     if (this.form.invalid) return;
 
     this.loading.set(true);
+    const raw = this.form.value;
     const datos: ProgramaVersionCreate = {
       id_programa: this.idPrograma(),
-      descripcion: this.form.value.descripcion || null,
+      descripcion: raw.descripcion || null,
     };
+
+    if (raw.es_historico && !this.idEditando) {
+      datos.es_historico = true;
+    }
 
     if (this.fotoBase64()) {
       datos.foto = this.fotoBase64();

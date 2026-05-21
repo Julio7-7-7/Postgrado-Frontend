@@ -44,6 +44,38 @@
 }
 
 /* ================================
+   SECTION HEADERS
+=============================== */
+.section {
+  margin-bottom: 24px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.section-header h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #334155;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.section-count {
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: #e2e8f0;
+  color: #475569;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+/* ================================
    HORIZONTAL CARDS
 =============================== */
 .cards-container {
@@ -66,6 +98,11 @@
 
 .version-card.vigente {
   border-left: 4px solid #22c55e !important;
+}
+
+.version-card.historico {
+  border-left: 4px solid #f59e0b !important;
+  opacity: 0.85;
 }
 
 .card-layout {
@@ -160,6 +197,17 @@
   border-radius: 20px;
   background: #f1f5f9;
   color: #64748b;
+}
+
+.historico-chip {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: #fff3e0;
+  color: #e65100;
 }
 
 .card-descripcion {

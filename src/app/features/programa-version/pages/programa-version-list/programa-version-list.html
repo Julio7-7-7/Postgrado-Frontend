@@ -43,90 +43,177 @@
       </button>
     </div>
   } @else {
-    <div class="cards-container">
-      @for (v of versiones(); track v.id_programa_version) {
-        <mat-card class="version-card" [class.vigente]="v.vigente">
-          <div class="card-layout">
-            <div class="card-foto">
-              @if (v.foto) {
-                <img [src]="apiUrl + v.foto" [alt]="'Versión ' + v.version" class="foto-img" />
-              } @else {
-                <div class="foto-placeholder">
-                  <mat-icon>layers</mat-icon>
-                </div>
-              }
-            </div>
-
-            <div class="card-body">
-              <div class="card-header-row">
-                <span class="version-badge">v{{ v.version }}</span>
-                @if (v.vigente) {
-                  <span class="vigente-chip">Vigente</span>
+    <div class="section">
+      <div class="section-header">
+        <h3>Versiones Activas</h3>
+        @if (versionesActivas().length) {
+          <span class="section-count">{{ versionesActivas().length }}</span>
+        }
+      </div>
+      <div class="cards-container">
+        @for (v of versionesActivas(); track v.id_programa_version) {
+          <mat-card class="version-card" [class.vigente]="v.vigente">
+            <div class="card-layout">
+              <div class="card-foto">
+                @if (v.foto) {
+                  <img [src]="apiUrl + v.foto" [alt]="'Versión ' + v.version" class="foto-img" />
                 } @else {
-                  <span class="inactivo-chip">Inactiva</span>
+                  <div class="foto-placeholder">
+                    <mat-icon>layers</mat-icon>
+                  </div>
                 }
               </div>
 
-              <p class="card-descripcion">
-                {{ v.descripcion || 'Sin descripción' }}
-              </p>
+              <div class="card-body">
+                <div class="card-header-row">
+                  <span class="version-badge">v{{ v.version }}</span>
+                  @if (v.vigente) {
+                    <span class="vigente-chip">Vigente</span>
+                  } @else {
+                    <span class="inactivo-chip">Inactiva</span>
+                  }
+                </div>
 
-              <div class="card-vigente-toggle">
-                <mat-slide-toggle
-                  color="primary"
-                  [checked]="v.vigente"
-                  (change)="toggleVigente($event, v)"
+                <p class="card-descripcion">
+                  {{ v.descripcion || 'Sin descripción' }}
+                </p>
+
+                <div class="card-vigente-toggle">
+                  <mat-slide-toggle
+                    color="primary"
+                    [checked]="v.vigente"
+                    (change)="toggleVigente($event, v)"
+                  >
+                    {{ v.vigente ? 'Activa' : 'Inactiva' }}
+                  </mat-slide-toggle>
+                </div>
+              </div>
+
+              <div class="card-actions">
+                <button
+                  mat-icon-button
+                  color="accent"
+                  [routerLink]="[v.id_programa_version, 'modulos']"
+                  matTooltip="Administrar módulos"
                 >
-                  {{ v.vigente ? 'Activa' : 'Inactiva' }}
-                </mat-slide-toggle>
+                  <mat-icon>bookmark</mat-icon>
+                </button>
+                <button
+                  mat-icon-button
+                  color="accent"
+                  [routerLink]="[v.id_programa_version, 'ediciones']"
+                  matTooltip="Administrar ediciones"
+                >
+                  <mat-icon>calendar_month</mat-icon>
+                </button>
+                <button
+                  mat-icon-button
+                  color="primary"
+                  [routerLink]="['editar', v.id_programa_version]"
+                  matTooltip="Editar versión"
+                >
+                  <mat-icon>edit</mat-icon>
+                </button>
               </div>
             </div>
+          </mat-card>
+        }
 
-            <div class="card-actions">
-              <button
-                mat-icon-button
-                color="accent"
-                [routerLink]="[v.id_programa_version, 'modulos']"
-                matTooltip="Administrar módulos"
-              >
-                <mat-icon>bookmark</mat-icon>
-              </button>
-              <button
-                mat-icon-button
-                color="accent"
-                [routerLink]="[v.id_programa_version, 'ediciones']"
-                matTooltip="Administrar ediciones"
-              >
-                <mat-icon>calendar_month</mat-icon>
-              </button>
-              <button
-                mat-icon-button
-                color="primary"
-                [routerLink]="['editar', v.id_programa_version]"
-                matTooltip="Editar versión"
-              >
-                <mat-icon>edit</mat-icon>
-              </button>
-            </div>
+        @if (versionesActivas().length === 0) {
+          <div class="empty-state">
+            <mat-icon>layers_clear</mat-icon>
+            <p>No hay versiones activas.</p>
+            <button
+              mat-stroked-button
+              color="primary"
+              routerLink="nuevo"
+              [disabled]="programa()?.estado !== 'activo'"
+            >
+              <mat-icon>add</mat-icon> Crear primera versión
+            </button>
           </div>
-        </mat-card>
-      }
-
-      @if (versiones().length === 0) {
-        <div class="empty-state">
-          <mat-icon>layers_clear</mat-icon>
-          <p>Este programa aún no tiene versiones.</p>
-          <button
-            mat-stroked-button
-            color="primary"
-            routerLink="nuevo"
-            [disabled]="programa()?.estado !== 'activo'"
-            [matTooltip]="(programa()?.estado !== 'activo') ? 'No se pueden agregar versiones a un programa inactivo' : ''"
-          >
-            <mat-icon>add</mat-icon> Crear primera versión
-          </button>
-        </div>
-      }
+        }
+      </div>
     </div>
+
+    @if (versionesHistoricas().length > 0) {
+      <div class="section">
+        <div class="section-header">
+          <h3>Versiones Históricas</h3>
+          <span class="section-count">{{ versionesHistoricas().length }}</span>
+        </div>
+        <div class="cards-container">
+          @for (v of versionesHistoricas(); track v.id_programa_version) {
+            <mat-card class="version-card historico">
+              <div class="card-layout">
+                <div class="card-foto">
+                  @if (v.foto) {
+                    <img [src]="apiUrl + v.foto" [alt]="'Versión ' + v.version" class="foto-img" />
+                  } @else {
+                    <div class="foto-placeholder">
+                      <mat-icon>archive</mat-icon>
+                    </div>
+                  }
+                </div>
+
+                <div class="card-body">
+                  <div class="card-header-row">
+                    <span class="version-badge">v{{ v.version }}</span>
+                    <span class="historico-chip">Histórico</span>
+                  </div>
+
+                  <p class="card-descripcion">
+                    {{ v.descripcion || 'Sin descripción' }}
+                  </p>
+                </div>
+
+                <div class="card-actions">
+                  <button
+                    mat-icon-button
+                    color="accent"
+                    [routerLink]="[v.id_programa_version, 'modulos']"
+                    matTooltip="Administrar módulos"
+                  >
+                    <mat-icon>bookmark</mat-icon>
+                  </button>
+                  <button
+                    mat-icon-button
+                    color="accent"
+                    [routerLink]="[v.id_programa_version, 'ediciones']"
+                    matTooltip="Administrar ediciones"
+                  >
+                    <mat-icon>calendar_month</mat-icon>
+                  </button>
+                  <button
+                    mat-icon-button
+                    color="primary"
+                    [routerLink]="['editar', v.id_programa_version]"
+                    matTooltip="Editar versión"
+                  >
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                </div>
+              </div>
+            </mat-card>
+          }
+        </div>
+      </div>
+    }
+
+    @if (versiones().length === 0) {
+      <div class="empty-state">
+        <mat-icon>layers_clear</mat-icon>
+        <p>Este programa aún no tiene versiones.</p>
+        <button
+          mat-stroked-button
+          color="primary"
+          routerLink="nuevo"
+          [disabled]="programa()?.estado !== 'activo'"
+          [matTooltip]="(programa()?.estado !== 'activo') ? 'No se pueden agregar versiones a un programa inactivo' : ''"
+        >
+          <mat-icon>add</mat-icon> Crear primera versión
+        </button>
+      </div>
+    }
   }
 </div>
