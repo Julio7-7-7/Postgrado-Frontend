@@ -52,7 +52,7 @@
           }
         </ng-template>
         <div class="cards-container">
-          @for (programa of listaActivos(); track programa.id_programa) {
+              @for (programa of listaActivos(); track programa.id_programa) {
             <mat-card class="programa-card" appearance="outlined" (click)="irAVersiones(programa.id_programa)">
               <div class="card-foto">
                 @if (programa.foto) {
@@ -92,7 +92,7 @@
           }
         </ng-template>
         <div class="cards-container">
-          @for (programa of listaInactivos(); track programa.id_programa) {
+              @for (programa of listaInactivos(); track programa.id_programa) {
             <mat-card class="programa-card inactivo" appearance="outlined" (click)="irAVersiones(programa.id_programa)">
               <div class="card-foto">
                 @if (programa.foto) {

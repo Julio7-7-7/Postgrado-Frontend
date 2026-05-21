@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject, DestroyRef } from '@angular/core';
+import { Component, OnInit, signal, computed, inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -55,6 +55,13 @@ export class ProgramaVersionListComponent implements OnInit {
   versiones = signal<ProgramaVersion[]>([]);
   isLoading = signal(true);
   error = signal<string | null>(null);
+
+  versionesActivas = computed(() =>
+    this.versiones().filter(v => !v.es_historico).sort((a, b) => a.version - b.version)
+  );
+  versionesHistoricas = computed(() =>
+    this.versiones().filter(v => v.es_historico).sort((a, b) => a.version - b.version)
+  );
 
   ngOnInit(): void {
     const id = this.route.parent?.snapshot.paramMap.get('id');

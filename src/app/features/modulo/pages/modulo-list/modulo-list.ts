@@ -77,7 +77,7 @@ export class ModuloListComponent implements OnInit {
     this.versionService.getById(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (data) => {
         this.version.set(data);
-        this.bloqueado.set(data.ediciones_count > 0);
+        this.bloqueado.set(data.ediciones_count > 0 && !data.es_historico);
       },
       error: () => this.router.navigate(['/programas']),
     });

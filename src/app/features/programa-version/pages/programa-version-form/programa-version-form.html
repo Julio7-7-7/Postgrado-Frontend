@@ -33,6 +33,14 @@
           <mat-hint align="end">{{ form.get('descripcion')?.value?.length || 0 }}/500</mat-hint>
         </mat-form-field>
 
+        @if (!idEditando) {
+          <div class="checkbox-row">
+            <mat-checkbox formControlName="es_historico" color="primary">
+              Es histórico — datos cargados desde archivos físicos, sin validaciones de fecha
+            </mat-checkbox>
+          </div>
+        }
+
         <div class="foto-section full-width">
           <p class="section-label">Imagen de la Versión</p>
 

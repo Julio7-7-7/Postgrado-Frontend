@@ -78,6 +78,12 @@
   padding-top: 8px !important;
 }
 
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  padding: 4px 0;
+}
+
 .actions {
   display: flex;
   justify-content: flex-end;

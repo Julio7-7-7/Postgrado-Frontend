@@ -7,6 +7,7 @@ export interface ProgramaVersion {
   descripcion: string | null;
   foto: string | null;
   vigente: boolean;
+  es_historico: boolean;
   programa: Programa;
   ediciones_count: number;
   created_at: string;
@@ -18,4 +19,5 @@ export interface ProgramaVersionCreate {
   descripcion: string | null;
   foto?: string | null;
   vigente?: boolean;
+  es_historico?: boolean;
 }
