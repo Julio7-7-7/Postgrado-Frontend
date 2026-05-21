@@ -68,11 +68,11 @@
                 <p class="card-tipo">{{ programa.tipo_programa.nombre }}</p>
                 <span class="estado-chip activo">Activo</span>
               </mat-card-content>
-              <mat-card-actions>
-                <button mat-icon-button color="primary" [routerLink]="['editar', programa.id_programa]" (click)="$event.stopPropagation()" matTooltip="Editar programa">
-                  <mat-icon>edit</mat-icon>
+              <div class="card-footer" (click)="$event.stopPropagation()">
+                <button mat-button color="primary" [routerLink]="['editar', programa.id_programa]" class="btn-editar-barra">
+                  <mat-icon>edit</mat-icon> Editar
                 </button>
-              </mat-card-actions>
+              </div>
             </mat-card>
           } @empty {
             <div class="empty-state">
@@ -108,11 +108,11 @@
                 <p class="card-tipo">{{ programa.tipo_programa.nombre }}</p>
                 <span class="estado-chip inactivo">Inactivo</span>
               </mat-card-content>
-              <mat-card-actions>
-                <button mat-icon-button color="primary" [routerLink]="['editar', programa.id_programa]" (click)="$event.stopPropagation()" matTooltip="Editar programa">
-                  <mat-icon>edit</mat-icon>
+              <div class="card-footer" (click)="$event.stopPropagation()">
+                <button mat-button color="primary" [routerLink]="['editar', programa.id_programa]" class="btn-editar-barra">
+                  <mat-icon>edit</mat-icon> Editar
                 </button>
-              </mat-card-actions>
+              </div>
             </mat-card>
           } @empty {
             <div class="empty-state">
