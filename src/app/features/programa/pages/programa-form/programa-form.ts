@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -12,11 +11,11 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
-
 import { ProgramaService } from '../../services/programa.service';
 import { TipoProgramaService } from '../../../tipo-programa/services/tipo-programa.service';
 import { ProgramaCreate } from '../../models/programa.model';
 import { TipoPrograma } from '../../../tipo-programa/models/tipo-programa.model';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-programa-form',
@@ -51,6 +50,10 @@ export class ProgramaFormComponent implements OnInit {
   loading = signal(false);
   cargandoDatos = signal(false);
   tiposPrograma = signal<TipoPrograma[]>([]);
+  fotoPreview = signal<string | null>(null);
+  fotoBase64 = signal<string | null>(null);
+  fotoActual = signal<string | null>(null);
+  archivoSeleccionado = signal<boolean>(false);
 
   constructor() {
     this.form = this.fb.group({
@@ -82,8 +85,13 @@ export class ProgramaFormComponent implements OnInit {
     this.cargandoDatos.set(true);
     this.service.getById(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (data) => {
-        const { nombre_programa, id_tipo_programa, estado } = data;
-        this.form.patchValue({ nombre_programa, id_tipo_programa, estado }, { emitEvent: false });
+        const { nombre_programa, id_tipo_programa, estado, foto } = data;
+        this.form.patchValue({ nombre_programa, id_tipo_programa, estado });
+
+        if (foto) {
+          this.fotoPreview.set(`${environment.apiUrl}${foto}`);
+          this.fotoActual.set(foto);
+        }
 
         const activos = this.tiposPrograma();
         const existe = activos.some(t => t.id_tipo_programa === id_tipo_programa);
@@ -101,11 +109,42 @@ export class ProgramaFormComponent implements OnInit {
     });
   }
 
+  onFotoSeleccionada(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    const formatosPermitidos = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    if (!formatosPermitidos.includes(file.type)) {
+      this.snackbar.open('Formato no soportado. Use jpg, png, gif o webp', 'Cerrar', { duration: 4000 });
+      input.value = '';
+      return;
+    }
+
+    this.archivoSeleccionado.set(true);
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.fotoPreview.set(reader.result as string);
+      this.fotoBase64.set(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  eliminarFoto(): void {
+    this.fotoPreview.set(null);
+    this.fotoBase64.set(null);
+    this.fotoActual.set(null);
+    this.archivoSeleccionado.set(false);
+  }
+
   guardar() {
     if (this.form.invalid) return;
 
     this.loading.set(true);
-    const datos = this.form.value as ProgramaCreate;
+    const datos: ProgramaCreate = {
+      ...this.form.value,
+      foto: this.fotoBase64() || (this.idEditando ? this.fotoActual() : null),
+    };
 
     const peticion = this.idEditando
       ? this.service.update(this.idEditando, datos)
@@ -114,9 +153,7 @@ export class ProgramaFormComponent implements OnInit {
     peticion.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.loading.set(false);
-        const mensaje = this.idEditando
-          ? 'Programa actualizado con éxito'
-          : 'Programa creado con éxito';
+        const mensaje = this.idEditando ? 'Programa actualizado con éxito' : 'Programa creado con éxito';
         this.snackbar.open(mensaje, 'OK', { duration: 3000 });
         this.router.navigate(['/programas']);
       },

@@ -9,20 +9,17 @@
 
     <mat-card-content>
       <form [formGroup]="form" (ngSubmit)="guardar()" class="form-layout">
+
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Nombre del Programa</mat-label>
-          <input
-            matInput
-            formControlName="nombre_programa"
-            placeholder="Ej: Maestría en Ciberseguridad"
-          />
+          <input matInput formControlName="nombre_programa" placeholder="Ej: Maestría en Ciberseguridad" />
           <mat-icon matPrefix>school</mat-icon>
-          <mat-error *ngIf="form.get('nombre_programa')?.hasError('required')">
-            El nombre es obligatorio
-          </mat-error>
-          <mat-error *ngIf="form.get('nombre_programa')?.hasError('minlength')">
-            Mínimo 3 caracteres
-          </mat-error>
+          @if (form.get('nombre_programa')?.hasError('required')) {
+            <mat-error>El nombre es obligatorio</mat-error>
+          }
+          @if (form.get('nombre_programa')?.hasError('minlength')) {
+            <mat-error>Mínimo 3 caracteres</mat-error>
+          }
         </mat-form-field>
 
         <div class="form-row">
@@ -36,9 +33,9 @@
               }
             </mat-select>
             <mat-icon matPrefix>category</mat-icon>
-            <mat-error *ngIf="form.get('id_tipo_programa')?.hasError('required')">
-              Seleccione un tipo
-            </mat-error>
+            @if (form.get('id_tipo_programa')?.hasError('required')) {
+              <mat-error>Seleccione un tipo</mat-error>
+            }
           </mat-form-field>
 
           <mat-form-field appearance="outline">
@@ -51,23 +48,33 @@
           </mat-form-field>
         </div>
 
+        <!-- Foto -->
+        <div class="foto-section">
+          <label class="foto-label">Foto del Programa</label>
+          <div class="foto-upload-area" (click)="fileInput.click()">
+            @if (fotoPreview()) {
+              <div class="foto-preview-wrapper">
+                <img [src]="fotoPreview()" class="foto-preview" alt="Preview" />
+                <button type="button" mat-icon-button class="btn-remove-foto" (click)="eliminarFoto(); $event.stopPropagation()">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+            } @else {
+              <div class="foto-placeholder">
+                <mat-icon>add_a_photo</mat-icon>
+                <span>Haz clic para seleccionar una foto</span>
+                <span class="foto-hint">JPG, PNG, GIF o WebP</span>
+              </div>
+            }
+          </div>
+          <input #fileInput type="file" accept="image/jpeg,image/png,image/gif,image/webp" (change)="onFotoSeleccionada($event)" class="file-input-hidden" />
+        </div>
+
         <div class="actions">
-          <button
-            mat-stroked-button
-            type="button"
-            routerLink="/programas"
-            class="btn-cancelar"
-          >
+          <button mat-stroked-button type="button" routerLink="/programas" class="btn-cancelar">
             Cancelar
           </button>
-
-          <button
-            mat-raised-button
-            color="primary"
-            type="submit"
-            [disabled]="form.invalid || loading()"
-            class="btn-guardar"
-          >
+          <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid || loading()" class="btn-guardar">
             <mat-icon>{{ loading() ? 'hourglass_empty' : (idEditando ? 'edit' : 'save') }}</mat-icon>
             {{ loading() ? (idEditando ? 'Actualizando...' : 'Guardando...') : (idEditando ? 'Actualizar Programa' : 'Guardar Nuevo') }}
           </button>

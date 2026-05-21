@@ -2,6 +2,7 @@ export interface Programa {
   id_programa: number;
   id_tipo_programa: number;
   nombre_programa: string;
+  foto: string | null;
   estado: 'activo' | 'inactivo';
   tipo_programa: {
     id_tipo_programa: number;
@@ -18,5 +19,6 @@ export interface Programa {
 export interface ProgramaCreate {
   id_tipo_programa: number;
   nombre_programa: string;
+  foto?: string | null;
   estado: 'activo' | 'inactivo';
 }

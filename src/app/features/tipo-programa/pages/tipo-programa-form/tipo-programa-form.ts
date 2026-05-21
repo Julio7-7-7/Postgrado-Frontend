@@ -68,7 +68,7 @@ export class TipoProgramaFormComponent implements OnInit {
     this.cargandoDatos.set(true);
     this.service.getById(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (data) => {
-        this.form.patchValue(data, { emitEvent: false });
+        this.form.patchValue(data);
         this.cargandoDatos.set(false);
       },
       error: () => {

@@ -1,0 +1,99 @@
+<div class="form-container">
+  <mat-card class="form-card">
+    <div class="form-header">
+      <h2>{{ idEditando ? 'Editar Edición' : 'Nueva Edición' }}</h2>
+      @if (infoVersion()) {
+        <p class="subtitle">Versión: {{ infoVersion() }}</p>
+      }
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <mat-card-content>
+      <form [formGroup]="form" (ngSubmit)="guardar()" class="form-layout">
+
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Modalidad</mat-label>
+            <mat-select formControlName="id_modalidad">
+              @for (m of modalidades(); track m.id_modalidad) {
+                <mat-option [value]="m.id_modalidad">{{ m.nombre }}</mat-option>
+              }
+            </mat-select>
+            @if (form.get('id_modalidad')?.hasError('required')) {
+              <mat-error>Seleccione una modalidad</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Gestión</mat-label>
+            <input matInput formControlName="gestion" placeholder="Ej: 1-2026 (se auto-asigna si se deja vacío)">
+            <mat-hint>Se calcula automáticamente si se deja vacío</mat-hint>
+          </mat-form-field>
+        </div>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Estado</mat-label>
+          <mat-select formControlName="estado">
+            <mat-option value="programado">Programado</mat-option>
+            <mat-option value="en_curso">En Curso</mat-option>
+            <mat-option value="pausado">Pausado</mat-option>
+            <mat-option value="finalizado">Finalizado</mat-option>
+            <mat-option value="cancelado">Cancelado</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Fecha de Inicio</mat-label>
+            <input matInput [matDatepicker]="pickerInicio" formControlName="fecha_inicio" placeholder="DD/MM/AAAA">
+            <mat-datepicker-toggle matSuffix [for]="pickerInicio"></mat-datepicker-toggle>
+            <mat-datepicker #pickerInicio></mat-datepicker>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Fecha de Fin</mat-label>
+            <input matInput [matDatepicker]="pickerFin" formControlName="fecha_fin" placeholder="DD/MM/AAAA">
+            <mat-datepicker-toggle matSuffix [for]="pickerFin"></mat-datepicker-toggle>
+            <mat-datepicker #pickerFin></mat-datepicker>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Cupo Máximo</mat-label>
+            <input matInput type="number" formControlName="cupo_maximo" placeholder="Ej: 30" min="1">
+            @if (form.get('cupo_maximo')?.hasError('min')) {
+              <mat-error>Debe ser mayor a 0</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Precio ($)</mat-label>
+            <input matInput type="number" formControlName="precio" placeholder="Ej: 5000" min="0">
+            <mat-hint>En dólares estadounidenses</mat-hint>
+            @if (form.get('precio')?.hasError('min')) {
+              <mat-error>El precio no puede ser negativo</mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Descripción</mat-label>
+          <textarea matInput formControlName="descripcion" placeholder="Ej: Detalles adicionales de la edición..." rows="3" maxlength="500"></textarea>
+          <mat-hint align="end">{{ form.get('descripcion')?.value?.length || 0 }}/500</mat-hint>
+        </mat-form-field>
+
+        <div class="actions">
+          <button mat-stroked-button type="button" [routerLink]="['/programas', idPrograma(), 'versiones', idVersion(), 'ediciones']" class="btn-cancelar">
+            Cancelar
+          </button>
+          <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid || loading()" class="btn-guardar">
+            <mat-icon>{{ loading() ? 'hourglass_empty' : (idEditando ? 'edit' : 'add_circle') }}</mat-icon>
+            {{ loading() ? (idEditando ? 'Actualizando...' : 'Guardando...') : (idEditando ? 'Actualizar' : 'Crear Edición') }}
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

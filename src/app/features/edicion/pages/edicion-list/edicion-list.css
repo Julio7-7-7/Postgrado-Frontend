@@ -78,7 +78,7 @@ tr.mat-mdc-row:hover {
   background-color: #fbfcfe;
 }
 
-.version-badge {
+.edicion-badge {
   display: inline-flex;
   align-items: center;
   background: #eef2ff;
@@ -90,16 +90,54 @@ tr.mat-mdc-row:hover {
   font-family: 'Roboto Mono', monospace;
 }
 
+.fechas-cell {
+  font-size: 0.85rem;
+  color: #334155;
+  white-space: nowrap;
+}
+
+.sin-datos {
+  color: #cbd5e1;
+}
+
 .acciones-cell {
   white-space: nowrap;
 }
 
-.desc-cell {
-  color: #334155;
-  max-width: 400px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.estado-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  text-transform: capitalize;
+}
+
+.estado-chip.programado {
+  background: #eef2ff;
+  color: #4338ca;
+}
+
+.estado-chip.en-curso {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.estado-chip.pausado {
+  background: #fef9c3;
+  color: #ca8a04;
+}
+
+.estado-chip.finalizado {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.estado-chip.cancelado {
+  background: #fee2e2;
+  color: #dc2626;
 }
 
 .loading-container,
