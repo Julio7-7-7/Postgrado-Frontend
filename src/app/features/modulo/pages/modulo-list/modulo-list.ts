@@ -53,6 +53,7 @@ export class ModuloListComponent implements OnInit {
   modulos = signal<Modulo[]>([]);
   isLoading = signal(true);
   error = signal<string | null>(null);
+  bloqueado = signal(false);
 
   columnas: string[] = ['sigla', 'nombre', 'horas', 'creditos', 'estado', 'acciones'];
 
@@ -74,7 +75,10 @@ export class ModuloListComponent implements OnInit {
 
   private cargarVersion(id: number) {
     this.versionService.getById(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (data) => this.version.set(data),
+      next: (data) => {
+        this.version.set(data);
+        this.bloqueado.set(data.ediciones_count > 0);
+      },
       error: () => this.router.navigate(['/programas']),
     });
   }
@@ -102,6 +106,17 @@ export class ModuloListComponent implements OnInit {
 
   toggleEstado(event: MatSlideToggleChange, modulo: Modulo): void {
     const esActivoOriginal = modulo.estado === 'activo';
+
+    if (esActivoOriginal && this.bloqueado()) {
+      event.source.checked = true;
+      this.snackbar.open(
+        'No se pueden desactivar módulos de una versión que ya tiene ediciones creadas',
+        'Cerrar',
+        { duration: 5000 }
+      );
+      return;
+    }
+
     const accion = esActivoOriginal ? 'desactivar' : 'reactivar';
 
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {

@@ -28,7 +28,7 @@
           <mat-form-field appearance="outline">
             <mat-label>Gestión</mat-label>
             <input matInput formControlName="gestion" placeholder="Ej: 1-2026 (se auto-asigna si se deja vacío)">
-            <mat-hint>Se calcula automáticamente si se deja vacío</mat-hint>
+            <mat-hint>Auto: {{ gestionSugerida() }}. La fecha de inicio debe coincidir con el semestre indicado</mat-hint>
           </mat-form-field>
         </div>
 
@@ -46,16 +46,18 @@
         <div class="form-row">
           <mat-form-field appearance="outline">
             <mat-label>Fecha de Inicio</mat-label>
-            <input matInput [matDatepicker]="pickerInicio" formControlName="fecha_inicio" placeholder="DD/MM/AAAA">
+            <input matInput [matDatepicker]="pickerInicio" formControlName="fecha_inicio" [matDatepickerFilter]="filtroFechaInicio" placeholder="DD/MM/AAAA">
             <mat-datepicker-toggle matSuffix [for]="pickerInicio"></mat-datepicker-toggle>
             <mat-datepicker #pickerInicio></mat-datepicker>
+            <mat-hint>No se permiten fechas pasadas</mat-hint>
           </mat-form-field>
 
-          <mat-form-field appearance="outline">
+          <mat-form-field appearance="outline" floatLabel="always">
             <mat-label>Fecha de Fin</mat-label>
-            <input matInput [matDatepicker]="pickerFin" formControlName="fecha_fin" placeholder="DD/MM/AAAA">
+            <input matInput [matDatepicker]="pickerFin" formControlName="fecha_fin" [matDatepickerFilter]="filtroFechaFin()" placeholder="DD/MM/AAAA">
             <mat-datepicker-toggle matSuffix [for]="pickerFin"></mat-datepicker-toggle>
             <mat-datepicker #pickerFin></mat-datepicker>
+            <mat-hint align="end">{{ duracionMinimaMeses() && fechaInicioValor() ? 'mín ' + duracionMinimaMeses() + ' meses' : '—' }}</mat-hint>
           </mat-form-field>
         </div>
 

@@ -33,6 +33,56 @@
           <mat-hint align="end">{{ form.get('descripcion')?.value?.length || 0 }}/500</mat-hint>
         </mat-form-field>
 
+        <div class="foto-section full-width">
+          <p class="section-label">Imagen de la Versión</p>
+
+          @if (cargandoDatos() && idEditando) {
+            <div class="foto-loading">
+              <mat-spinner diameter="24"></mat-spinner>
+              <span>Cargando imagen...</span>
+            </div>
+          } @else {
+            <div class="foto-upload-area" (click)="fileInput.click()">
+              @if (fotoPreview()) {
+                <div class="foto-preview-wrapper">
+                  <img [src]="fotoPreview()" alt="Vista previa" class="foto-preview" />
+                  <button
+                    type="button"
+                    mat-mini-fab
+                    color="warn"
+                    class="btn-remove-foto"
+                    (click)="eliminarFoto(); $event.stopPropagation()"
+                    matTooltip="Eliminar imagen"
+                  >
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </div>
+              } @else {
+                <div class="foto-placeholder">
+                  <mat-icon>add_photo_alternate</mat-icon>
+                  <span>Sin imagen</span>
+                </div>
+              }
+
+              <div class="foto-actions" (click)="$event.stopPropagation()">
+                <input
+                  #fileInput
+                  type="file"
+                  accept="image/jpeg,image/png,image/gif,image/webp"
+                  (change)="onFotoSeleccionada($event)"
+                  class="file-input"
+                  id="foto-upload"
+                />
+                <label for="foto-upload" class="btn-file-label" mat-stroked-button>
+                  <mat-icon>upload</mat-icon>
+                  {{ fotoPreview() ? 'Cambiar imagen' : 'Seleccionar imagen' }}
+                </label>
+                <span class="foto-hint">JPG, PNG, GIF o WebP</span>
+              </div>
+            </div>
+          }
+        </div>
+
         <div class="actions">
           <button
             mat-stroked-button

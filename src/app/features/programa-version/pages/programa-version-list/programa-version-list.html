@@ -43,68 +43,74 @@
       </button>
     </div>
   } @else {
-    <div class="table-wrapper">
-      <table mat-table [dataSource]="versiones()" class="full-width-table">
-        <ng-container matColumnDef="version">
-          <th mat-header-cell *matHeaderCellDef>Versión</th>
-          <td mat-cell *matCellDef="let element">
-            <span class="version-badge">v{{ element.version }}</span>
-          </td>
-        </ng-container>
+    <div class="cards-container">
+      @for (v of versiones(); track v.id_programa_version) {
+        <mat-card class="version-card" [class.vigente]="v.vigente">
+          <div class="card-layout">
+            <div class="card-foto">
+              @if (v.foto) {
+                <img [src]="apiUrl + v.foto" [alt]="'Versión ' + v.version" class="foto-img" />
+              } @else {
+                <div class="foto-placeholder">
+                  <mat-icon>layers</mat-icon>
+                </div>
+              }
+            </div>
 
-        <ng-container matColumnDef="descripcion">
-          <th mat-header-cell *matHeaderCellDef>Descripción</th>
-          <td mat-cell *matCellDef="let element" class="desc-cell">
-            {{ element.descripcion || '—' }}
-          </td>
-        </ng-container>
+            <div class="card-body">
+              <div class="card-header-row">
+                <span class="version-badge">v{{ v.version }}</span>
+                @if (v.vigente) {
+                  <span class="vigente-chip">Vigente</span>
+                } @else {
+                  <span class="inactivo-chip">Inactiva</span>
+                }
+              </div>
 
-        <ng-container matColumnDef="vigente">
-          <th mat-header-cell *matHeaderCellDef>Vigente</th>
-          <td mat-cell *matCellDef="let element">
-            <mat-slide-toggle
-              color="primary"
-              [checked]="element.vigente"
-              (change)="toggleVigente($event, element)"
-            >
-              {{ element.vigente ? 'Sí' : 'No' }}
-            </mat-slide-toggle>
-          </td>
-        </ng-container>
+              <p class="card-descripcion">
+                {{ v.descripcion || 'Sin descripción' }}
+              </p>
 
-        <ng-container matColumnDef="acciones">
-          <th mat-header-cell *matHeaderCellDef>Acciones</th>
-          <td mat-cell *matCellDef="let element" class="acciones-cell">
-            <button
-              mat-icon-button
-              color="accent"
-              [routerLink]="[element.id_programa_version, 'modulos']"
-              matTooltip="Administrar módulos"
-            >
-              <mat-icon>bookmark</mat-icon>
-            </button>
-            <button
-              mat-icon-button
-              color="accent"
-              [routerLink]="[element.id_programa_version, 'ediciones']"
-              matTooltip="Administrar ediciones"
-            >
-              <mat-icon>calendar_month</mat-icon>
-            </button>
-            <button
-              mat-icon-button
-              color="primary"
-              [routerLink]="['editar', element.id_programa_version]"
-              matTooltip="Editar versión"
-            >
-              <mat-icon>edit</mat-icon>
-            </button>
-          </td>
-        </ng-container>
+              <div class="card-vigente-toggle">
+                <mat-slide-toggle
+                  color="primary"
+                  [checked]="v.vigente"
+                  (change)="toggleVigente($event, v)"
+                >
+                  {{ v.vigente ? 'Activa' : 'Inactiva' }}
+                </mat-slide-toggle>
+              </div>
+            </div>
 
-        <tr mat-header-row *matHeaderRowDef="columnas"></tr>
-        <tr mat-row *matRowDef="let row; columns: columnas"></tr>
-      </table>
+            <div class="card-actions">
+              <button
+                mat-icon-button
+                color="accent"
+                [routerLink]="[v.id_programa_version, 'modulos']"
+                matTooltip="Administrar módulos"
+              >
+                <mat-icon>bookmark</mat-icon>
+              </button>
+              <button
+                mat-icon-button
+                color="accent"
+                [routerLink]="[v.id_programa_version, 'ediciones']"
+                matTooltip="Administrar ediciones"
+              >
+                <mat-icon>calendar_month</mat-icon>
+              </button>
+              <button
+                mat-icon-button
+                color="primary"
+                [routerLink]="['editar', v.id_programa_version]"
+                matTooltip="Editar versión"
+              >
+                <mat-icon>edit</mat-icon>
+              </button>
+            </div>
+          </div>
+        </mat-card>
+      }
 
       @if (versiones().length === 0) {
         <div class="empty-state">

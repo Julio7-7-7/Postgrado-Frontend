@@ -4,7 +4,6 @@ import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -19,6 +18,7 @@ import { ProgramaVersionService } from '../../services/programa-version.service'
 import { ProgramaService } from '../../../programa/services/programa.service';
 import { ProgramaVersion } from '../../models/programa-version.model';
 import { Programa } from '../../../programa/models/programa.model';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-programa-version-list',
@@ -27,7 +27,6 @@ import { Programa } from '../../../programa/models/programa.model';
     CommonModule,
     RouterLink,
     FormsModule,
-    MatTableModule,
     MatButtonModule,
     MatIconModule,
     MatTooltipModule,
@@ -49,13 +48,13 @@ export class ProgramaVersionListComponent implements OnInit {
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
 
+  apiUrl = environment.apiUrl;
+
   idPrograma = signal<number>(0);
   programa = signal<Programa | null>(null);
   versiones = signal<ProgramaVersion[]>([]);
   isLoading = signal(true);
   error = signal<string | null>(null);
-
-  columnas: string[] = ['version', 'descripcion', 'vigente', 'acciones'];
 
   ngOnInit(): void {
     const id = this.route.parent?.snapshot.paramMap.get('id');

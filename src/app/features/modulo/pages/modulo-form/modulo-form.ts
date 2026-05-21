@@ -91,6 +91,10 @@ export class ModuloFormComponent implements OnInit {
           this.snackbar.open('No se pueden agregar módulos a un programa inactivo', 'Cerrar', { duration: 4000 });
           this.router.navigate(['/programas', data.id_programa, 'versiones', id, 'modulos']);
         }
+        if (data.ediciones_count > 0 && !this.idEditando) {
+          this.snackbar.open('No se pueden agregar módulos a una versión que ya tiene ediciones creadas', 'Cerrar', { duration: 5000 });
+          this.router.navigate(['/programas', data.id_programa, 'versiones', id, 'modulos']);
+        }
       },
       error: () => this.router.navigate(['/programas']),
     });

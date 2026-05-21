@@ -120,6 +120,9 @@
   border: 1px solid #f1f5f9 !important;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
 }
 
 .programa-card:hover {
@@ -161,6 +164,27 @@
 
 mat-card-content {
   padding: 16px !important;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-tipo {
+  margin: 0 0 auto;
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+.estado-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  margin-top: 12px;
+  align-self: flex-start;
 }
 
 .card-title {
@@ -175,22 +199,6 @@ mat-card-content {
   overflow: hidden;
 }
 
-.card-tipo {
-  margin: 0 0 12px;
-  color: #64748b;
-  font-size: 0.85rem;
-}
-
-.estado-chip {
-  display: inline-flex;
-  align-items: center;
-  padding: 3px 12px;
-  border-radius: 20px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.3px;
-}
-
 .estado-chip.activo {
   background: #dcfce7;
   color: #16a34a;
@@ -201,18 +209,17 @@ mat-card-content {
   color: #64748b;
 }
 
-mat-card-actions {
+.card-footer {
+  border-top: 1px solid #f1f5f9;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 16px 16px !important;
-  gap: 8px;
 }
 
-mat-card-actions button[mat-stroked-button] {
-  font-size: 0.82rem;
-  border-radius: 10px !important;
-  border-color: #e2e8f0 !important;
+.btn-editar-barra {
+  flex: 1;
+  border-radius: 0 !important;
+  height: 44px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
   color: #475569 !important;
 }
 

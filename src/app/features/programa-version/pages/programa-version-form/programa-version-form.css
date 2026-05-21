@@ -121,6 +121,116 @@
   border-color: #94a3b8 !important;
 }
 
+/* ================================
+   SECCIÓN DE FOTO
+=============================== */
+.foto-section {
+  margin-top: 8px;
+}
+
+.section-label {
+  display: block;
+  color: #64748b;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+
+.foto-loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+.foto-upload-area {
+  border: 2px dashed #e2e8f0;
+  border-radius: 12px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #fafbfc;
+}
+
+.foto-upload-area:hover {
+  border-color: #3b82f6;
+  background: #f0f4ff;
+}
+
+.foto-preview-wrapper {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  max-width: 280px;
+}
+
+.foto-preview {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 10px;
+  display: block;
+}
+
+.btn-remove-foto {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  background: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+  width: 32px;
+  height: 32px;
+}
+
+.btn-remove-foto mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
+}
+
+.foto-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 20px;
+  color: #94a3b8;
+}
+
+.foto-placeholder mat-icon {
+  font-size: 40px;
+  width: 40px;
+  height: 40px;
+}
+
+.foto-placeholder span {
+  font-size: 0.9rem;
+}
+
+.foto-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.file-input {
+  display: none;
+}
+
+.btn-file-label {
+  cursor: pointer;
+}
+
+.foto-hint {
+  font-size: 0.75rem !important;
+  color: #cbd5e1;
+}
+
 @media (max-width: 640px) {
   .form-container {
     padding: 16px 12px;
