@@ -143,8 +143,15 @@ export class ProgramaFormComponent implements OnInit {
     this.loading.set(true);
     const datos: ProgramaCreate = {
       ...this.form.value,
-      foto: this.fotoBase64() || (this.idEditando ? this.fotoActual() : null),
     };
+
+    if (this.fotoBase64()) {
+      datos.foto = this.fotoBase64();
+    } else if (this.idEditando && this.fotoActual() === null && this.fotoPreview() === null) {
+      datos.foto = null;
+    } else if (!this.idEditando) {
+      datos.foto = null;
+    }
 
     const peticion = this.idEditando
       ? this.service.update(this.idEditando, datos)

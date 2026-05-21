@@ -5,6 +5,7 @@ export interface ProgramaVersion {
   id_programa: number;
   version: number;
   descripcion: string | null;
+  foto: string | null;
   vigente: boolean;
   programa: Programa;
   created_at: string;
@@ -14,5 +15,6 @@ export interface ProgramaVersion {
 export interface ProgramaVersionCreate {
   id_programa: number;
   descripcion: string | null;
+  foto?: string | null;
   vigente?: boolean;
 }

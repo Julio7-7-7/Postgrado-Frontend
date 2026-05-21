@@ -126,10 +126,18 @@ export class EdicionFormComponent implements OnInit {
     if (this.form.invalid) return;
 
     this.loading.set(true);
+    const raw = this.form.value;
+
     const datos: ProgramaVersionEdicionCreate = {
-      ...this.form.value,
       id_programa_version: this.idVersion(),
-      gestion: this.form.value.gestion || undefined,
+      id_modalidad: raw.id_modalidad,
+      estado: raw.estado,
+      gestion: raw.gestion || undefined,
+      fecha_inicio: raw.fecha_inicio ? this.aFechaString(raw.fecha_inicio) : null,
+      fecha_fin: raw.fecha_fin ? this.aFechaString(raw.fecha_fin) : null,
+      cupo_maximo: raw.cupo_maximo ?? undefined,
+      descripcion: raw.descripcion || null,
+      precio: raw.precio ?? undefined,
     };
 
     const peticion = this.idEditando
@@ -145,12 +153,17 @@ export class EdicionFormComponent implements OnInit {
       },
       error: (err) => {
         this.loading.set(false);
-        this.snackbar.open(
-          err.error?.detail || 'Ocurrió un error al procesar la solicitud',
-          'Cerrar',
-          { duration: 4000 }
-        );
+        const detalle = err.error?.detail;
+        const mensaje = Array.isArray(detalle)
+          ? detalle.map((d: any) => d.msg || JSON.stringify(d)).join(' | ')
+          : detalle || 'Ocurrió un error al procesar la solicitud';
+        this.snackbar.open(mensaje, 'Cerrar', { duration: 8000 });
       },
     });
+  }
+
+  private aFechaString(fecha: Date | null): string | null {
+    if (!fecha) return null;
+    return `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, '0')}-${String(fecha.getDate()).padStart(2, '0')}`;
   }
 }
