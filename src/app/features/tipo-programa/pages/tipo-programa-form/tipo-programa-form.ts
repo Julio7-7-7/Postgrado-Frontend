@@ -52,7 +52,8 @@ export class TipoProgramaFormComponent implements OnInit {
     this.form = this.fb.group({
       nombre: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
       estado: ['activo', Validators.required],
-      cupo_minimo: [null, [Validators.min(1)]]
+      cupo_minimo: [null, [Validators.min(1)]],
+      duracion_minima_meses: [null, [Validators.min(1)]]
     });
   }
 

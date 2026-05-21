@@ -56,13 +56,13 @@ export class TipoProgramaListComponent implements OnInit {
   isLoading = signal(true);
   error = signal<string | null>(null);
 
-  criterioOrden = signal<'id' | 'nombre' | 'cupo'>('id');
+  criterioOrden = signal<'id' | 'nombre' | 'cupo' | 'duracion'>('id');
 
   // Listas Computadas con Filtro + Ordenamiento
   listaActivos = computed(() => this.filtrarYOrdenar('activo'));
   listaInactivos = computed(() => this.filtrarYOrdenar('inactivo'));
 
-  columnas: string[] = ['id', 'nombre', 'cupo', 'estado', 'acciones'];
+  columnas: string[] = ['id', 'nombre', 'cupo', 'duracion', 'estado', 'acciones'];
 
   ngOnInit(): void {
     this.cargarDatos();
@@ -88,6 +88,9 @@ export class TipoProgramaListComponent implements OnInit {
       }
       if (criterio === 'cupo') {
         return (a.cupo_minimo || 0) - (b.cupo_minimo || 0);
+      }
+      if (criterio === 'duracion') {
+        return (a.duracion_minima_meses || 0) - (b.duracion_minima_meses || 0);
       }
       // Por defecto ordena por ID
       return a.id_tipo_programa - b.id_tipo_programa;

@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject, DestroyRef } from '@angular/core';
+import { Component, OnInit, signal, computed, inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -58,6 +58,9 @@ export class EdicionFormComponent implements OnInit {
   cargandoDatos = signal(false);
   modalidades = signal<Modalidad[]>([]);
   infoVersion = signal('');
+  duracionMinimaMeses = signal<number | null>(null);
+  tipoNombre = signal('');
+  hoy = new Date();
 
   constructor() {
     this.form = this.fb.group({
@@ -86,6 +89,7 @@ export class EdicionFormComponent implements OnInit {
     this.idPrograma.set(programaId ? +programaId : 0);
     this.cargarModalidades();
     this.cargarVersion(+versionId);
+    this.suscribirFechaInicio();
 
     const edicionId = this.route.snapshot.paramMap.get('edicionId');
     if (edicionId) {
@@ -102,7 +106,12 @@ export class EdicionFormComponent implements OnInit {
 
   private cargarVersion(id: number) {
     this.versionService.getById(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (data) => this.infoVersion.set(`${data.programa.nombre_programa} — v${data.version}`),
+      next: (data) => {
+        this.infoVersion.set(`${data.programa.nombre_programa} — v${data.version}`);
+        const tipo = data.programa.tipo_programa;
+        this.duracionMinimaMeses.set(tipo.duracion_minima_meses);
+        this.tipoNombre.set(tipo.nombre);
+      },
       error: () => this.router.navigate(['/programas']),
     });
   }
@@ -112,6 +121,7 @@ export class EdicionFormComponent implements OnInit {
     this.edicionService.getById(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (data) => {
         this.form.patchValue(data);
+        this.fechaInicioValor.set(data.fecha_inicio ? new Date(data.fecha_inicio) : null);
         this.cargandoDatos.set(false);
       },
       error: () => {
@@ -122,8 +132,70 @@ export class EdicionFormComponent implements OnInit {
     });
   }
 
+  filtroFechaInicio = (f: Date | null): boolean => {
+    if (!f) return true;
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    return f >= hoy;
+  };
+
+  fechaInicioValor = signal<Date | null>(null);
+
+  filtroFechaFin = computed(() => {
+    const inicio = this.fechaInicioValor();
+    const meses = this.duracionMinimaMeses();
+
+    return (f: Date | null): boolean => {
+      if (!f) return false;
+      const hoy = new Date();
+      hoy.setHours(0, 0, 0, 0);
+      if (f < hoy) return false;
+
+      if (inicio && meses) {
+        const minFin = new Date(inicio);
+        minFin.setMonth(minFin.getMonth() + meses);
+        if (f < minFin) return false;
+      }
+
+      return true;
+    };
+  });
+
+  private suscribirFechaInicio() {
+    this.form.get('fecha_inicio')?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(val => {
+      this.fechaInicioValor.set(val);
+    });
+  }
+
+  errorFechaFin(): string | null {
+    const inicio = this.form.get('fecha_inicio')?.value;
+    const fin = this.form.get('fecha_fin')?.value;
+    const meses = this.duracionMinimaMeses();
+
+    if (!inicio || !fin || !meses) return null;
+
+    const dInicio = new Date(inicio);
+    const dFin = new Date(fin);
+    if (dFin <= dInicio) return 'La fecha de fin debe ser posterior a la fecha de inicio';
+
+    const diffMeses = (dFin.getFullYear() - dInicio.getFullYear()) * 12
+      + (dFin.getMonth() - dInicio.getMonth());
+    const diffDias = diffMeses * 30 + (dFin.getDate() - dInicio.getDate());
+
+    if (diffDias < meses * 30) {
+      return `Duración mínima: ${meses} mes(es) para ${this.tipoNombre()}`;
+    }
+    return null;
+  }
+
   guardar() {
     if (this.form.invalid) return;
+
+    const errorFechas = this.errorFechaFin();
+    if (errorFechas) {
+      this.snackbar.open(errorFechas, 'Cerrar', { duration: 6000 });
+      return;
+    }
 
     this.loading.set(true);
     const raw = this.form.value;

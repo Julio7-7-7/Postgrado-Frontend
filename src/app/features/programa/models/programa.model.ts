@@ -1,17 +1,12 @@
+import { TipoPrograma } from '../../tipo-programa/models/tipo-programa.model';
+
 export interface Programa {
   id_programa: number;
   id_tipo_programa: number;
   nombre_programa: string;
   foto: string | null;
   estado: 'activo' | 'inactivo';
-  tipo_programa: {
-    id_tipo_programa: number;
-    nombre: string;
-    estado: 'activo' | 'inactivo';
-    cupo_minimo: number | null;
-    created_at: string;
-    updated_at: string;
-  };
+  tipo_programa: TipoPrograma;
   created_at: string;
   updated_at: string;
 }
