@@ -1,6 +1,6 @@
 import { Component, OnInit, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { RouterLink, Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -40,6 +40,8 @@ import { environment } from '../../../../../environments/environment';
 export class ProgramaListComponent implements OnInit {
   private service = inject(ProgramaService);
   private snackbar = inject(MatSnackBar);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
   apiUrl = environment.apiUrl;
   listaTotal = signal<Programa[]>([]);
@@ -86,5 +88,9 @@ export class ProgramaListComponent implements OnInit {
 
   onImgError(event: Event): void {
     (event.target as HTMLImageElement).style.display = 'none';
+  }
+
+  irAVersiones(id: number): void {
+    this.router.navigate([id, 'versiones'], { relativeTo: this.route });
   }
 }

@@ -120,6 +120,7 @@
   border: 1px solid #f1f5f9 !important;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
+  cursor: pointer;
 }
 
 .programa-card:hover {

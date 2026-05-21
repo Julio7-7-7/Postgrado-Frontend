@@ -53,7 +53,7 @@
         </ng-template>
         <div class="cards-container">
           @for (programa of listaActivos(); track programa.id_programa) {
-            <mat-card class="programa-card" appearance="outlined">
+            <mat-card class="programa-card" appearance="outlined" (click)="irAVersiones(programa.id_programa)">
               <div class="card-foto">
                 @if (programa.foto) {
                   <img [src]="getFotoUrl(programa.foto)" (error)="onImgError($event)" alt="Foto" />
@@ -69,10 +69,7 @@
                 <span class="estado-chip activo">Activo</span>
               </mat-card-content>
               <mat-card-actions>
-                <button mat-stroked-button [routerLink]="[programa.id_programa, 'versiones']" matTooltip="Administrar versiones">
-                  <mat-icon>layers</mat-icon> Versiones
-                </button>
-                <button mat-icon-button color="primary" [routerLink]="['editar', programa.id_programa]" matTooltip="Editar programa">
+                <button mat-icon-button color="primary" [routerLink]="['editar', programa.id_programa]" (click)="$event.stopPropagation()" matTooltip="Editar programa">
                   <mat-icon>edit</mat-icon>
                 </button>
               </mat-card-actions>
@@ -96,7 +93,7 @@
         </ng-template>
         <div class="cards-container">
           @for (programa of listaInactivos(); track programa.id_programa) {
-            <mat-card class="programa-card inactivo" appearance="outlined">
+            <mat-card class="programa-card inactivo" appearance="outlined" (click)="irAVersiones(programa.id_programa)">
               <div class="card-foto">
                 @if (programa.foto) {
                   <img [src]="getFotoUrl(programa.foto)" (error)="onImgError($event)" alt="Foto" />
@@ -112,10 +109,7 @@
                 <span class="estado-chip inactivo">Inactivo</span>
               </mat-card-content>
               <mat-card-actions>
-                <button mat-stroked-button [routerLink]="[programa.id_programa, 'versiones']" matTooltip="Administrar versiones">
-                  <mat-icon>layers</mat-icon> Versiones
-                </button>
-                <button mat-icon-button color="primary" [routerLink]="['editar', programa.id_programa]" matTooltip="Editar programa">
+                <button mat-icon-button color="primary" [routerLink]="['editar', programa.id_programa]" (click)="$event.stopPropagation()" matTooltip="Editar programa">
                   <mat-icon>edit</mat-icon>
                 </button>
               </mat-card-actions>
