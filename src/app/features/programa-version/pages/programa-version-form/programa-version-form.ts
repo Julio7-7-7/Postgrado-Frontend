@@ -179,7 +179,7 @@ export class ProgramaVersionFormComponent implements OnInit {
           ? 'Versión actualizada con éxito'
           : 'Versión creada con éxito';
         this.snackbar.open(mensaje, 'OK', { duration: 3000 });
-        this.router.navigate(['/programas', this.idPrograma(), 'versiones']);
+        this.router.navigate(['/programas', this.idPrograma(), 'versiones'], { replaceUrl: true });
       },
       error: (err) => {
         this.loading.set(false);

@@ -335,7 +335,7 @@ export class EdicionFormComponent implements OnInit {
         this.loading.set(false);
         const mensaje = this.idEditando ? 'Edición actualizada con éxito' : 'Edición creada con éxito';
         this.snackbar.open(mensaje, 'OK', { duration: 3000 });
-        this.router.navigate(['/programas', this.idPrograma(), 'versiones', this.idVersion(), 'ediciones']);
+        this.router.navigate(['/programas', this.idPrograma(), 'versiones', this.idVersion(), 'ediciones'], { replaceUrl: true });
       },
       error: (err) => {
         this.loading.set(false);

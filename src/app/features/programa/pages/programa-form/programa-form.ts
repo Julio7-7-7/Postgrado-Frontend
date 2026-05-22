@@ -162,7 +162,7 @@ export class ProgramaFormComponent implements OnInit {
         this.loading.set(false);
         const mensaje = this.idEditando ? 'Programa actualizado con éxito' : 'Programa creado con éxito';
         this.snackbar.open(mensaje, 'OK', { duration: 3000 });
-        this.router.navigate(['/programas']);
+        this.router.navigate(['/programas'], { replaceUrl: true });
       },
       error: (err) => {
         this.loading.set(false);

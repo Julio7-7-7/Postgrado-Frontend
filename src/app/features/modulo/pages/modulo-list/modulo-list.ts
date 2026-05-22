@@ -110,7 +110,7 @@ export class ModuloListComponent implements OnInit {
     if (esActivoOriginal && this.bloqueado()) {
       event.source.checked = true;
       this.snackbar.open(
-        'No se pueden desactivar módulos de una versión que ya tiene ediciones creadas',
+        'Esta versión tiene ediciones registradas, por lo que no se puede desactivar el módulo.',
         'Cerrar',
         { duration: 5000 }
       );
