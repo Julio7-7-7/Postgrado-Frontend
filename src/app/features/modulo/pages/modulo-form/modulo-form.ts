@@ -92,7 +92,7 @@ export class ModuloFormComponent implements OnInit {
           this.router.navigate(['/programas', data.id_programa, 'versiones', id, 'modulos']);
         }
         if (data.ediciones_count > 0 && !this.idEditando) {
-          this.snackbar.open('No se pueden agregar módulos a una versión que ya tiene ediciones creadas', 'Cerrar', { duration: 5000 });
+          this.snackbar.open('Esta versión ya tiene ediciones registradas. No es posible añadir nuevos módulos.', 'Cerrar', { duration: 5000 });
           this.router.navigate(['/programas', data.id_programa, 'versiones', id, 'modulos']);
         }
       },
@@ -133,7 +133,7 @@ export class ModuloFormComponent implements OnInit {
         this.loading.set(false);
         const mensaje = this.idEditando ? 'Módulo actualizado con éxito' : 'Módulo creado con éxito';
         this.snackbar.open(mensaje, 'OK', { duration: 3000 });
-        this.router.navigate(['/programas', this.idPrograma(), 'versiones', this.idVersion(), 'modulos']);
+        this.router.navigate(['/programas', this.idPrograma(), 'versiones', this.idVersion(), 'modulos'], { replaceUrl: true });
       },
       error: (err) => {
         this.loading.set(false);

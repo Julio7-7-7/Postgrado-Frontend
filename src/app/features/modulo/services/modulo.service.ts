@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ApiService } from '../../../core/services/api.service';
 import { Modulo, ModuloCreate } from '../models/modulo.model';
@@ -7,8 +8,12 @@ import { Modulo, ModuloCreate } from '../models/modulo.model';
 export class ModuloService extends ApiService {
   private readonly endpoint = 'modulos';
 
-  getAll(): Observable<Modulo[]> {
-    return this.http.get<Modulo[]>(`${this.baseUrl}/${this.endpoint}/`);
+  getAll(programa_version_id?: number): Observable<Modulo[]> {
+    let params = new HttpParams();
+    if (programa_version_id) {
+      params = params.set('programa_version_id', programa_version_id);
+    }
+    return this.http.get<Modulo[]>(`${this.baseUrl}/${this.endpoint}/`, { params });
   }
 
   getById(id: number): Observable<Modulo> {

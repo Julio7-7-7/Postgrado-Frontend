@@ -123,7 +123,13 @@
     gap: 12px;
   }
 
-  .actions {
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  padding: 4px 0;
+}
+
+.actions {
     flex-direction: column-reverse;
     gap: 10px;
   }

@@ -1,41 +1,63 @@
-<div class="home-container">
-  <div class="welcome-section">
-    <mat-icon class="logo-icon">school</mat-icon>
-    <h1>Sistema de Control de Posgrado</h1>
-    <p class="subtitle">Gestión académica integral para programas de posgrado</p>
-  </div>
+<div class="home">
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+      <div class="hero-emblem">
+        <div class="hero-logo">
+          <span class="hero-fich">FICH</span>
+          <span class="hero-upc">UPC</span>
+        </div>
+      </div>
+      <h1 class="hero-title">Sistema de Control de Posgrado</h1>
+      <p class="hero-subtitle">
+        Gestión académica integral para programas de posgrado de la Facultad de Ingeniería — Unidad de Postgrado Chaco
+      </p>
+    </div>
+  </section>
 
-  <div class="cards-grid">
-    <mat-card routerLink="/tipos-programa" class="nav-card">
-      <mat-card-content>
-        <mat-icon>category</mat-icon>
-        <h3>Tipos de Programa</h3>
-        <p>Administra las categorías académicas</p>
-      </mat-card-content>
-    </mat-card>
+  <div class="home-body">
+    <div class="stats-row">
+      <div class="stat-card">
+        <mat-icon class="stat-icon program-icon">menu_book</mat-icon>
+        <div class="stat-info">
+          <span class="stat-value">{{ totalProgramas() }}</span>
+          <span class="stat-label">Programas activos</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <mat-icon class="stat-icon teacher-icon">person_pin</mat-icon>
+        <div class="stat-info">
+          <span class="stat-value">{{ totalDocentes() }}</span>
+          <span class="stat-label">Docentes registrados</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <mat-icon class="stat-icon mod-icon">bookmarks</mat-icon>
+        <div class="stat-info">
+          <span class="stat-value">—</span>
+          <span class="stat-label">Ediciones activas</span>
+        </div>
+      </div>
+    </div>
 
-    <mat-card routerLink="/programas" class="nav-card">
-      <mat-card-content>
-        <mat-icon>menu_book</mat-icon>
-        <h3>Programas</h3>
-        <p>Gestiona los programas de posgrado</p>
-      </mat-card-content>
-    </mat-card>
+    <h2 class="section-title">Módulos del Sistema</h2>
 
-    <mat-card routerLink="/alumnos" class="nav-card">
-      <mat-card-content>
-        <mat-icon>people</mat-icon>
-        <h3>Alumnos</h3>
-        <p>Control de inscripciones y documentación</p>
-      </mat-card-content>
-    </mat-card>
-
-    <mat-card routerLink="/docentes" class="nav-card">
-      <mat-card-content>
-        <mat-icon>person_pin</mat-icon>
-        <h3>Docentes</h3>
-        <p>Banco de docentes y asignaciones</p>
-      </mat-card-content>
-    </mat-card>
+    <div class="cards-grid">
+      @for (card of cards; track card.path) {
+        <mat-card class="nav-card" [style.--card-accent]="card.color" [routerLink]="card.path">
+          <mat-card-content>
+            <div class="card-icon-wrap" [style.background]="card.color + '15'">
+              <mat-icon [style.color]="card.color">{{ card.icon }}</mat-icon>
+            </div>
+            <h3>{{ card.title }}</h3>
+            <p>{{ card.desc }}</p>
+            <div class="card-arrow" [style.color]="card.color">
+              <span>Ir</span>
+              <mat-icon>arrow_forward</mat-icon>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
   </div>
 </div>

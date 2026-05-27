@@ -1,84 +1,140 @@
-.navbar-header {
-height: 70px;
-border-bottom: 4px solid #d32f2f; /* El acento rojo del logo al final del navbar */
-display: flex;
-justify-content: space-between;
-padding: 0 20px;
+.navbar {
+  height: 68px;
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 8px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
-.logo-container {
-display: flex;
-align-items: center;
-gap: 15px;
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  padding: 6px 12px 6px 0;
+  border-radius: 10px;
+  transition: background 0.15s;
+  user-select: none;
+}
+.navbar-brand:hover {
+  background: #f8fafc;
 }
 
-.brand-box {
-display: flex;
-flex-direction: column;
-align-items: center;
-line-height: 1;
+.brand-emblem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1;
+  background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+  padding: 6px 10px 5px;
+  border-radius: 8px;
+  min-width: 48px;
 }
 
-.fich-text {
-font-size: 0.7rem;
-font-weight: 700;
-letter-spacing: 2px;
+.brand-fich {
+  font-size: 0.55rem;
+  font-weight: 800;
+  letter-spacing: 2.5px;
+  color: rgba(255,255,255,0.85);
 }
 
-.upc-text {
-font-size: 1.5rem;
-font-weight: 900;
-color: white;
+.brand-upc {
+  font-size: 1.3rem;
+  font-weight: 900;
+  color: #ffffff;
+  line-height: 1.1;
 }
 
-.divider-vertical {
-width: 1px;
-height: 30px;
-background-color: rgba(255, 255, 255, 0.3);
+.brand-divider {
+  width: 1px;
+  height: 34px;
+  background: #e2e8f0;
 }
 
-.divider-vertical.mini {
-height: 20px;
-margin: 0 10px;
+.brand-text {
+  display: flex;
+  flex-direction: column;
 }
 
-.system-title {
-font-weight: 300;
-font-size: 1.1rem;
-letter-spacing: 1px;
+.brand-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #1e293b;
+  letter-spacing: -0.3px;
+  line-height: 1.2;
 }
 
-.spacer {
-flex: 1 1 auto;
-}
-
-.nav-links {
-display: flex;
-align-items: center;
-}
-
-.nav-item {
-font-weight: 500;
-transition: all 0.3s ease;
-}
-
-.nav-item:hover {
-background-color: rgba(211, 47, 47, 0.2); /* Fondo rojizo suave al pasar el mouse */
-}
-
-.profile-button {
-color: white;
-}
-
-.system-title-link {
-  text-decoration: none;
-  color: inherit;
-
+.brand-subtitle {
+  font-size: 0.7rem;
   font-weight: 500;
-
-  transition: opacity 0.2s ease;
+  color: #64748b;
+  letter-spacing: 0.5px;
 }
 
-.system-title-link:hover {
-  opacity: 0.8;
+.navbar-spacer {
+  flex: 1;
+}
+
+.navbar-nav {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 0.85rem;
+  color: #475569;
+  transition: all 0.15s ease;
+  height: 40px;
+}
+
+.nav-link:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+.nav-link mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+:host ::ng-deep .nav-active {
+  background: #eef2ff !important;
+  color: #1e3a8a !important;
+  font-weight: 600;
+}
+
+.navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 8px;
+  padding-left: 12px;
+  border-left: 1px solid #e2e8f0;
+}
+
+.notif-btn, .profile-btn {
+  color: #64748b;
+  transition: color 0.15s;
+}
+.notif-btn:hover, .profile-btn:hover {
+  color: #1e293b;
+}
+.profile-btn mat-icon {
+  font-size: 28px;
+  width: 28px;
+  height: 28px;
 }

@@ -63,7 +63,6 @@ export class ProgramaVersionFormComponent implements OnInit {
   constructor() {
     this.form = this.fb.group({
       descripcion: ['', [Validators.maxLength(500)]],
-      es_historico: [false],
     });
   }
 
@@ -156,10 +155,6 @@ export class ProgramaVersionFormComponent implements OnInit {
       descripcion: raw.descripcion || null,
     };
 
-    if (raw.es_historico && !this.idEditando) {
-      datos.es_historico = true;
-    }
-
     if (this.fotoBase64()) {
       datos.foto = this.fotoBase64();
     } else if (this.idEditando && this.fotoActual() === null && this.fotoPreview() === null) {
@@ -179,7 +174,7 @@ export class ProgramaVersionFormComponent implements OnInit {
           ? 'Versión actualizada con éxito'
           : 'Versión creada con éxito';
         this.snackbar.open(mensaje, 'OK', { duration: 3000 });
-        this.router.navigate(['/programas', this.idPrograma(), 'versiones']);
+        this.router.navigate(['/programas', this.idPrograma(), 'versiones'], { replaceUrl: true });
       },
       error: (err) => {
         this.loading.set(false);

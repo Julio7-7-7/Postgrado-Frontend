@@ -56,11 +56,8 @@ export class ProgramaVersionListComponent implements OnInit {
   isLoading = signal(true);
   error = signal<string | null>(null);
 
-  versionesActivas = computed(() =>
-    this.versiones().filter(v => !v.es_historico).sort((a, b) => a.version - b.version)
-  );
-  versionesHistoricas = computed(() =>
-    this.versiones().filter(v => v.es_historico).sort((a, b) => a.version - b.version)
+  versionesOrdenadas = computed(() =>
+    this.versiones().sort((a, b) => a.version - b.version)
   );
 
   ngOnInit(): void {
@@ -101,6 +98,10 @@ export class ProgramaVersionListComponent implements OnInit {
         this.snackbar.open('Error al sincronizar datos', 'Cerrar', { duration: 4000 });
       },
     });
+  }
+
+  irAEdiciones(idVersion: number): void {
+    this.router.navigate([idVersion, 'ediciones'], { relativeTo: this.route });
   }
 
   toggleVigente(event: MatSlideToggleChange, version: ProgramaVersion): void {

@@ -13,6 +13,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { provideNativeDateAdapter, MAT_DATE_LOCALE } from '@angular/material/core';
 import { EdicionService } from '../../services/edicion.service';
 import { ModalidadService } from '../../../modalidad/services/modalidad.service';
@@ -50,6 +51,7 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
     MatSnackBarModule,
     MatDatepickerModule,
     MatDialogModule,
+    MatCheckboxModule,
     ConfirmDialogComponent,
   ],
   templateUrl: './edicion-form.html',
@@ -77,9 +79,11 @@ export class EdicionFormComponent implements OnInit {
   duracionMinimaMeses = signal<number | null>(null);
   tipoNombre = signal('');
   edicionesVersion = signal<ProgramaVersionEdicion[]>([]);
+  esHistorico = signal(false);
+
   gestionSugerida = computed(() => {
     const ediciones = this.edicionesVersion().sort(
-      (a, b) => b.created_at.localeCompare(a.created_at)
+      (a, b) => b.edicion - a.edicion
     );
     const ultima = ediciones[0];
     if (!ultima?.gestion) return 'Se asignará automáticamente';
@@ -93,6 +97,14 @@ export class EdicionFormComponent implements OnInit {
     if (mitad === 1) return `2-${anio}`;
     return `1-${anio + 1}`;
   });
+
+  siguienteEdicion = computed(() => {
+    const ediciones = this.edicionesVersion();
+    if (ediciones.length === 0) return 1;
+    return Math.max(...ediciones.map(e => e.edicion)) + 1;
+  });
+
+  private cargarEdicionesVersionFn = signal<boolean>(false);
 
   private edicionesSolapadas = computed(() => {
     const inicio = this.form.get('fecha_inicio')?.value;
@@ -125,6 +137,8 @@ export class EdicionFormComponent implements OnInit {
     this.form = this.fb.group({
       id_modalidad: [null, Validators.required],
       gestion: [''],
+      edicion: [null],
+      es_historico: [false],
       estado: ['programado', Validators.required],
       fecha_inicio: [null],
       fecha_fin: [null],
@@ -150,6 +164,7 @@ export class EdicionFormComponent implements OnInit {
     this.cargarVersion(+versionId);
     this.cargarEdicionesVersion(+versionId);
     this.suscribirFechaInicio();
+    this.suscribirEsHistorico();
 
     const edicionId = this.route.snapshot.paramMap.get('edicionId');
     if (edicionId) {
@@ -177,9 +192,12 @@ export class EdicionFormComponent implements OnInit {
   }
 
   private cargarEdicionesVersion(id: number) {
-    this.edicionService.getAll().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    this.edicionService.getAll(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (data) => {
-        this.edicionesVersion.set(data.filter(e => e.id_programa_version === id));
+        this.edicionesVersion.set(data);
+        if (!this.idEditando) {
+          this.form.patchValue({ edicion: this.siguienteEdicion() });
+        }
       },
     });
   }
@@ -202,6 +220,7 @@ export class EdicionFormComponent implements OnInit {
 
   filtroFechaInicio = (f: Date | null): boolean => {
     if (!f) return true;
+    if (this.esHistorico()) return true;
     const hoy = new Date();
     hoy.setHours(0, 0, 0, 0);
     return f >= hoy;
@@ -215,6 +234,7 @@ export class EdicionFormComponent implements OnInit {
 
     return (f: Date | null): boolean => {
       if (!f) return false;
+      if (this.esHistorico()) return true;
       const hoy = new Date();
       hoy.setHours(0, 0, 0, 0);
       if (f < hoy) return false;
@@ -235,7 +255,14 @@ export class EdicionFormComponent implements OnInit {
     });
   }
 
+  private suscribirEsHistorico() {
+    this.form.get('es_historico')?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(val => {
+      this.esHistorico.set(val);
+    });
+  }
+
   errorFechaFin(): string | null {
+    if (this.esHistorico()) return null;
     const inicio = this.form.get('fecha_inicio')?.value;
     const fin = this.form.get('fecha_fin')?.value;
     const meses = this.duracionMinimaMeses();
@@ -257,6 +284,7 @@ export class EdicionFormComponent implements OnInit {
   }
 
   errorGestion(): string | null {
+    if (this.esHistorico()) return null;
     const gestion = this.form.get('gestion')?.value;
     const fechaInicio = this.form.get('fecha_inicio')?.value;
     if (!gestion || !fechaInicio) return null;
@@ -317,6 +345,8 @@ export class EdicionFormComponent implements OnInit {
     const datos: ProgramaVersionEdicionCreate = {
       id_programa_version: this.idVersion(),
       id_modalidad: raw.id_modalidad,
+      es_historico: raw.es_historico || undefined,
+      edicion: raw.edicion || undefined,
       estado: raw.estado,
       gestion: raw.gestion || undefined,
       fecha_inicio: raw.fecha_inicio ? this.aFechaString(raw.fecha_inicio) : null,
@@ -335,7 +365,7 @@ export class EdicionFormComponent implements OnInit {
         this.loading.set(false);
         const mensaje = this.idEditando ? 'Edición actualizada con éxito' : 'Edición creada con éxito';
         this.snackbar.open(mensaje, 'OK', { duration: 3000 });
-        this.router.navigate(['/programas', this.idPrograma(), 'versiones', this.idVersion(), 'ediciones']);
+        this.router.navigate(['/programas', this.idPrograma(), 'versiones', this.idVersion(), 'ediciones'], { replaceUrl: true });
       },
       error: (err) => {
         this.loading.set(false);

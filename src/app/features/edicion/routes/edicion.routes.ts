@@ -16,4 +16,9 @@ export const EDICION_ROUTES: Routes = [
     loadComponent: () =>
       import('../pages/edicion-form/edicion-form').then(m => m.EdicionFormComponent),
   },
+  {
+    path: ':edicionId/modulos',
+    loadChildren: () =>
+      import('../../detalle-programa-modulo/routes/detalle.routes').then(m => m.DETALLE_ROUTES),
+  },
 ];

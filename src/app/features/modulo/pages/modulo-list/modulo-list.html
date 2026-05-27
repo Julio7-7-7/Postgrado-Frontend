@@ -16,12 +16,7 @@
       </div>
     </div>
 
-    @if (bloqueado()) {
-      <div class="bloqueado-banner">
-        <mat-icon>lock</mat-icon>
-        <span>Esta versión tiene ediciones — el plan de estudios está congelado. No se pueden añadir ni desactivar módulos.</span>
-      </div>
-    } @else {
+    @if (!bloqueado()) {
       <button
         mat-raised-button
         color="primary"
@@ -33,6 +28,13 @@
       </button>
     }
   </div>
+
+  @if (bloqueado()) {
+    <div class="bloqueado-banner">
+      <mat-icon>info</mat-icon>
+      <span>Esta versión ya cuenta con ediciones registradas. Para garantizar la integridad del plan de estudios, los módulos no pueden modificarse.</span>
+    </div>
+  }
 
   @if (isLoading()) {
     <div class="loading-container">

@@ -97,7 +97,7 @@ export class TipoProgramaFormComponent implements OnInit {
           ? 'Registro actualizado con éxito'
           : 'Registro creado con éxito';
         this.snackbar.open(mensaje, 'OK', { duration: 3000 });
-        this.router.navigate(['/tipos-programa']);
+        this.router.navigate(['/tipos-programa'], { replaceUrl: true });
       },
       error: (err) => {
         this.loading.set(false);

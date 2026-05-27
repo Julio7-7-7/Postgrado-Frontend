@@ -77,7 +77,7 @@ export class ModuloListComponent implements OnInit {
     this.versionService.getById(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (data) => {
         this.version.set(data);
-        this.bloqueado.set(data.ediciones_count > 0 && !data.es_historico);
+        this.bloqueado.set(data.ediciones_count > 0);
       },
       error: () => this.router.navigate(['/programas']),
     });
@@ -87,12 +87,10 @@ export class ModuloListComponent implements OnInit {
     this.isLoading.set(true);
     this.error.set(null);
 
-    this.moduloService.getAll().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    this.moduloService.getAll(this.idVersion()).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (data) => {
         this.modulos.set(
-          data
-            .filter(m => m.id_programa_version === this.idVersion())
-            .sort((a, b) => a.sigla.localeCompare(b.sigla))
+          data.sort((a, b) => a.sigla.localeCompare(b.sigla))
         );
         this.isLoading.set(false);
       },
@@ -110,7 +108,7 @@ export class ModuloListComponent implements OnInit {
     if (esActivoOriginal && this.bloqueado()) {
       event.source.checked = true;
       this.snackbar.open(
-        'No se pueden desactivar módulos de una versión que ya tiene ediciones creadas',
+        'Esta versión tiene ediciones registradas, por lo que no se puede desactivar el módulo.',
         'Cerrar',
         { duration: 5000 }
       );
