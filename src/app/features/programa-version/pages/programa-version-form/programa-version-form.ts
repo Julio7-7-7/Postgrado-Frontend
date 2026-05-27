@@ -63,7 +63,6 @@ export class ProgramaVersionFormComponent implements OnInit {
   constructor() {
     this.form = this.fb.group({
       descripcion: ['', [Validators.maxLength(500)]],
-      es_historico: [false],
     });
   }
 
@@ -155,10 +154,6 @@ export class ProgramaVersionFormComponent implements OnInit {
       id_programa: this.idPrograma(),
       descripcion: raw.descripcion || null,
     };
-
-    if (raw.es_historico && !this.idEditando) {
-      datos.es_historico = true;
-    }
 
     if (this.fotoBase64()) {
       datos.foto = this.fotoBase64();

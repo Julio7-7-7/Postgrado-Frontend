@@ -60,13 +60,13 @@
     } @else {
       <div class="section">
         <div class="section-header">
-          <h3>Versiones Activas</h3>
-          @if (versionesActivas().length) {
-            <span class="section-count">{{ versionesActivas().length }}</span>
+          <h3>Versiones</h3>
+          @if (versionesOrdenadas().length) {
+            <span class="section-count">{{ versionesOrdenadas().length }}</span>
           }
         </div>
         <div class="cards-container">
-          @for (v of versionesActivas(); track v.id_programa_version) {
+          @for (v of versionesOrdenadas(); track v.id_programa_version) {
             <mat-card class="version-card" [class.vigente]="v.vigente" (click)="irAEdiciones(v.id_programa_version)">
               <div class="card-foto">
                 @if (v.foto) {
@@ -117,53 +117,6 @@
           }
         </div>
       </div>
-
-      @if (versionesHistoricas().length > 0) {
-        <div class="section">
-          <div class="section-header">
-            <h3>Versiones Históricas</h3>
-            <span class="section-count">{{ versionesHistoricas().length }}</span>
-          </div>
-          <div class="cards-container">
-            @for (v of versionesHistoricas(); track v.id_programa_version) {
-              <mat-card class="version-card historico" (click)="irAEdiciones(v.id_programa_version)">
-                <div class="card-foto">
-                  @if (v.foto) {
-                    <img [src]="apiUrl + v.foto" [alt]="'Versión ' + v.version" />
-                  } @else {
-                    <div class="card-foto-placeholder">
-                      <mat-icon>archive</mat-icon>
-                    </div>
-                  }
-                </div>
-                <mat-card-content>
-                  <div class="card-header-row">
-                    <span class="version-badge">v{{ v.version }}</span>
-                    <span class="estado-chip historico">Histórico</span>
-                  </div>
-                  <p class="card-descripcion">
-                    {{ v.descripcion || 'Sin descripción' }}
-                  </p>
-                </mat-card-content>
-                <div class="card-footer" (click)="$event.stopPropagation()">
-                  <button mat-button color="accent" [routerLink]="[v.id_programa_version, 'modulos']" class="btn-footer-action" matTooltip="Administrar módulos">
-                    <mat-icon>bookmark</mat-icon>
-                    <span>Módulos</span>
-                  </button>
-                  <button mat-button color="accent" [routerLink]="[v.id_programa_version, 'ediciones']" class="btn-footer-action" matTooltip="Administrar ediciones">
-                    <mat-icon>calendar_month</mat-icon>
-                    <span>Ediciones</span>
-                  </button>
-                  <button mat-button color="primary" [routerLink]="['editar', v.id_programa_version]" class="btn-footer-action btn-editar" matTooltip="Editar versión">
-                    <mat-icon>edit</mat-icon>
-                    <span>Editar</span>
-                  </button>
-                </div>
-              </mat-card>
-            }
-          </div>
-        </div>
-      }
     }
   }
 </div>

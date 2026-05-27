@@ -1,0 +1,117 @@
+<div class="page-container">
+  @if (cargandoDatos()) {
+    <div class="loading-container">
+      <mat-spinner diameter="50" color="primary"></mat-spinner>
+      <p>Cargando datos del módulo...</p>
+    </div>
+  } @else {
+    <div class="header-section">
+      <div class="header-left">
+        <button mat-icon-button (click)="volverALista()" class="back-btn" matTooltip="Volver">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <div>
+          <h2>Editar Módulo en Edición</h2>
+          @if (infoModulo()) {
+            <p class="subtitle">{{ infoModulo() }}</p>
+          }
+        </div>
+      </div>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="guardar()" class="form-card">
+      <div class="form-body">
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="field-orden">
+            <mat-label>Orden</mat-label>
+            <input matInput type="number" formControlName="orden" min="1" />
+            @if (form.get('orden')?.hasError('required')) {
+              <mat-error>Requerido</mat-error>
+            }
+            @if (form.get('orden')?.hasError('min')) {
+              <mat-error>Mínimo 1</mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <div class="section-title">Asignación</div>
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="field-full">
+            <mat-label>Docente</mat-label>
+            <mat-select formControlName="id_docente">
+              <mat-option [value]="null">Sin asignar</mat-option>
+              @for (docente of docentes(); track docente.id_docente) {
+                <mat-option [value]="docente.id_docente">
+                  {{ docente.nombre }} {{ docente.apellido }}
+                </mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="field-full">
+            <mat-label>Modalidad</mat-label>
+            <mat-select formControlName="id_modalidad">
+              <mat-option [value]="null">Sin modalidad</mat-option>
+              @for (modalidad of modalidades(); track modalidad.id_modalidad) {
+                <mat-option [value]="modalidad.id_modalidad">
+                  {{ modalidad.nombre }}
+                </mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <div class="section-title">Fechas</div>
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="field-half">
+            <mat-label>Fecha de inicio</mat-label>
+            <input matInput [matDatepicker]="pickerInicio" formControlName="fecha_inicio" />
+            <mat-datepicker-toggle matSuffix [for]="pickerInicio"></mat-datepicker-toggle>
+            <mat-datepicker #pickerInicio></mat-datepicker>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="field-half">
+            <mat-label>Fecha de fin</mat-label>
+            <input matInput [matDatepicker]="pickerFin" formControlName="fecha_fin" />
+            <mat-datepicker-toggle matSuffix [for]="pickerFin"></mat-datepicker-toggle>
+            <mat-datepicker #pickerFin></mat-datepicker>
+          </mat-form-field>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <div class="section-title">Estado</div>
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="field-half">
+            <mat-label>Estado</mat-label>
+            <mat-select formControlName="estado">
+              @for (opt of estadoOptions; track opt.value) {
+                <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" mat-stroked-button (click)="volverALista()">
+          <mat-icon>close</mat-icon> Cancelar
+        </button>
+        <button type="submit" mat-flat-button color="primary" [disabled]="form.invalid || loading()">
+          @if (loading()) {
+            <mat-spinner diameter="20" color="primary"></mat-spinner>
+          } @else {
+            <mat-icon>save</mat-icon>
+          }
+          Guardar cambios
+        </button>
+      </div>
+    </form>
+  }
+</div>

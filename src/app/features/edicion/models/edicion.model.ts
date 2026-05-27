@@ -7,6 +7,7 @@ export interface ProgramaVersionEdicion {
   id_modalidad: number;
   edicion: number;
   gestion: string;
+  es_historico: boolean;
   estado: 'programado' | 'en_curso' | 'pausado' | 'finalizado' | 'cancelado';
   fecha_inicio: string | null;
   fecha_fin: string | null;
@@ -23,6 +24,8 @@ export interface ProgramaVersionEdicionCreate {
   id_programa_version: number;
   id_modalidad: number;
   gestion?: string | null;
+  es_historico?: boolean;
+  edicion?: number | null;
   estado?: 'programado' | 'en_curso' | 'pausado' | 'finalizado' | 'cancelado';
   fecha_inicio?: string | null;
   fecha_fin?: string | null;

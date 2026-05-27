@@ -75,12 +75,10 @@ export class EdicionListComponent implements OnInit {
     this.isLoading.set(true);
     this.error.set(null);
 
-    this.edicionService.getAll().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    this.edicionService.getAll(this.idVersion()).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (data) => {
         this.ediciones.set(
-          data
-            .filter(e => e.id_programa_version === this.idVersion())
-            .sort((a, b) => b.edicion - a.edicion)
+          data.sort((a, b) => b.edicion - a.edicion)
         );
         this.isLoading.set(false);
       },
