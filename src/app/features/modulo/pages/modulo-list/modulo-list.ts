@@ -87,12 +87,10 @@ export class ModuloListComponent implements OnInit {
     this.isLoading.set(true);
     this.error.set(null);
 
-    this.moduloService.getAll().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    this.moduloService.getAll(this.idVersion()).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (data) => {
         this.modulos.set(
-          data
-            .filter(m => m.id_programa_version === this.idVersion())
-            .sort((a, b) => a.sigla.localeCompare(b.sigla))
+          data.sort((a, b) => a.sigla.localeCompare(b.sigla))
         );
         this.isLoading.set(false);
       },

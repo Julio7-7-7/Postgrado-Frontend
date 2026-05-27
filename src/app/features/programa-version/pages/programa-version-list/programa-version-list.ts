@@ -103,6 +103,10 @@ export class ProgramaVersionListComponent implements OnInit {
     });
   }
 
+  irAEdiciones(idVersion: number): void {
+    this.router.navigate([idVersion, 'ediciones'], { relativeTo: this.route });
+  }
+
   toggleVigente(event: MatSlideToggleChange, version: ProgramaVersion): void {
     const nuevoVigente = event.source.checked;
     const accion = nuevoVigente ? 'activar' : 'desactivar';
