@@ -13,7 +13,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
   standalone: true,
   imports: [
     CommonModule, RouterLink, RouterLinkActive,
-    MatToolbarModule,     MatButtonModule, MatIconModule, MatMenuModule, MatDividerModule, MatTooltipModule,
+    MatToolbarModule, MatButtonModule, MatIconModule, MatMenuModule, MatDividerModule, MatTooltipModule,
   ],
   templateUrl: './navbar.html',
   styleUrl: './navbar.css',
@@ -23,10 +23,10 @@ export class NavbarComponent {
 
   navItems: { path: string; label: string; icon: string; exact?: boolean }[] = [
     { path: '/', label: 'Inicio', icon: 'home', exact: true },
-    { path: '/programas', label: 'Programas', icon: 'menu_book' },
+    { path: '/programas', label: 'Programas', icon: 'school' },
     { path: '/tipos-programa', label: 'Tipos', icon: 'category' },
     { path: '/alumnos', label: 'Alumnos', icon: 'people' },
-    { path: '/docentes', label: 'Docentes', icon: 'person_pin' },
+    { path: '/docentes', label: 'Docentes', icon: 'badge' },
   ];
 
   isActive(path: string, exact: boolean = false): boolean {
