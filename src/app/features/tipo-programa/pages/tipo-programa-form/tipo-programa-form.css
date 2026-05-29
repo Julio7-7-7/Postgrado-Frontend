@@ -54,14 +54,6 @@
   width: 100%;
 }
 
-::ng-deep .form-layout .mdc-notched-outline__leading {
-  border-radius: 12px 0 0 12px !important;
-}
-
-::ng-deep .form-layout .mdc-notched-outline__trailing {
-  border-radius: 0 12px 12px 0 !important;
-}
-
 mat-form-field mat-icon[matPrefix] {
   color: var(--fich-text-faint);
   margin-right: 10px;
@@ -74,49 +66,6 @@ mat-form-field mat-icon[matPrefix] {
 
 ::ng-deep .mat-mdc-form-field-subscript-wrapper {
   padding-left: 4px !important;
-}
-
-.actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  margin-top: 20px;
-  padding-top: 16px;
-  border-top: 1px dashed var(--fich-border);
-}
-
-.actions button {
-  height: 48px;
-  padding: 0 24px;
-  border-radius: var(--fich-radius-md) !important;
-  font-weight: 600;
-  font-size: 0.95rem;
-  letter-spacing: 0.3px;
-  transition: all var(--fich-transition);
-}
-
-.btn-guardar {
-  box-shadow: 0 4px 12px rgba(26, 58, 108, 0.2) !important;
-}
-
-.btn-guardar:not([disabled]):hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(26, 58, 108, 0.35) !important;
-}
-
-.btn-guardar:active {
-  transform: translateY(0);
-}
-
-.btn-cancelar {
-  color: var(--fich-text-muted) !important;
-  border-color: var(--fich-text-faint) !important;
-}
-
-.btn-cancelar:hover {
-  background-color: var(--fich-bg-subtle) !important;
-  color: var(--fich-text-secondary) !important;
-  border-color: var(--fich-text-muted) !important;
 }
 
 @media (max-width: 640px) {
@@ -133,14 +82,5 @@ mat-form-field mat-icon[matPrefix] {
   .form-row {
     grid-template-columns: 1fr;
     gap: 12px;
-  }
-
-  .actions {
-    flex-direction: column-reverse;
-    gap: 10px;
-  }
-
-  .actions button {
-    width: 100%;
   }
 }

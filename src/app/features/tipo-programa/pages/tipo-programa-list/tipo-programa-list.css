@@ -126,12 +126,7 @@
 }
 
 .btn-nuevo {
-  margin-left: auto;  
-  height: 44px;
-  border-radius: var(--fich-radius-md) !important;
-  font-weight: 600 !important;
-  letter-spacing: 0.3px;
-  box-shadow: 0 4px 12px rgba(26, 58, 108, 0.2) !important;
+  margin-left: auto;
 }
 
 .mat-column-id {
@@ -204,6 +199,8 @@ tr.mat-mdc-row:hover {
   padding: 2px 8px;
   border-radius: 6px;
   font-size: 0.85rem;
+
+
 }
 
 .loading-container, .empty-state {

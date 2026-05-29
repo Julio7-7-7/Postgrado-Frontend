@@ -3,7 +3,7 @@
   <mat-card class="form-card">
 
     <div class="form-header">
-      <h2>{{ idEditando ? 'Editar Programa' : 'Nuevo Programa' }}</h2>
+      <h2>{{ idEditando ? 'Editar Tipo de Programa' : 'Nuevo Tipo de Programa' }}</h2>
       <p>Complete la información del tipo de programa académico</p>
     </div>
 
@@ -21,12 +21,12 @@
           >
           <mat-icon matPrefix>school</mat-icon>
           
-          <mat-error *ngIf="form.get('nombre')?.hasError('required')">
-            El nombre es obligatorio
-          </mat-error>
-          <mat-error *ngIf="form.get('nombre')?.hasError('minlength')">
-            Mínimo 3 caracteres
-          </mat-error>
+          @if (form.get('nombre')?.hasError('required')) {
+            <mat-error>El nombre es obligatorio</mat-error>
+          }
+          @if (form.get('nombre')?.hasError('minlength')) {
+            <mat-error>Mínimo 3 caracteres</mat-error>
+          }
         </mat-form-field>
 
         <div class="form-row">
@@ -50,9 +50,9 @@
             >
             <mat-icon matPrefix>groups</mat-icon>
             <mat-hint>Mínimo de alumnos para abrir</mat-hint>
-            <mat-error *ngIf="form.get('cupo_minimo')?.hasError('min')">
-              Debe ser mayor a 0
-            </mat-error>
+            @if (form.get('cupo_minimo')?.hasError('min')) {
+              <mat-error>Debe ser mayor a 0</mat-error>
+            }
           </mat-form-field>
 
           <mat-form-field appearance="outline">
@@ -65,21 +65,21 @@
             >
             <mat-icon matPrefix>calendar_today</mat-icon>
             <mat-hint>Mínimo de meses entre inicio y fin de una edición</mat-hint>
-            <mat-error *ngIf="form.get('duracion_minima_meses')?.hasError('min')">
-              Debe ser mayor a 0
-            </mat-error>
+            @if (form.get('duracion_minima_meses')?.hasError('min')) {
+              <mat-error>Debe ser mayor a 0</mat-error>
+            }
           </mat-form-field>
 
         </div>
 
-        <div class="actions">
+        <div class="form-actions">
           <button
             mat-stroked-button
             type="button"
             routerLink="/tipos-programa"
             class="btn-cancelar"
           >
-            Cancelar
+            <mat-icon>close</mat-icon> Cancelar
           </button>
 
           <button
