@@ -1,0 +1,142 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-05-28T16:00:00.000Z",
+  "title": "Design System: Unidad de Postgrado — FICH / UPC",
+  "extensions": {
+    "colorMeta": {
+      "azul-fich": { "role": "primary", "displayName": "Azul FICH", "canonical": "oklch(35% 0.08 270)" },
+      "azul-fich-hover": { "role": "primary", "displayName": "Azul FICH Hover", "canonical": "oklch(38% 0.09 270)" },
+      "azul-fich-claro": { "role": "primary", "displayName": "Azul FICH Claro", "canonical": "oklch(95% 0.015 270)" },
+      "azul-profundo": { "role": "primary", "displayName": "Azul Profundo", "canonical": "oklch(30% 0.06 270)" },
+      "rojo-alerta": { "role": "accent", "displayName": "Rojo Alerta", "canonical": "oklch(50% 0.18 30)" },
+      "rojo-alerta-claro": { "role": "accent", "displayName": "Rojo Alerta Claro", "canonical": "oklch(88% 0.025 30)" },
+      "verde-aprobado": { "role": "accent", "displayName": "Verde Aprobado", "canonical": "oklch(55% 0.14 150)" },
+      "verde-aprobado-claro": { "role": "accent", "displayName": "Verde Aprobado Claro", "canonical": "oklch(90% 0.02 150)" },
+      "ambar": { "role": "accent", "displayName": "Ámbar", "canonical": "oklch(65% 0.12 85)" },
+      "ambar-claro": { "role": "accent", "displayName": "Ámbar Claro", "canonical": "oklch(92% 0.02 85)" },
+      "peligro": { "role": "accent", "displayName": "Peligro", "canonical": "oklch(45% 0.2 30)" },
+      "pizarra": { "role": "neutral", "displayName": "Pizarra", "canonical": "oklch(25% 0.01 270)" },
+      "pizarra-suave": { "role": "neutral", "displayName": "Pizarra Suave", "canonical": "oklch(40% 0.01 270)" },
+      "gris-medio": { "role": "neutral", "displayName": "Gris Medio", "canonical": "oklch(50% 0.008 270)" },
+      "gris-suave": { "role": "neutral", "displayName": "Gris Suave", "canonical": "oklch(65% 0.008 270)" },
+      "limite": { "role": "neutral", "displayName": "Límite", "canonical": "oklch(88% 0.005 270)" },
+      "limite-claro": { "role": "neutral", "displayName": "Límite Claro", "canonical": "oklch(93% 0.003 270)" },
+      "fondo": { "role": "neutral", "displayName": "Fondo", "canonical": "oklch(93% 0.003 270)" },
+      "superficie": { "role": "neutral", "displayName": "Superficie", "canonical": "oklch(100% 0 0)" },
+      "fondo-sutil": { "role": "neutral", "displayName": "Fondo Sutil", "canonical": "oklch(97% 0.002 270)" },
+      "fondo-hover": { "role": "neutral", "displayName": "Fondo Hover", "canonical": "oklch(95% 0.002 270)" }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Hero de página, títulos de sección principales" },
+      "headline": { "displayName": "Headline", "purpose": "Títulos de formulario, encabezados de sección" },
+      "title": { "displayName": "Title", "purpose": "Títulos de card, nombres de módulo" },
+      "body": { "displayName": "Body", "purpose": "Texto corriente, descripciones" },
+      "label": { "displayName": "Label", "purpose": "Labels de formulario, texto de tabla, badges" }
+    },
+    "shadows": [
+      { "name": "shadow-sm", "value": "0 1px 3px rgba(15, 23, 42, 0.04)", "purpose": "Cards en reposo, contenedores de formulario" },
+      { "name": "shadow-md", "value": "0 4px 12px rgba(15, 23, 42, 0.06)", "purpose": "Cards en hover, tablas, dropdowns" },
+      { "name": "shadow-lg", "value": "0 10px 25px rgba(15, 23, 42, 0.04)", "purpose": "Modales, diálogos" },
+      { "name": "shadow-xl", "value": "0 20px 25px -5px rgba(0, 0, 0, 0.05)", "purpose": "Notificaciones, tooltips" }
+    ],
+    "motion": [
+      { "name": "transition-standard", "value": "0.2s cubic-bezier(0.4, 0, 0.2, 1)", "purpose": "Transiciones de estado (hover, focus, appear)" },
+      { "name": "transition-enter", "value": "0.25s cubic-bezier(0.4, 0, 0.2, 1)", "purpose": "Entrada de elementos (fade + slide)" },
+      { "name": "transition-exit", "value": "0.15s cubic-bezier(0.4, 0, 0.2, 1)", "purpose": "Salida de elementos" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Call-to-action principal. Usado para crear, guardar, confirmar.",
+      "html": "<button class=\"ds-btn-primary\">Guardar</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; gap: 8px; height: 44px; padding: 0 24px; background: #1e3a8a; color: #fff; border: none; border-radius: 12px; font-family: 'Inter', sans-serif; font-size: .875rem; font-weight: 600; cursor: pointer; transition: all .2s cubic-bezier(.4,0,.2,1); box-shadow: 0 4px 12px rgba(26,58,108,0.2); } .ds-btn-primary:hover { background: #1e40af; transform: translateY(-1px); box-shadow: 0 6px 16px rgba(26,58,108,0.3); } .ds-btn-primary:active { transform: translateY(0); box-shadow: 0 2px 8px rgba(26,58,108,0.2); } .ds-btn-primary:focus-visible { outline: 2px solid #1e3a8a; outline-offset: 2px; }"
+    },
+    {
+      "name": "Stroked Button",
+      "kind": "button",
+      "refersTo": "button-stroked",
+      "description": "Acción secundaria. Cancelar, volver, alternativo.",
+      "html": "<button class=\"ds-btn-stroked\">Cancelar</button>",
+      "css": ".ds-btn-stroked { display: inline-flex; align-items: center; gap: 8px; height: 44px; padding: 0 24px; background: transparent; color: #475569; border: 1px solid #e2e8f0; border-radius: 12px; font-family: 'Inter', sans-serif; font-size: .875rem; font-weight: 600; cursor: pointer; transition: all .2s cubic-bezier(.4,0,.2,1); } .ds-btn-stroked:hover { background: #f1f5f9; color: #1e293b; border-color: #cbd5e1; } .ds-btn-stroked:focus-visible { outline: 2px solid #1e3a8a; outline-offset: 2px; }"
+    },
+    {
+      "name": "Estado Chip — Programado",
+      "kind": "chip",
+      "refersTo": "chip-programado",
+      "description": "Badge de estado para módulos programados o activos.",
+      "html": "<span class=\"ds-chip\">Programado</span>",
+      "css": ".ds-chip { display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 9999px; font-family: monospace; font-size: .75rem; font-weight: 600; white-space: nowrap; background: #eef2ff; color: #1a3a6c; }"
+    },
+    {
+      "name": "Input Field",
+      "kind": "input",
+      "refersTo": "input-outlined",
+      "description": "Campo de texto estándar con estilo outlined.",
+      "html": "<div class=\"ds-input-wrap\"><label class=\"ds-label\">Nombre del Programa</label><input class=\"ds-input\" placeholder=\"Ingrese el nombre\" value=\"\"></div>",
+      "css": ".ds-input-wrap { display: flex; flex-direction: column; gap: 6px; } .ds-label { font-family: 'Inter', sans-serif; font-size: .78rem; font-weight: 500; color: #475569; letter-spacing: .01em; } .ds-input { height: 48px; padding: 0 14px; border: 1px solid #e2e8f0; border-radius: 12px; font-family: 'Inter', sans-serif; font-size: .875rem; color: #1e293b; background: #fff; transition: border-color .2s cubic-bezier(.4,0,.2,1); } .ds-input:hover { border-color: #cbd5e1; } .ds-input:focus { outline: none; border-color: #1e3a8a; box-shadow: 0 0 0 3px rgba(30,58,138,0.1); } .ds-input::placeholder { color: #94a3b8; }"
+    },
+    {
+      "name": "Navbar",
+      "kind": "nav",
+      "refersTo": "navigation",
+      "description": "Barra de navegación superior sticky con marca institucional y enlaces.",
+      "html": "<nav class=\"ds-nav\"><div class=\"ds-nav-brand\"><div class=\"ds-nav-emblem\"><span class=\"ds-nav-fich\">FICH</span><span class=\"ds-nav-upc\">UPC</span></div><div class=\"ds-nav-divider\"></div><div><div class=\"ds-nav-title\">Unidad de Postgrado</div><div class=\"ds-nav-subtitle\">Chaco</div></div></div><div class=\"ds-nav-spacer\"></div><div class=\"ds-nav-links\"><a class=\"ds-nav-link ds-nav-active\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z\"/><polyline points=\"9 22 9 12 15 12 15 22\"/></svg><span>Inicio</span></a><a class=\"ds-nav-link\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M4 19.5A2.5 2.5 0 016.5 17H20\"/><path d=\"M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z\"/></svg><span>Programas</span></a></div></nav>",
+      "css": ".ds-nav { display: flex; align-items: center; height: 68px; padding: 0 24px; background: #fff; border-bottom: 1px solid #e2e8f0; gap: 8px; box-shadow: 0 1px 3px rgba(15,23,42,0.04); position: sticky; top: 0; z-index: 100; font-family: 'Inter', sans-serif; } .ds-nav-brand { display: flex; align-items: center; gap: 14px; cursor: pointer; } .ds-nav-emblem { display: flex; flex-direction: column; align-items: center; background: linear-gradient(135deg,#1e3a8a,#2563eb); padding: 6px 10px 5px; border-radius: 8px; min-width: 48px; line-height: 1; } .ds-nav-fich { font-size: .55rem; font-weight: 800; letter-spacing: 2.5px; color: rgba(255,255,255,.85); } .ds-nav-upc { font-size: 1.3rem; font-weight: 900; color: #fff; line-height: 1.1; } .ds-nav-divider { width: 1px; height: 34px; background: #e2e8f0; } .ds-nav-title { font-size: .9rem; font-weight: 700; color: #1e293b; letter-spacing: -.3px; line-height: 1.2; } .ds-nav-subtitle { font-size: .7rem; font-weight: 500; color: #64748b; letter-spacing: .5px; } .ds-nav-spacer { flex: 1; } .ds-nav-links { display: flex; align-items: center; gap: 2px; } .ds-nav-link { display: flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 8px; font-size: .85rem; font-weight: 500; color: #475569; text-decoration: none; cursor: pointer; transition: all .2s cubic-bezier(.4,0,.2,1); height: 40px; } .ds-nav-link:hover { background: #f1f5f9; color: #1e293b; } .ds-nav-active { background: #eef2ff !important; color: #1e3a8a !important; font-weight: 600; }"
+    },
+    {
+      "name": "Data Table",
+      "kind": "custom",
+      "refersTo": "table",
+      "description": "Tabla de datos con header uppercase, filas con hover, badges de estado.",
+      "html": "<div class=\"ds-table-wrap\"><table class=\"ds-table\"><thead><tr><th>Módulo</th><th>Estado</th><th>Orden</th></tr></thead><tbody><tr><td class=\"ds-cell-mono\">INF-501</td><td><span class=\"ds-chip\">Programado</span></td><td>1</td></tr><tr><td class=\"ds-cell-mono\">INF-502</td><td><span class=\"ds-chip ds-chip-ok\">En Curso</span></td><td>2</td></tr></tbody></table></div>",
+      "css": ".ds-table-wrap { background: #fff; border-radius: 16px; border: 1px solid #f1f5f9; box-shadow: 0 4px 12px rgba(15,23,42,0.06); overflow: hidden; } .ds-table { width: 100%; border-collapse: collapse; } .ds-table thead { background: #f8fafc; } .ds-table th { padding: 14px 16px; font-size: .72rem; font-weight: 700; color: #64748b; letter-spacing: .05em; text-transform: uppercase; text-align: left; } .ds-table td { padding: 12px 16px; font-size: .92rem; color: #1e293b; border-bottom: 1px solid #f1f5f9; } .ds-table tbody tr:hover { background: #f1f5f9; } .ds-cell-mono { font-family: monospace; font-size: .82rem; } .ds-chip { display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 9999px; font-family: monospace; font-size: .75rem; font-weight: 600; background: #eef2ff; color: #1a3a6c; } .ds-chip-ok { background: #dcfce7; color: #16a34a; }"
+    },
+    {
+      "name": "Form Card",
+      "kind": "card",
+      "refersTo": "card-surface",
+      "description": "Contenedor de formulario con sombra suave y borde sutil.",
+      "html": "<div class=\"ds-form-card\"><div class=\"ds-form-header\"><h2 class=\"ds-form-title\">Nuevo Programa</h2><p class=\"ds-form-sub\">Complete los datos del programa académico</p></div><div class=\"ds-form-body\"><div style=\"display:grid;grid-template-columns:1fr 1fr;gap:20px\"><div class=\"ds-input-wrap\"><label class=\"ds-label\">Nombre</label><input class=\"ds-input\" placeholder=\"Ej: Maestría en Ingeniería\"></div><div class=\"ds-input-wrap\"><label class=\"ds-label\">Tipo</label><input class=\"ds-input\" placeholder=\"Seleccione...\"></div></div></div><div class=\"ds-form-actions\"><button class=\"ds-btn-stroked\">Cancelar</button><button class=\"ds-btn-primary\">Guardar</button></div></div>",
+      "css": ".ds-form-card { max-width: 680px; background: #fff; border-radius: 20px; box-shadow: 0 10px 25px rgba(15,23,42,0.04); border: 1px solid rgba(226,232,240,.8); overflow: hidden; } .ds-form-header { padding: 32px 32px 0; } .ds-form-title { margin: 0; font-size: 1.5rem; font-weight: 700; color: #1a3a6c; letter-spacing: -.5px; } .ds-form-sub { margin: 4px 0 0; font-size: .85rem; color: #64748b; } .ds-form-body { padding: 24px 32px; } .ds-form-actions { display: flex; justify-content: flex-end; gap: 12px; padding: 20px 32px; border-top: 1px dashed #e2e8f0; } .ds-input-wrap { display: flex; flex-direction: column; gap: 6px; } .ds-label { font-family: 'Inter',sans-serif; font-size: .78rem; font-weight: 500; color: #475569; } .ds-input { height: 48px; padding: 0 14px; border: 1px solid #e2e8f0; border-radius: 12px; font-family: 'Inter',sans-serif; font-size: .875rem; color: #1e293b; background: #fff; transition: border-color .2s; } .ds-input:focus { outline: none; border-color: #1e3a8a; box-shadow: 0 0 0 3px rgba(30,58,138,0.1); } .ds-btn-primary { height: 44px; padding: 0 24px; background: #1e3a8a; color: #fff; border: none; border-radius: 12px; font-family: 'Inter',sans-serif; font-size: .875rem; font-weight: 600; cursor: pointer; box-shadow: 0 4px 12px rgba(26,58,108,.2); transition: all .2s; } .ds-btn-primary:hover { background: #1e40af; transform: translateY(-1px); } .ds-btn-stroked { height: 44px; padding: 0 24px; background: transparent; color: #475569; border: 1px solid #e2e8f0; border-radius: 12px; font-family: 'Inter',sans-serif; font-size: .875rem; font-weight: 600; cursor: pointer; transition: all .2s; } .ds-btn-stroked:hover { background: #f1f5f9; color: #1e293b; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "El Taller del Postgrado",
+    "overview": "Un taller donde cada herramienta tiene su lugar. El diseño no compite con el contenido — lo organiza con la precisión de un artesano. Cada elemento existe porque resuelve una tarea real: crear una edición, asignar un módulo, consultar un historial. No hay decoración gratuita.\n\nLa paleta nace del Azul FICH, tratado con respeto institucional pero aplicado con la disciplina de una herramienta SaaS moderna. Las superficies blancas y los grises cálidos dan una base limpia y serena. El color aparece con intención: estados en chips, acentos en hover, iconos en navegación.",
+    "keyCharacteristics": [
+      "Limpieza quirúrgica — aire para respirar,间距 generoso, sin ruido visual",
+      "Azul como firma, no como fondo — el color institucional aparece en puntos específicos, no empapa la interfaz",
+      "Micro-interacciones rápidas (<250ms) — fade, slide, hover; el sistema responde, no entretiene",
+      "Consistencia de taller — cada tabla, formulario y card sigue el mismo patrón estructural, con variación deliberada en acento y ritmo",
+      "Rechaza explícitamente: templates de admin genéricos, sombras excesivas, bordes laterales de acento, texto gradiente"
+    ],
+    "rules": [
+      { "name": "La Regla del Azul Concentrado", "body": "El Azul FICH aparece en ≤15% de cualquier pantalla. Su rareza es su potencia.", "section": "colors" },
+      { "name": "La Regla del Chroma Mínimo", "body": "Todos los neutros llevan un tinte azul de croma ≤0.01. No son grises muertos.", "section": "colors" },
+      { "name": "La Regla del Peso Justo", "body": "Nunca se usa weight 300 en interfaces funcionales. Minimum 400 para body.", "section": "typography" },
+      { "name": "La Regla de la Sombra Parca", "body": "Una sombra más grande nunca es más dramática; es contextual.", "section": "elevation" }
+    ],
+    "dos": [
+      "Usar Azul FICH concentrado: ≤15% de la pantalla, en puntos de interacción clave.",
+      "Mantener la jerarquía tipográfica: Display → Headline → Title → Body → Label.",
+      "Usar las variables CSS (--fich-primary, --fich-text, etc.) en lugar de valores hardcodeados.",
+      "Respetar la Regla del Chroma Mínimo en todos los grises.",
+      "Animar con propósito: transiciones <250ms, ease-out quart/quint, fade + slide.",
+      "Mantener consistencia estructural entre features."
+    ],
+    "donts": [
+      "Usar bordes laterales de colores (border-left: 4px solid ...) como acento decorativo en cards o listas.",
+      "Usar texto con gradiente (background-clip: text).",
+      "Usar negro puro (#000) ni blanco puro (#fff).",
+      "Aplicar glassmorphism como decoración.",
+      "Repetir el mismo card idéntico en grilla.",
+      "Usar modales como primera opción.",
+      "Hardcodear colores fuera de las variables CSS.",
+      "Crear tablas sin estado vacío, de carga o de error.",
+      "Usar animaciones que excedan 300ms para transiciones funcionales."
+    ]
+  }
+}

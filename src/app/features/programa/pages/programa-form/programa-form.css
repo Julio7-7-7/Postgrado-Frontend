@@ -1,9 +1,9 @@
 .form-container {
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   padding: 40px 20px;
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  background: var(--fich-bg);
   min-height: 100vh;
   box-sizing: border-box;
 }
@@ -11,12 +11,10 @@
 .form-card {
   width: 100%;
   max-width: 680px;
-  border-radius: 20px !important;
+  border-radius: var(--fich-radius-xl) !important;
   padding: 16px;
-  background: #ffffff;
-  box-shadow:
-    0 20px 25px -5px rgba(0, 0, 0, 0.05),
-    0 10px 10px -5px rgba(0, 0, 0, 0.03) !important;
+  background: var(--fich-bg-card);
+  box-shadow: var(--fich-shadow-xl) !important;
   border: 1px solid rgba(226, 232, 240, 0.8);
 }
 
@@ -29,12 +27,12 @@
   font-size: 1.6rem;
   font-weight: 700;
   letter-spacing: -0.5px;
-  color: #0f172a;
+  color: var(--fich-text);
 }
 
 .form-header p {
   margin: 6px 0 0 0;
-  color: #64748b;
+  color: var(--fich-text-muted);
   font-size: 0.9rem;
 }
 
@@ -65,29 +63,26 @@
 }
 
 mat-form-field mat-icon[matPrefix] {
-  color: #94a3b8;
+  color: var(--fich-text-faint);
   margin-right: 10px;
   transform: scale(0.95);
 }
 
 ::ng-deep .mat-mdc-form-field-focused mat-icon[matPrefix] {
-  color: #3b82f6 !important;
+  color: var(--fich-primary-hover) !important;
 }
 
 ::ng-deep .mat-mdc-form-field-subscript-wrapper {
   padding-left: 4px !important;
 }
 
-/* ================================
-   SECCIÓN DE FOTO
-================================ */
 .foto-section {
   margin-top: 8px;
 }
 
 .foto-label {
   display: block;
-  color: #64748b;
+  color: var(--fich-text-muted);
   font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -96,17 +91,17 @@ mat-form-field mat-icon[matPrefix] {
 }
 
 .foto-upload-area {
-  border: 2px dashed #e2e8f0;
-  border-radius: 12px;
+  border: 2px dashed var(--fich-border);
+  border-radius: var(--fich-radius-md);
   padding: 16px;
   cursor: pointer;
-  transition: all 0.2s ease;
-  background: #fafbfc;
+  transition: all var(--fich-transition);
+  background: var(--fich-bg-subtle);
 }
 
 .foto-upload-area:hover {
-  border-color: #3b82f6;
-  background: #f0f4ff;
+  border-color: var(--fich-primary-hover);
+  background: var(--fich-primary-light);
 }
 
 .foto-preview-wrapper {
@@ -128,7 +123,7 @@ mat-form-field mat-icon[matPrefix] {
   position: absolute;
   top: -10px;
   right: -10px;
-  background: #ffffff !important;
+  background: var(--fich-bg-card) !important;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
   width: 32px;
   height: 32px;
@@ -147,7 +142,7 @@ mat-form-field mat-icon[matPrefix] {
   align-items: center;
   gap: 8px;
   padding: 20px;
-  color: #94a3b8;
+  color: var(--fich-text-faint);
 }
 
 .foto-placeholder mat-icon {
@@ -162,42 +157,39 @@ mat-form-field mat-icon[matPrefix] {
 
 .foto-hint {
   font-size: 0.75rem !important;
-  color: #cbd5e1;
+  color: var(--fich-text-faint);
 }
 
 .file-input-hidden {
   display: none;
 }
 
-/* ================================
-   BOTONES DE ACCIÓN
-================================ */
 .actions {
   display: flex;
   justify-content: flex-end;
   gap: 12px;
   margin-top: 20px;
   padding-top: 16px;
-  border-top: 1px dashed #e2e8f0;
+  border-top: 1px dashed var(--fich-border);
 }
 
 .actions button {
   height: 48px;
   padding: 0 24px;
-  border-radius: 12px !important;
+  border-radius: var(--fich-radius-md) !important;
   font-weight: 600;
   font-size: 0.95rem;
   letter-spacing: 0.3px;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all var(--fich-transition);
 }
 
 .btn-guardar {
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2) !important;
+  box-shadow: 0 4px 12px rgba(26, 58, 108, 0.2) !important;
 }
 
 .btn-guardar:not([disabled]):hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.35) !important;
+  box-shadow: 0 6px 20px rgba(26, 58, 108, 0.35) !important;
 }
 
 .btn-guardar:active {
@@ -205,14 +197,14 @@ mat-form-field mat-icon[matPrefix] {
 }
 
 .btn-cancelar {
-  color: #64748b !important;
-  border-color: #cbd5e1 !important;
+  color: var(--fich-text-muted) !important;
+  border-color: var(--fich-text-faint) !important;
 }
 
 .btn-cancelar:hover {
-  background-color: #f8fafc !important;
-  color: #334155 !important;
-  border-color: #94a3b8 !important;
+  background-color: var(--fich-bg-subtle) !important;
+  color: var(--fich-text-secondary) !important;
+  border-color: var(--fich-text-muted) !important;
 }
 
 @media (max-width: 640px) {
@@ -222,7 +214,7 @@ mat-form-field mat-icon[matPrefix] {
   }
 
   .form-card {
-    border-radius: 16px !important;
+    border-radius: var(--fich-radius-lg) !important;
     padding: 8px;
   }
 
