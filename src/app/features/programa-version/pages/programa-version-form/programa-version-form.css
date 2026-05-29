@@ -1,9 +1,9 @@
 .form-container {
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   padding: 40px 20px;
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  background: var(--fich-bg);
   min-height: 100vh;
   box-sizing: border-box;
 }
@@ -11,12 +11,10 @@
 .form-card {
   width: 100%;
   max-width: 640px;
-  border-radius: 20px !important;
+  border-radius: var(--fich-radius-xl) !important;
   padding: 16px;
-  background: #ffffff;
-  box-shadow:
-    0 20px 25px -5px rgba(0, 0, 0, 0.05),
-    0 10px 10px -5px rgba(0, 0, 0, 0.03) !important;
+  background: var(--fich-bg-card);
+  box-shadow: var(--fich-shadow-xl) !important;
   border: 1px solid rgba(226, 232, 240, 0.8);
 }
 
@@ -36,23 +34,23 @@
   font-size: 1.5rem;
   font-weight: 700;
   letter-spacing: -0.5px;
-  color: #0f172a;
+  color: var(--fich-text);
 }
 
 .subtitle {
   margin: 4px 0 0 0;
-  color: #64748b;
+  color: var(--fich-text-muted);
   font-size: 0.85rem;
 }
 
 .info-text {
-  color: #64748b;
+  color: var(--fich-text-muted);
   font-size: 0.85rem;
   margin: 8px 0;
   padding: 10px 14px;
-  background: #f8fafc;
-  border-radius: 8px;
-  border-left: 3px solid #3b82f6;
+  background: var(--fich-bg-subtle);
+  border-radius: var(--fich-radius-sm);
+  border-left: 3px solid var(--fich-primary-hover);
 }
 
 .form-layout {
@@ -90,26 +88,26 @@
   gap: 12px;
   margin-top: 8px;
   padding-top: 16px;
-  border-top: 1px dashed #e2e8f0;
+  border-top: 1px dashed var(--fich-border);
 }
 
 .actions button {
   height: 48px;
   padding: 0 24px;
-  border-radius: 12px !important;
+  border-radius: var(--fich-radius-md) !important;
   font-weight: 600;
   font-size: 0.95rem;
   letter-spacing: 0.3px;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all var(--fich-transition);
 }
 
 .btn-guardar {
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2) !important;
+  box-shadow: 0 4px 12px rgba(26, 58, 108, 0.2) !important;
 }
 
 .btn-guardar:not([disabled]):hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.35) !important;
+  box-shadow: 0 6px 20px rgba(26, 58, 108, 0.35) !important;
 }
 
 .btn-guardar:active {
@@ -117,26 +115,23 @@
 }
 
 .btn-cancelar {
-  color: #64748b !important;
-  border-color: #cbd5e1 !important;
+  color: var(--fich-text-muted) !important;
+  border-color: var(--fich-text-faint) !important;
 }
 
 .btn-cancelar:hover {
-  background-color: #f8fafc !important;
-  color: #334155 !important;
-  border-color: #94a3b8 !important;
+  background-color: var(--fich-bg-subtle) !important;
+  color: var(--fich-text-secondary) !important;
+  border-color: var(--fich-text-muted) !important;
 }
 
-/* ================================
-   SECCIÓN DE FOTO
-=============================== */
 .foto-section {
   margin-top: 8px;
 }
 
 .section-label {
   display: block;
-  color: #64748b;
+  color: var(--fich-text-muted);
   font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -148,22 +143,22 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #64748b;
+  color: var(--fich-text-muted);
   font-size: 0.85rem;
 }
 
 .foto-upload-area {
-  border: 2px dashed #e2e8f0;
-  border-radius: 12px;
+  border: 2px dashed var(--fich-border);
+  border-radius: var(--fich-radius-md);
   padding: 16px;
   cursor: pointer;
-  transition: all 0.2s ease;
-  background: #fafbfc;
+  transition: all var(--fich-transition);
+  background: var(--fich-bg-subtle);
 }
 
 .foto-upload-area:hover {
-  border-color: #3b82f6;
-  background: #f0f4ff;
+  border-color: var(--fich-primary-hover);
+  background: var(--fich-primary-light);
 }
 
 .foto-preview-wrapper {
@@ -185,7 +180,7 @@
   position: absolute;
   top: -10px;
   right: -10px;
-  background: #ffffff !important;
+  background: var(--fich-bg-card) !important;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
   width: 32px;
   height: 32px;
@@ -204,7 +199,7 @@
   align-items: center;
   gap: 8px;
   padding: 20px;
-  color: #94a3b8;
+  color: var(--fich-text-faint);
 }
 
 .foto-placeholder mat-icon {
@@ -234,7 +229,7 @@
 
 .foto-hint {
   font-size: 0.75rem !important;
-  color: #cbd5e1;
+  color: var(--fich-text-faint);
 }
 
 @media (max-width: 640px) {
@@ -244,7 +239,7 @@
   }
 
   .form-card {
-    border-radius: 16px !important;
+    border-radius: var(--fich-radius-lg) !important;
     padding: 8px;
   }
 

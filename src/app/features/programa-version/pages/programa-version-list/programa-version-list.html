@@ -65,7 +65,7 @@
             <span class="section-count">{{ versionesOrdenadas().length }}</span>
           }
         </div>
-        <div class="cards-container">
+        <div class="cards-container stagger-list">
           @for (v of versionesOrdenadas(); track v.id_programa_version) {
             <mat-card class="version-card" [class.vigente]="v.vigente" (click)="irAEdiciones(v.id_programa_version)">
               <div class="card-foto">

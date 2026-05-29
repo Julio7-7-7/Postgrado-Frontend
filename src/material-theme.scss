@@ -11,6 +11,11 @@ $my-theme: mat.define-theme((
   density: (
     scale: 0,
   ),
+  typography: (
+    plain-family: 'Inter, Roboto, sans-serif',
+    brand-family: 'Inter, Roboto, sans-serif',
+    bold-weight: 700,
+  ),
 ));
 
 html {
@@ -20,25 +25,68 @@ html {
 
 body {
   margin: 0;
-  font-family: Roboto, "Helvetica Neue", sans-serif;
-  background-color: #f8f9fa;
+  font-family: 'Inter', Roboto, "Helvetica Neue", sans-serif;
+  background-color: #f1f5f9;
   height: 100%;
 }
 
 :root {
+  /* ─── Brand Colors ─── */
+  --fich-primary: #1e3a8a;
+  --fich-primary-hover: #1e40af;
+  --fich-primary-light: #eef2ff;
+  --fich-primary-dark: #1a3a6c;
+  --fich-accent: #d32f2f;
+  --fich-accent-light: #fee2e2;
+  --fich-success: #16a34a;
+  --fich-success-light: #dcfce7;
+  --fich-warning: #ca8a04;
+  --fich-warning-light: #fef9c3;
+  --fich-danger: #dc2626;
+  --fich-reprogramado: #9333ea;
+  --fich-reprogramado-bg: #f3e8ff;
+  --fich-historico: #92400e;
+  --fich-historico-bg: #fef3c7;
 
-  /* Azul Marino */
+  /* ─── Tinted Neutrals ─── */
+  --fich-text: #1e293b;
+  --fich-text-secondary: #475569;
+  --fich-text-muted: #64748b;
+  --fich-text-faint: #94a3b8;
+  --fich-border: #e2e8f0;
+  --fich-border-light: #f1f5f9;
+  --fich-bg: #f1f5f9;
+  --fich-bg-card: #ffffff;
+  --fich-bg-subtle: #f8fafc;
+  --fich-bg-hover: #f1f5f9;
+
+  /* ─── Spacing Scale ─── */
+  --fich-space-xs: 4px;
+  --fich-space-sm: 8px;
+  --fich-space-md: 16px;
+  --fich-space-lg: 24px;
+  --fich-space-xl: 32px;
+  --fich-space-2xl: 48px;
+
+  /* ─── Border Radius ─── */
+  --fich-radius-sm: 8px;
+  --fich-radius-md: 12px;
+  --fich-radius-lg: 16px;
+  --fich-radius-xl: 20px;
+  --fich-radius-full: 9999px;
+
+  /* ─── Shadows ─── */
+  --fich-shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.04);
+  --fich-shadow-md: 0 4px 12px rgba(15, 23, 42, 0.06);
+  --fich-shadow-lg: 0 10px 25px rgba(15, 23, 42, 0.04);
+  --fich-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.05);
+
+  /* ─── Transitions ─── */
+  --fich-transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ─── Material Overrides ─── */
   --mat-toolbar-container-background-color: #21509b !important;
   --mat-toolbar-container-text-color: white !important;
-
-  /* Primario */
   --mat-sys-primary: #1a3a6c;
   --mat-sys-on-primary: white;
-
-  /* Rojo */
-  --fich-red-accent: #d32f2f;
-}
-
-.navbar-header {
-  border-bottom: 4px solid var(--fich-red-accent) !important;
 }

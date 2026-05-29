@@ -1,12 +1,13 @@
 .dialog-title {
-  color: #1a3a6c;
+  color: var(--fich-primary-dark);
   margin-bottom: 8px;
+  font-weight: 700;
 }
 
 mat-dialog-content {
-  font-size: 1.1rem;
-  line-height: 1.5;
-  color: #4a5568;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--fich-text-secondary);
   padding-bottom: 24px;
   min-width: 320px;
 }
@@ -17,5 +18,5 @@ mat-dialog-actions {
 }
 
 button[mat-button] {
-  color: #718096;
+  color: var(--fich-text-muted);
 }

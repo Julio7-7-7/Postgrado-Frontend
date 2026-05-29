@@ -1,5 +1,5 @@
 .page-container {
-  padding: 20px 24px 30px;
+  padding: var(--fich-space-lg) var(--fich-space-lg) 30px;
   max-width: 1100px;
   margin: 0 auto;
 }
@@ -8,69 +8,69 @@
   justify-content: space-between;
   align-items: center;
   gap: 12px;
-  margin-bottom: 24px;
+  margin-bottom: var(--fich-space-lg);
   flex-wrap: wrap;
 }
 .header-left { display: flex; align-items: center; gap: 12px; }
 .back-btn { margin-right: 4px; }
 .header-section h2 {
   margin: 0;
-  color: #1a3a6c;
+  color: var(--fich-primary-dark);
   font-weight: 800;
   font-size: 1.5rem;
   letter-spacing: -0.5px;
 }
-.subtitle { color: #64748b; font-size: 0.85rem; margin-top: 2px; }
+.subtitle { color: var(--fich-text-muted); font-size: 0.85rem; margin-top: 2px; }
 .table-wrapper {
-  background: #ffffff;
-  border-radius: 16px;
-  border: 1px solid #f1f5f9;
+  background: var(--fich-bg-card);
+  border-radius: var(--fich-radius-lg);
+  border: 1px solid var(--fich-border-light);
   overflow: hidden;
-  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.04);
+  box-shadow: var(--fich-shadow-lg);
 }
 .full-width-table { width: 100%; }
-tr.mat-mdc-header-row { background-color: #f8fafc; }
+tr.mat-mdc-header-row { background-color: var(--fich-bg-subtle); }
 th.mat-mdc-header-cell {
-  color: #64748b; font-weight: 700; font-size: 0.72rem;
+  color: var(--fich-text-muted); font-weight: 700; font-size: 0.72rem;
   text-transform: uppercase; letter-spacing: 0.05em;
   padding: 14px 16px !important;
 }
 td.mat-mdc-cell {
   padding: 12px 16px !important;
   font-size: 0.92rem;
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid var(--fich-border-light);
 }
-tr.mat-mdc-row:hover { background-color: #fbfcfe; }
+tr.mat-mdc-row:hover { background-color: var(--fich-bg-hover); }
 .orden-cell {
-  font-weight: 700; color: #4338ca; font-family: 'Roboto Mono', monospace;
+  font-weight: 700; color: var(--fich-primary-dark); font-family: 'Roboto Mono', monospace;
 }
 .sigla-badge {
   display: inline-flex; align-items: center;
-  background: #eef2ff; color: #4338ca;
+  background: var(--fich-primary-light); color: var(--fich-primary-dark);
   font-weight: 700; font-size: 0.85rem;
-  padding: 3px 12px; border-radius: 8px;
+  padding: 3px 12px; border-radius: var(--fich-radius-sm);
   font-family: 'Roboto Mono', monospace;
 }
-.nombre-cell { color: #334155; max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.fechas-cell { font-size: 0.85rem; color: #334155; white-space: nowrap; }
-.sin-datos { color: #cbd5e1; }
-.sin-asignar { color: #94a3b8; font-style: italic; }
+.nombre-cell { color: var(--fich-text-secondary); max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fechas-cell { font-size: 0.85rem; color: var(--fich-text-secondary); white-space: nowrap; }
+.sin-datos { color: var(--fich-text-faint); }
+.sin-asignar { color: var(--fich-text-faint); font-style: italic; }
 .acciones-cell { white-space: nowrap; }
 .estado-chip {
   display: inline-flex; align-items: center;
-  padding: 3px 10px; border-radius: 20px;
+  padding: 3px 10px; border-radius: var(--fich-radius-full);
   font-size: 0.75rem; font-weight: 600;
   letter-spacing: 0.3px; text-transform: capitalize;
 }
-.estado-chip.programado { background: #eef2ff; color: #4338ca; }
-.estado-chip.en-curso { background: #dcfce7; color: #16a34a; }
-.estado-chip.pausado { background: #fef9c3; color: #ca8a04; }
-.estado-chip.reprogramado { background: #f3e8ff; color: #9333ea; }
-.estado-chip.finalizado { background: #f1f5f9; color: #64748b; }
-.estado-chip.cancelado { background: #fee2e2; color: #dc2626; }
+.estado-chip.programado { background: var(--fich-primary-light); color: var(--fich-primary-dark); }
+.estado-chip.en-curso { background: var(--fich-success-light); color: var(--fich-success); }
+.estado-chip.pausado { background: var(--fich-warning-light); color: var(--fich-warning); }
+.estado-chip.reprogramado { background: var(--fich-reprogramado-bg); color: var(--fich-reprogramado); }
+.estado-chip.finalizado { background: var(--fich-bg-hover); color: var(--fich-text-muted); }
+.estado-chip.cancelado { background: var(--fich-accent-light); color: var(--fich-danger); }
 .loading-container, .empty-state {
   padding: 60px 20px; display: flex;
   flex-direction: column; align-items: center; gap: 12px;
 }
 .empty-state mat-icon { font-size: 48px; width: 48px; height: 48px; opacity: 0.3; }
-.empty-state p { color: #64748b; font-size: 0.95rem; }
+.empty-state p { color: var(--fich-text-muted); font-size: 0.95rem; }

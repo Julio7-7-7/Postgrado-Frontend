@@ -51,7 +51,7 @@
             <span class="tab-badge">{{ listaActivos().length }}</span>
           }
         </ng-template>
-        <div class="cards-container">
+        <div class="cards-container stagger-list">
               @for (programa of listaActivos(); track programa.id_programa) {
             <mat-card class="programa-card" appearance="outlined" (click)="irAVersiones(programa.id_programa)">
               <div class="card-foto">
@@ -91,7 +91,7 @@
             <span class="tab-badge secondary">{{ listaInactivos().length }}</span>
           }
         </ng-template>
-        <div class="cards-container">
+        <div class="cards-container stagger-list">
               @for (programa of listaInactivos(); track programa.id_programa) {
             <mat-card class="programa-card inactivo" appearance="outlined" (click)="irAVersiones(programa.id_programa)">
               <div class="card-foto">
