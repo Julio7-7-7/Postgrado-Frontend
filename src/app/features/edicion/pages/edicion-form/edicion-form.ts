@@ -21,6 +21,7 @@ import { ProgramaVersionService } from '../../../programa-version/services/progr
 import { ProgramaVersionEdicion, ProgramaVersionEdicionCreate } from '../../models/edicion.model';
 import { Modalidad } from '../../../modalidad/models/modalidad.model';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog';
+import { aFechaString } from '../../../../core/utils/date-utils';
 
 @Component({
   selector: 'app-edicion-form',
@@ -103,8 +104,6 @@ export class EdicionFormComponent implements OnInit {
     if (ediciones.length === 0) return 1;
     return Math.max(...ediciones.map(e => e.edicion)) + 1;
   });
-
-  private cargarEdicionesVersionFn = signal<boolean>(false);
 
   private edicionesSolapadas = computed(() => {
     const inicio = this.form.get('fecha_inicio')?.value;
@@ -198,6 +197,9 @@ export class EdicionFormComponent implements OnInit {
         if (!this.idEditando) {
           this.form.patchValue({ edicion: this.siguienteEdicion() });
         }
+      },
+      error: () => {
+        this.snackbar.open('Error al cargar ediciones de la versión', 'Cerrar', { duration: 4000 });
       },
     });
   }
@@ -349,8 +351,8 @@ export class EdicionFormComponent implements OnInit {
       edicion: raw.edicion || undefined,
       estado: raw.estado,
       gestion: raw.gestion || undefined,
-      fecha_inicio: raw.fecha_inicio ? this.aFechaString(raw.fecha_inicio) : null,
-      fecha_fin: raw.fecha_fin ? this.aFechaString(raw.fecha_fin) : null,
+      fecha_inicio: raw.fecha_inicio ? aFechaString(raw.fecha_inicio) : null,
+      fecha_fin: raw.fecha_fin ? aFechaString(raw.fecha_fin) : null,
       cupo_maximo: raw.cupo_maximo ?? undefined,
       descripcion: raw.descripcion || null,
       precio: raw.precio ?? undefined,
@@ -378,8 +380,4 @@ export class EdicionFormComponent implements OnInit {
     });
   }
 
-  private aFechaString(fecha: Date | null): string | null {
-    if (!fecha) return null;
-    return `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, '0')}-${String(fecha.getDate()).padStart(2, '0')}`;
-  }
 }

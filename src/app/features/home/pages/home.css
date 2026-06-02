@@ -231,8 +231,228 @@
   height: 16px;
 }
 
+/* ── Carousel (marquee continuo) ── */
+.carousel-section {
+  margin-top: 36px;
+}
+
+.carousel-viewport {
+  overflow: hidden;
+  width: 100%;
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 3%,
+    black 97%,
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 3%,
+    black 97%,
+    transparent 100%
+  );
+}
+
+.carousel-track {
+  display: flex;
+  gap: 20px;
+  will-change: transform;
+}
+
+/* ── Card ── */
+.carousel-card {
+  flex: 0 0 380px;
+  background: var(--fich-bg-card);
+  border: 1px solid var(--fich-border);
+  border-radius: var(--fich-radius-md);
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--fich-shadow-sm);
+  user-select: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.carousel-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--fich-shadow-xl);
+  border-color: var(--fich-primary);
+}
+
+/* ── Photo ── */
+.card-photo {
+  height: 130px;
+  background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 50%, #7c3aed 100%);
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.card-photo::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent 60%, rgba(0,0,0,0.15) 100%);
+  pointer-events: none;
+}
+
+.card-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ── Body ── */
+.card-body {
+  padding: 16px 20px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.card-badges {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.badge {
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: var(--fich-radius-full);
+  line-height: 1.3;
+  letter-spacing: 0.3px;
+}
+
+.badge--version {
+  background: var(--fich-bg-subtle);
+  color: var(--fich-primary);
+  border: 1px solid var(--fich-border);
+}
+
+.badge--edicion {
+  background: var(--fich-primary);
+  color: #fff;
+}
+
+.card-programa {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--fich-primary-dark, var(--fich-primary));
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.card-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  color: var(--fich-text-secondary);
+  flex-wrap: wrap;
+}
+
+.card-sep {
+  color: var(--fich-text-faint);
+}
+
+.card-fechas {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: var(--fich-text-muted);
+}
+
+.card-fecha-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.card-cupo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: var(--fich-text-muted);
+}
+
+.card-cupo-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+  padding-top: 10px;
+  border-top: 1px solid var(--fich-border-light);
+}
+
+.card-estado {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  padding: 3px 10px;
+  border-radius: var(--fich-radius-full);
+  line-height: 1.3;
+}
+
+.card-cta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--fich-primary);
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: all 0.2s ease;
+}
+
+.carousel-card:hover .card-cta {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.card-cta mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .carousel-card {
+    flex: 0 0 320px;
+  }
+}
+
 @media (max-width: 640px) {
   .stats-row { grid-template-columns: 1fr; }
   .hero-title { font-size: 1.5rem; }
   .cards-grid { grid-template-columns: 1fr; }
+
+  .carousel-card {
+    flex: 0 0 280px;
+  }
+
+  .card-photo {
+    height: 100px;
+  }
 }

@@ -28,14 +28,27 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--fich-primary) !important;
 }
 
-.mat-mdc-form-field .mdc-text-field--outlined:not(.mdc-text-field--disabled).mdc-text-field--focused .mdc-notched-outline__leading,
-.mat-mdc-form-field .mdc-text-field--outlined:not(.mdc-text-field--disabled).mdc-text-field--focused .mdc-notched-outline__notch,
-.mat-mdc-form-field .mdc-text-field--outlined:not(.mdc-text-field--disabled).mdc-text-field--focused .mdc-notched-outline__trailing {
-  border-color: var(--fich-primary) !important;
+.mat-mdc-form-field:has(mat-select).mat-focused .mat-mdc-select-arrow {
+  color: var(--fich-primary);
+  transition: color 0.3s ease;
+}
+
+.mat-mdc-select-panel {
+  animation: fich-panel-in 0.2s ease-out;
+}
+
+@keyframes fich-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
 }
 
 .mat-mdc-raised-button.mat-primary, .mat-mdc-flat-button.mat-primary {
   background-color: var(--fich-primary) !important;
+  --mdc-protected-button-label-text-color: white;
+  --mdc-text-button-label-text-color: white;
+  color: white !important;
 }
 .mat-mdc-raised-button.mat-primary:hover, .mat-mdc-flat-button.mat-primary:hover {
   background-color: var(--fich-primary-hover) !important;
@@ -176,27 +189,106 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .btn-guardar {
-  box-shadow: 0 4px 12px rgba(26, 58, 108, 0.2) !important;
+  box-shadow: 0 4px 14px rgba(26, 58, 108, 0.25) !important;
+  overflow: hidden !important;
+  position: relative !important;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.form-actions .btn-guardar {
+  height: 48px;
+  padding: 0 24px;
+  border-radius: var(--fich-radius-md) !important;
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: 0.3px;
+}
+
+.btn-guardar .mdc-button__label,
+.btn-guardar .mat-mdc-button-persistent-ripple {
+  position: relative;
+  z-index: 1;
+}
+
+.btn-guardar::before {
+  content: '';
+  position: absolute !important;
+  inset: 0 !important;
+  background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, transparent 50%);
+  pointer-events: none !important;
+  z-index: 0;
+}
+
+.btn-guardar mat-icon {
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  z-index: 1;
 }
 
 .btn-guardar:not([disabled]):hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(26, 58, 108, 0.35) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 25px rgba(26, 58, 108, 0.35) !important;
+  background-color: var(--fich-primary-hover) !important;
+}
+
+.btn-guardar:not([disabled]):hover mat-icon {
+  transform: scale(1.15) translateX(1px);
 }
 
 .btn-guardar:active {
-  transform: translateY(0);
+  transform: translateY(0) !important;
+  box-shadow: 0 2px 8px rgba(26, 58, 108, 0.2) !important;
 }
 
 .btn-cancelar {
   color: var(--fich-text-muted) !important;
   border-color: var(--fich-text-faint) !important;
+  transition: all var(--fich-transition);
 }
 
 .btn-cancelar:hover {
   background-color: var(--fich-bg-subtle) !important;
   color: var(--fich-text-secondary) !important;
   border-color: var(--fich-text-muted) !important;
+  transform: translateY(-1px);
+}
+
+.btn-nuevo {
+  height: 44px;
+  border-radius: var(--fich-radius-md) !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.3px;
+  box-shadow: 0 4px 14px rgba(26, 58, 108, 0.25) !important;
+  overflow: hidden;
+  position: relative;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.btn-nuevo::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.btn-nuevo mat-icon {
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-nuevo:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 25px rgba(26, 58, 108, 0.35) !important;
+  background-color: var(--fich-primary-hover) !important;
+}
+
+.btn-nuevo:hover mat-icon {
+  transform: scale(1.15) rotate(-90deg);
+}
+
+.btn-nuevo:active {
+  transform: translateY(0) !important;
+  box-shadow: 0 2px 8px rgba(26, 58, 108, 0.2) !important;
 }
 
 @media (max-width: 640px) {

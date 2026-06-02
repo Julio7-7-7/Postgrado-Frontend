@@ -12,6 +12,24 @@
   z-index: 100;
 }
 
+/* ─── Override MDC toolbar text color (set to white in theme) ─── */
+:host ::ng-deep .navbar {
+  --mat-toolbar-container-text-color: var(--fich-text);
+}
+
+/* ─── Override MDC button label color for nav links ─── */
+:host ::ng-deep .nav-link.mat-mdc-button {
+  --mdc-text-button-label-text-color: var(--fich-text-muted);
+}
+
+:host ::ng-deep .nav-link.mat-mdc-button:hover {
+  --mdc-text-button-label-text-color: var(--fich-text);
+}
+
+:host ::ng-deep .nav-link.mat-mdc-button.nav-active {
+  --mdc-text-button-label-text-color: var(--fich-primary);
+}
+
 .navbar-brand {
   display: flex;
   align-items: center;
@@ -31,7 +49,7 @@
   flex-direction: column;
   align-items: center;
   line-height: 1;
-  background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+  background: linear-gradient(135deg, var(--fich-primary) 0%, var(--fich-primary-hover) 100%);
   padding: 6px 10px 5px;
   border-radius: var(--fich-radius-sm);
   min-width: 48px;
@@ -94,31 +112,43 @@
 .nav-link {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 14px;
+  gap: 8px;
+  padding: 6px 16px;
   border-radius: var(--fich-radius-sm);
   font-weight: 500;
   font-size: 0.85rem;
-  color: var(--fich-text-secondary);
-  transition: all var(--fich-transition);
-  height: 40px;
+  height: 42px;
   position: relative;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform, box-shadow;
 }
 
 .nav-link:hover {
   background: var(--fich-bg-hover);
-  color: var(--fich-text);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(30, 58, 138, 0.12);
 }
 
 .nav-link mat-icon {
-  font-size: 20px;
-  width: 20px;
-  height: 20px;
+  font-size: 22px;
+  width: 22px;
+  height: 22px;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  color: inherit;
 }
 
-:host ::ng-deep .nav-active {
+.nav-link:hover mat-icon {
+  transform: scale(1.15);
+}
+
+.nav-label {
+  color: inherit;
+}
+
+/* ─── Active state ─── */
+:host ::ng-deep .nav-active.mat-mdc-button {
   background: var(--fich-primary-light) !important;
-  color: var(--fich-primary) !important;
+  --mdc-text-button-label-text-color: var(--fich-primary) !important;
   font-weight: 600;
 }
 
@@ -134,6 +164,11 @@
   border-radius: 1px 1px 0 0;
 }
 
+:host ::ng-deep .nav-active mat-icon {
+  color: var(--fich-primary) !important;
+}
+
+/* ─── Right-side actions ─── */
 .navbar-actions {
   display: flex;
   align-items: center;
@@ -145,10 +180,11 @@
 
 .notif-btn, .profile-btn {
   color: var(--fich-text-muted);
-  transition: color var(--fich-transition);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .notif-btn:hover, .profile-btn:hover {
-  color: var(--fich-text);
+  color: var(--fich-primary);
+  transform: translateY(-2px);
 }
 .profile-btn mat-icon {
   font-size: 28px;

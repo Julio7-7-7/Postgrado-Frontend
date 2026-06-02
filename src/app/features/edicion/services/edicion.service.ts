@@ -8,8 +8,10 @@ import { ProgramaVersionEdicion, ProgramaVersionEdicionCreate } from '../models/
 export class EdicionService extends ApiService {
   private readonly endpoint = 'programa-version-edicion';
 
-  getAll(programa_version_id?: number): Observable<ProgramaVersionEdicion[]> {
-    const params = programa_version_id ? new HttpParams().set('programa_version_id', programa_version_id) : undefined;
+  getAll(programa_version_id?: number, activas?: boolean): Observable<ProgramaVersionEdicion[]> {
+    let params = new HttpParams();
+    if (programa_version_id) params = params.set('programa_version_id', programa_version_id);
+    if (activas) params = params.set('activas', 'true');
     return this.http.get<ProgramaVersionEdicion[]>(`${this.baseUrl}/${this.endpoint}/`, { params });
   }
 

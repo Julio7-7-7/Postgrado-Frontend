@@ -21,6 +21,7 @@ import { ModalidadService } from '../../../modalidad/services/modalidad.service'
 import { Docente } from '../../../docente/models/docente.model';
 import { Modalidad } from '../../../modalidad/models/modalidad.model';
 import { DetalleProgramaModulo, DetalleUpdate } from '../../models/detalle.model';
+import { aFechaString } from '../../../../core/utils/date-utils';
 
 @Component({
   selector: 'app-detalle-form',
@@ -156,8 +157,8 @@ export class DetalleFormComponent implements OnInit {
       id_docente: raw.id_docente ?? null,
       id_modalidad: raw.id_modalidad ?? null,
       orden: raw.orden,
-      fecha_inicio: raw.fecha_inicio ? this.aFechaString(raw.fecha_inicio) : null,
-      fecha_fin: raw.fecha_fin ? this.aFechaString(raw.fecha_fin) : null,
+      fecha_inicio: raw.fecha_inicio ? aFechaString(raw.fecha_inicio) : null,
+      fecha_fin: raw.fecha_fin ? aFechaString(raw.fecha_fin) : null,
       estado: raw.estado,
     };
 
@@ -186,8 +187,4 @@ export class DetalleFormComponent implements OnInit {
     }
   }
 
-  private aFechaString(fecha: Date | null): string | null {
-    if (!fecha) return null;
-    return `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, '0')}-${String(fecha.getDate()).padStart(2, '0')}`;
-  }
 }

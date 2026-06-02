@@ -54,14 +54,6 @@
   width: 100%;
 }
 
-::ng-deep .form-layout .mdc-notched-outline__leading {
-  border-radius: 12px 0 0 12px !important;
-}
-
-::ng-deep .form-layout .mdc-notched-outline__trailing {
-  border-radius: 0 12px 12px 0 !important;
-}
-
 mat-form-field mat-icon[matPrefix] {
   color: var(--fich-text-faint);
   margin-right: 10px;
