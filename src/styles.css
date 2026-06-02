@@ -28,9 +28,21 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--fich-primary) !important;
 }
 
+.mat-mdc-form-field:has(mat-select).mat-focused .mat-mdc-select-arrow {
+  color: var(--fich-primary);
+  transition: color 0.3s ease;
+}
 
+.mat-mdc-select-panel {
+  animation: fich-panel-in 0.2s ease-out;
+}
 
-
+@keyframes fich-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
 
 .mat-mdc-raised-button.mat-primary, .mat-mdc-flat-button.mat-primary {
   background-color: var(--fich-primary) !important;

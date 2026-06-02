@@ -34,11 +34,73 @@
       <div class="stat-card">
         <mat-icon class="stat-icon mod-icon">bookmarks</mat-icon>
         <div class="stat-info">
-          <span class="stat-value">—</span>
+          <span class="stat-value">{{ edicionesActivas().length }}</span>
           <span class="stat-label">Ediciones activas</span>
         </div>
       </div>
     </div>
+
+    @if (edicionesActivas().length > 0) {
+      <section class="carousel-section">
+        <h2 class="section-title">Oferta Académica</h2>
+
+        <div class="carousel-wrapper" (mouseenter)="pausar()" (mouseleave)="reanudar()">
+          <button class="carousel-arrow carousel-arrow--prev" (click)="prevSlide()" aria-label="Anterior">
+            <mat-icon>chevron_left</mat-icon>
+          </button>
+
+          <div class="carousel-viewport">
+            <div class="carousel-track" [style.transform]="trackTransform">
+              @for (edicion of edicionesActivas(); track edicion.id_programa_version_edicion) {
+                <div class="carousel-card" (click)="irAModulos(edicion)">
+                  <div class="card-header">
+                    <div class="card-programa">{{ edicion.programa_version.programa.nombre_programa }}</div>
+                    <span class="card-edicion">Ed. {{ edicion.edicion }}</span>
+                  </div>
+                  <div class="card-meta">
+                    <span class="card-gestion">{{ edicion.gestion }}</span>
+                    <span class="card-sep">·</span>
+                    <span>V.{{ edicion.programa_version.version }}</span>
+                    <span class="card-sep">·</span>
+                    <span>{{ edicion.modalidad.nombre }}</span>
+                  </div>
+                  <div class="card-fechas">
+                    <mat-icon class="card-fecha-icon">calendar_today</mat-icon>
+                    {{ convertirFecha(edicion.fecha_inicio) }} — {{ convertirFecha(edicion.fecha_fin) }}
+                  </div>
+                  <div class="card-footer">
+                    <span class="card-estado" [style.background]="colorEstado(edicion.estado) + '18'" [style.color]="colorEstado(edicion.estado)">
+                      {{ edicion.estado === 'en_curso' ? 'En curso' : (edicion.estado.charAt(0).toUpperCase() + edicion.estado.slice(1)) }}
+                    </span>
+                    <span class="card-cta">
+                      Ver módulos
+                      <mat-icon>arrow_forward</mat-icon>
+                    </span>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+
+          <button class="carousel-arrow carousel-arrow--next" (click)="nextSlide()" aria-label="Siguiente">
+            <mat-icon>chevron_right</mat-icon>
+          </button>
+        </div>
+
+        @if (totalSlides > 1) {
+          <div class="carousel-dots">
+            @for (_ of [].constructor(totalSlides); track $index) {
+              <button
+                class="carousel-dot"
+                [class.carousel-dot--active]="$index === currentIndex()"
+                (click)="goToSlide($index)"
+                [attr.aria-label]="'Ir a slide ' + ($index + 1)">
+              </button>
+            }
+          </div>
+        }
+      </section>
+    }
 
     <h2 class="section-title">Módulos del Sistema</h2>
 

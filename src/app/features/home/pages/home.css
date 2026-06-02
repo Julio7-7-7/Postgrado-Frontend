@@ -231,8 +231,258 @@
   height: 16px;
 }
 
+/* ── Carousel ── */
+.carousel-section {
+  margin-top: 36px;
+}
+
+.carousel-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.carousel-viewport {
+  overflow: hidden;
+  width: 100%;
+}
+
+.carousel-track {
+  display: flex;
+  gap: 16px;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+
+.carousel-card {
+  flex: 0 0 320px;
+  background: var(--fich-bg-card);
+  border: 1px solid var(--fich-border);
+  border-radius: var(--fich-radius-md);
+  padding: 20px 20px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--fich-shadow-sm);
+  user-select: none;
+}
+
+.carousel-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--fich-shadow-lg);
+  border-color: var(--fich-primary);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.card-programa {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--fich-primary-dark, var(--fich-primary));
+  line-height: 1.3;
+}
+
+.card-edicion {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--fich-text-muted);
+  background: var(--fich-bg-subtle);
+  padding: 2px 8px;
+  border-radius: var(--fich-radius-full);
+  white-space: nowrap;
+  border: 1px solid var(--fich-border-light);
+}
+
+.card-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  color: var(--fich-text-secondary);
+  flex-wrap: wrap;
+}
+
+.card-gestion {
+  font-weight: 600;
+  color: var(--fich-text);
+}
+
+.card-sep {
+  color: var(--fich-text-faint);
+}
+
+.card-fechas {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: var(--fich-text-muted);
+}
+
+.card-fecha-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 4px;
+  padding-top: 10px;
+  border-top: 1px solid var(--fich-border-light);
+}
+
+.card-estado {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  padding: 3px 10px;
+  border-radius: var(--fich-radius-full);
+  line-height: 1.3;
+}
+
+.card-cta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--fich-primary);
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: all 0.2s ease;
+}
+
+.carousel-card:hover .card-cta {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.card-cta mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+/* ── Arrows ── */
+.carousel-arrow {
+  position: absolute;
+  z-index: 2;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--fich-border);
+  background: var(--fich-bg-card);
+  box-shadow: var(--fich-shadow-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--fich-text-secondary);
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.carousel-arrow:hover {
+  background: var(--fich-bg-hover);
+  color: var(--fich-text);
+  box-shadow: var(--fich-shadow-lg);
+}
+
+.carousel-arrow--prev {
+  left: -20px;
+}
+
+.carousel-arrow--next {
+  right: -20px;
+}
+
+.carousel-arrow mat-icon {
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+}
+
+/* ── Dots ── */
+.carousel-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.carousel-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid var(--fich-primary);
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.3s ease;
+}
+
+.carousel-dot--active {
+  background: var(--fich-primary);
+  width: 28px;
+  border-radius: 5px;
+}
+
+.carousel-dot:hover {
+  background: var(--fich-primary-light);
+}
+
+/* ── Carousel responsive ── */
+@media (max-width: 900px) {
+  .carousel-card {
+    flex: 0 0 280px;
+  }
+
+  .carousel-arrow--prev {
+    left: -14px;
+  }
+
+  .carousel-arrow--next {
+    right: -14px;
+  }
+}
+
 @media (max-width: 640px) {
   .stats-row { grid-template-columns: 1fr; }
   .hero-title { font-size: 1.5rem; }
   .cards-grid { grid-template-columns: 1fr; }
+
+  .carousel-card {
+    flex: 0 0 260px;
+  }
+
+  .carousel-arrow {
+    width: 32px;
+    height: 32px;
+  }
+
+  .carousel-arrow--prev {
+    left: -8px;
+  }
+
+  .carousel-arrow--next {
+    right: -8px;
+  }
+
+  .carousel-arrow mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
 }
