@@ -44,61 +44,96 @@
       <section class="carousel-section">
         <h2 class="section-title">Oferta Académica</h2>
 
-        <div class="carousel-wrapper" (mouseenter)="pausar()" (mouseleave)="reanudar()">
-          <button class="carousel-arrow carousel-arrow--prev" (click)="prevSlide()" aria-label="Anterior">
-            <mat-icon>chevron_left</mat-icon>
-          </button>
-
-          <div class="carousel-viewport">
-            <div class="carousel-track" [style.transform]="trackTransform">
+        <div class="carousel-wrapper">
+          <div class="carousel-viewport" (wheel)="onWheel($event)">
+            <div class="carousel-track" #track>
               @for (edicion of edicionesActivas(); track edicion.id_programa_version_edicion) {
                 <div class="carousel-card" (click)="irAModulos(edicion)">
-                  <div class="card-header">
+                  <div class="card-photo">
+                    @if (edicion.programa_version.foto) {
+                      <img [src]="getFotoUrl(edicion.programa_version.foto)" (error)="onImgError($event)" alt="" />
+                    }
+                  </div>
+                  <div class="card-body">
+                    <div class="card-badges">
+                      <span class="badge badge--version">V. {{ edicion.programa_version.version }}</span>
+                      <span class="badge badge--edicion">E. {{ edicion.edicion }}</span>
+                    </div>
                     <div class="card-programa">{{ edicion.programa_version.programa.nombre_programa }}</div>
-                    <span class="card-edicion">Ed. {{ edicion.edicion }}</span>
+                    <div class="card-meta">
+                      <span>{{ edicion.gestion }}</span>
+                      <span class="card-sep">·</span>
+                      <span>{{ edicion.modalidad.nombre }}</span>
+                    </div>
+                    <div class="card-fechas">
+                      <mat-icon class="card-fecha-icon">calendar_today</mat-icon>
+                      {{ convertirFecha(edicion.fecha_inicio) }} — {{ convertirFecha(edicion.fecha_fin) }}
+                    </div>
+                    @if (edicion.cupo_maximo) {
+                      <div class="card-cupo">
+                        <mat-icon class="card-cupo-icon">groups</mat-icon>
+                        <span>Cupo: {{ edicion.cupo_maximo }} personas</span>
+                      </div>
+                    }
+                    <div class="card-footer">
+                      <span class="card-estado"
+                        [style.background]="colorEstado(edicion.estado) + '18'"
+                        [style.color]="colorEstado(edicion.estado)">
+                        {{ edicion.estado === 'en_curso' ? 'En curso' : (edicion.estado.charAt(0).toUpperCase() + edicion.estado.slice(1)) }}
+                      </span>
+                      <span class="card-cta">
+                        Ver programa
+                        <mat-icon>arrow_forward</mat-icon>
+                      </span>
+                    </div>
                   </div>
-                  <div class="card-meta">
-                    <span class="card-gestion">{{ edicion.gestion }}</span>
-                    <span class="card-sep">·</span>
-                    <span>V.{{ edicion.programa_version.version }}</span>
-                    <span class="card-sep">·</span>
-                    <span>{{ edicion.modalidad.nombre }}</span>
+                </div>
+              }
+              @for (edicion of edicionesActivas(); track 'c-' + edicion.id_programa_version_edicion) {
+                <div class="carousel-card" (click)="irAModulos(edicion)">
+                  <div class="card-photo">
+                    @if (edicion.programa_version.foto) {
+                      <img [src]="getFotoUrl(edicion.programa_version.foto)" (error)="onImgError($event)" alt="" />
+                    }
                   </div>
-                  <div class="card-fechas">
-                    <mat-icon class="card-fecha-icon">calendar_today</mat-icon>
-                    {{ convertirFecha(edicion.fecha_inicio) }} — {{ convertirFecha(edicion.fecha_fin) }}
-                  </div>
-                  <div class="card-footer">
-                    <span class="card-estado" [style.background]="colorEstado(edicion.estado) + '18'" [style.color]="colorEstado(edicion.estado)">
-                      {{ edicion.estado === 'en_curso' ? 'En curso' : (edicion.estado.charAt(0).toUpperCase() + edicion.estado.slice(1)) }}
-                    </span>
-                    <span class="card-cta">
-                      Ver módulos
-                      <mat-icon>arrow_forward</mat-icon>
-                    </span>
+                  <div class="card-body">
+                    <div class="card-badges">
+                      <span class="badge badge--version">V. {{ edicion.programa_version.version }}</span>
+                      <span class="badge badge--edicion">E. {{ edicion.edicion }}</span>
+                    </div>
+                    <div class="card-programa">{{ edicion.programa_version.programa.nombre_programa }}</div>
+                    <div class="card-meta">
+                      <span>{{ edicion.gestion }}</span>
+                      <span class="card-sep">·</span>
+                      <span>{{ edicion.modalidad.nombre }}</span>
+                    </div>
+                    <div class="card-fechas">
+                      <mat-icon class="card-fecha-icon">calendar_today</mat-icon>
+                      {{ convertirFecha(edicion.fecha_inicio) }} — {{ convertirFecha(edicion.fecha_fin) }}
+                    </div>
+                    @if (edicion.cupo_maximo) {
+                      <div class="card-cupo">
+                        <mat-icon class="card-cupo-icon">groups</mat-icon>
+                        <span>Cupo: {{ edicion.cupo_maximo }} personas</span>
+                      </div>
+                    }
+                    <div class="card-footer">
+                      <span class="card-estado"
+                        [style.background]="colorEstado(edicion.estado) + '18'"
+                        [style.color]="colorEstado(edicion.estado)">
+                        {{ edicion.estado === 'en_curso' ? 'En curso' : (edicion.estado.charAt(0).toUpperCase() + edicion.estado.slice(1)) }}
+                      </span>
+                      <span class="card-cta">
+                        Ver programa
+                        <mat-icon>arrow_forward</mat-icon>
+                      </span>
+                    </div>
                   </div>
                 </div>
               }
             </div>
           </div>
-
-          <button class="carousel-arrow carousel-arrow--next" (click)="nextSlide()" aria-label="Siguiente">
-            <mat-icon>chevron_right</mat-icon>
-          </button>
         </div>
-
-        @if (totalSlides > 1) {
-          <div class="carousel-dots">
-            @for (_ of [].constructor(totalSlides); track $index) {
-              <button
-                class="carousel-dot"
-                [class.carousel-dot--active]="$index === currentIndex()"
-                (click)="goToSlide($index)"
-                [attr.aria-label]="'Ir a slide ' + ($index + 1)">
-              </button>
-            }
-          </div>
-        }
       </section>
     }
 

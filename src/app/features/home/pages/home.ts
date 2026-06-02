@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject, DestroyRef } from '@angular/core';
+import { Component, OnInit, signal, inject, DestroyRef, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -12,8 +12,7 @@ import { ProgramaService } from '../../programa/services/programa.service';
 import { DocenteService } from '../../docente/services/docente.service';
 import { EdicionService } from '../../edicion/services/edicion.service';
 import { ProgramaVersionEdicion } from '../../edicion/models/edicion.model';
-
-const CARD_STEP = 336;
+import { environment } from '../../../../environments/environment';
 
 interface NavCard {
   path: string;
@@ -22,6 +21,8 @@ interface NavCard {
   desc: string;
   color: string;
 }
+
+const CARD_STEP = 400; // 380 card + 20 gap
 
 @Component({
   selector: 'app-home',
@@ -42,14 +43,19 @@ export class HomeComponent implements OnInit {
   private snackBar = inject(MatSnackBar);
   private destroyRef = inject(DestroyRef);
 
+  @ViewChild('track', { static: false }) trackRef!: ElementRef<HTMLElement>;
+
+  apiUrl = environment.apiUrl;
+
   totalProgramas = signal(0);
   totalDocentes = signal(0);
   isLoadingStats = signal(true);
 
   edicionesActivas = signal<ProgramaVersionEdicion[]>([]);
-  currentIndex = signal(0);
-  isPaused = signal(false);
-  private intervalId: ReturnType<typeof setInterval> | null = null;
+
+  private offset = 0;
+  private autoScrollId: number | null = null;
+  private scrollTimeout: ReturnType<typeof setTimeout> | null = null;
 
   cards: NavCard[] = [
     { path: '/programas', icon: 'menu_book', title: 'Programas', desc: 'Gestiona maestrías, diplomados y cursos', color: '#2563eb' },
@@ -61,7 +67,7 @@ export class HomeComponent implements OnInit {
   ngOnInit(): void {
     this.cargarStats();
     this.cargarEdiciones();
-    this.destroyRef.onDestroy(() => this.detenerAutoPlay());
+    this.destroyRef.onDestroy(() => this.detenerAutoScroll());
   }
 
   private cargarStats() {
@@ -82,7 +88,7 @@ export class HomeComponent implements OnInit {
     this.edicionService.getAll(undefined, true).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (data) => {
         this.edicionesActivas.set(data);
-        this.iniciarAutoPlay();
+        setTimeout(() => this.iniciarAutoScroll());
       },
       error: () => {
         this.snackBar.open('Error al cargar ediciones activas', 'Cerrar', { duration: 4000 });
@@ -90,48 +96,69 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  get trackTransform(): string {
-    return `translateX(-${this.currentIndex() * CARD_STEP}px)`;
+  private get track(): HTMLElement | null {
+    return this.trackRef?.nativeElement ?? null;
   }
 
-  get totalSlides(): number {
-    return Math.max(1, this.edicionesActivas().length);
+  private get totalWidth(): number {
+    return this.edicionesActivas().length * CARD_STEP;
   }
 
-  nextSlide(): void {
-    const total = this.totalSlides;
-    this.currentIndex.update(i => (i + 1) % total);
+  private aplicarTransform(): void {
+    const el = this.track;
+    if (el) el.style.transform = `translateX(${this.offset}px)`;
   }
 
-  prevSlide(): void {
-    const total = this.totalSlides;
-    this.currentIndex.update(i => (i - 1 + total) % total);
+  onWheel(event: WheelEvent): void {
+    event.preventDefault();
+    this.detenerAutoScroll();
+
+    this.offset -= event.deltaY || event.deltaX;
+    this.clampOffset();
+    this.aplicarTransform();
+
+    if (this.scrollTimeout) clearTimeout(this.scrollTimeout);
+    this.scrollTimeout = setTimeout(() => this.iniciarAutoScroll(), 1800);
   }
 
-  goToSlide(index: number): void {
-    this.currentIndex.set(index);
+  private clampOffset(): void {
+    const max = 0;
+    const min = -this.totalWidth;
+    this.offset = Math.max(min, Math.min(max, this.offset));
   }
 
-  pausar(): void {
-    this.isPaused.set(true);
-    this.detenerAutoPlay();
+  private iniciarAutoScroll(): void {
+    this.detenerAutoScroll();
+    if (!this.track || this.totalWidth === 0) return;
+
+    const step = () => {
+      this.offset -= 0.6;
+      if (this.offset <= -this.totalWidth) {
+        this.offset = 0;
+      }
+      this.aplicarTransform();
+      this.autoScrollId = requestAnimationFrame(step);
+    };
+    this.autoScrollId = requestAnimationFrame(step);
   }
 
-  reanudar(): void {
-    this.isPaused.set(false);
-    this.iniciarAutoPlay();
-  }
-
-  private iniciarAutoPlay(): void {
-    this.detenerAutoPlay();
-    this.intervalId = setInterval(() => this.nextSlide(), 4000);
-  }
-
-  private detenerAutoPlay(): void {
-    if (this.intervalId !== null) {
-      clearInterval(this.intervalId);
-      this.intervalId = null;
+  private detenerAutoScroll(): void {
+    if (this.autoScrollId !== null) {
+      cancelAnimationFrame(this.autoScrollId);
+      this.autoScrollId = null;
     }
+    if (this.scrollTimeout !== null) {
+      clearTimeout(this.scrollTimeout);
+      this.scrollTimeout = null;
+    }
+  }
+
+  getFotoUrl(foto: string | null): string {
+    return foto ? `${this.apiUrl}${foto}` : '';
+  }
+
+  onImgError(event: Event): void {
+    (event.target as HTMLImageElement).style.display = 'none';
   }
 
   irAModulos(edicion: ProgramaVersionEdicion): void {
