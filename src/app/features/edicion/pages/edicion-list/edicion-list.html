@@ -93,14 +93,6 @@
             <button
               mat-icon-button
               color="primary"
-              [routerLink]="[element.id_programa_version_edicion, 'modulos']"
-              matTooltip="Gestionar módulos"
-            >
-              <mat-icon>bookmarks</mat-icon>
-            </button>
-            <button
-              mat-icon-button
-              color="primary"
               [routerLink]="['editar', element.id_programa_version_edicion]"
               matTooltip="Editar edición"
             >
@@ -110,7 +102,7 @@
         </ng-container>
 
         <tr mat-header-row *matHeaderRowDef="columnas"></tr>
-        <tr mat-row *matRowDef="let row; columns: columnas"></tr>
+        <tr mat-row *matRowDef="let row; columns: columnas" class="clickable-row" (click)="abrirDetalle(row)"></tr>
       </table>
 
       @if (ediciones().length === 0) {

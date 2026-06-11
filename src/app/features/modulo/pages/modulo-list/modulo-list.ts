@@ -70,7 +70,6 @@ export class ModuloListComponent implements OnInit {
     this.idVersion.set(+versionId);
     this.idPrograma.set(programaId ? +programaId : 0);
     this.cargarVersion(+versionId);
-    this.cargarModulos();
   }
 
   private cargarVersion(id: number) {
@@ -78,6 +77,7 @@ export class ModuloListComponent implements OnInit {
       next: (data) => {
         this.version.set(data);
         this.bloqueado.set(data.ediciones_count > 0);
+        this.cargarModulos();
       },
       error: () => this.router.navigate(['/programas']),
     });
