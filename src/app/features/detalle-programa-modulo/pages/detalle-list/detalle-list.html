@@ -6,7 +6,7 @@
       </button>
       <div>
         <h2>Módulos de la Edición</h2>
-        <p class="subtitle">Gestione los módulos asignados a esta edición, docentes y fechas</p>
+        <p class="subtitle">Gestione los módulos asignados a esta edición, docentes y horarios</p>
       </div>
     </div>
   </div>
@@ -25,82 +25,137 @@
       </button>
     </div>
   } @else {
-    <div class="table-wrapper">
-      <table mat-table [dataSource]="detalles()" class="full-width-table">
-        <ng-container matColumnDef="orden">
-          <th mat-header-cell *matHeaderCellDef>#</th>
-          <td mat-cell *matCellDef="let element" class="orden-cell">{{ element.orden }}</td>
-        </ng-container>
+    <div class="cards-grid">
+      @for (detalle of detalles(); track detalle.id_detalle_programa_modulo) {
+        <mat-card class="modulo-card" [class.cancelado]="detalle.estado === 'cancelado'">
+          <mat-card-header>
+            <div class="card-header-content">
+              <span class="orden-badge">#{{ detalle.orden }}</span>
+              <span class="sigla-badge">{{ detalle.modulo.sigla }}</span>
+              <span class="modulo-nombre">{{ detalle.modulo.nombre_modulo }}</span>
+              <span class="horas-creditos">{{ detalle.modulo.horas_academicas }}h · {{ detalle.modulo.creditos }} cr</span>
+            </div>
+          </mat-card-header>
 
-        <ng-container matColumnDef="sigla">
-          <th mat-header-cell *matHeaderCellDef>Sigla</th>
-          <td mat-cell *matCellDef="let element">
-            <span class="sigla-badge">{{ element.modulo.sigla }}</span>
-          </td>
-        </ng-container>
+          <mat-card-content>
+            <form [formGroup]="formDe(detalle)">
+              <div class="form-grid">
+                <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                  <mat-label>Docente</mat-label>
+                  <mat-select formControlName="id_docente">
+                    <mat-option [value]="null">Sin asignar</mat-option>
+                    @for (doc of docentes(); track doc.id_docente) {
+                      <mat-option [value]="doc.id_docente">
+                        {{ doc.nombre }} {{ doc.apellido }}
+                      </mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
 
-        <ng-container matColumnDef="nombre">
-          <th mat-header-cell *matHeaderCellDef>Módulo</th>
-          <td mat-cell *matCellDef="let element" class="nombre-cell">{{ element.modulo.nombre_modulo }}</td>
-        </ng-container>
+                <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                  <mat-label>Modalidad</mat-label>
+                  <mat-select formControlName="id_modalidad">
+                    <mat-option [value]="null">—</mat-option>
+                    @for (m of modalidades(); track m.id_modalidad) {
+                      <mat-option [value]="m.id_modalidad">{{ m.nombre }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
 
-        <ng-container matColumnDef="docente">
-          <th mat-header-cell *matHeaderCellDef>Docente</th>
-          <td mat-cell *matCellDef="let element">
-            @if (element.docente) {
-              {{ element.docente.nombre }} {{ element.docente.apellido }}
-            } @else {
-              <span class="sin-asignar">Sin asignar</span>
-            }
-          </td>
-        </ng-container>
+                <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                  <mat-label>Fecha inicio</mat-label>
+                  <input matInput [matDatepicker]="picker1" formControlName="fecha_inicio">
+                  <mat-datepicker-toggle matIconSuffix [for]="picker1"></mat-datepicker-toggle>
+                  <mat-datepicker #picker1></mat-datepicker>
+                </mat-form-field>
 
-        <ng-container matColumnDef="fechas">
-          <th mat-header-cell *matHeaderCellDef>Fechas</th>
-          <td mat-cell *matCellDef="let element" class="fechas-cell">
-            @if (element.fecha_inicio && element.fecha_fin) {
-              {{ element.fecha_inicio | date:'shortDate' }} — {{ element.fecha_fin | date:'shortDate' }}
-            } @else {
-              <span class="sin-datos">—</span>
-            }
-          </td>
-        </ng-container>
+                <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                  <mat-label>Fecha fin</mat-label>
+                  <input matInput [matDatepicker]="picker2" formControlName="fecha_fin">
+                  <mat-datepicker-toggle matIconSuffix [for]="picker2"></mat-datepicker-toggle>
+                  <mat-datepicker #picker2></mat-datepicker>
+                </mat-form-field>
 
-        <ng-container matColumnDef="estado">
-          <th mat-header-cell *matHeaderCellDef>Estado</th>
-          <td mat-cell *matCellDef="let element">
-            <span class="estado-chip {{ estadoClass(element.estado) }}">{{ element.estado }}</span>
-          </td>
-        </ng-container>
+                <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                  <mat-label>Estado</mat-label>
+                  <mat-select formControlName="estado">
+                    @for (opt of estadoOptions; track opt.value) {
+                      <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
 
-        <ng-container matColumnDef="acciones">
-          <th mat-header-cell *matHeaderCellDef>Acciones</th>
-          <td mat-cell *matCellDef="let element" class="acciones-cell">
-            <button mat-icon-button color="primary"
-              [routerLink]="['editar', element.id_detalle_programa_modulo]"
-              matTooltip="Editar módulo">
-              <mat-icon>edit</mat-icon>
-            </button>
-            @if (element.estado !== 'cancelado') {
-              <button mat-icon-button color="warn"
-                (click)="cancelarModulo(element)"
-                matTooltip="Cancelar módulo">
-                <mat-icon>cancel</mat-icon>
+                @if (necesitaMotivo(detalle)) {
+                  <mat-form-field appearance="outline" class="motivo-field" subscriptSizing="dynamic">
+                    <mat-label>Motivo</mat-label>
+                    <input matInput formControlName="motivo" required minlength="5">
+                  </mat-form-field>
+                }
+              </div>
+            </form>
+
+            <mat-divider class="section-divider"></mat-divider>
+
+            <div class="horarios-section">
+              <div class="horarios-header">
+                <span class="section-title">Horarios</span>
+                <button mat-stroked-button size="small" (click)="agregarHorario(detalle)">
+                  <mat-icon>add</mat-icon> Agregar
+                </button>
+              </div>
+              @if (horariosDe(detalle).length === 0) {
+                <p class="sin-horarios">Sin horarios registrados</p>
+              }
+              <div class="horarios-list">
+                @for (h of horariosDe(detalle); track h.id_horario) {
+                  <div class="horario-item" [class.cancelado]="h.estado === 'cancelado'">
+                    <span class="dia-badge">{{ diaLabel(h.dia) }}</span>
+                    <span class="hora-range">{{ h.hora_ini }} — {{ h.hora_fin }}</span>
+                    @if (h.aula) {
+                      <span class="aula-tag">{{ h.aula }}</span>
+                    }
+                    <div class="horario-actions">
+                      <button mat-icon-button size="small" (click)="editarHorario(h)" matTooltip="Editar horario">
+                        <mat-icon>edit</mat-icon>
+                      </button>
+                      @if (h.estado !== 'cancelado') {
+                        <button mat-icon-button size="small" (click)="eliminarHorario(h)" matTooltip="Eliminar horario">
+                          <mat-icon>delete_outline</mat-icon>
+                        </button>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          </mat-card-content>
+
+          <mat-card-actions align="end">
+            @if (detalle.estado !== 'cancelado') {
+              <button mat-button color="warn" (click)="cancelarModulo(detalle)" [disabled]="saving().has(detalle.id_detalle_programa_modulo)">
+                Cancelar módulo
               </button>
             }
-          </td>
-        </ng-container>
-
-        <tr mat-header-row *matHeaderRowDef="columnas"></tr>
-        <tr mat-row *matRowDef="let row; columns: columnas"></tr>
-      </table>
-
-      @if (detalles().length === 0) {
-        <div class="empty-state">
-          <mat-icon>bookmark_border</mat-icon>
-          <p>Esta edición no tiene módulos asignados.</p>
-        </div>
+            <button mat-raised-button color="primary"
+              (click)="guardar(detalle)"
+              [disabled]="formDe(detalle)?.invalid || saving().has(detalle.id_detalle_programa_modulo)">
+              @if (saving().has(detalle.id_detalle_programa_modulo)) {
+                <mat-spinner diameter="18" color="primary"></mat-spinner>
+              } @else {
+                <mat-icon>save</mat-icon>
+              }
+              Guardar
+            </button>
+          </mat-card-actions>
+        </mat-card>
       }
     </div>
+
+    @if (detalles().length === 0) {
+      <div class="empty-state">
+        <mat-icon>bookmark_border</mat-icon>
+        <p>Esta edición no tiene módulos asignados.</p>
+      </div>
+    }
   }
 </div>

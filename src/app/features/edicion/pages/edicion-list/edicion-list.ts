@@ -101,6 +101,10 @@ export class EdicionListComponent implements OnInit {
     return map[estado] || '';
   }
 
+  abrirDetalle(edicion: ProgramaVersionEdicion): void {
+    this.router.navigate([edicion.id_programa_version_edicion, 'modulos'], { relativeTo: this.route });
+  }
+
   volverAVersiones(): void {
     if (this.idPrograma()) {
       this.router.navigate(['/programas', this.idPrograma(), 'versiones']);
