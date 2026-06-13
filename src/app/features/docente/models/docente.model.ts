@@ -3,6 +3,7 @@ export interface Docente {
   ci: string;
   nombre: string;
   apellido: string;
+  genero: 'masculino' | 'femenino' | 'otro' | null;
   titulo: string | null;
   correo: string;
   celular: string | null;
@@ -10,3 +11,5 @@ export interface Docente {
   created_at: string;
   updated_at: string;
 }
+
+export type DocenteCreate = Omit<Docente, 'id_docente' | 'created_at' | 'updated_at'>;

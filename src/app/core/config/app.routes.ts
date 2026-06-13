@@ -18,6 +18,12 @@ export const routes: Routes = [
       import('../../features/programa/routes/programa.routes')
       .then(m => m.PROGRAMA_ROUTES)
   },
+  {
+    path: 'docentes',
+    loadChildren: () =>
+      import('../../features/docente/routes/docente.routes')
+      .then(m => m.DOCENTE_ROUTES)
+  },
   { path: '**', redirectTo: '' }
 ];
 
