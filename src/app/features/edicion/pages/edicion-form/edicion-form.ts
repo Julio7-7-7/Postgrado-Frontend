@@ -148,20 +148,20 @@ export class EdicionFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const versionId = this.route.parent?.snapshot.paramMap.get('versionId');
-    const programaId = this.route.parent?.parent?.snapshot.paramMap.get('id');
-
-    if (!versionId) {
+    const match = this.router.url.match(/\/versiones\/(\d+)\/ediciones/);
+    if (!match) {
       this.snackbar.open('Versión no especificada', 'Cerrar', { duration: 4000 });
       this.router.navigate(['/programas']);
       return;
     }
+    this.idVersion.set(+match[1]);
 
-    this.idVersion.set(+versionId);
-    this.idPrograma.set(programaId ? +programaId : 0);
+    const progMatch = this.router.url.match(/\/programas\/(\d+)\/versiones/);
+    this.idPrograma.set(progMatch ? +progMatch[1] : 0);
+
     this.cargarModalidades();
-    this.cargarVersion(+versionId);
-    this.cargarEdicionesVersion(+versionId);
+    this.cargarVersion(this.idVersion());
+    this.cargarEdicionesVersion(this.idVersion());
     this.suscribirFechaInicio();
     this.suscribirEsHistorico();
 
@@ -338,6 +338,15 @@ export class EdicionFormComponent implements OnInit {
     }
 
     this.ejecutarGuardar();
+  }
+
+  volverALista(): void {
+    const idx = this.router.url.indexOf('/ediciones');
+    if (idx !== -1) {
+      this.router.navigateByUrl(this.router.url.substring(0, idx + '/ediciones'.length));
+    } else {
+      this.router.navigate(['/programas']);
+    }
   }
 
   private ejecutarGuardar() {

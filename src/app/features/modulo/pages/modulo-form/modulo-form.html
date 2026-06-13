@@ -82,7 +82,7 @@
           <button
             mat-stroked-button
             type="button"
-            [routerLink]="['/programas', idPrograma(), 'versiones', idVersion(), 'modulos']"
+            (click)="volverALista()"
             class="btn-cancelar"
           >
             Cancelar

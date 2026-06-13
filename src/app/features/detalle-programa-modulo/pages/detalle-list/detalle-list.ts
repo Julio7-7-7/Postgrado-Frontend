@@ -233,7 +233,7 @@ export class DetalleListComponent implements OnInit {
 
   agregarHorario(detalle: DetalleProgramaModulo) {
     const dialogRef = this.dialog.open(HorarioDialogComponent, {
-      width: '400px',
+      width: '500px',
       data: { detalleId: detalle.id_detalle_programa_modulo } satisfies HorarioDialogData,
     });
     dialogRef.afterClosed().subscribe((result: HorarioCreate | undefined) => {
@@ -251,7 +251,7 @@ export class DetalleListComponent implements OnInit {
 
   editarHorario(horario: Horario) {
     const dialogRef = this.dialog.open(HorarioDialogComponent, {
-      width: '400px',
+      width: '500px',
       data: {
         detalleId: horario.id_detalle_programa_modulo,
         horario: {
