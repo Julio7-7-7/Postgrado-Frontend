@@ -15,7 +15,8 @@
         <div class="form-row">
           <mat-form-field appearance="outline">
             <mat-label>CI / Identificación</mat-label>
-            <input matInput formControlName="ci" placeholder="Ej: 1234567">
+            <input matInput formControlName="ci" placeholder="Ej: 1234567"
+                   (keypress)="soloNumeros($event)">
             <mat-icon matPrefix>badge</mat-icon>
             @if (form.get('ci')?.hasError('required')) {
               <mat-error>Obligatorio</mat-error>
@@ -26,21 +27,28 @@
           </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>Género</mat-label>
-            <mat-select formControlName="genero">
+            <mat-label>Extensión</mat-label>
+            <mat-select formControlName="extension">
               <mat-option [value]="null">Seleccionar</mat-option>
-              <mat-option value="masculino">Masculino</mat-option>
-              <mat-option value="femenino">Femenino</mat-option>
-              <mat-option value="otro">Otro</mat-option>
+              <mat-option value="LP">La Paz</mat-option>
+              <mat-option value="CB">Cochabamba</mat-option>
+              <mat-option value="SC">Santa Cruz</mat-option>
+              <mat-option value="CH">Chuquisaca</mat-option>
+              <mat-option value="OR">Oruro</mat-option>
+              <mat-option value="PT">Potosí</mat-option>
+              <mat-option value="TRJ">Tarija</mat-option>
+              <mat-option value="BN">Beni</mat-option>
+              <mat-option value="PD">Pando</mat-option>
             </mat-select>
-            <mat-icon matPrefix>wc</mat-icon>
+            <mat-icon matPrefix>badge</mat-icon>
           </mat-form-field>
         </div>
 
         <div class="form-row">
           <mat-form-field appearance="outline">
             <mat-label>Nombre</mat-label>
-            <input matInput formControlName="nombre" placeholder="Ej: Juan">
+            <input matInput formControlName="nombre" placeholder="Ej: Juan"
+                   (keypress)="soloLetras($event)">
             <mat-icon matPrefix>person</mat-icon>
             @if (form.get('nombre')?.hasError('required')) {
               <mat-error>Obligatorio</mat-error>
@@ -52,7 +60,8 @@
 
           <mat-form-field appearance="outline">
             <mat-label>Apellido</mat-label>
-            <input matInput formControlName="apellido" placeholder="Ej: Pérez">
+            <input matInput formControlName="apellido" placeholder="Ej: Pérez"
+                   (keypress)="soloLetras($event)">
             <mat-icon matPrefix>person</mat-icon>
             @if (form.get('apellido')?.hasError('required')) {
               <mat-error>Obligatorio</mat-error>
@@ -60,6 +69,16 @@
             @if (form.get('apellido')?.hasError('minlength')) {
               <mat-error>Mínimo 2 caracteres</mat-error>
             }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Género</mat-label>
+            <mat-select formControlName="genero">
+              <mat-option [value]="null">Seleccionar</mat-option>
+              <mat-option value="masculino">Masculino</mat-option>
+              <mat-option value="femenino">Femenino</mat-option>
+            </mat-select>
+            <mat-icon matPrefix>wc</mat-icon>
           </mat-form-field>
         </div>
 
@@ -81,7 +100,8 @@
 
           <mat-form-field appearance="outline">
             <mat-label>Celular</mat-label>
-            <input matInput formControlName="celular" placeholder="Ej: 77123456">
+            <input matInput formControlName="celular" placeholder="Ej: 77123456"
+                   (keypress)="soloNumeros($event)">
             <mat-icon matPrefix>phone</mat-icon>
             @if (form.get('celular')?.hasError('pattern')) {
               <mat-error>Solo números</mat-error>

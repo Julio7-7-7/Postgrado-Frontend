@@ -56,7 +56,7 @@ export class DocenteListComponent implements OnInit {
   listaContratados = computed(() => this.filtrarYOrdenar('contratado'));
   listaInactivos = computed(() => this.filtrarYOrdenar('inactivo'));
 
-  columnas: string[] = ['id', 'nombre', 'ci', 'correo', 'grado', 'titulo', 'estado', 'acciones'];
+  columnas: string[] = ['id', 'nombre', 'ci', 'extension', 'correo', 'grado', 'titulo', 'estado', 'acciones'];
 
   ngOnInit(): void {
     this.cargarDatos();

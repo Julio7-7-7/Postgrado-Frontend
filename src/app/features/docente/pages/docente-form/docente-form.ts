@@ -54,12 +54,27 @@ export class DocenteFormComponent implements OnInit {
       nombre: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
       apellido: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
       genero: [null],
+      extension: [null],
       grado: [null],
       titulo: [null, [Validators.maxLength(100)]],
       celular: [null, [Validators.maxLength(20), Validators.pattern('^[0-9]+$')]],
       correo: ['', [Validators.required, Validators.email]],
       estado: ['disponible', Validators.required],
     });
+  }
+
+  soloNumeros(event: KeyboardEvent) {
+    const char = event.key;
+    if (char.length === 1 && !/^[0-9]$/.test(char)) {
+      event.preventDefault();
+    }
+  }
+
+  soloLetras(event: KeyboardEvent) {
+    const char = event.key;
+    if (char.length === 1 && !/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]$/.test(char)) {
+      event.preventDefault();
+    }
   }
 
   ngOnInit(): void {

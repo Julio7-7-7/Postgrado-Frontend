@@ -143,6 +143,13 @@
       <td mat-cell *matCellDef="let element"> {{ element.ci }} </td>
     </ng-container>
 
+    <ng-container matColumnDef="extension">
+      <th mat-header-cell *matHeaderCellDef> Ext. </th>
+      <td mat-cell *matCellDef="let element">
+        <span class="ext-badge">{{ element.extension || '---' }}</span>
+      </td>
+    </ng-container>
+
     <ng-container matColumnDef="correo">
       <th mat-header-cell *matHeaderCellDef> Correo </th>
       <td mat-cell *matCellDef="let element">

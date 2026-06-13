@@ -3,7 +3,8 @@ export interface Docente {
   ci: string;
   nombre: string;
   apellido: string;
-  genero: 'masculino' | 'femenino' | 'otro' | null;
+  genero: 'masculino' | 'femenino' | null;
+  extension: 'LP' | 'CB' | 'SC' | 'CH' | 'OR' | 'PT' | 'TRJ' | 'BN' | 'PD' | null;
   grado: 'Dr.' | 'MSc.' | 'Mg.' | 'Esp.' | 'Ing.' | 'Lic.' | 'Otro' | null;
   titulo: string | null;
   correo: string;
