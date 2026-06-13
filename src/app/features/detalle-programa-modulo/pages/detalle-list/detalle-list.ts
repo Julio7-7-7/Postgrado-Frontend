@@ -74,7 +74,7 @@ export class DetalleListComponent implements OnInit {
   modalidades = signal<Modalidad[]>([]);
 
   forms: Record<number, FormGroup> = {};
-  horarios: Record<number, Horario[]> = {};
+  horarios = signal<Record<number, Horario[]>>({});
   saving = signal<Set<number>>(new Set());
 
   estadoOptions = [
@@ -151,10 +151,15 @@ export class DetalleListComponent implements OnInit {
       )
     ).subscribe({
       next: (results) => {
-        for (let i = 0; i < ids.length; i++) {
-          this.horarios[ids[i]] = results[i];
-        }
+        this.horarios.update(current => {
+          const next = { ...current };
+          for (let i = 0; i < ids.length; i++) {
+            next[ids[i]] = results[i];
+          }
+          return next;
+        });
       },
+      error: () => console.error('Error al cargar horarios'),
     });
   }
 
@@ -163,7 +168,7 @@ export class DetalleListComponent implements OnInit {
   }
 
   horariosDe(detalle: DetalleProgramaModulo): Horario[] {
-    return this.horarios[detalle.id_detalle_programa_modulo] || [];
+    return this.horarios()[detalle.id_detalle_programa_modulo] || [];
   }
 
   necesitaMotivo(detalle: DetalleProgramaModulo): boolean {
@@ -199,6 +204,7 @@ export class DetalleListComponent implements OnInit {
           this.detalles.update(lista =>
             lista.map(m => m.id_detalle_programa_modulo === detalle.id_detalle_programa_modulo ? actualizado : m)
           );
+          form.markAsPristine();
           this.snackbar.open(`"${detalle.modulo.sigla}" actualizado`, 'OK', { duration: 3000 });
         },
         error: (err) => {

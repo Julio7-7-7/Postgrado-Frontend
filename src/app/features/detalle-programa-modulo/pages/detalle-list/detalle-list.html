@@ -138,7 +138,7 @@
             }
             <button mat-raised-button color="primary"
               (click)="guardar(detalle)"
-              [disabled]="formDe(detalle)?.invalid || saving().has(detalle.id_detalle_programa_modulo)">
+              [disabled]="formDe(detalle)?.invalid || saving().has(detalle.id_detalle_programa_modulo) || formDe(detalle)?.pristine">
               @if (saving().has(detalle.id_detalle_programa_modulo)) {
                 <mat-spinner diameter="18" color="primary"></mat-spinner>
               } @else {
