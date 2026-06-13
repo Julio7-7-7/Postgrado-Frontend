@@ -218,6 +218,12 @@ tr.mat-mdc-row:hover {
   text-transform: capitalize;
 }
 
+.grado-badge {
+  font-weight: 600;
+  color: var(--fich-primary-dark);
+  font-size: 0.85rem;
+}
+
 .estado-badge.disponible {
   background: #e8f5e9;
   color: #2e7d32;

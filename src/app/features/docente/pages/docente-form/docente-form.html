@@ -65,8 +65,17 @@
 
         <div class="form-row">
           <mat-form-field appearance="outline">
-            <mat-label>Título</mat-label>
-            <input matInput formControlName="titulo" placeholder="Ej: Magister en Informática">
+            <mat-label>Grado</mat-label>
+            <mat-select formControlName="grado">
+              <mat-option [value]="null">Seleccionar</mat-option>
+              <mat-option value="Dr.">Dr.</mat-option>
+              <mat-option value="MSc.">MSc.</mat-option>
+              <mat-option value="Mg.">Mg.</mat-option>
+              <mat-option value="Esp.">Esp.</mat-option>
+              <mat-option value="Ing.">Ing.</mat-option>
+              <mat-option value="Lic.">Lic.</mat-option>
+              <mat-option value="Otro">Otro</mat-option>
+            </mat-select>
             <mat-icon matPrefix>school</mat-icon>
           </mat-form-field>
 
@@ -74,8 +83,17 @@
             <mat-label>Celular</mat-label>
             <input matInput formControlName="celular" placeholder="Ej: 77123456">
             <mat-icon matPrefix>phone</mat-icon>
+            @if (form.get('celular')?.hasError('pattern')) {
+              <mat-error>Solo números</mat-error>
+            }
           </mat-form-field>
         </div>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Título / Profesión</mat-label>
+          <input matInput formControlName="titulo" placeholder="Ej: Magister en Informática">
+          <mat-icon matPrefix>badge</mat-icon>
+        </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Correo Electrónico</mat-label>

@@ -4,6 +4,7 @@ export interface Docente {
   nombre: string;
   apellido: string;
   genero: 'masculino' | 'femenino' | 'otro' | null;
+  grado: 'Dr.' | 'MSc.' | 'Mg.' | 'Esp.' | 'Ing.' | 'Lic.' | 'Otro' | null;
   titulo: string | null;
   correo: string;
   celular: string | null;
