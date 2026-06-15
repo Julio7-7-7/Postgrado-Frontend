@@ -1,0 +1,177 @@
+import { Component, Inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { MatDialogModule, MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatDividerModule } from '@angular/material/divider';
+import { Docente } from '../../models/docente.model';
+
+@Component({
+  selector: 'app-docente-card-dialog',
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatDialogModule, MatButtonModule, MatIconModule, MatDividerModule,
+  ],
+  template: `
+    <div class="docente-card">
+      <div class="card-header">
+        <div class="avatar">
+          <span>{{ iniciales(data) }}</span>
+        </div>
+        <div class="header-info">
+          <h2>{{ data.grado ? data.grado + '.' : '' }} {{ data.nombre }} {{ data.apellido }}</h2>
+          <span class="docente-estado-badge" [class]="'docente-estado-' + data.estado">
+            {{ data.estado === 'disponible' ? 'Disponible' : data.estado === 'contratado' ? 'Contratado' : 'Inactivo' }}
+          </span>
+        </div>
+        <button mat-icon-button class="close-btn" (click)="cerrar()" matTooltip="Cerrar">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <div class="card-body">
+        <div class="info-group">
+          <div class="info-item">
+            <mat-icon class="item-icon">badge</mat-icon>
+            <div>
+              <span class="item-label">Cédula de Identidad</span>
+              <span class="item-value">{{ data.ci }} {{ data.extension ? data.extension : '' }}</span>
+            </div>
+          </div>
+          <div class="info-item">
+            <mat-icon class="item-icon">school</mat-icon>
+            <div>
+              <span class="item-label">Título</span>
+              <span class="item-value">{{ data.titulo || '—' }}</span>
+            </div>
+          </div>
+          <div class="info-item">
+            <mat-icon class="item-icon">email</mat-icon>
+            <div>
+              <span class="item-label">Correo</span>
+              <span class="item-value">{{ data.correo }}</span>
+            </div>
+          </div>
+          <div class="info-item">
+            <mat-icon class="item-icon">phone</mat-icon>
+            <div>
+              <span class="item-label">Celular</span>
+              <span class="item-value">{{ data.celular || '—' }}</span>
+            </div>
+          </div>
+          <div class="info-item">
+            <mat-icon class="item-icon">wc</mat-icon>
+            <div>
+              <span class="item-label">Género</span>
+              <span class="item-value">{{ data.genero ? (data.genero === 'masculino' ? 'Masculino' : 'Femenino') : '—' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `,
+  styles: [`
+    .docente-card { width: 100%; overflow: hidden; }
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 24px 24px 20px;
+      position: relative;
+    }
+    .avatar {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: var(--fich-primary);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+    .header-info { flex: 1; }
+    .header-info h2 {
+      margin: 0;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--fich-text);
+    }
+    .docente-estado-badge {
+      display: inline-block;
+      padding: 3px 12px;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      margin-top: 6px;
+    }
+    .docente-estado-disponible {
+      background: #f0fdf4;
+      color: #16a34a;
+      border: 1px solid #bbf7d0;
+    }
+    .docente-estado-contratado {
+      background: #eff6ff;
+      color: #2563eb;
+      border: 1px solid #bfdbfe;
+    }
+    .docente-estado-inactivo {
+      background: #f8fafc;
+      color: #64748b;
+      border: 1px solid #e2e8f0;
+    }
+    .close-btn {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+    }
+    .card-body { padding: 20px 24px 24px; }
+    .info-group { display: flex; flex-direction: column; gap: 16px; }
+    .info-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .item-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+      color: var(--fich-text-muted);
+      margin-top: 2px;
+    }
+    .info-item div { display: flex; flex-direction: column; gap: 2px; }
+    .item-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--fich-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .item-value {
+      font-size: 0.95rem;
+      color: var(--fich-text);
+      font-weight: 500;
+    }
+  `],
+})
+export class DocenteCardDialogComponent {
+  constructor(
+    public dialogRef: MatDialogRef<DocenteCardDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: Docente,
+  ) {}
+
+  iniciales(d: Docente): string {
+    return (d.nombre.charAt(0) + d.apellido.charAt(0)).toUpperCase();
+  }
+
+  cerrar(): void {
+    this.dialogRef.close();
+  }
+}
