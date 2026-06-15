@@ -75,9 +75,8 @@ export class DetalleGestionarComponent implements OnInit {
   horarios = signal<Horario[]>([]);
 
   readonly ESTADO_TRANSICIONES: Record<string, string[]> = {
-    programado: ['en_curso'],
-    en_curso: ['pausado', 'finalizado'],
-    pausado: ['reprogramado', 'en_curso'],
+    programado: ['en_curso', 'reprogramado'],
+    en_curso: ['reprogramado', 'finalizado'],
     reprogramado: ['programado', 'en_curso'],
     finalizado: [],
   };
@@ -85,7 +84,6 @@ export class DetalleGestionarComponent implements OnInit {
   readonly allEstados = [
     { value: 'programado', label: 'Programado' },
     { value: 'en_curso', label: 'En Curso' },
-    { value: 'pausado', label: 'Pausado' },
     { value: 'reprogramado', label: 'Reprogramado' },
     { value: 'finalizado', label: 'Finalizado' },
   ] as const;
@@ -167,7 +165,7 @@ export class DetalleGestionarComponent implements OnInit {
   }
 
   necesitaMotivo(): boolean {
-    return ['pausado', 'reprogramado'].includes(this.form.get('estado')?.value);
+    return this.form.get('estado')?.value === 'reprogramado';
   }
 
   guardar() {
