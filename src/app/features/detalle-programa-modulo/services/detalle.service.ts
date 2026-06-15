@@ -4,6 +4,16 @@ import { Observable } from 'rxjs';
 import { ApiService } from '../../../core/services/api.service';
 import { DetalleProgramaModulo, DetalleUpdate } from '../models/detalle.model';
 
+export interface ReordenarItem {
+  id_detalle: number;
+  orden: number;
+}
+
+export interface ReordenarRequest {
+  id_edicion: number;
+  ordenes: ReordenarItem[];
+}
+
 @Injectable({ providedIn: 'root' })
 export class DetalleService extends ApiService {
   private readonly endpoint = 'detalle-programa-modulo';
@@ -24,7 +34,8 @@ export class DetalleService extends ApiService {
     return this.http.patch<DetalleProgramaModulo>(`${this.baseUrl}/${this.endpoint}/${id}`, data);
   }
 
-  cancelar(id: number): Observable<DetalleProgramaModulo> {
-    return this.http.patch<DetalleProgramaModulo>(`${this.baseUrl}/${this.endpoint}/${id}/cancelar`, {});
+  reordenar(data: ReordenarRequest): Observable<any> {
+    return this.http.post(`${this.baseUrl}/${this.endpoint}/reordenar`, data);
   }
+
 }

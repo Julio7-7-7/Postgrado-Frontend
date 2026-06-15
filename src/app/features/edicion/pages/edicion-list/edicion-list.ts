@@ -49,18 +49,18 @@ export class EdicionListComponent implements OnInit {
   columnas: string[] = ['edicion', 'gestion', 'modalidad', 'estado', 'fechas', 'precio', 'acciones'];
 
   ngOnInit(): void {
-    const versionId = this.route.parent?.snapshot.paramMap.get('versionId');
-    const programaId = this.route.parent?.parent?.snapshot.paramMap.get('id');
-
-    if (!versionId) {
+    const match = this.router.url.match(/\/versiones\/(\d+)\/ediciones/);
+    if (!match) {
       this.error.set('Versión no especificada');
       this.isLoading.set(false);
       return;
     }
+    this.idVersion.set(+match[1]);
 
-    this.idVersion.set(+versionId);
-    this.idPrograma.set(programaId ? +programaId : 0);
-    this.cargarVersion(+versionId);
+    const progMatch = this.router.url.match(/\/programas\/(\d+)\/versiones/);
+    this.idPrograma.set(progMatch ? +progMatch[1] : 0);
+
+    this.cargarVersion(this.idVersion());
     this.cargarEdiciones();
   }
 
@@ -106,8 +106,9 @@ export class EdicionListComponent implements OnInit {
   }
 
   volverAVersiones(): void {
-    if (this.idPrograma()) {
-      this.router.navigate(['/programas', this.idPrograma(), 'versiones']);
+    const match = this.router.url.match(/^(\/programas\/\d+\/versiones)/);
+    if (match) {
+      this.router.navigateByUrl(match[1]);
     } else {
       this.router.navigate(['/programas']);
     }

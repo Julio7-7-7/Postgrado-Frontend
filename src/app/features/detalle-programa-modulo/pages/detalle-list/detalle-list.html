@@ -6,7 +6,7 @@
       </button>
       <div>
         <h2>Módulos de la Edición</h2>
-        <p class="subtitle">Gestione los módulos asignados a esta edición, docentes y horarios</p>
+        <p class="subtitle">Vista rápida de módulos, docentes y horarios</p>
       </div>
     </div>
   </div>
@@ -25,131 +25,117 @@
       </button>
     </div>
   } @else {
-    <div class="cards-grid">
-      @for (detalle of detalles(); track detalle.id_detalle_programa_modulo) {
-        <mat-card class="modulo-card" [class.cancelado]="detalle.estado === 'cancelado'">
-          <mat-card-header>
-            <div class="card-header-content">
-              <span class="orden-badge">#{{ detalle.orden }}</span>
-              <span class="sigla-badge">{{ detalle.modulo.sigla }}</span>
-              <span class="modulo-nombre">{{ detalle.modulo.nombre_modulo }}</span>
-              <span class="horas-creditos">{{ detalle.modulo.horas_academicas }}h · {{ detalle.modulo.creditos }} cr</span>
-            </div>
-          </mat-card-header>
+    <div class="carousel-wrapper">
+      <button class="nav-btn nav-prev" (click)="anterior()" [disabled]="currentIndex() === 0" matTooltip="Módulo anterior">
+        <mat-icon>chevron_left</mat-icon>
+      </button>
 
-          <mat-card-content>
-            <form [formGroup]="formDe(detalle)">
-              <div class="form-grid">
-                <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                  <mat-label>Docente</mat-label>
-                  <mat-select formControlName="id_docente">
-                    <mat-option [value]="null">Sin asignar</mat-option>
-                    @for (doc of docentes(); track doc.id_docente) {
-                      <mat-option [value]="doc.id_docente">
-                        {{ doc.nombre }} {{ doc.apellido }}
-                      </mat-option>
-                    }
-                  </mat-select>
-                </mat-form-field>
+      <div class="carousel-stage">
+        @for (detalle of detalles(); track detalle.id_detalle_programa_modulo; let i = $index) {
+          <mat-card class="modulo-card"
+            [class.active]="i === currentIndex()"
+            [class.prev]="i === currentIndex() - 1"
+            [class.next]="i === currentIndex() + 1"
+            [class.hidden]="i < currentIndex() - 1 || i > currentIndex() + 1">
 
-                <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                  <mat-label>Modalidad</mat-label>
-                  <mat-select formControlName="id_modalidad">
-                    <mat-option [value]="null">—</mat-option>
-                    @for (m of modalidades(); track m.id_modalidad) {
-                      <mat-option [value]="m.id_modalidad">{{ m.nombre }}</mat-option>
-                    }
-                  </mat-select>
-                </mat-form-field>
+            @if (i !== currentIndex()) {
+              <div class="card-click-catcher" (click)="irA(i)"></div>
+            }
 
-                <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                  <mat-label>Fecha inicio</mat-label>
-                  <input matInput [matDatepicker]="picker1" formControlName="fecha_inicio">
-                  <mat-datepicker-toggle matIconSuffix [for]="picker1"></mat-datepicker-toggle>
-                  <mat-datepicker #picker1></mat-datepicker>
-                </mat-form-field>
+            <mat-card-header>
+              <div class="card-header-content">
+                <span class="orden-badge">#{{ detalle.orden }}</span>
+                <span class="sigla-badge">{{ detalle.modulo.sigla }}</span>
+                <span class="modulo-nombre">{{ detalle.modulo.nombre_modulo }}</span>
+                <span class="horas-creditos">{{ detalle.modulo.horas_academicas }}h · {{ detalle.modulo.creditos }} cr</span>
+              </div>
+            </mat-card-header>
 
-                <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                  <mat-label>Fecha fin</mat-label>
-                  <input matInput [matDatepicker]="picker2" formControlName="fecha_fin">
-                  <mat-datepicker-toggle matIconSuffix [for]="picker2"></mat-datepicker-toggle>
-                  <mat-datepicker #picker2></mat-datepicker>
-                </mat-form-field>
+            <mat-card-content>
+              <div class="info-grid">
+                <div class="info-row">
+                  <span class="info-label">Docente</span>
+                  @if (detalle.docente) {
+                    <button class="info-link docente-link" (click)="abrirDocenteCard(detalle.docente.id_docente)">
+                      <mat-icon class="info-icon">person</mat-icon>
+                      {{ detalle.docente.nombre }} {{ detalle.docente.apellido }}
+                      <mat-icon class="link-icon">open_in_new</mat-icon>
+                    </button>
+                  } @else {
+                    <span class="info-value sin-asignar">Sin asignar</span>
+                  }
+                </div>
 
-                <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                  <mat-label>Estado</mat-label>
-                  <mat-select formControlName="estado">
-                    @for (opt of estadoOptions; track opt.value) {
-                      <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
-                    }
-                  </mat-select>
-                </mat-form-field>
+                <div class="info-row">
+                  <span class="info-label">Modalidad</span>
+                  <span class="info-value">{{ detalle.modalidad?.nombre || '—' }}</span>
+                </div>
 
-                @if (necesitaMotivo(detalle)) {
-                  <mat-form-field appearance="outline" class="motivo-field" subscriptSizing="dynamic">
-                    <mat-label>Motivo</mat-label>
-                    <input matInput formControlName="motivo" required minlength="5">
-                  </mat-form-field>
+                <div class="info-row">
+                  <span class="info-label">Fechas</span>
+                  <span class="info-value fechas">
+                    <mat-icon class="info-icon">calendar_today</mat-icon>
+                    {{ detalle.fecha_inicio ? (detalle.fecha_inicio | date: 'dd/MM/yyyy') : '—' }}
+                    <span class="fecha-sep">→</span>
+                    {{ detalle.fecha_fin ? (detalle.fecha_fin | date: 'dd/MM/yyyy') : '—' }}
+                  </span>
+                </div>
+
+                <div class="info-row">
+                  <span class="info-label">Estado</span>
+                  <span class="estado-badge" [class]="'estado-' + detalle.estado">
+                    {{ estadoLabel(detalle.estado) }}
+                  </span>
+                </div>
+              </div>
+
+              <mat-divider class="section-divider"></mat-divider>
+
+              <div class="horarios-section">
+                <div class="horarios-header">
+                  <span class="section-title">Horarios</span>
+                </div>
+                @if (horariosDe(detalle).length === 0) {
+                  <p class="sin-horarios">Sin horarios registrados</p>
                 }
-              </div>
-            </form>
-
-            <mat-divider class="section-divider"></mat-divider>
-
-            <div class="horarios-section">
-              <div class="horarios-header">
-                <span class="section-title">Horarios</span>
-                <button mat-stroked-button size="small" (click)="agregarHorario(detalle)">
-                  <mat-icon>add</mat-icon> Agregar
-                </button>
-              </div>
-              @if (horariosDe(detalle).length === 0) {
-                <p class="sin-horarios">Sin horarios registrados</p>
-              }
-              <div class="horarios-list">
-                @for (h of horariosDe(detalle); track h.id_horario) {
-                  <div class="horario-item" [class.cancelado]="h.estado === 'cancelado'">
-                    <span class="dia-badge">{{ diaLabel(h.dia) }}</span>
-                    <span class="hora-range">{{ h.hora_ini }} — {{ h.hora_fin }}</span>
-                    @if (h.aula) {
-                      <span class="aula-tag">{{ h.aula }}</span>
-                    }
-                    <div class="horario-actions">
-                      <button mat-icon-button size="small" (click)="editarHorario(h)" matTooltip="Editar horario">
-                        <mat-icon>edit</mat-icon>
-                      </button>
-                      @if (h.estado !== 'cancelado') {
-                        <button mat-icon-button size="small" (click)="eliminarHorario(h)" matTooltip="Eliminar horario">
-                          <mat-icon>delete_outline</mat-icon>
-                        </button>
+                <div class="horarios-list">
+                  @for (h of horariosDe(detalle); track h.id_horario) {
+                    <div class="horario-item" [class.cancelado]="h.estado === 'cancelado'">
+                      <span class="dia-badge">{{ diaLabel(h.dia) }}</span>
+                      <span class="hora-range">{{ h.hora_ini }} — {{ h.hora_fin }}</span>
+                      @if (h.aula) {
+                        <span class="aula-tag">{{ h.aula }}</span>
                       }
                     </div>
-                  </div>
-                }
+                  }
+                </div>
               </div>
-            </div>
-          </mat-card-content>
+            </mat-card-content>
 
-          <mat-card-actions align="end">
-            @if (detalle.estado !== 'cancelado') {
-              <button mat-button color="warn" (click)="cancelarModulo(detalle)" [disabled]="saving().has(detalle.id_detalle_programa_modulo)">
-                Cancelar módulo
+            <mat-card-actions>
+              <button mat-raised-button color="primary" (click)="abrirGestionar(detalle)" class="gestionar-btn">
+                <mat-icon>edit</mat-icon> Gestionar
               </button>
-            }
-            <button mat-raised-button color="primary"
-              (click)="guardar(detalle)"
-              [disabled]="formDe(detalle)?.invalid || saving().has(detalle.id_detalle_programa_modulo)">
-              @if (saving().has(detalle.id_detalle_programa_modulo)) {
-                <mat-spinner diameter="18" color="primary"></mat-spinner>
-              } @else {
-                <mat-icon>save</mat-icon>
-              }
-              Guardar
-            </button>
-          </mat-card-actions>
-        </mat-card>
-      }
+            </mat-card-actions>
+          </mat-card>
+        }
+      </div>
+
+      <button class="nav-btn nav-next" (click)="siguiente()" [disabled]="currentIndex() >= detalles().length - 1" matTooltip="Módulo siguiente">
+        <mat-icon>chevron_right</mat-icon>
+      </button>
     </div>
+
+    @if (detalles().length > 0) {
+      <div class="carousel-dots">
+        @for (detalle of detalles(); track $index) {
+          <button class="dot"
+            [class.active]="$index === currentIndex()"
+            (click)="irA($index)"
+            [attr.aria-label]="'Módulo ' + ($index + 1)"></button>
+        }
+      </div>
+    }
 
     @if (detalles().length === 0) {
       <div class="empty-state">

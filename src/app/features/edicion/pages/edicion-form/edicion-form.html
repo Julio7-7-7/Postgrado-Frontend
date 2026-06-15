@@ -99,7 +99,7 @@
         </mat-form-field>
 
         <div class="actions">
-          <button mat-stroked-button type="button" [routerLink]="['/programas', idPrograma(), 'versiones', idVersion(), 'ediciones']" class="btn-cancelar">
+          <button mat-stroked-button type="button" (click)="volverALista()" class="btn-cancelar">
             Cancelar
           </button>
           <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid || loading()" class="btn-guardar">

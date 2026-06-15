@@ -35,14 +35,48 @@ export interface HorarioDialogData {
           </mat-select>
         </mat-form-field>
         <div class="time-row">
-          <mat-form-field appearance="outline">
-            <mat-label>Hora inicio</mat-label>
-            <input matInput type="time" formControlName="hora_ini" required>
-          </mat-form-field>
-          <mat-form-field appearance="outline">
-            <mat-label>Hora fin</mat-label>
-            <input matInput type="time" formControlName="hora_fin" required>
-          </mat-form-field>
+          <div class="time-group">
+            <span class="time-label">Hora inicio</span>
+            <div class="time-picker">
+              <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <mat-select formControlName="hora_ini_h" placeholder="HH">
+                  @for (h of horas; track h) {
+                    <mat-option [value]="h">{{ h }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+              <span class="time-sep">:</span>
+              <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <mat-select formControlName="hora_ini_m" placeholder="MM">
+                  @for (m of minutos; track m) {
+                    <mat-option [value]="m">{{ m }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+              <mat-icon class="clock-icon">schedule</mat-icon>
+            </div>
+          </div>
+          <div class="time-group">
+            <span class="time-label">Hora fin</span>
+            <div class="time-picker">
+              <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <mat-select formControlName="hora_fin_h" placeholder="HH">
+                  @for (h of horas; track h) {
+                    <mat-option [value]="h">{{ h }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+              <span class="time-sep">:</span>
+              <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <mat-select formControlName="hora_fin_m" placeholder="MM">
+                  @for (m of minutos; track m) {
+                    <mat-option [value]="m">{{ m }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+              <mat-icon class="clock-icon">schedule</mat-icon>
+            </div>
+          </div>
         </div>
         <mat-form-field appearance="outline">
           <mat-label>Aula</mat-label>
@@ -58,24 +92,38 @@ export interface HorarioDialogData {
     </mat-dialog-actions>
   `,
   styles: [`
-    .horario-form { display: flex; flex-direction: column; gap: 16px; min-width: 320px; padding-top: 8px; }
-    .time-row { display: flex; gap: 12px; }
-    .time-row mat-form-field { flex: 1; }
+    .horario-form { display: flex; flex-direction: column; gap: 16px; min-width: 420px; padding-top: 8px; }
+    .time-row { display: flex; gap: 20px; }
+    .time-group { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+    .time-label { font-size: 0.75rem; font-weight: 600; color: var(--fich-text-muted); padding-left: 4px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .time-picker { display: flex; align-items: flex-start; gap: 4px; }
+    .time-picker mat-form-field { width: 64px; }
+    ::ng-deep .time-picker .mat-mdc-text-field-wrapper { padding: 0 8px !important; }
+    ::ng-deep .time-picker .mat-mdc-form-field-subscript-wrapper { display: none !important; }
+    ::ng-deep .time-picker .mat-mdc-select-trigger { font-size: 1rem; font-weight: 700; font-family: 'Roboto Mono', monospace; color: var(--fich-primary-dark); }
+    .time-sep { font-size: 1.5rem; font-weight: 800; color: var(--fich-primary-dark); padding: 12px 0 0 0; line-height: 1; }
+    .clock-icon { color: var(--fich-text-faint); font-size: 22px; width: 22px; height: 22px; margin: 10px 0 0 4px; }
   `]
 })
 export class HorarioDialogComponent {
   form: FormGroup;
   dias: Dia[] = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'];
+  horas: string[] = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'));
+  minutos: string[] = ['00', '15', '30', '45'];
 
   constructor(
     private fb: FormBuilder,
     public dialogRef: MatDialogRef<HorarioDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: HorarioDialogData,
   ) {
+    const ini = data.horario?.hora_ini?.split(':') || ['', ''];
+    const fin = data.horario?.hora_fin?.split(':') || ['', ''];
     this.form = this.fb.group({
       dia: [data.horario?.dia || '', Validators.required],
-      hora_ini: [data.horario?.hora_ini || '', Validators.required],
-      hora_fin: [data.horario?.hora_fin || '', Validators.required],
+      hora_ini_h: [ini[0] || '', Validators.required],
+      hora_ini_m: [ini[1] || '', Validators.required],
+      hora_fin_h: [fin[0] || '', Validators.required],
+      hora_fin_m: [fin[1] || '', Validators.required],
       aula: [data.horario?.aula || ''],
     });
   }
@@ -86,6 +134,16 @@ export class HorarioDialogComponent {
 
   guardar(): void {
     if (this.form.invalid) return;
-    this.dialogRef.close(this.form.value as HorarioCreate | HorarioUpdate);
+    const v = this.form.value;
+    const resultado: HorarioCreate | HorarioUpdate = {
+      dia: v.dia,
+      hora_ini: `${v.hora_ini_h}:${v.hora_ini_m}`,
+      hora_fin: `${v.hora_fin_h}:${v.hora_fin_m}`,
+      aula: v.aula || null,
+    } as any;
+    if (this.data.horario) {
+      (resultado as HorarioUpdate).estado = 'activo';
+    }
+    this.dialogRef.close(resultado);
   }
 }

@@ -1,0 +1,74 @@
+<h2 mat-dialog-title>
+  <span class="dialog-title-modulo">{{ data.detalle.modulo.sigla }} — {{ data.detalle.modulo.nombre_modulo }}</span>
+  <span class="dialog-estado-badge" [class]="'estado-' + data.detalle.estado">{{ etiquetaEstado(data.detalle.estado) }}</span>
+</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="form" class="dialog-form">
+    <div class="form-section">
+      <h3 class="section-subtitle">Nuevo estado</h3>
+      <mat-radio-group formControlName="nuevo_estado" class="estado-radio-group">
+        @for (opt of estadosDisponibles(); track opt.value) {
+          <mat-radio-button [value]="opt.value" [class.selected]="opt.value === form.get('nuevo_estado')?.value">
+            {{ opt.label }}
+          </mat-radio-button>
+        }
+      </mat-radio-group>
+    </div>
+
+    <div class="form-section">
+      <h3 class="section-subtitle">Fechas</h3>
+      <div class="fechas-row">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Fecha inicio</mat-label>
+          <input matInput [matDatepicker]="picker1" formControlName="fecha_inicio">
+          <mat-datepicker-toggle matIconSuffix [for]="picker1"></mat-datepicker-toggle>
+          <mat-datepicker #picker1></mat-datepicker>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Fecha fin</mat-label>
+          <input matInput [matDatepicker]="picker2" formControlName="fecha_fin">
+          <mat-datepicker-toggle matIconSuffix [for]="picker2"></mat-datepicker-toggle>
+          <mat-datepicker #picker2></mat-datepicker>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <h3 class="section-subtitle">Motivo</h3>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Describa el motivo de la modificación</mat-label>
+        <textarea matInput formControlName="motivo" rows="3" required></textarea>
+        @if (form.get('motivo')?.hasError('required') && form.get('motivo')?.touched) {
+          <mat-error>El motivo es obligatorio</mat-error>
+        }
+        @if (form.get('motivo')?.hasError('minlength')) {
+          <mat-error>Mínimo 5 caracteres</mat-error>
+        }
+      </mat-form-field>
+    </div>
+
+    <div class="form-section">
+      <h3 class="section-subtitle">Reordenar módulos</h3>
+      <p class="section-hint">Arrastre los módulos para cambiar su orden de ejecución</p>
+      <div cdkDropList class="reorden-list" (cdkDropListDropped)="onDrop($event)">
+        @for (m of modulos(); track m.id_detalle_programa_modulo; let i = $index) {
+          <div class="reorden-item" cdkDrag [class.is-current]="m.id_detalle_programa_modulo === currentId">
+            <span class="reorden-orden">{{ i + 1 }}</span>
+            <span class="reorden-sigla">{{ m.modulo.sigla }}</span>
+            <span class="reorden-nombre">{{ m.modulo.nombre_modulo }}</span>
+            <span class="reorden-estado" [class]="'estado-' + m.estado">{{ etiquetaEstado(m.estado) }}</span>
+            <mat-icon class="reorden-handle" cdkDragHandle>drag_indicator</mat-icon>
+          </div>
+        }
+      </div>
+    </div>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onNoClick()">Cancelar</button>
+  <button mat-raised-button color="primary" [disabled]="form.invalid" (click)="confirmar()">
+    Confirmar modificación
+  </button>
+</mat-dialog-actions>
