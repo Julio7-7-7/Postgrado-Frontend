@@ -62,27 +62,22 @@
               <mat-datepicker-toggle matIconSuffix [for]="picker2"></mat-datepicker-toggle>
               <mat-datepicker #picker2></mat-datepicker>
             </mat-form-field>
-
-            <mat-form-field appearance="outline" subscriptSizing="dynamic">
-              <mat-label>Estado</mat-label>
-              <mat-select formControlName="estado">
-                @for (opt of estadoDisponible(); track opt.value) {
-                  <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
-
-            @if (necesitaMotivo()) {
-              <mat-form-field appearance="outline" class="motivo-field" subscriptSizing="dynamic">
-                <mat-label>Motivo</mat-label>
-                <input matInput formControlName="motivo" required minlength="5">
-              </mat-form-field>
-            }
           </div>
         </form>
 
+        <div class="estado-bar">
+          <div class="estado-line">
+            <span class="estado-label">Estado</span>
+            <span class="estado-badge" [class]="'estado-' + d.estado">{{ labelEstado(d.estado) }}</span>
+          </div>
+          <button mat-raised-button color="primary" (click)="abrirModificarDialog()" [disabled]="loading()">
+            <mat-icon>edit</mat-icon>
+            Modificar
+          </button>
+        </div>
+
         <div class="form-actions">
-          <button mat-raised-button color="primary"
+          <button mat-stroked-button
             (click)="guardar()"
             [disabled]="form.invalid || loading() || form.pristine">
             @if (loading()) {

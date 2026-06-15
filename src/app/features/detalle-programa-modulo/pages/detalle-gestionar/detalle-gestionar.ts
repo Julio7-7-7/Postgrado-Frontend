@@ -1,9 +1,8 @@
-import { Component, OnInit, signal, computed, inject, DestroyRef } from '@angular/core';
+import { Component, OnInit, signal, inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { forkJoin } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -25,6 +24,7 @@ import { DetalleProgramaModulo, DetalleUpdate } from '../../models/detalle.model
 import { Horario, HorarioCreate, HorarioUpdate } from '../../../horario/models/horario.model';
 import { HorarioDialogComponent, HorarioDialogData } from '../../../horario/components/horario-dialog/horario-dialog';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog';
+import { ModificarDialogComponent, ModificarResult } from '../../components/modificar-dialog/modificar-dialog';
 import { aFechaString } from '../../../../core/utils/date-utils';
 
 @Component({
@@ -74,36 +74,12 @@ export class DetalleGestionarComponent implements OnInit {
   modalidades = signal<Modalidad[]>([]);
   horarios = signal<Horario[]>([]);
 
-  readonly ESTADO_TRANSICIONES: Record<string, string[]> = {
-    programado: ['en_curso', 'reprogramado'],
-    en_curso: ['reprogramado', 'finalizado'],
-    reprogramado: ['programado', 'en_curso'],
-    finalizado: [],
-  };
-
-  readonly allEstados = [
-    { value: 'programado', label: 'Programado' },
-    { value: 'en_curso', label: 'En Curso' },
-    { value: 'reprogramado', label: 'Reprogramado' },
-    { value: 'finalizado', label: 'Finalizado' },
-  ] as const;
-
-  estadoDisponible = computed(() => {
-    const d = this.detalle();
-    if (!d) return this.allEstados;
-    const permitidos = new Set(this.ESTADO_TRANSICIONES[d.estado] ?? []);
-    permitidos.add(d.estado);
-    return this.allEstados.filter(opt => permitidos.has(opt.value));
-  });
-
   constructor() {
     this.form = this.fb.group({
       id_docente: [null],
       id_modalidad: [null],
       fecha_inicio: [null],
       fecha_fin: [null],
-      estado: ['programado', Validators.required],
-      motivo: [''],
     });
   }
 
@@ -143,8 +119,8 @@ export class DetalleGestionarComponent implements OnInit {
           id_modalidad: data.id_modalidad,
           fecha_inicio: data.fecha_inicio ? new Date(data.fecha_inicio) : null,
           fecha_fin: data.fecha_fin ? new Date(data.fecha_fin) : null,
-          estado: data.estado,
         });
+        this.form.markAsPristine();
         this.cargandoDatos.set(false);
         this.cargarHorarios();
       },
@@ -164,8 +140,93 @@ export class DetalleGestionarComponent implements OnInit {
     });
   }
 
-  necesitaMotivo(): boolean {
-    return this.form.get('estado')?.value === 'reprogramado';
+  labelEstado(estado: string): string {
+    const map: Record<string, string> = {
+      programado: 'Programado', en_curso: 'En Curso', reprogramado: 'Reprogramado', finalizado: 'Finalizado',
+    };
+    return map[estado] || estado;
+  }
+
+  abrirModificarDialog() {
+    const d = this.detalle();
+    if (!d) return;
+    this.loading.set(true);
+    this.detalleService.getAll(this.idEdicion()).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (modulos) => {
+        this.loading.set(false);
+        const dialogRef = this.dialog.open(ModificarDialogComponent, {
+          width: '700px',
+          data: { detalle: d, modulos },
+        });
+        dialogRef.afterClosed().subscribe((result: ModificarResult | undefined) => {
+          if (!result) return;
+          this.aplicarModificacion(result);
+        });
+      },
+      error: () => {
+        this.loading.set(false);
+        this.snackbar.open('Error al cargar datos', 'Cerrar', { duration: 4000 });
+      },
+    });
+  }
+
+  private aplicarModificacion(result: ModificarResult) {
+    const d = this.detalle();
+    if (!d) return;
+    this.loading.set(true);
+
+    const estadoCambio = result.estado !== d.estado;
+    const fechasCambio = result.fecha_inicio !== d.fecha_inicio || result.fecha_fin !== d.fecha_fin;
+
+    const hayPatch = estadoCambio || fechasCambio;
+    const hayReorder = !!result.ordenes;
+
+    if (!hayPatch && !hayReorder) {
+      this.loading.set(false);
+      return;
+    }
+
+    const hacerPatch = () => {
+      if (!hayPatch) {
+        if (hayReorder) return hacerReorder();
+        this.loading.set(false);
+        return;
+      }
+
+      const patch: DetalleUpdate = {};
+      if (estadoCambio) {
+        patch.estado = result.estado;
+        patch.motivo = result.motivo;
+      }
+      if (fechasCambio) {
+        patch.fecha_inicio = result.fecha_inicio;
+        patch.fecha_fin = result.fecha_fin;
+      }
+
+      this.detalleService.update(d.id_detalle_programa_modulo, patch)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: () => { if (hayReorder) hacerReorder(); else finalizar(); },
+          error: (err) => this.manejarError(err),
+        });
+    };
+
+    const hacerReorder = () => {
+      this.detalleService.reordenar({ id_edicion: d.id_programa_version_edicion, ordenes: result.ordenes! })
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: () => finalizar(),
+          error: (err) => this.manejarError(err),
+        });
+    };
+
+    const finalizar = () => {
+      this.loading.set(false);
+      this.snackbar.open('Módulo modificado con éxito', 'OK', { duration: 3000 });
+      this.cargarDetalle(d.id_detalle_programa_modulo);
+    };
+
+    hacerPatch();
   }
 
   guardar() {
@@ -178,30 +239,29 @@ export class DetalleGestionarComponent implements OnInit {
       id_modalidad: raw.id_modalidad ?? null,
       fecha_inicio: raw.fecha_inicio ? aFechaString(raw.fecha_inicio) : null,
       fecha_fin: raw.fecha_fin ? aFechaString(raw.fecha_fin) : null,
-      estado: raw.estado,
     };
-
-    if (this.necesitaMotivo() && raw.motivo) {
-      datos.motivo = raw.motivo;
-    }
 
     this.detalleService.update(this.detalle()!.id_detalle_programa_modulo, datos)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: () => {
-          this.loading.set(false);
-          this.snackbar.open('Módulo actualizado con éxito', 'OK', { duration: 3000 });
-          this.form.markAsPristine();
-        },
-        error: (err) => {
-          this.loading.set(false);
-          const detalle = err.error?.detail;
-          const mensaje = Array.isArray(detalle)
-            ? detalle.map((d: any) => d.msg || JSON.stringify(d)).join(' | ')
-            : detalle || 'Error al actualizar';
-          this.snackbar.open(mensaje, 'Cerrar', { duration: 8000 });
-        },
+        next: () => this.recargarTrasAccion('Módulo actualizado con éxito'),
+        error: (err) => this.manejarError(err),
       });
+  }
+
+  private recargarTrasAccion(mensaje = 'Módulo actualizado con éxito') {
+    this.loading.set(false);
+    this.snackbar.open(mensaje, 'OK', { duration: 3000 });
+    this.cargarDetalle(this.detalle()!.id_detalle_programa_modulo);
+  }
+
+  private manejarError(err: any) {
+    this.loading.set(false);
+    const detalle = err.error?.detail;
+    const mensaje = Array.isArray(detalle)
+      ? detalle.map((d: any) => d.msg || JSON.stringify(d)).join(' | ')
+      : detalle || 'Error al actualizar';
+    this.snackbar.open(mensaje, 'Cerrar', { duration: 8000 });
   }
 
   agregarHorario() {
