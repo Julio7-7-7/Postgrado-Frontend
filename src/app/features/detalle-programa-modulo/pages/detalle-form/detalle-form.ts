@@ -72,7 +72,6 @@ export class DetalleFormComponent implements OnInit {
     { value: 'pausado', label: 'Pausado' },
     { value: 'reprogramado', label: 'Reprogramado' },
     { value: 'finalizado', label: 'Finalizado' },
-    { value: 'cancelado', label: 'Cancelado' },
   ];
 
   infoModulo = signal('');
@@ -143,7 +142,7 @@ export class DetalleFormComponent implements OnInit {
 
   necesitaMotivo(): boolean {
     const estado = this.form.get('estado')?.value;
-    return ['pausado', 'reprogramado', 'cancelado'].includes(estado);
+    return ['pausado', 'reprogramado'].includes(estado);
   }
 
   guardar() {

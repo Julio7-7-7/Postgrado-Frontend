@@ -7,7 +7,7 @@ export interface DetalleProgramaModulo {
   orden: number;
   fecha_inicio: string | null;
   fecha_fin: string | null;
-  estado: 'programado' | 'en_curso' | 'pausado' | 'reprogramado' | 'finalizado' | 'cancelado';
+  estado: 'programado' | 'en_curso' | 'pausado' | 'reprogramado' | 'finalizado';
   modulo: {
     id_modulo: number;
     sigla: string;

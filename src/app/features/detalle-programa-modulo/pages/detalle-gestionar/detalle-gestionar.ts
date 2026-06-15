@@ -75,12 +75,11 @@ export class DetalleGestionarComponent implements OnInit {
   horarios = signal<Horario[]>([]);
 
   readonly ESTADO_TRANSICIONES: Record<string, string[]> = {
-    programado: ['en_curso', 'cancelado'],
-    en_curso: ['pausado', 'finalizado', 'cancelado'],
-    pausado: ['reprogramado', 'en_curso', 'cancelado'],
-    reprogramado: ['programado', 'en_curso', 'cancelado'],
-    finalizado: ['cancelado'],
-    cancelado: [],
+    programado: ['en_curso'],
+    en_curso: ['pausado', 'finalizado'],
+    pausado: ['reprogramado', 'en_curso'],
+    reprogramado: ['programado', 'en_curso'],
+    finalizado: [],
   };
 
   readonly allEstados = [
@@ -89,7 +88,6 @@ export class DetalleGestionarComponent implements OnInit {
     { value: 'pausado', label: 'Pausado' },
     { value: 'reprogramado', label: 'Reprogramado' },
     { value: 'finalizado', label: 'Finalizado' },
-    { value: 'cancelado', label: 'Cancelado' },
   ] as const;
 
   estadoDisponible = computed(() => {
@@ -169,7 +167,7 @@ export class DetalleGestionarComponent implements OnInit {
   }
 
   necesitaMotivo(): boolean {
-    return ['pausado', 'reprogramado', 'cancelado'].includes(this.form.get('estado')?.value);
+    return ['pausado', 'reprogramado'].includes(this.form.get('estado')?.value);
   }
 
   guardar() {
@@ -206,30 +204,6 @@ export class DetalleGestionarComponent implements OnInit {
           this.snackbar.open(mensaje, 'Cerrar', { duration: 8000 });
         },
       });
-  }
-
-  cancelarModulo() {
-    const d = this.detalle();
-    if (!d || !(this.ESTADO_TRANSICIONES[d.estado]?.includes('cancelado'))) return;
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      width: '420px',
-      data: {
-        titulo: 'Cancelar Módulo',
-        mensaje: `¿Está seguro de cancelar "${d.modulo.sigla} — ${d.modulo.nombre_modulo}" en esta edición?`,
-      },
-    });
-    dialogRef.afterClosed().subscribe((confirmado: boolean) => {
-      if (!confirmado) return;
-      this.detalleService.cancelar(d.id_detalle_programa_modulo)
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe({
-          next: () => {
-            this.snackbar.open('Módulo cancelado', 'OK', { duration: 3000 });
-            this.volverAlCarrusel();
-          },
-          error: () => this.snackbar.open('Error al cancelar', 'Cerrar', { duration: 4000 }),
-        });
-    });
   }
 
   agregarHorario() {

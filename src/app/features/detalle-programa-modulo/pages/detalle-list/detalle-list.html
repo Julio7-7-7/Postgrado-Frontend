@@ -36,8 +36,7 @@
             [class.active]="i === currentIndex()"
             [class.prev]="i === currentIndex() - 1"
             [class.next]="i === currentIndex() + 1"
-            [class.hidden]="i < currentIndex() - 1 || i > currentIndex() + 1"
-            [class.cancelado]="detalle.estado === 'cancelado'">
+            [class.hidden]="i < currentIndex() - 1 || i > currentIndex() + 1">
 
             @if (i !== currentIndex()) {
               <div class="card-click-catcher" (click)="irA(i)"></div>

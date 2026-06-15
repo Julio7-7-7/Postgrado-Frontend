@@ -160,7 +160,7 @@ export class DetalleListComponent implements OnInit {
   estadoLabel(estado: string): string {
     const map: Record<string, string> = {
       programado: 'Programado', en_curso: 'En Curso', pausado: 'Pausado',
-      reprogramado: 'Reprogramado', finalizado: 'Finalizado', cancelado: 'Cancelado',
+      reprogramado: 'Reprogramado', finalizado: 'Finalizado',
     };
     return map[estado] || estado;
   }

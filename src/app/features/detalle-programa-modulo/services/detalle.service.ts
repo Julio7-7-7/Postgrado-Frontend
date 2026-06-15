@@ -24,7 +24,4 @@ export class DetalleService extends ApiService {
     return this.http.patch<DetalleProgramaModulo>(`${this.baseUrl}/${this.endpoint}/${id}`, data);
   }
 
-  cancelar(id: number): Observable<DetalleProgramaModulo> {
-    return this.http.patch<DetalleProgramaModulo>(`${this.baseUrl}/${this.endpoint}/${id}/cancelar`, {});
-  }
 }

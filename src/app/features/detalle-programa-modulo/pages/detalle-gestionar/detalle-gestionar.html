@@ -82,9 +82,6 @@
         </form>
 
         <div class="form-actions">
-          <button mat-button color="warn" (click)="cancelarModulo()" [disabled]="!(ESTADO_TRANSICIONES[d.estado]?.includes('cancelado'))">
-            Cancelar módulo
-          </button>
           <button mat-raised-button color="primary"
             (click)="guardar()"
             [disabled]="form.invalid || loading() || form.pristine">
@@ -102,11 +99,9 @@
         <div class="section-head">
           <mat-icon class="section-icon">schedule</mat-icon>
           <span class="section-title">Horarios</span>
-          @if (d.estado !== 'cancelado') {
-            <button mat-stroked-button (click)="agregarHorario()" class="add-btn">
-              <mat-icon>add</mat-icon> Agregar
-            </button>
-          }
+          <button mat-stroked-button (click)="agregarHorario()" class="add-btn">
+            <mat-icon>add</mat-icon> Agregar
+          </button>
         </div>
 
         @if (horarios().length === 0) {
