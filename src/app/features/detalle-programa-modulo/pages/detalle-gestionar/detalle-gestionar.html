@@ -66,7 +66,7 @@
             <mat-form-field appearance="outline" subscriptSizing="dynamic">
               <mat-label>Estado</mat-label>
               <mat-select formControlName="estado">
-                @for (opt of estadoOptions; track opt.value) {
+                @for (opt of estadoDisponible(); track opt.value) {
                   <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
                 }
               </mat-select>
@@ -82,7 +82,7 @@
         </form>
 
         <div class="form-actions">
-          <button mat-button color="warn" (click)="cancelarModulo()" [disabled]="d.estado === 'cancelado'">
+          <button mat-button color="warn" (click)="cancelarModulo()" [disabled]="!(ESTADO_TRANSICIONES[d.estado]?.includes('cancelado'))">
             Cancelar módulo
           </button>
           <button mat-raised-button color="primary"

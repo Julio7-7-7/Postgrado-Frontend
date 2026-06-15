@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject, DestroyRef } from '@angular/core';
+import { Component, OnInit, signal, computed, inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -74,14 +74,31 @@ export class DetalleGestionarComponent implements OnInit {
   modalidades = signal<Modalidad[]>([]);
   horarios = signal<Horario[]>([]);
 
-  estadoOptions = [
+  readonly ESTADO_TRANSICIONES: Record<string, string[]> = {
+    programado: ['en_curso', 'cancelado'],
+    en_curso: ['pausado', 'finalizado', 'cancelado'],
+    pausado: ['reprogramado', 'en_curso', 'cancelado'],
+    reprogramado: ['programado', 'en_curso', 'cancelado'],
+    finalizado: ['cancelado'],
+    cancelado: [],
+  };
+
+  readonly allEstados = [
     { value: 'programado', label: 'Programado' },
     { value: 'en_curso', label: 'En Curso' },
     { value: 'pausado', label: 'Pausado' },
     { value: 'reprogramado', label: 'Reprogramado' },
     { value: 'finalizado', label: 'Finalizado' },
     { value: 'cancelado', label: 'Cancelado' },
-  ];
+  ] as const;
+
+  estadoDisponible = computed(() => {
+    const d = this.detalle();
+    if (!d) return this.allEstados;
+    const permitidos = new Set(this.ESTADO_TRANSICIONES[d.estado] ?? []);
+    permitidos.add(d.estado);
+    return this.allEstados.filter(opt => permitidos.has(opt.value));
+  });
 
   constructor() {
     this.form = this.fb.group({
@@ -193,7 +210,7 @@ export class DetalleGestionarComponent implements OnInit {
 
   cancelarModulo() {
     const d = this.detalle();
-    if (!d || d.estado === 'cancelado') return;
+    if (!d || !(this.ESTADO_TRANSICIONES[d.estado]?.includes('cancelado'))) return;
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '420px',
       data: {
