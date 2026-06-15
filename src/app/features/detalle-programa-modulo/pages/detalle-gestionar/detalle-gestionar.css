@@ -4,88 +4,143 @@
   margin: 0 auto;
 }
 
-.header-section {
+/* ─── Header ─── */
+
+.header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
+  align-items: flex-start;
+  gap: var(--fich-space-md);
   margin-bottom: var(--fich-space-xl);
-  flex-wrap: wrap;
 }
-.header-left { display: flex; align-items: center; gap: 16px; }
-.back-btn { margin-right: 4px; }
-.header-section h2 {
+
+.back-btn {
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.header-info h1 {
   margin: 0;
-  color: var(--fich-primary-dark);
+  font-size: 1.35rem;
   font-weight: 800;
-  font-size: 1.4rem;
-  letter-spacing: -0.5px;
-}
-.subtitle { color: var(--fich-text-muted); font-size: 0.85rem; margin-top: 2px; }
-
-.gestionar-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--fich-space-xl);
-  align-items: start;
+  color: var(--fich-primary-dark);
+  letter-spacing: -0.4px;
+  line-height: 1.3;
 }
 
-.form-card, .horarios-card {
-  border-radius: var(--fich-radius-lg);
+.header-sigla {
+  display: inline-block;
+  background: var(--fich-primary);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: var(--fich-radius-sm);
+  margin-right: 8px;
+  vertical-align: middle;
+  letter-spacing: 0.3px;
+}
+
+.header-meta {
+  margin: 4px 0 0;
+  color: var(--fich-text-muted);
+  font-size: 0.85rem;
+}
+
+/* ─── Content sections ─── */
+
+.content-grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fich-space-lg);
+}
+
+.section {
+  background: var(--fich-bg-card);
   border: 1px solid var(--fich-border);
-  box-shadow: var(--fich-shadow-md);
+  border-radius: var(--fich-radius-lg);
+  box-shadow: var(--fich-shadow-sm);
+  overflow: hidden;
 }
 
-.mat-mdc-card-header {
-  padding: var(--fich-space-lg) var(--fich-space-xl);
-  border-bottom: 1px solid var(--fich-border-light);
+.section-head {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+  padding: var(--fich-space-md) var(--fich-space-lg);
+  border-bottom: 1px solid var(--fich-border-light);
+  background: var(--fich-bg-subtle);
 }
-.mat-mdc-card-header mat-icon[matCardAvatar] {
+
+.section-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
   color: var(--fich-primary);
+  flex-shrink: 0;
 }
-.mat-mdc-card-header .mat-mdc-card-title {
-  font-size: 1.05rem;
+
+.section-title {
+  font-size: 0.95rem;
   font-weight: 700;
   color: var(--fich-text);
+  flex: 1;
 }
 
-.mat-mdc-card-content {
-  padding: var(--fich-space-lg) var(--fich-space-xl);
+.add-btn {
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+/* ─── Form ─── */
+
+.form-body {
+  padding: var(--fich-space-lg);
 }
 
 .form-fields {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.form-row-duo {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px;
+  gap: var(--fich-space-md);
 }
 
-.mat-mdc-card-actions {
-  padding: var(--fich-space-md) var(--fich-space-xl) var(--fich-space-lg);
-  border-top: 1px solid var(--fich-border-light);
+.form-fields .motivo-field {
+  grid-column: 1 / -1;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
   gap: 12px;
+  padding: var(--fich-space-md) var(--fich-space-lg);
+  border-top: 1px solid var(--fich-border-light);
 }
 
-.add-horario-btn {
-  margin-left: auto;
-}
+/* ─── Horarios ─── */
 
-.sin-horarios {
+.empty-horarios {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 40px 20px;
   color: var(--fich-text-faint);
-  font-style: italic;
+}
+
+.empty-horarios .mat-icon {
+  font-size: 40px;
+  width: 40px;
+  height: 40px;
+  opacity: 0.5;
+}
+
+.empty-horarios p {
+  margin: 0;
   font-size: 0.9rem;
-  margin: 12px 0;
+  font-style: italic;
 }
 
 .horarios-list {
+  padding: var(--fich-space-md) var(--fich-space-lg);
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -95,31 +150,43 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 12px 16px;
+  padding: 10px 14px;
   background: var(--fich-bg-subtle);
   border-radius: var(--fich-radius-md);
   border: 1px solid var(--fich-border-light);
   font-size: 0.92rem;
+  transition: var(--fich-transition);
+}
+.horario-item:hover {
+  border-color: var(--fich-border);
+  background: var(--fich-bg-hover);
 }
 .horario-item.cancelado {
-  opacity: 0.5;
+  opacity: 0.45;
   text-decoration: line-through;
+  pointer-events: none;
 }
 
 .dia-badge {
-  display: inline-flex; align-items: center;
-  background: var(--fich-primary-light); color: var(--fich-primary-dark);
-  font-weight: 700; font-size: 0.8rem;
-  padding: 4px 12px; border-radius: var(--fich-radius-sm);
+  display: inline-flex;
+  align-items: center;
+  background: var(--fich-primary-light);
+  color: var(--fich-primary-dark);
+  font-weight: 700;
+  font-size: 0.8rem;
+  padding: 4px 12px;
+  border-radius: var(--fich-radius-sm);
   min-width: 48px;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .hora-range {
   font-family: 'Roboto Mono', monospace;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   color: var(--fich-text);
   font-weight: 600;
+  white-space: nowrap;
 }
 
 .aula-tag {
@@ -128,22 +195,29 @@
   font-size: 0.82rem;
   padding: 3px 10px;
   border-radius: var(--fich-radius-sm);
+  flex-shrink: 0;
 }
 
 .horario-actions {
   margin-left: auto;
   display: flex;
-  gap: 4px;
+  gap: 2px;
+  flex-shrink: 0;
 }
 
+/* ─── Loading ─── */
+
 .loading-container {
-  padding: 80px 20px; display: flex;
-  flex-direction: column; align-items: center; gap: 16px;
+  padding: 80px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
 }
+
+/* ─── Responsive ─── */
 
 @media (max-width: 720px) {
   .page-container { padding: var(--fich-space-md); }
-  .header-section { flex-direction: column; align-items: stretch; }
-  .gestionar-grid { grid-template-columns: 1fr; }
-  .form-row-duo { grid-template-columns: 1fr; }
+  .form-fields { grid-template-columns: 1fr; }
 }

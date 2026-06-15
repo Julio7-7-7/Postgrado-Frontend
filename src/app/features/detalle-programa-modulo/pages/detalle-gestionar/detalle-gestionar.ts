@@ -4,7 +4,6 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { forkJoin } from 'rxjs';
-import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -15,7 +14,6 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
-import { MatDividerModule } from '@angular/material/divider';
 import { provideNativeDateAdapter, MAT_DATE_LOCALE } from '@angular/material/core';
 import { DetalleService } from '../../services/detalle.service';
 import { DocenteService } from '../../../docente/services/docente.service';
@@ -46,10 +44,10 @@ import { aFechaString } from '../../../../core/utils/date-utils';
   ],
   imports: [
     CommonModule, ReactiveFormsModule,
-    MatCardModule, MatButtonModule, MatIconModule, MatTooltipModule,
+    MatButtonModule, MatIconModule, MatTooltipModule,
     MatFormFieldModule, MatInputModule, MatSelectModule,
     MatDatepickerModule, MatProgressSpinnerModule, MatSnackBarModule,
-    MatDialogModule, MatDividerModule,
+    MatDialogModule,
   ],
   templateUrl: './detalle-gestionar.html',
   styleUrl: './detalle-gestionar.css',
