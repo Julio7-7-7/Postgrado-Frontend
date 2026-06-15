@@ -162,9 +162,14 @@
   background: var(--fich-bg-hover);
 }
 .horario-item.cancelado {
-  opacity: 0.45;
+  opacity: 0.5;
   text-decoration: line-through;
-  pointer-events: none;
+  background: var(--fich-bg-card);
+  border-color: var(--fich-border);
+}
+.horario-item.cancelado:hover {
+  border-color: var(--fich-border);
+  background: var(--fich-bg-card);
 }
 
 .dia-badge {
@@ -204,6 +209,7 @@
   gap: 2px;
   flex-shrink: 0;
 }
+.restore-btn { color: var(--fich-success); }
 
 /* ─── Loading ─── */
 

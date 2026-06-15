@@ -278,6 +278,18 @@ export class DetalleGestionarComponent implements OnInit {
     });
   }
 
+  reactivarHorario(horario: Horario) {
+    this.horarioService.update(horario.id_horario, { estado: 'activo' })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.cargarHorarios();
+          this.snackbar.open('Horario restaurado', 'OK', { duration: 3000 });
+        },
+        error: (err) => this.snackbar.open(err.error?.detail || 'Error al restaurar horario', 'Cerrar', { duration: 5000 }),
+      });
+  }
+
   eliminarHorario(horario: Horario) {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '420px',

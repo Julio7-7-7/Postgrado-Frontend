@@ -128,7 +128,11 @@
                 <button mat-icon-button size="small" (click)="editarHorario(h)" matTooltip="Editar horario">
                   <mat-icon>edit</mat-icon>
                 </button>
-                @if (h.estado !== 'cancelado') {
+                @if (h.estado === 'cancelado') {
+                  <button mat-icon-button size="small" (click)="reactivarHorario(h)" matTooltip="Restaurar horario" class="restore-btn">
+                    <mat-icon>restore</mat-icon>
+                  </button>
+                } @else {
                   <button mat-icon-button size="small" (click)="eliminarHorario(h)" matTooltip="Eliminar horario">
                     <mat-icon>delete_outline</mat-icon>
                   </button>
