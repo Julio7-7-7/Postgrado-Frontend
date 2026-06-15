@@ -95,11 +95,6 @@
               <div class="horarios-section">
                 <div class="horarios-header">
                   <span class="section-title">Horarios</span>
-                  @if (detalle.estado !== 'cancelado') {
-                    <button mat-stroked-button size="small" (click)="agregarHorario(detalle)">
-                      <mat-icon>add</mat-icon> Agregar
-                    </button>
-                  }
                 </div>
                 @if (horariosDe(detalle).length === 0) {
                   <p class="sin-horarios">Sin horarios registrados</p>
@@ -112,23 +107,13 @@
                       @if (h.aula) {
                         <span class="aula-tag">{{ h.aula }}</span>
                       }
-                      <div class="horario-actions">
-                        <button mat-icon-button size="small" (click)="editarHorario(h)" matTooltip="Editar horario">
-                          <mat-icon>edit</mat-icon>
-                        </button>
-                        @if (h.estado !== 'cancelado') {
-                          <button mat-icon-button size="small" (click)="eliminarHorario(h)" matTooltip="Eliminar horario">
-                            <mat-icon>delete_outline</mat-icon>
-                          </button>
-                        }
-                      </div>
                     </div>
                   }
                 </div>
               </div>
             </mat-card-content>
 
-            <mat-card-actions align="end">
+            <mat-card-actions>
               <button mat-raised-button color="primary" (click)="abrirGestionar(detalle)" class="gestionar-btn">
                 <mat-icon>edit</mat-icon> Gestionar
               </button>

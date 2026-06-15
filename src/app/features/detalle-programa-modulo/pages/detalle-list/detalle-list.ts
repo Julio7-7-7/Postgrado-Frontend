@@ -1,6 +1,6 @@
 import { Component, OnInit, signal, inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { forkJoin } from 'rxjs';
 import { MatCardModule } from '@angular/material/card';
@@ -11,13 +11,11 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
-import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog';
 import { DetalleService } from '../../services/detalle.service';
 import { DocenteService } from '../../../docente/services/docente.service';
 import { HorarioService } from '../../../horario/services/horario.service';
 import { DetalleProgramaModulo } from '../../models/detalle.model';
-import { Horario, HorarioCreate, HorarioUpdate } from '../../../horario/models/horario.model';
-import { HorarioDialogComponent, HorarioDialogData } from '../../../horario/components/horario-dialog/horario-dialog';
+import { Horario } from '../../../horario/models/horario.model';
 import { DocenteCardDialogComponent } from '../../../docente/components/docente-card-dialog/docente-card-dialog';
 
 @Component({
@@ -149,70 +147,6 @@ export class DetalleListComponent implements OnInit {
 
   horariosDe(detalle: DetalleProgramaModulo): Horario[] {
     return this.horarios()[detalle.id_detalle_programa_modulo] || [];
-  }
-
-  agregarHorario(detalle: DetalleProgramaModulo) {
-    const dialogRef = this.dialog.open(HorarioDialogComponent, {
-      width: '500px',
-      data: { detalleId: detalle.id_detalle_programa_modulo } satisfies HorarioDialogData,
-    });
-    dialogRef.afterClosed().subscribe((result: HorarioCreate | undefined) => {
-      if (!result) return;
-      result.id_detalle_programa_modulo = detalle.id_detalle_programa_modulo;
-      this.horarioService.create(result).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-        next: () => {
-          this.cargarTodosHorarios();
-          this.snackbar.open('Horario agregado', 'OK', { duration: 3000 });
-        },
-        error: (err) => this.snackbar.open(err.error?.detail || 'Error al crear horario', 'Cerrar', { duration: 5000 }),
-      });
-    });
-  }
-
-  editarHorario(horario: Horario) {
-    const dialogRef = this.dialog.open(HorarioDialogComponent, {
-      width: '500px',
-      data: {
-        detalleId: horario.id_detalle_programa_modulo,
-        horario: {
-          id: horario.id_horario,
-          dia: horario.dia,
-          hora_ini: horario.hora_ini,
-          hora_fin: horario.hora_fin,
-          aula: horario.aula,
-        },
-      } satisfies HorarioDialogData,
-    });
-    dialogRef.afterClosed().subscribe((result: HorarioUpdate | undefined) => {
-      if (!result) return;
-      this.horarioService.update(horario.id_horario, result).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-        next: () => {
-          this.cargarTodosHorarios();
-          this.snackbar.open('Horario actualizado', 'OK', { duration: 3000 });
-        },
-        error: (err) => this.snackbar.open(err.error?.detail || 'Error al actualizar horario', 'Cerrar', { duration: 5000 }),
-      });
-    });
-  }
-
-  eliminarHorario(horario: Horario) {
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      width: '420px',
-      data: {
-        titulo: 'Eliminar Horario',
-        mensaje: `¿Está seguro de eliminar el horario del ${horario.dia} ${horario.hora_ini}-${horario.hora_fin}?`,
-      },
-    });
-    dialogRef.afterClosed().subscribe((confirmado: boolean) => {
-      if (!confirmado) return;
-      this.horarioService.cancelar(horario.id_horario).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-        next: () => {
-          this.cargarTodosHorarios();
-          this.snackbar.open('Horario eliminado', 'OK', { duration: 3000 });
-        },
-        error: () => this.snackbar.open('Error al eliminar horario', 'Cerrar', { duration: 4000 }),
-      });
-    });
   }
 
   diaLabel(dia: string): string {

@@ -352,20 +352,19 @@
   border-radius: var(--fich-radius-sm);
 }
 
-.horario-actions {
-  margin-left: auto;
-  display: flex;
-  gap: 4px;
-}
-
 .mat-mdc-card-actions {
   padding: var(--fich-space-md) var(--fich-space-xl) var(--fich-space-lg);
   border-top: 1px solid var(--fich-border-light);
-  gap: 12px;
 }
 
+.gestionar-btn {
+  width: 100%;
+  padding: 8px 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
 .gestionar-btn mat-icon {
-  margin-right: 4px;
+  margin-right: 6px;
 }
 
 .carousel-dots {
