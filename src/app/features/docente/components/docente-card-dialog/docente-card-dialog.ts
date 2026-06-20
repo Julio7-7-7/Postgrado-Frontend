@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { MatDialogModule, MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDividerModule } from '@angular/material/divider';
 import { Docente } from '../../models/docente.model';
 
@@ -11,7 +12,7 @@ import { Docente } from '../../models/docente.model';
   standalone: true,
   imports: [
     CommonModule,
-    MatDialogModule, MatButtonModule, MatIconModule, MatDividerModule,
+    MatDialogModule, MatButtonModule, MatIconModule, MatTooltipModule, MatDividerModule,
   ],
   template: `
     <div class="docente-card">
