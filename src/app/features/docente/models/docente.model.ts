@@ -1,7 +1,7 @@
 export type GeneroDocente = 'masculino' | 'femenino';
 export type ExtensionDocente = 'LP' | 'CB' | 'SC' | 'CH' | 'OR' | 'PT' | 'TRJ' | 'BN' | 'PD';
 export type GradoDocente = 'Dr.' | 'MSc.' | 'Mg.' | 'Esp.' | 'Ing.' | 'Lic.' | 'Otro';
-export type EstadoDocente = 'disponible' | 'contratado' | 'inactivo';
+export type EstadoDocente = 'activo' | 'inactivo';
 
 export interface Docente {
   id_docente: number;
@@ -15,6 +15,7 @@ export interface Docente {
   correo: string;
   celular: string | null;
   estado: EstadoDocente;
+  tiene_modulos_activos: boolean;
   created_at: string;
   updated_at: string;
 }

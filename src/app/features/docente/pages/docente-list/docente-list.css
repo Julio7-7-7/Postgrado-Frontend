@@ -238,19 +238,28 @@ tr.mat-mdc-row:hover {
   border-radius: 4px;
 }
 
-.estado-badge.disponible {
+.estado-badge.activo {
   background: #e8f5e9;
   color: #2e7d32;
-}
-
-.estado-badge.contratado {
-  background: #e3f2fd;
-  color: #1565c0;
 }
 
 .estado-badge.inactivo {
   background: #fce4ec;
   color: #c62828;
+}
+
+.dictando-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: var(--fich-radius-full);
+  font-size: 0.7rem;
+  font-weight: 700;
+  background: #dbeafe;
+  color: #1e40af;
+  margin-left: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 
 .loading-container, .empty-state {

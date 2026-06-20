@@ -53,6 +53,13 @@
   flex-shrink: 0;
 }
 
+.header-badges {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+
 .estado-badge {
   display: inline-block;
   padding: 4px 14px;
@@ -61,25 +68,32 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.03em;
-  margin-top: 6px;
 }
 
-.estado-disponible {
+.estado-activo {
   background: #f0fdf4;
   color: #16a34a;
   border: 1px solid #bbf7d0;
-}
-
-.estado-contratado {
-  background: #eff6ff;
-  color: #2563eb;
-  border: 1px solid #bfdbfe;
 }
 
 .estado-inactivo {
   background: #f8fafc;
   color: #64748b;
   border: 1px solid #e2e8f0;
+}
+
+.dictando-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: #dbeafe;
+  color: #1e40af;
+  border: 1px solid #bfdbfe;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 
 .perfil-body {

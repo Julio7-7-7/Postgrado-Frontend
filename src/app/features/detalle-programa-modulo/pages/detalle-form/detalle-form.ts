@@ -100,7 +100,7 @@ export class DetalleFormComponent implements OnInit {
 
   private cargarDocentes() {
     this.docenteService.getAll().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (data) => this.docentes.set(data.filter(d => d.estado === 'disponible' || d.estado === 'contratado')),
+      next: (data) => this.docentes.set(data        .filter(d => d.estado === 'activo')),
     });
   }
 

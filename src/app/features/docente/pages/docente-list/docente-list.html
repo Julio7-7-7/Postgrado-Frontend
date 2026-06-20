@@ -81,14 +81,14 @@
 
         <mat-tab>
           <ng-template mat-tab-label>
-            <mat-icon class="tab-icon">work</mat-icon>
-            <span>Contratados</span>
-            @if (listaContratados().length > 0) {
-              <span class="tab-badge secondary">{{ listaContratados().length }}</span>
+            <mat-icon class="tab-icon">play_circle</mat-icon>
+            <span>Dictando</span>
+            @if (listaDictando().length > 0) {
+              <span class="tab-badge secondary">{{ listaDictando().length }}</span>
             }
           </ng-template>
           <div class="table-content">
-            <ng-container *ngTemplateOutlet="tablaTemplate; context: { $implicit: listaContratados() }"></ng-container>
+            <ng-container *ngTemplateOutlet="tablaTemplate; context: { $implicit: listaDictando() }"></ng-container>
           </div>
         </mat-tab>
 
@@ -172,11 +172,13 @@
     <ng-container matColumnDef="estado">
       <th mat-header-cell *matHeaderCellDef> Estado </th>
       <td mat-cell *matCellDef="let element">
-        <span class="estado-badge" [class.disponible]="element.estado === 'disponible'"
-                                   [class.contratado]="element.estado === 'contratado'"
-                                   [class.inactivo]="element.estado === 'inactivo'">
-          {{ element.estado }}
-        </span>
+        @if (element.estado === 'inactivo') {
+          <span class="estado-badge inactivo">Inactivo</span>
+        } @else if (element.tiene_modulos_activos) {
+          <span class="dictando-badge">Dictando</span>
+        } @else {
+          <span class="estado-badge activo">Activo</span>
+        }
       </td>
     </ng-container>
 

@@ -27,9 +27,15 @@
         <div class="avatar">{{ iniciales() }}</div>
         <div class="header-info">
           <h1>{{ d.grado ? d.grado + '. ' : '' }}{{ d.nombre }} {{ d.apellido }}</h1>
-          <span class="estado-badge" [class]="'estado-' + d.estado">
-            {{ d.estado === 'disponible' ? 'Disponible' : d.estado === 'contratado' ? 'Contratado' : 'Inactivo' }}
-          </span>
+          <div class="header-badges">
+            @if (d.estado === 'inactivo') {
+              <span class="estado-badge estado-inactivo">Inactivo</span>
+            } @else if (d.tiene_modulos_activos) {
+              <span class="dictando-badge">Dictando</span>
+            } @else {
+              <span class="estado-badge estado-activo">Activo</span>
+            }
+          </div>
         </div>
         <div class="header-actions">
           <button mat-raised-button color="primary" [routerLink]="['/docentes/editar', d.id_docente]">

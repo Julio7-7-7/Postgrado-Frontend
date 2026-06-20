@@ -59,7 +59,7 @@ export class DocenteFormComponent implements OnInit {
       titulo: [null, [Validators.maxLength(100)]],
       celular: [null, [Validators.maxLength(20), Validators.pattern('^[0-9]+$')]],
       correo: ['', [Validators.required, Validators.email]],
-      estado: ['disponible', Validators.required],
+      estado: ['activo', Validators.required],
     });
   }
 

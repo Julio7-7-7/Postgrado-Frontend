@@ -55,9 +55,10 @@ export class DocenteListComponent implements OnInit {
   error = signal<string | null>(null);
   criterioOrden = signal<'id' | 'nombre' | 'estado'>('id');
 
-  listaDisponibles = computed(() => this.filtrarYOrdenar('disponible'));
-  listaContratados = computed(() => this.filtrarYOrdenar('contratado'));
+  listaActivos = computed(() => this.filtrarYOrdenar('activo'));
   listaInactivos = computed(() => this.filtrarYOrdenar('inactivo'));
+  listaDictando = computed(() => this.listaActivos().filter(d => d.tiene_modulos_activos));
+  listaDisponibles = computed(() => this.listaActivos().filter(d => !d.tiene_modulos_activos));
 
   columnas: string[] = ['id', 'nombre', 'ci', 'extension', 'correo', 'grado', 'titulo', 'estado', 'acciones'];
 
