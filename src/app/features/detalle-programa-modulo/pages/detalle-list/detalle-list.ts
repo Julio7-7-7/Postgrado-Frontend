@@ -130,7 +130,7 @@ export class DetalleListComponent implements OnInit {
       ids.map(id =>
         this.horarioService.getAll(id).pipe(takeUntilDestroyed(this.destroyRef))
       )
-    ).subscribe({
+    ).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (results) => {
         this.horarios.update(current => {
           const next = { ...current };

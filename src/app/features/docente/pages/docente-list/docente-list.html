@@ -81,19 +81,6 @@
 
         <mat-tab>
           <ng-template mat-tab-label>
-            <mat-icon class="tab-icon">person</mat-icon>
-            <span>Disponibles</span>
-            @if (listaDisponibles().length > 0) {
-              <span class="tab-badge">{{ listaDisponibles().length }}</span>
-            }
-          </ng-template>
-          <div class="table-content">
-            <ng-container *ngTemplateOutlet="tablaTemplate; context: { $implicit: listaDisponibles() }"></ng-container>
-          </div>
-        </mat-tab>
-
-        <mat-tab>
-          <ng-template mat-tab-label>
             <mat-icon class="tab-icon">work</mat-icon>
             <span>Contratados</span>
             @if (listaContratados().length > 0) {
@@ -102,6 +89,19 @@
           </ng-template>
           <div class="table-content">
             <ng-container *ngTemplateOutlet="tablaTemplate; context: { $implicit: listaContratados() }"></ng-container>
+          </div>
+        </mat-tab>
+
+        <mat-tab>
+          <ng-template mat-tab-label>
+            <mat-icon class="tab-icon">person</mat-icon>
+            <span>Disponibles</span>
+            @if (listaDisponibles().length > 0) {
+              <span class="tab-badge">{{ listaDisponibles().length }}</span>
+            }
+          </ng-template>
+          <div class="table-content">
+            <ng-container *ngTemplateOutlet="tablaTemplate; context: { $implicit: listaDisponibles() }"></ng-container>
           </div>
         </mat-tab>
 

@@ -76,9 +76,7 @@
                       </div>
                     }
                     <div class="card-footer">
-                      <span class="card-estado"
-                        [style.background]="colorEstado(edicion.estado) + '18'"
-                        [style.color]="colorEstado(edicion.estado)">
+                      <span [class]="'card-estado estado-badge--' + edicion.estado">
                         {{ edicion.estado === 'en_curso' ? 'En curso' : (edicion.estado.charAt(0).toUpperCase() + edicion.estado.slice(1)) }}
                       </span>
                       <span class="card-cta">
@@ -118,9 +116,7 @@
                       </div>
                     }
                     <div class="card-footer">
-                      <span class="card-estado"
-                        [style.background]="colorEstado(edicion.estado) + '18'"
-                        [style.color]="colorEstado(edicion.estado)">
+                      <span [class]="'card-estado estado-badge--' + edicion.estado">
                         {{ edicion.estado === 'en_curso' ? 'En curso' : (edicion.estado.charAt(0).toUpperCase() + edicion.estado.slice(1)) }}
                       </span>
                       <span class="card-cta">
@@ -140,15 +136,15 @@
     <h2 class="section-title">Módulos del Sistema</h2>
 
     <div class="cards-grid stagger-list">
-      @for (card of cards; track card.path) {
-        <mat-card class="nav-card" [style.--card-accent]="card.color" [routerLink]="card.path">
+      @for (card of cards; track card.path; let i = $index) {
+        <mat-card class="nav-card" [class]="'nav-card nav-card--' + i" [routerLink]="card.path">
           <mat-card-content>
-            <div class="card-icon-wrap" [style.background]="card.color + '15'">
-              <mat-icon [style.color]="card.color">{{ card.icon }}</mat-icon>
+            <div class="card-icon-wrap">
+              <mat-icon>{{ card.icon }}</mat-icon>
             </div>
             <h3>{{ card.title }}</h3>
             <p>{{ card.desc }}</p>
-            <div class="card-arrow" [style.color]="card.color">
+            <div class="card-arrow">
               <span>Ir</span>
               <mat-icon>arrow_forward</mat-icon>
             </div>

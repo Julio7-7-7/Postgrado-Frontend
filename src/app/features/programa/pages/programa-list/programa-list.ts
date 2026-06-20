@@ -1,6 +1,7 @@
-import { Component, OnInit, signal, inject, computed } from '@angular/core';
+import { Component, OnInit, signal, inject, computed, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router, ActivatedRoute } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -42,6 +43,7 @@ export class ProgramaListComponent implements OnInit {
   private snackbar = inject(MatSnackBar);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private destroyRef = inject(DestroyRef);
 
   apiUrl = environment.apiUrl;
   listaTotal = signal<Programa[]>([]);
@@ -69,7 +71,7 @@ export class ProgramaListComponent implements OnInit {
     this.isLoading.set(true);
     this.error.set(null);
 
-    this.service.getAll().subscribe({
+    this.service.getAll().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: data => {
         this.listaTotal.set(data);
         this.isLoading.set(false);

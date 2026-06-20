@@ -158,7 +158,7 @@ export class DetalleGestionarComponent implements OnInit {
           width: '700px',
           data: { detalle: d, modulos },
         });
-        dialogRef.afterClosed().subscribe((result: ModificarResult | undefined) => {
+        dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result: ModificarResult | undefined) => {
           if (!result) return;
           this.aplicarModificacion(result);
         });
@@ -271,7 +271,7 @@ export class DetalleGestionarComponent implements OnInit {
       width: '500px',
       data: { detalleId: d.id_detalle_programa_modulo } satisfies HorarioDialogData,
     });
-    dialogRef.afterClosed().subscribe((result: HorarioCreate | undefined) => {
+    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result: HorarioCreate | undefined) => {
       if (!result) return;
       result.id_detalle_programa_modulo = d.id_detalle_programa_modulo;
       this.horarioService.create(result).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
@@ -298,7 +298,7 @@ export class DetalleGestionarComponent implements OnInit {
         },
       } satisfies HorarioDialogData,
     });
-    dialogRef.afterClosed().subscribe((result: HorarioUpdate | undefined) => {
+    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result: HorarioUpdate | undefined) => {
       if (!result) return;
       this.horarioService.update(horario.id_horario, result).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: () => {
@@ -330,7 +330,7 @@ export class DetalleGestionarComponent implements OnInit {
         mensaje: `¿Está seguro de eliminar el horario del ${horario.dia} ${horario.hora_ini}-${horario.hora_fin}?`,
       },
     });
-    dialogRef.afterClosed().subscribe((confirmado: boolean) => {
+    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((confirmado: boolean) => {
       if (!confirmado) return;
       this.horarioService.cancelar(horario.id_horario).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: () => {

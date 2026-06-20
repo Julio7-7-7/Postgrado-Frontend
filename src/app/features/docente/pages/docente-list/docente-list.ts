@@ -1,7 +1,8 @@
-import { Component, OnInit, signal, inject, computed } from '@angular/core';
+import { Component, OnInit, signal, inject, computed, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
@@ -45,6 +46,7 @@ export class DocenteListComponent implements OnInit {
   private service = inject(DocenteService);
   private dialog = inject(MatDialog);
   private snackbar = inject(MatSnackBar);
+  private destroyRef = inject(DestroyRef);
 
   listaTotal = signal<Docente[]>([]);
   terminoBusqueda = signal('');
@@ -90,7 +92,7 @@ export class DocenteListComponent implements OnInit {
     this.isLoading.set(true);
     this.error.set(null);
 
-    this.service.getAll().subscribe({
+    this.service.getAll().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (data) => {
         this.listaTotal.set(data);
         this.isLoading.set(false);
@@ -113,7 +115,7 @@ export class DocenteListComponent implements OnInit {
       }
     });
 
-    dialogRef.afterClosed().subscribe((confirmado: boolean) => {
+    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((confirmado: boolean) => {
       if (confirmado) {
         this.ejecutarCancelar(docente);
       }
@@ -121,7 +123,7 @@ export class DocenteListComponent implements OnInit {
   }
 
   private ejecutarCancelar(docente: Docente): void {
-    this.service.cancelar(docente.id_docente).subscribe({
+    this.service.cancelar(docente.id_docente).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.snackbar.open(`Docente "${docente.nombre} ${docente.apellido}" dado de baja`, 'OK', { duration: 3000 });
         this.cargarDatos();

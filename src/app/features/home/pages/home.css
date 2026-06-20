@@ -9,7 +9,7 @@
   position: relative;
   padding: 56px 24px 48px;
   text-align: center;
-  background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #2563eb 100%);
+  background: linear-gradient(135deg, #0f172a 0%, var(--fich-primary) 50%, var(--fich-primary-hover) 100%);
   overflow: hidden;
 }
 .hero::after {
@@ -137,9 +137,9 @@
   font-weight: 500;
 }
 
-.program-icon { color: #2563eb; }
-.teacher-icon { color: #059669; }
-.mod-icon { color: #7c3aed; }
+.program-icon { color: var(--fich-primary-hover); }
+.teacher-icon { color: var(--fich-success); }
+.mod-icon { color: var(--fich-reprogramado); }
 
 /* ── Section title ── */
 .section-title {
@@ -167,7 +167,7 @@
 
 .nav-card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.1);
+  box-shadow: var(--fich-shadow-xl);
   border-color: var(--card-accent);
 }
 
@@ -186,12 +186,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  background: color-mix(in srgb, var(--card-accent) 15%, transparent);
 }
 
 .card-icon-wrap mat-icon {
   font-size: 28px;
   width: 28px;
   height: 28px;
+  color: var(--card-accent);
 }
 
 .nav-card h3 {
@@ -218,6 +220,7 @@
   opacity: 0;
   transform: translateX(-6px);
   transition: all 0.2s ease;
+  color: var(--card-accent);
 }
 
 .nav-card:hover .card-arrow {
@@ -285,7 +288,7 @@
 /* ── Photo ── */
 .card-photo {
   height: 130px;
-  background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 50%, #7c3aed 100%);
+  background: linear-gradient(135deg, var(--fich-primary) 0%, var(--fich-primary-hover) 50%, var(--fich-reprogramado) 100%);
   flex-shrink: 0;
   position: relative;
   overflow: hidden;
@@ -442,6 +445,20 @@
     flex: 0 0 320px;
   }
 }
+
+/* ─── Estado Badge classes (replaces inline colorEstado()) ─── */
+.estado-badge--programado { background: var(--fich-primary-light); color: var(--fich-primary); }
+.estado-badge--en_curso { background: var(--fich-success-light); color: var(--fich-success); }
+.estado-badge--reprogramado { background: var(--fich-reprogramado-bg); color: var(--fich-reprogramado); }
+.estado-badge--finalizado { background: var(--fich-bg-subtle); color: var(--fich-text-muted); }
+.estado-badge--cancelado { background: var(--fich-accent-light); color: var(--fich-accent); }
+.estado-badge--pausado { background: var(--fich-warning-light); color: var(--fich-warning); }
+
+/* ─── Nav card accent variants (replaces card.color from TS) ─── */
+.nav-card--0 { --card-accent: var(--fich-primary-hover); }
+.nav-card--1 { --card-accent: var(--fich-reprogramado); }
+.nav-card--2 { --card-accent: #0891b2; }
+.nav-card--3 { --card-accent: var(--fich-success); }
 
 @media (max-width: 640px) {
   .stats-row { grid-template-columns: 1fr; }
