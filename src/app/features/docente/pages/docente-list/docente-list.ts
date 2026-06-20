@@ -1,6 +1,6 @@
 import { Component, OnInit, signal, inject, computed, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
@@ -46,6 +46,7 @@ export class DocenteListComponent implements OnInit {
   private service = inject(DocenteService);
   private dialog = inject(MatDialog);
   private snackbar = inject(MatSnackBar);
+  private router = inject(Router);
   private destroyRef = inject(DestroyRef);
 
   listaTotal = signal<Docente[]>([]);
@@ -106,7 +107,12 @@ export class DocenteListComponent implements OnInit {
     });
   }
 
-  confirmarCancelar(docente: Docente): void {
+  irADetalle(id: number): void {
+    this.router.navigate(['/docentes', id]);
+  }
+
+  confirmarCancelar(docente: Docente, event: Event): void {
+    event.stopPropagation();
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '420px',
       data: {

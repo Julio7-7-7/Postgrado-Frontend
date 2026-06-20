@@ -188,6 +188,10 @@ tr.mat-mdc-row:hover {
   background-color: var(--fich-bg-hover);
 }
 
+.clickable-row {
+  cursor: pointer;
+}
+
 .id-cell {
   font-family: 'Roboto Mono', monospace;
   font-weight: 600;
