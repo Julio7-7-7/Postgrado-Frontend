@@ -19,7 +19,6 @@ interface NavCard {
   icon: string;
   title: string;
   desc: string;
-  color: string;
 }
 
 const CARD_STEP = 400; // 380 card + 20 gap
@@ -58,10 +57,10 @@ export class HomeComponent implements OnInit {
   private scrollTimeout: ReturnType<typeof setTimeout> | null = null;
 
   cards: NavCard[] = [
-    { path: '/programas', icon: 'menu_book', title: 'Programas', desc: 'Gestiona maestrías, diplomados y cursos', color: '#2563eb' },
-    { path: '/tipos-programa', icon: 'category', title: 'Tipos de Programa', desc: 'Categorías académicas y duración', color: '#7c3aed' },
-    { path: '/alumnos', icon: 'people', title: 'Alumnos', desc: 'Inscripciones y documentación', color: '#0891b2' },
-    { path: '/docentes', icon: 'person_pin', title: 'Docentes', desc: 'Banco de docentes y asignaciones', color: '#059669' },
+    { path: '/programas', icon: 'menu_book', title: 'Programas', desc: 'Gestiona maestrías, diplomados y cursos' },
+    { path: '/tipos-programa', icon: 'category', title: 'Tipos de Programa', desc: 'Categorías académicas y duración' },
+    { path: '/alumnos', icon: 'people', title: 'Alumnos', desc: 'Inscripciones y documentación' },
+    { path: '/docentes', icon: 'person_pin', title: 'Docentes', desc: 'Banco de docentes y asignaciones' },
   ];
 
   ngOnInit(): void {
@@ -177,14 +176,5 @@ export class HomeComponent implements OnInit {
     return d.toLocaleDateString('es-BO', { day: '2-digit', month: 'short', year: 'numeric' });
   }
 
-  colorEstado(estado: string): string {
-    const colores: Record<string, string> = {
-      programado: '#2563eb',
-      en_curso: '#16a34a',
-      pausado: '#ca8a04',
-      finalizado: '#64748b',
-      cancelado: '#dc2626',
-    };
-    return colores[estado] || '#64748b';
-  }
+
 }

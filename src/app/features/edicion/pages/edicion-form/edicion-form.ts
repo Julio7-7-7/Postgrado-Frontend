@@ -330,7 +330,7 @@ export class EdicionFormComponent implements OnInit {
           mensaje: `Ya existen ediciones que se solapan con las fechas seleccionadas: ${this.textoAdvertenciaSolapamiento}. ¿Desea continuar de todas formas?`,
         },
       });
-      dialogRef.afterClosed().subscribe((confirmado: boolean) => {
+      dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((confirmado: boolean) => {
         if (!confirmado) return;
         this.ejecutarGuardar();
       });

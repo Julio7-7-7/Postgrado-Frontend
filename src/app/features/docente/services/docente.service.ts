@@ -3,6 +3,7 @@ import { HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ApiService } from '../../../core/services/api.service';
 import { Docente, DocenteCreate } from '../models/docente.model';
+import { DetalleProgramaModulo } from '../../detalle-programa-modulo/models/detalle.model';
 
 @Injectable({ providedIn: 'root' })
 export class DocenteService extends ApiService {
@@ -30,5 +31,10 @@ export class DocenteService extends ApiService {
 
   cancelar(id: number): Observable<Docente> {
     return this.http.patch<Docente>(`${this.baseUrl}/${this.endpoint}/${id}/cancelar`, {});
+  }
+
+  getModulos(idDocente: number): Observable<DetalleProgramaModulo[]> {
+    let params = new HttpParams().set('id_docente', idDocente);
+    return this.http.get<DetalleProgramaModulo[]>(`${this.baseUrl}/detalle-programa-modulo/`, { params });
   }
 }

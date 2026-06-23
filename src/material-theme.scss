@@ -26,7 +26,7 @@ html {
 body {
   margin: 0;
   font-family: 'Inter', Roboto, "Helvetica Neue", sans-serif;
-  background-color: #f1f5f9;
+  background-color: var(--fich-bg);
   height: 100%;
 }
 
@@ -85,7 +85,7 @@ body {
   --fich-transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 
   /* ─── Material Overrides ─── */
-  --mat-toolbar-container-background-color: #21509b !important;
+  --mat-toolbar-container-background-color: var(--fich-primary) !important;
   --mat-toolbar-container-text-color: white !important;
   --mat-sys-primary: #1a3a6c;
   --mat-sys-on-primary: white;

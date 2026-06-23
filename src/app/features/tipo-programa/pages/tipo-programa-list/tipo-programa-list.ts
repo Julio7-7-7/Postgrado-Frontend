@@ -1,7 +1,8 @@
-import { Component, OnInit, signal, inject, computed } from '@angular/core';
+import { Component, OnInit, signal, inject, computed, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 // Angular Material
 import { MatTableModule } from '@angular/material/table';
@@ -49,6 +50,7 @@ export class TipoProgramaListComponent implements OnInit {
   private service = inject(TipoProgramaService);
   private dialog = inject(MatDialog);
   private snackbar = inject(MatSnackBar);
+  private destroyRef = inject(DestroyRef);
 
   // Estados Base
   listaTotal = signal<TipoPrograma[]>([]);
@@ -101,7 +103,7 @@ export class TipoProgramaListComponent implements OnInit {
     this.isLoading.set(true);
     this.error.set(null);
 
-    this.service.getAll().subscribe({
+    this.service.getAll().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (data) => {
         this.listaTotal.set(data);
         this.isLoading.set(false);
@@ -127,7 +129,7 @@ export class TipoProgramaListComponent implements OnInit {
       }
     });
 
-    dialogRef.afterClosed().subscribe((confirmado: boolean) => {
+    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((confirmado: boolean) => {
       if (confirmado) {
         this.ejecutarCambioEstado(registro, esActivoOriginal);
       } else {
@@ -139,7 +141,7 @@ export class TipoProgramaListComponent implements OnInit {
   private ejecutarCambioEstado(registro: TipoPrograma, esActivoAnterior: boolean): void {
     const nuevoEstado = esActivoAnterior ? 'inactivo' : 'activo';
     
-    this.service.update(registro.id_tipo_programa, { estado: nuevoEstado }).subscribe({
+    this.service.update(registro.id_tipo_programa, { estado: nuevoEstado }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (registroActualizado: TipoPrograma) => {
         this.listaTotal.update(lista =>
           lista.map(t => t.id_tipo_programa === registro.id_tipo_programa ? registroActualizado : t)

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { MatDialogModule, MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDividerModule } from '@angular/material/divider';
 import { Docente } from '../../models/docente.model';
 
@@ -11,7 +12,7 @@ import { Docente } from '../../models/docente.model';
   standalone: true,
   imports: [
     CommonModule,
-    MatDialogModule, MatButtonModule, MatIconModule, MatDividerModule,
+    MatDialogModule, MatButtonModule, MatIconModule, MatTooltipModule, MatDividerModule,
   ],
   template: `
     <div class="docente-card">
@@ -21,8 +22,11 @@ import { Docente } from '../../models/docente.model';
         </div>
         <div class="header-info">
           <h2>{{ data.grado ? data.grado + '.' : '' }} {{ data.nombre }} {{ data.apellido }}</h2>
-          <span class="docente-estado-badge" [class]="'docente-estado-' + data.estado">
-            {{ data.estado === 'disponible' ? 'Disponible' : data.estado === 'contratado' ? 'Contratado' : 'Inactivo' }}
+          <span class="docente-estado-badge"
+                [class.docente-estado-activo]="!data.tiene_modulos_activos && data.estado === 'activo'"
+                [class.docente-estado-inactivo]="data.estado === 'inactivo'"
+                [class.docente-estado-dictando]="data.tiene_modulos_activos">
+            {{ data.estado === 'inactivo' ? 'Inactivo' : data.tiene_modulos_activos ? 'Dictando' : 'Activo' }}
           </span>
         </div>
         <button mat-icon-button class="close-btn" (click)="cerrar()" matTooltip="Cerrar">
@@ -112,20 +116,20 @@ import { Docente } from '../../models/docente.model';
       letter-spacing: 0.03em;
       margin-top: 6px;
     }
-    .docente-estado-disponible {
+    .docente-estado-activo {
       background: #f0fdf4;
       color: #16a34a;
       border: 1px solid #bbf7d0;
-    }
-    .docente-estado-contratado {
-      background: #eff6ff;
-      color: #2563eb;
-      border: 1px solid #bfdbfe;
     }
     .docente-estado-inactivo {
       background: #f8fafc;
       color: #64748b;
       border: 1px solid #e2e8f0;
+    }
+    .docente-estado-dictando {
+      background: #dbeafe;
+      color: #1e40af;
+      border: 1px solid #bfdbfe;
     }
     .close-btn {
       position: absolute;

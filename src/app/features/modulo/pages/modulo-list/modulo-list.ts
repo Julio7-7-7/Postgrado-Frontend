@@ -125,14 +125,14 @@ export class ModuloListComponent implements OnInit {
       },
     });
 
-    dialogRef.afterClosed().subscribe((confirmado: boolean) => {
+    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((confirmado: boolean) => {
       if (!confirmado) {
         event.source.checked = esActivoOriginal;
         return;
       }
 
       const nuevoEstado = esActivoOriginal ? 'inactivo' : 'activo';
-      this.moduloService.update(modulo.id_modulo, { estado: nuevoEstado }).subscribe({
+      this.moduloService.update(modulo.id_modulo, { estado: nuevoEstado }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: (actualizado: Modulo) => {
           this.modulos.update(lista =>
             lista.map(m => (m.id_modulo === modulo.id_modulo ? actualizado : m))

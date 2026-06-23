@@ -116,13 +116,13 @@ export class ProgramaVersionListComponent implements OnInit {
       },
     });
 
-    dialogRef.afterClosed().subscribe((confirmado: boolean) => {
+    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((confirmado: boolean) => {
       if (!confirmado) {
         event.source.checked = !nuevoVigente;
         return;
       }
 
-      this.versionService.update(version.id_programa_version, { vigente: nuevoVigente }).subscribe({
+      this.versionService.update(version.id_programa_version, { vigente: nuevoVigente }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: (actualizada: ProgramaVersion) => {
           this.versiones.update(lista =>
             lista.map(v =>

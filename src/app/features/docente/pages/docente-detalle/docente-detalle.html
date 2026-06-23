@@ -1,0 +1,227 @@
+<div class="detalle-container">
+
+  @if (loading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="50" color="primary"></mat-spinner>
+      <p>Cargando información del docente...</p>
+    </div>
+  }
+  @else if (error()) {
+    <div class="error-state">
+      <mat-icon color="warn">error_outline</mat-icon>
+      <p>{{ error() }}</p>
+      <button mat-flat-button color="primary" (click)="ngOnInit()">
+        <mat-icon>refresh</mat-icon> Reintentar
+      </button>
+    </div>
+  }
+  @else {
+    <button mat-stroked-button (click)="volver()" class="btn-volver">
+      <mat-icon>arrow_back</mat-icon> Volver a Docentes
+    </button>
+
+    @let d = docente()!;
+
+    <mat-card class="perfil-card">
+      <div class="perfil-header">
+        <div class="avatar">{{ iniciales() }}</div>
+        <div class="header-info">
+          <h1>{{ d.grado ? d.grado + '. ' : '' }}{{ d.nombre }} {{ d.apellido }}</h1>
+          <div class="header-badges">
+            @if (d.estado === 'inactivo') {
+              <span class="estado-badge estado-inactivo">Inactivo</span>
+            } @else if (d.tiene_modulos_activos) {
+              <span class="dictando-badge">Dictando</span>
+            } @else {
+              <span class="estado-badge estado-activo">Activo</span>
+            }
+          </div>
+        </div>
+        <div class="header-actions">
+          <button mat-raised-button color="primary" [routerLink]="['/docentes/editar', d.id_docente]">
+            <mat-icon>edit</mat-icon> Editar
+          </button>
+        </div>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <div class="perfil-body">
+        <div class="info-grid">
+          <div class="info-item">
+            <mat-icon>badge</mat-icon>
+            <div>
+              <span class="label">Cédula de Identidad</span>
+              <span class="value">{{ d.ci }} {{ d.extension ? d.extension : '' }}</span>
+            </div>
+          </div>
+          <div class="info-item">
+            <mat-icon>email</mat-icon>
+            <div>
+              <span class="label">Correo</span>
+              <span class="value">{{ d.correo }}</span>
+            </div>
+          </div>
+          <div class="info-item">
+            <mat-icon>phone</mat-icon>
+            <div>
+              <span class="label">Celular</span>
+              <span class="value">{{ d.celular || '—' }}</span>
+            </div>
+          </div>
+          <div class="info-item">
+            <mat-icon>wc</mat-icon>
+            <div>
+              <span class="label">Género</span>
+              <span class="value">{{ d.genero === 'masculino' ? 'Masculino' : d.genero === 'femenino' ? 'Femenino' : '—' }}</span>
+            </div>
+          </div>
+          <div class="info-item">
+            <mat-icon>school</mat-icon>
+            <div>
+              <span class="label">Grado</span>
+              <span class="value">{{ d.grado || '—' }}</span>
+            </div>
+          </div>
+          <div class="info-item">
+            <mat-icon>badge</mat-icon>
+            <div>
+              <span class="label">Título</span>
+              <span class="value">{{ d.titulo || '—' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </mat-card>
+
+    <mat-card class="modulos-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>play_circle</mat-icon> Módulos Actuales
+        </mat-card-title>
+        <mat-card-subtitle>
+          {{ modulosActuales().length }} módulo{{ modulosActuales().length !== 1 ? 's' : '' }} en curso o programados
+        </mat-card-subtitle>
+      </mat-card-header>
+      <mat-divider></mat-divider>
+
+      @if (modulosActuales().length === 0) {
+        <div class="empty-section">
+          <mat-icon>info</mat-icon>
+          <p>El docente no tiene módulos activos asignados</p>
+        </div>
+      }
+      @else {
+        <table mat-table [dataSource]="modulosActuales()" class="modulos-table">
+          <ng-container matColumnDef="sigla">
+            <th mat-header-cell *matHeaderCellDef> Sigla </th>
+            <td mat-cell *matCellDef="let m"> {{ m.modulo.sigla }} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="nombre">
+            <th mat-header-cell *matHeaderCellDef> Módulo </th>
+            <td mat-cell *matCellDef="let m"> {{ m.modulo.nombre_modulo }} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="edicion">
+            <th mat-header-cell *matHeaderCellDef> Edición </th>
+            <td mat-cell *matCellDef="let m" class="edicion-cell">
+              #{{ m.id_programa_version_edicion }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="horas">
+            <th mat-header-cell *matHeaderCellDef> Horas </th>
+            <td mat-cell *matCellDef="let m"> {{ m.modulo.horas_academicas }}h </td>
+          </ng-container>
+
+          <ng-container matColumnDef="fechas">
+            <th mat-header-cell *matHeaderCellDef> Fechas </th>
+            <td mat-cell *matCellDef="let m">
+              {{ m.fecha_inicio ? (m.fecha_inicio | date:'dd/MM/yy') : '—' }}
+              &rarr;
+              {{ m.fecha_fin ? (m.fecha_fin | date:'dd/MM/yy') : '—' }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="estado">
+            <th mat-header-cell *matHeaderCellDef> Estado </th>
+            <td mat-cell *matCellDef="let m">
+              <span class="estado-modulo-badge" [class]="'estado-modulo-' + m.estado">
+                {{ m.estado }}
+              </span>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="columnasModulo"></tr>
+          <tr mat-row *matRowDef="let row; columns: columnasModulo;"></tr>
+        </table>
+      }
+    </mat-card>
+
+    <mat-card class="modulos-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>history</mat-icon> Historial de Módulos
+        </mat-card-title>
+        <mat-card-subtitle>
+          {{ modulosHistorial().length }} módulo{{ modulosHistorial().length !== 1 ? 's' : '' }} finalizados
+        </mat-card-subtitle>
+      </mat-card-header>
+      <mat-divider></mat-divider>
+
+      @if (modulosHistorial().length === 0) {
+        <div class="empty-section">
+          <mat-icon>history_toggle_off</mat-icon>
+          <p>El docente no tiene módulos finalizados registrados</p>
+        </div>
+      }
+      @else {
+        <table mat-table [dataSource]="modulosHistorial()" class="modulos-table">
+          <ng-container matColumnDef="sigla">
+            <th mat-header-cell *matHeaderCellDef> Sigla </th>
+            <td mat-cell *matCellDef="let m"> {{ m.modulo.sigla }} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="nombre">
+            <th mat-header-cell *matHeaderCellDef> Módulo </th>
+            <td mat-cell *matCellDef="let m"> {{ m.modulo.nombre_modulo }} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="edicion">
+            <th mat-header-cell *matHeaderCellDef> Edición </th>
+            <td mat-cell *matCellDef="let m" class="edicion-cell">
+              #{{ m.id_programa_version_edicion }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="horas">
+            <th mat-header-cell *matHeaderCellDef> Horas </th>
+            <td mat-cell *matCellDef="let m"> {{ m.modulo.horas_academicas }}h </td>
+          </ng-container>
+
+          <ng-container matColumnDef="fechas">
+            <th mat-header-cell *matHeaderCellDef> Fechas </th>
+            <td mat-cell *matCellDef="let m">
+              {{ m.fecha_inicio ? (m.fecha_inicio | date:'dd/MM/yy') : '—' }}
+              &rarr;
+              {{ m.fecha_fin ? (m.fecha_fin | date:'dd/MM/yy') : '—' }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="estado">
+            <th mat-header-cell *matHeaderCellDef> Estado </th>
+            <td mat-cell *matCellDef="let m">
+              <span class="estado-modulo-badge" [class]="'estado-modulo-' + m.estado">
+                {{ m.estado }}
+              </span>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="columnasModulo"></tr>
+          <tr mat-row *matRowDef="let row; columns: columnasModulo;"></tr>
+        </table>
+      }
+    </mat-card>
+  }
+</div>
