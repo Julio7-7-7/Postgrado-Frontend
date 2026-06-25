@@ -10,32 +10,36 @@
 .btn-volver {
   align-self: flex-start;
   border-radius: var(--fich-radius-sm) !important;
+  transition: background var(--fich-transition);
 }
 
 .perfil-card {
   border-radius: var(--fich-radius-lg) !important;
   overflow: hidden;
+  box-shadow: var(--fich-shadow-md) !important;
+  border-top: 4px solid var(--fich-primary) !important;
 }
 
 .perfil-header {
   display: flex;
   align-items: center;
   gap: var(--fich-space-lg);
-  padding: var(--fich-space-xl);
+  padding: var(--fich-space-xl) var(--fich-space-xl) 0;
 }
 
 .avatar {
-  width: 72px;
-  height: 72px;
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
-  background: var(--fich-primary);
+  background: linear-gradient(135deg, var(--fich-primary), var(--fich-primary-hover));
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 700;
-  font-size: 1.6rem;
+  font-size: 1.8rem;
   flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(30, 58, 138, 0.25);
 }
 
 .header-info {
@@ -89,9 +93,9 @@
   border-radius: 9999px;
   font-size: 0.72rem;
   font-weight: 700;
-  background: #dbeafe;
-  color: #1e40af;
-  border: 1px solid #bfdbfe;
+  background: var(--fich-success-light);
+  color: var(--fich-success);
+  border: 1px solid #bbf7d0;
   text-transform: uppercase;
   letter-spacing: 0.03em;
 }
@@ -110,14 +114,22 @@
   display: flex;
   align-items: flex-start;
   gap: 12px;
+  padding: 12px;
+  border-radius: var(--fich-radius-sm);
+  transition: background var(--fich-transition);
+}
+
+.info-item:hover {
+  background: var(--fich-bg-subtle);
 }
 
 .info-item mat-icon {
   font-size: 22px;
   width: 22px;
   height: 22px;
-  color: var(--fich-text-muted);
+  color: var(--fich-primary);
   margin-top: 2px;
+  opacity: 0.7;
 }
 
 .info-item div {
@@ -142,17 +154,30 @@
 
 .modulos-card {
   border-radius: var(--fich-radius-lg) !important;
+  box-shadow: var(--fich-shadow-md) !important;
+  overflow: hidden;
+}
+
+.modulos-card mat-card-header {
+  background: var(--fich-bg-subtle);
+  padding: 20px 24px;
 }
 
 .modulos-card mat-card-title {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   font-weight: 700;
+  font-size: 1.1rem;
 }
 
 .modulos-card mat-card-title mat-icon {
   color: var(--fich-primary);
+}
+
+.modulos-card mat-card-subtitle {
+  margin-top: 4px;
+  font-size: 0.85rem;
 }
 
 .modulos-table {
@@ -167,16 +192,47 @@
   letter-spacing: 0.05em;
   padding: 14px 16px !important;
   background: var(--fich-bg-subtle);
+  border-bottom: 2px solid var(--fich-border);
 }
 
 .modulos-table td.mat-mdc-cell {
-  padding: 12px 16px !important;
+  padding: 14px 16px !important;
   font-size: 0.92rem;
   border-bottom: 1px solid var(--fich-border-light);
 }
 
-.modulos-table tr.mat-mdc-row:hover {
-  background: var(--fich-bg-hover);
+.modulo-row {
+  cursor: pointer;
+  transition: all var(--fich-transition);
+  position: relative;
+}
+
+.accion-cell {
+  width: 48px;
+  padding-right: 8px !important;
+  text-align: right;
+}
+
+.accion-cell mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  color: var(--fich-text-faint);
+  vertical-align: middle;
+  opacity: 0;
+  transition: opacity var(--fich-transition);
+}
+
+.modulo-row:hover .accion-cell mat-icon {
+  opacity: 0.6;
+}
+
+.modulo-row:hover {
+  background: var(--fich-primary-light) !important;
+}
+
+.modulo-row:active {
+  background: #dbeafe !important;
 }
 
 .edicion-cell {
@@ -186,11 +242,12 @@
 
 .estado-modulo-badge {
   display: inline-block;
-  padding: 3px 10px;
+  padding: 4px 12px;
   border-radius: 9999px;
   font-size: 0.75rem;
   font-weight: 600;
   text-transform: capitalize;
+  letter-spacing: 0.02em;
 }
 
 .estado-modulo-programado {
@@ -213,20 +270,32 @@
   color: #065f46;
 }
 
+.estado-modulo-pausado {
+  background: #fef9c3;
+  color: #a16207;
+  border: 1px solid #fef08a;
+}
+
+.estado-modulo-cancelado {
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
 .empty-section {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  padding: 40px 20px;
+  padding: 48px 20px;
   color: var(--fich-text-muted);
 }
 
 .empty-section mat-icon {
-  font-size: 40px;
-  width: 40px;
-  height: 40px;
-  opacity: 0.3;
+  font-size: 44px;
+  width: 44px;
+  height: 44px;
+  opacity: 0.25;
 }
 
 .loading-container, .error-state {
@@ -234,7 +303,7 @@
   flex-direction: column;
   align-items: center;
   gap: 12px;
-  padding: 60px 20px;
+  padding: 80px 20px;
 }
 
 .error-state mat-icon {

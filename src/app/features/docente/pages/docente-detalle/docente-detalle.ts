@@ -55,7 +55,19 @@ export class DocenteDetalleComponent implements OnInit {
     this.modulos().filter(m => m.estado === 'finalizado')
   );
 
-  columnasModulo: string[] = ['sigla', 'nombre', 'edicion', 'horas', 'fechas', 'estado'];
+  columnasModulo: string[] = ['sigla', 'nombre', 'edicion', 'horas', 'fechas', 'estado', 'accion'];
+
+  navegarAModulo(m: DetalleProgramaModulo): void {
+    this.router.navigate(
+      [
+        '/programas', m.id_programa,
+        'versiones', m.id_programa_version,
+        'ediciones', m.id_programa_version_edicion,
+        'modulos',
+      ],
+      { queryParams: { destacar: m.id_detalle_programa_modulo } },
+    );
+  }
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');

@@ -1,6 +1,6 @@
 import { Component, OnInit, signal, inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { forkJoin } from 'rxjs';
 import { MatCardModule } from '@angular/material/card';
@@ -37,6 +37,7 @@ export class DetalleListComponent implements OnInit {
   private snackbar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private destroyRef = inject(DestroyRef);
 
   idEdicion = signal<number>(0);
@@ -63,9 +64,18 @@ export class DetalleListComponent implements OnInit {
     this.error.set(null);
     this.detalleService.getAll(this.idEdicion()).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (data) => {
-        this.detalles.set(data.sort((a, b) => a.orden - b.orden));
+        const ordenados = data.sort((a, b) => a.orden - b.orden);
+        this.detalles.set(ordenados);
         this.isLoading.set(false);
-        this.currentIndex.set(0);
+
+        const destacarId = Number(this.route.snapshot.queryParamMap.get('destacar'));
+        if (destacarId) {
+          const idx = ordenados.findIndex(d => d.id_detalle_programa_modulo === destacarId);
+          this.currentIndex.set(idx >= 0 ? idx : 0);
+        } else {
+          this.currentIndex.set(0);
+        }
+
         this.cargarTodosHorarios();
         setTimeout(() => this.ajustarAltura(), 150);
       },
