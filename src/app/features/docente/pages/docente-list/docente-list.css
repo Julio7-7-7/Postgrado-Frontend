@@ -154,7 +154,7 @@
 }
 
 .tab-badge.secondary {
-  background-color: var(--fich-warning);
+  background-color: var(--fich-success);
 }
 
 .tab-badge.tertiary {
@@ -255,8 +255,8 @@ tr.mat-mdc-row:hover {
   border-radius: var(--fich-radius-full);
   font-size: 0.7rem;
   font-weight: 700;
-  background: #dbeafe;
-  color: #1e40af;
+  background: var(--fich-success-light);
+  color: var(--fich-success);
   margin-left: 6px;
   text-transform: uppercase;
   letter-spacing: 0.03em;

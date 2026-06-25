@@ -1,6 +1,8 @@
 export interface DetalleProgramaModulo {
   id_detalle_programa_modulo: number;
   id_programa_version_edicion: number;
+  id_programa_version: number;
+  id_programa: number;
   id_modulo: number;
   id_docente: number | null;
   id_modalidad: number | null;
