@@ -16,41 +16,110 @@
       <mat-card-content>
         <form [formGroup]="form" (ngSubmit)="guardar()">
           <div class="form-grid">
-            <mat-form-field appearance="outline">
-              <mat-label>Docente</mat-label>
-              <mat-icon matPrefix>badge</mat-icon>
-              <mat-select formControlName="id_docente" required>
-                @for (d of docentes(); track d.id_docente) {
-                  <mat-option [value]="d.id_docente">
-                    {{ d.nombre }} {{ d.apellido }} — {{ d.ci }}
+
+            <div class="field-group">
+              <label class="field-label">Docente</label>
+              <mat-form-field appearance="outline" class="autocomplete-field">
+                <mat-icon matPrefix>badge</mat-icon>
+                <input matInput
+                       placeholder="Escriba nombre, apellido o CI del docente..."
+                       [formControl]="docenteControl"
+                       [matAutocomplete]="autoDocente">
+                @if (selectedDocente()) {
+                  <button matSuffix mat-icon-button type="button" (click)="limpiarDocente()" matTooltip="Limpiar selección">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                } @else {
+                  <mat-icon matSuffix>search</mat-icon>
+                }
+              </mat-form-field>
+              <mat-autocomplete #autoDocente="matAutocomplete" class="searchable-panel"
+                                (optionSelected)="seleccionarDocente($event.option.value)">
+                @if ((filteredDocentes$ | async)?.length === 0) {
+                  <mat-option disabled class="no-results">
+                    <mat-icon>search_off</mat-icon> Sin resultados
                   </mat-option>
                 }
-              </mat-select>
-              @if (form.get('id_docente')?.hasError('required')) {
+                @for (d of filteredDocentes$ | async; track d.id_docente) {
+                  <mat-option [value]="d" class="option-item">
+                    <div class="option-docente">
+                      <div class="option-docente-header">
+                        <span class="option-docente-avatar">{{ d.nombre[0] }}{{ d.apellido[0] }}</span>
+                        <div class="option-docente-info">
+                          <span class="option-docente-nombre">{{ d.nombre }} {{ d.apellido }}</span>
+                          <span class="option-docente-ci">{{ d.ci }} {{ d.extension }}</span>
+                        </div>
+                      </div>
+                      <div class="option-docente-footer">
+                        <span class="option-docente-grado">{{ d.grado }}</span>
+                        <span class="option-docente-correo">{{ d.correo }}</span>
+                      </div>
+                    </div>
+                  </mat-option>
+                }
+              </mat-autocomplete>
+              @if (!selectedDocente() && docenteControl.touched) {
                 <mat-error>Seleccione un docente</mat-error>
               }
-            </mat-form-field>
+            </div>
 
-            <mat-form-field appearance="outline">
-              <mat-label>Módulo</mat-label>
-              <mat-icon matPrefix>book</mat-icon>
-              <mat-select formControlName="id_detalle_modulo" required>
-                @for (d of detalles(); track d.id_detalle_programa_modulo) {
-                  <mat-option [value]="d.id_detalle_programa_modulo">
-                    {{ detalleLabel(d) }}
+            <div class="field-group">
+              <label class="field-label">Módulo</label>
+              <mat-form-field appearance="outline" class="autocomplete-field">
+                <mat-icon matPrefix>book</mat-icon>
+                <input matInput
+                       placeholder="Busque por programa, módulo, sigla..."
+                       [formControl]="moduloControl"
+                       [matAutocomplete]="autoModulo">
+                @if (selectedModulo()) {
+                  <button matSuffix mat-icon-button type="button" (click)="limpiarModulo()" matTooltip="Limpiar selección">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                } @else {
+                  <mat-icon matSuffix>search</mat-icon>
+                }
+              </mat-form-field>
+              <mat-autocomplete #autoModulo="matAutocomplete" class="searchable-panel modulo-panel"
+                                (optionSelected)="seleccionarModulo($event.option.value)">
+                @if ((filteredDetalles$ | async)?.length === 0) {
+                  <mat-option disabled class="no-results">
+                    <mat-icon>search_off</mat-icon> Sin resultados
                   </mat-option>
                 }
-              </mat-select>
-              @if (form.get('id_detalle_modulo')?.hasError('required')) {
+                @for (d of filteredDetalles$ | async; track d.id_detalle_programa_modulo) {
+                  <mat-option [value]="d" class="option-item">
+                    <div class="option-modulo">
+                      <div class="option-modulo-header">
+                        <span class="option-modulo-programa">{{ d.programa_nombre }}</span>
+                        <span class="option-modulo-version">V{{ d.programa_version_numero }} E{{ d.edicion }}</span>
+                      </div>
+                      <div class="option-modulo-body">
+                        <span class="option-modulo-orden">#{{ d.orden }}</span>
+                        <span class="option-modulo-nombre">{{ d.modulo.nombre_modulo }}</span>
+                        <span class="option-modulo-sigla">{{ d.modulo.sigla }}</span>
+                      </div>
+                      <div class="option-modulo-footer">
+                        <span class="option-modulo-fechas">
+                          {{ (d.fecha_inicio | date:'dd/MM/yy') || '—' }} — {{ (d.fecha_fin | date:'dd/MM/yy') || '—' }}
+                        </span>
+                        <span class="option-modulo-horas">{{ d.modulo.horas_academicas }} hrs · {{ d.modulo.creditos }} créd.</span>
+                      </div>
+                    </div>
+                  </mat-option>
+                }
+              </mat-autocomplete>
+              @if (!selectedModulo() && moduloControl.touched) {
                 <mat-error>Seleccione un módulo</mat-error>
               }
-            </mat-form-field>
+            </div>
 
-            <mat-form-field appearance="outline">
-              <mat-label>Monto (opcional)</mat-label>
+            <mat-form-field appearance="outline" class="monto-field">
+              <mat-label>Monto del contrato (opcional)</mat-label>
               <mat-icon matPrefix>payments</mat-icon>
               <input matInput type="number" formControlName="monto" placeholder="0.00">
+              <span matTextSuffix>Bs.</span>
             </mat-form-field>
+
           </div>
 
           <div class="form-actions">

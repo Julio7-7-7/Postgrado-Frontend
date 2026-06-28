@@ -1,17 +1,19 @@
 import { Component, OnInit, signal, inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormControl } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Observable, of } from 'rxjs';
+import { map, startWith, debounceTime } from 'rxjs/operators';
 
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 
 import { ContratacionService } from '../../services/contratacion.service';
 import { DocenteService } from '../../../docente/services/docente.service';
@@ -24,9 +26,9 @@ import { Docente } from '../../../docente/models/docente.model';
   standalone: true,
   imports: [
     CommonModule, ReactiveFormsModule, RouterLink,
-    MatFormFieldModule, MatInputModule, MatSelectModule,
-    MatButtonModule, MatCardModule, MatIconModule, MatSnackBarModule,
-    MatProgressSpinnerModule,
+    MatFormFieldModule, MatInputModule, MatButtonModule,
+    MatCardModule, MatIconModule, MatSnackBarModule,
+    MatProgressSpinnerModule, MatAutocompleteModule,
   ],
   templateUrl: './contratacion-create.html',
   styleUrl: './contratacion-create.css',
@@ -45,6 +47,15 @@ export class ContratacionCreateComponent implements OnInit {
   detalles = signal<DetalleProgramaModulo[]>([]);
   loading = signal(false);
   loadingDatos = signal(true);
+
+  docenteControl = new FormControl('');
+  moduloControl = new FormControl('');
+
+  selectedDocente = signal<Docente | null>(null);
+  selectedModulo = signal<DetalleProgramaModulo | null>(null);
+
+  filteredDocentes$: Observable<Docente[]> = of([]);
+  filteredDetalles$: Observable<DetalleProgramaModulo[]> = of([]);
 
   constructor() {
     this.form = this.fb.group({
@@ -68,6 +79,18 @@ export class ContratacionCreateComponent implements OnInit {
         this.verificarCarga();
       },
     });
+
+    this.filteredDocentes$ = this.docenteControl.valueChanges.pipe(
+      startWith(''),
+      debounceTime(100),
+      map(value => this._filterDocentes(value ?? '')),
+    );
+
+    this.filteredDetalles$ = this.moduloControl.valueChanges.pipe(
+      startWith(''),
+      debounceTime(100),
+      map(value => this._filterDetalles(value ?? '')),
+    );
   }
 
   private countCargados = 0;
@@ -78,12 +101,81 @@ export class ContratacionCreateComponent implements OnInit {
     }
   }
 
+  private _filterDocentes(value: string): Docente[] {
+    const q = value.toLowerCase().trim();
+    const all = this.docentes();
+    if (!q) return all;
+    return all.filter(d =>
+      d.nombre.toLowerCase().includes(q) ||
+      d.apellido.toLowerCase().includes(q) ||
+      d.ci.includes(q) ||
+      `${d.nombre} ${d.apellido}`.toLowerCase().includes(q) ||
+      `${d.apellido} ${d.nombre}`.toLowerCase().includes(q)
+    );
+  }
+
+  private _filterDetalles(value: string): DetalleProgramaModulo[] {
+    const q = value.toLowerCase().trim();
+    const all = this.detalles();
+    if (!q) return [];
+    return all.filter(d => {
+      const programa = (d.programa_nombre || '').toLowerCase();
+      const modulo = d.modulo.nombre_modulo.toLowerCase();
+      const sigla = d.modulo.sigla.toLowerCase();
+      const version = String(d.programa_version_numero || '');
+      const edicion = String(d.edicion || '');
+      const label = `${programa} v${version} e${edicion} #${d.orden} ${modulo} ${sigla}`;
+      return label.includes(q) ||
+        modulo.includes(q) ||
+        sigla.includes(q) ||
+        programa.includes(q) ||
+        version.includes(q) ||
+        edicion.includes(q);
+    });
+  }
+
+  seleccionarDocente(d: Docente): void {
+    this.selectedDocente.set(d);
+    this.docenteControl.setValue(`${d.nombre} ${d.apellido} — ${d.ci} ${d.extension}`);
+    this.form.patchValue({ id_docente: d.id_docente });
+  }
+
+  limpiarDocente(): void {
+    this.selectedDocente.set(null);
+    this.docenteControl.setValue('');
+    this.form.patchValue({ id_docente: null });
+  }
+
+  seleccionarModulo(d: DetalleProgramaModulo): void {
+    this.selectedModulo.set(d);
+    this.moduloControl.setValue(this.detalleLabel(d));
+    this.form.patchValue({ id_detalle_modulo: d.id_detalle_programa_modulo });
+  }
+
+  limpiarModulo(): void {
+    this.selectedModulo.set(null);
+    this.moduloControl.setValue('');
+    this.form.patchValue({ id_detalle_modulo: null });
+  }
+
   detalleLabel(d: DetalleProgramaModulo): string {
-    return `#${d.orden} - ${d.modulo.nombre_modulo} (${d.modulo.sigla})`;
+    const programa = d.programa_nombre || `Programa #${d.id_programa}`;
+    const version = d.programa_version_numero || d.id_programa_version;
+    return `${programa} V${version} E${d.edicion} · #${d.orden} ${d.modulo.nombre_modulo} (${d.modulo.sigla})`;
   }
 
   guardar(): void {
-    if (this.form.invalid) return;
+    if (this.form.invalid) {
+      if (!this.selectedDocente()) {
+        this.docenteControl.markAsTouched();
+        this.docenteControl.setErrors({ required: true });
+      }
+      if (!this.selectedModulo()) {
+        this.moduloControl.markAsTouched();
+        this.moduloControl.setErrors({ required: true });
+      }
+      return;
+    }
 
     this.loading.set(true);
     this.service.create(this.form.value).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({

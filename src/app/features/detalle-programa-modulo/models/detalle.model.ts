@@ -6,6 +6,8 @@ export interface DetalleProgramaModulo {
   id_programa_version: number;
   id_programa: number;
   edicion: number;
+  programa_nombre: string;
+  programa_version_numero: number;
   id_modulo: number;
   id_modalidad: number | null;
   orden: number;

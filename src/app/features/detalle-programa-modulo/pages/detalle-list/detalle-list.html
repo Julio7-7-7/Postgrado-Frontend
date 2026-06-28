@@ -56,11 +56,21 @@
                 <div class="info-row">
                   <span class="info-label">Docente</span>
                   @if (detalle.docente) {
-                    <button class="info-link docente-link" (click)="abrirDocenteCard(detalle.docente.id_docente)">
-                      <mat-icon class="info-icon">person</mat-icon>
-                      {{ detalle.docente.nombre }} {{ detalle.docente.apellido }}
-                      <mat-icon class="link-icon">open_in_new</mat-icon>
-                    </button>
+                    <div class="docente-group">
+                      @if (detalle.contratacion) {
+                        <a class="info-link docente-link"
+                           [routerLink]="['/contrataciones', detalle.contratacion.id_contratacion]">
+                          <mat-icon class="info-icon">person</mat-icon>
+                          {{ detalle.docente.nombre }} {{ detalle.docente.apellido }}
+                          <mat-icon class="link-icon">open_in_new</mat-icon>
+                        </a>
+                        <span class="contratacion-estado" [class]="'cto-' + detalle.contratacion.estado">
+                          {{ contratacionEstadoLabel(detalle.contratacion.estado) }}
+                        </span>
+                      } @else {
+                        <span class="info-value">{{ detalle.docente.nombre }} {{ detalle.docente.apellido }}</span>
+                      }
+                    </div>
                   } @else {
                     <span class="info-value sin-asignar">Sin asignar</span>
                   }
