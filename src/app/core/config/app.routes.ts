@@ -24,6 +24,12 @@ export const routes: Routes = [
       import('../../features/docente/routes/docente.routes')
       .then(m => m.DOCENTE_ROUTES)
   },
+  {
+    path: 'contrataciones',
+    loadChildren: () =>
+      import('../../features/contratacion/routes/contratacion.routes')
+      .then(m => m.CONTRATACION_ROUTES)
+  },
   { path: '**', redirectTo: '' }
 ];
 

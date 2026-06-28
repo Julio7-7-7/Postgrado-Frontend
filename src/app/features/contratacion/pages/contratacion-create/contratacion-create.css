@@ -1,0 +1,53 @@
+.page-container {
+  padding: var(--fich-space-lg);
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.header-section {
+  margin-bottom: var(--fich-space-lg);
+}
+
+.header-section h2 {
+  margin: 0;
+  font-weight: 600;
+  color: var(--fich-text);
+}
+
+.subtitle {
+  margin: 4px 0 0;
+  color: var(--fich-text-muted);
+  font-size: 0.9rem;
+}
+
+.form-card {
+  border-radius: var(--fich-radius-md);
+  box-shadow: var(--fich-shadow-md);
+}
+
+.form-grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fich-space-md);
+  padding: var(--fich-space-md) 0;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--fich-space-sm);
+  margin-top: var(--fich-space-lg);
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: var(--fich-text-muted);
+}
+
+.loading-container p {
+  margin-top: 12px;
+}

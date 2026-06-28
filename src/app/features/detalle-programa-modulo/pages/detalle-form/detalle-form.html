@@ -36,21 +36,6 @@
 
         <mat-divider></mat-divider>
 
-        <div class="section-title">Asignación</div>
-        <div class="form-row">
-          <mat-form-field appearance="outline" class="field-full">
-            <mat-label>Docente</mat-label>
-            <mat-select formControlName="id_docente">
-              <mat-option [value]="null">Sin asignar</mat-option>
-              @for (docente of docentes(); track docente.id_docente) {
-                <mat-option [value]="docente.id_docente">
-                  {{ docente.nombre }} {{ docente.apellido }}
-                </mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
-        </div>
-
         <div class="form-row">
           <mat-form-field appearance="outline" class="field-full">
             <mat-label>Modalidad</mat-label>

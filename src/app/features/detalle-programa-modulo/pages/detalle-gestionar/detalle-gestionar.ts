@@ -15,10 +15,8 @@ import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { provideNativeDateAdapter, MAT_DATE_LOCALE } from '@angular/material/core';
 import { DetalleService } from '../../services/detalle.service';
-import { DocenteService } from '../../../docente/services/docente.service';
 import { ModalidadService } from '../../../modalidad/services/modalidad.service';
 import { HorarioService } from '../../../horario/services/horario.service';
-import { Docente } from '../../../docente/models/docente.model';
 import { Modalidad } from '../../../modalidad/models/modalidad.model';
 import { DetalleProgramaModulo, DetalleUpdate } from '../../models/detalle.model';
 import { Horario, HorarioCreate, HorarioUpdate } from '../../../horario/models/horario.model';
@@ -55,7 +53,6 @@ import { aFechaString } from '../../../../core/utils/date-utils';
 export class DetalleGestionarComponent implements OnInit {
   private fb = inject(FormBuilder);
   private detalleService = inject(DetalleService);
-  private docenteService = inject(DocenteService);
   private modalidadService = inject(ModalidadService);
   private horarioService = inject(HorarioService);
   private snackbar = inject(MatSnackBar);
@@ -70,13 +67,11 @@ export class DetalleGestionarComponent implements OnInit {
   loading = signal(false);
   cargandoDatos = signal(true);
 
-  docentes = signal<Docente[]>([]);
   modalidades = signal<Modalidad[]>([]);
   horarios = signal<Horario[]>([]);
 
   constructor() {
     this.form = this.fb.group({
-      id_docente: [null],
       id_modalidad: [null],
       fecha_inicio: [null],
       fecha_fin: [null],
@@ -91,15 +86,8 @@ export class DetalleGestionarComponent implements OnInit {
       return;
     }
 
-    this.cargarDocentes();
     this.cargarModalidades();
     this.cargarDetalle(+detalleId);
-  }
-
-  private cargarDocentes() {
-    this.docenteService.getAll().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (data) => this.docentes.set(data        .filter(d => d.estado === 'activo')),
-    });
   }
 
   private cargarModalidades() {
@@ -115,7 +103,6 @@ export class DetalleGestionarComponent implements OnInit {
         this.detalle.set(data);
         this.idEdicion.set(data.id_programa_version_edicion);
         this.form.patchValue({
-          id_docente: data.id_docente,
           id_modalidad: data.id_modalidad,
           fecha_inicio: data.fecha_inicio ? new Date(data.fecha_inicio) : null,
           fecha_fin: data.fecha_fin ? new Date(data.fecha_fin) : null,
@@ -235,7 +222,6 @@ export class DetalleGestionarComponent implements OnInit {
     const raw = this.form.value;
 
     const datos: DetalleUpdate = {
-      id_docente: raw.id_docente ?? null,
       id_modalidad: raw.id_modalidad ?? null,
       fecha_inicio: raw.fecha_inicio ? aFechaString(raw.fecha_inicio) : null,
       fecha_fin: raw.fecha_fin ? aFechaString(raw.fecha_fin) : null,

@@ -1,10 +1,11 @@
+import { ContratacionDocente } from '../../contratacion/models/contratacion.model';
+
 export interface DetalleProgramaModulo {
   id_detalle_programa_modulo: number;
   id_programa_version_edicion: number;
   id_programa_version: number;
   id_programa: number;
   id_modulo: number;
-  id_docente: number | null;
   id_modalidad: number | null;
   orden: number;
   fecha_inicio: string | null;
@@ -26,12 +27,12 @@ export interface DetalleProgramaModulo {
     id_modalidad: number;
     nombre: string;
   } | null;
+  contratacion: ContratacionDocente | null;
   created_at: string;
   updated_at: string;
 }
 
 export interface DetalleUpdate {
-  id_docente?: number | null;
   id_modalidad?: number | null;
   orden?: number | null;
   fecha_inicio?: string | null;

@@ -1,0 +1,169 @@
+<div class="page-container">
+  <button mat-stroked-button class="back-btn" (click)="volver()">
+    <mat-icon>arrow_back</mat-icon> Volver
+  </button>
+
+  @if (loading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="50" color="primary"></mat-spinner>
+      <p>Cargando contratación...</p>
+    </div>
+  } @else if (error()) {
+    <div class="error-state">
+      <mat-icon color="warn">error_outline</mat-icon>
+      <p>{{ error() }}</p>
+      <button mat-flat-button color="primary" (click)="cargarDatos()">
+        <mat-icon>refresh</mat-icon> Reintentar
+      </button>
+    </div>
+  } @else {
+    @let c = contratacion();
+
+    <div class="header-section">
+      <div class="header-left">
+        <h2>Contratación #{{ c?.id_contratacion }}</h2>
+        <span class="estado-badge"
+              [class.estado-pendiente]="c?.estado === 'pendiente'"
+              [class.estado-en_curso]="c?.estado === 'en_curso'"
+              [class.estado-formalizado]="c?.estado === 'formalizado'"
+              [class.estado-truncado]="c?.estado === 'truncado'">
+          @if (c?.estado === 'en_curso') { En curso }
+          @else if (c?.estado === 'formalizado') { Formalizado }
+          @else if (c?.estado === 'truncado') { Truncado }
+          @else { Pendiente }
+        </span>
+      </div>
+      @if (c?.estado !== 'truncado' && c?.estado !== 'formalizado') {
+        <button mat-raised-button color="warn" (click)="truncar()">
+          <mat-icon>cancel</mat-icon> Truncar contratación
+        </button>
+      }
+    </div>
+
+    <div class="info-grid">
+      <mat-card class="info-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar>badge</mat-icon>
+          <mat-card-title>{{ c?.docente?.nombre }} {{ c?.docente?.apellido }}</mat-card-title>
+          <mat-card-subtitle>{{ c?.docente?.grado }} — {{ c?.docente?.ci }} {{ c?.docente?.extension }}</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="info-row">
+            <span class="info-label">Correo</span>
+            <span>{{ c?.docente?.correo }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Celular</span>
+            <span>{{ c?.docente?.celular || '---' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Título</span>
+            <span>{{ c?.docente?.titulo || '---' }}</span>
+          </div>
+          @if (c?.monto) {
+            <div class="info-row">
+              <span class="info-label">Monto</span>
+              <span class="monto">Bs. {{ c?.monto }}</span>
+            </div>
+          }
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="info-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar>book</mat-icon>
+          <mat-card-title>{{ detalle()?.modulo?.nombre_modulo }}</mat-card-title>
+          <mat-card-subtitle>{{ detalle()?.modulo?.sigla }} — Orden #{{ detalle()?.orden }}</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="info-row">
+            <span class="info-label">Edición ID</span>
+            <span>{{ detalle()?.id_programa_version_edicion }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Estado del módulo</span>
+            <span>{{ detalle()?.estado }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Fechas</span>
+            <span>{{ (detalle()?.fecha_inicio | date:'dd/MM/yyyy') || '---' }} — {{ (detalle()?.fecha_fin | date:'dd/MM/yyyy') || '---' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Contratado desde</span>
+            <span>{{ (c?.fecha_inicio | date:'dd/MM/yyyy') || '---' }} — {{ (c?.fecha_fin | date:'dd/MM/yyyy') || '---' }}</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <mat-card class="ruta-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar>timeline</mat-icon>
+        <mat-card-title>Ruta documental</mat-card-title>
+        <mat-card-subtitle>
+          @if (c?.estado === 'formalizado') {
+            Todos los documentos han sido subidos
+          } @else if (c?.estado === 'truncado') {
+            Proceso truncado — los documentos quedan como historial
+          } @else {
+            Siga la secuencia para completar la contratación
+          }
+        </mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="ruta-timeline">
+          @for (paso of RUTA_DOCUMENTAL; track paso.tipo; let i = $index) {
+            <div class="ruta-paso"
+                 [class.completado]="pasoCompletado(i)"
+                 [class.actual]="pasoActual(i)"
+                 [class.bloqueado]="!pasoCompletado(i) && !pasoActual(i)">
+              <div class="paso-indicador">
+                @if (pasoCompletado(i)) {
+                  <mat-icon class="icon-completado">check_circle</mat-icon>
+                } @else if (pasoActual(i)) {
+                  <mat-icon class="icon-actual">radio_button_checked</mat-icon>
+                } @else {
+                  <mat-icon class="icon-bloqueado">radio_button_unchecked</mat-icon>
+                }
+              </div>
+              <div class="paso-contenido">
+                <span class="paso-titulo">{{ paso.label }}</span>
+                @if (pasoCompletado(i)) {
+                  @let doc = documentosMap().get(paso.tipo);
+                  <span class="paso-fecha">Subido el {{ (doc?.fecha_subida | date:'dd/MM/yyyy HH:mm') || '---' }}</span>
+                  @if (doc?.archivo_pdf) {
+                    <a [href]="doc?.archivo_pdf" target="_blank" class="paso-link" matTooltip="Ver PDF">
+                      <mat-icon>picture_as_pdf</mat-icon> Ver documento
+                    </a>
+                  }
+                } @else if (pasoActual(i)) {
+                  <div class="paso-upload">
+                    <input type="file" accept=".pdf,application/pdf"
+                           #fileInput
+                           (change)="onFileSelected($event, paso.tipo)"
+                           class="file-input">
+                    <button mat-raised-button color="primary"
+                            [disabled]="subiendo()"
+                            (click)="fileInput.click()">
+                      @if (subiendo()) {
+                        <mat-spinner diameter="18"></mat-spinner>
+                      } @else {
+                        <mat-icon>upload_file</mat-icon>
+                      }
+                      Subir PDF
+                    </button>
+                  </div>
+                } @else {
+                  <span class="paso-bloqueado">Paso bloqueado</span>
+                }
+              </div>
+              @if (i < RUTA_DOCUMENTAL.length - 1) {
+                <div class="paso-conector"></div>
+              }
+            </div>
+          }
+        </div>
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

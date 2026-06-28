@@ -1,0 +1,73 @@
+<div class="page-container">
+  <div class="header-section">
+    <div>
+      <h2>Nueva Contratación</h2>
+      <p class="subtitle">Asignar un docente a un módulo mediante contratación</p>
+    </div>
+  </div>
+
+  @if (loadingDatos()) {
+    <div class="loading-container">
+      <mat-spinner diameter="40" color="primary"></mat-spinner>
+      <p>Cargando datos...</p>
+    </div>
+  } @else {
+    <mat-card class="form-card">
+      <mat-card-content>
+        <form [formGroup]="form" (ngSubmit)="guardar()">
+          <div class="form-grid">
+            <mat-form-field appearance="outline">
+              <mat-label>Docente</mat-label>
+              <mat-icon matPrefix>badge</mat-icon>
+              <mat-select formControlName="id_docente" required>
+                @for (d of docentes(); track d.id_docente) {
+                  <mat-option [value]="d.id_docente">
+                    {{ d.nombre }} {{ d.apellido }} — {{ d.ci }}
+                  </mat-option>
+                }
+              </mat-select>
+              @if (form.get('id_docente')?.hasError('required')) {
+                <mat-error>Seleccione un docente</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Módulo</mat-label>
+              <mat-icon matPrefix>book</mat-icon>
+              <mat-select formControlName="id_detalle_modulo" required>
+                @for (d of detalles(); track d.id_detalle_programa_modulo) {
+                  <mat-option [value]="d.id_detalle_programa_modulo">
+                    {{ detalleLabel(d) }}
+                  </mat-option>
+                }
+              </mat-select>
+              @if (form.get('id_detalle_modulo')?.hasError('required')) {
+                <mat-error>Seleccione un módulo</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Monto (opcional)</mat-label>
+              <mat-icon matPrefix>payments</mat-icon>
+              <input matInput type="number" formControlName="monto" placeholder="0.00">
+            </mat-form-field>
+          </div>
+
+          <div class="form-actions">
+            <button mat-stroked-button type="button" routerLink="/contrataciones">
+              <mat-icon>arrow_back</mat-icon> Cancelar
+            </button>
+            <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid || loading()">
+              @if (loading()) {
+                <mat-spinner diameter="20"></mat-spinner>
+              } @else {
+                <mat-icon>save</mat-icon>
+              }
+              Crear Contratación
+            </button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  }
+</div>
