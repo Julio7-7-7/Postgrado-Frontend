@@ -27,6 +27,7 @@ export class NavbarComponent {
     { path: '/tipos-programa', label: 'Tipos', icon: 'category' },
     { path: '/alumnos', label: 'Alumnos', icon: 'people' },
     { path: '/docentes', label: 'Docentes', icon: 'badge' },
+    { path: '/contrataciones', label: 'Contrataciones', icon: 'assignment' },
   ];
 
   isActive(path: string, exact: boolean = false): boolean {

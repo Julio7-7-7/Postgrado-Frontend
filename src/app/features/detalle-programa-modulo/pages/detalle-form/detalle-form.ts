@@ -16,9 +16,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { provideNativeDateAdapter, MAT_DATE_LOCALE } from '@angular/material/core';
 import { DetalleService } from '../../services/detalle.service';
-import { DocenteService } from '../../../docente/services/docente.service';
 import { ModalidadService } from '../../../modalidad/services/modalidad.service';
-import { Docente } from '../../../docente/models/docente.model';
 import { Modalidad } from '../../../modalidad/models/modalidad.model';
 import { DetalleProgramaModulo, DetalleUpdate } from '../../models/detalle.model';
 import { aFechaString } from '../../../../core/utils/date-utils';
@@ -50,7 +48,6 @@ import { aFechaString } from '../../../../core/utils/date-utils';
 export class DetalleFormComponent implements OnInit {
   private fb = inject(FormBuilder);
   private detalleService = inject(DetalleService);
-  private docenteService = inject(DocenteService);
   private modalidadService = inject(ModalidadService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
@@ -63,7 +60,6 @@ export class DetalleFormComponent implements OnInit {
   loading = signal(false);
   cargandoDatos = signal(false);
 
-  docentes = signal<Docente[]>([]);
   modalidades = signal<Modalidad[]>([]);
 
   estadoOptions = [
@@ -77,7 +73,6 @@ export class DetalleFormComponent implements OnInit {
 
   constructor() {
     this.form = this.fb.group({
-      id_docente: [null],
       id_modalidad: [null],
       orden: [null, [Validators.required, Validators.min(1)]],
       fecha_inicio: [null],
@@ -89,19 +84,12 @@ export class DetalleFormComponent implements OnInit {
   ngOnInit(): void {
     const detalleId = this.route.snapshot.paramMap.get('detalleId');
 
-    this.cargarDocentes();
     this.cargarModalidades();
 
     if (detalleId) {
       this.idEditando = +detalleId;
       this.cargarDatosParaEditar(this.idEditando);
     }
-  }
-
-  private cargarDocentes() {
-    this.docenteService.getAll().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (data) => this.docentes.set(data        .filter(d => d.estado === 'activo')),
-    });
   }
 
   private cargarModalidades() {
@@ -117,7 +105,6 @@ export class DetalleFormComponent implements OnInit {
         this.idEdicion.set(data.id_programa_version_edicion);
         this.infoModulo.set(`${data.modulo.sigla} — ${data.modulo.nombre_modulo}`);
         this.form.patchValue({
-          id_docente: data.id_docente,
           id_modalidad: data.id_modalidad,
           orden: data.orden,
           fecha_inicio: data.fecha_inicio ? new Date(data.fecha_inicio) : null,
@@ -139,11 +126,6 @@ export class DetalleFormComponent implements OnInit {
     return match ? +match[1] : null;
   }
 
-  necesitaMotivo(): boolean {
-    const estado = this.form.get('estado')?.value;
-    return estado === 'reprogramado';
-  }
-
   guardar() {
     if (this.form.invalid) return;
     if (!this.idEditando) return;
@@ -152,7 +134,6 @@ export class DetalleFormComponent implements OnInit {
     const raw = this.form.value;
 
     const datos: DetalleUpdate = {
-      id_docente: raw.id_docente ?? null,
       id_modalidad: raw.id_modalidad ?? null,
       orden: raw.orden,
       fecha_inicio: raw.fecha_inicio ? aFechaString(raw.fecha_inicio) : null,

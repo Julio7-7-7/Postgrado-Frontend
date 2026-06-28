@@ -1,6 +1,6 @@
 import { Component, OnInit, signal, inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { forkJoin } from 'rxjs';
 import { MatCardModule } from '@angular/material/card';
@@ -9,33 +9,28 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
-import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { DetalleService } from '../../services/detalle.service';
-import { DocenteService } from '../../../docente/services/docente.service';
 import { HorarioService } from '../../../horario/services/horario.service';
 import { DetalleProgramaModulo } from '../../models/detalle.model';
 import { Horario } from '../../../horario/models/horario.model';
-import { DocenteCardDialogComponent } from '../../../docente/components/docente-card-dialog/docente-card-dialog';
 
 @Component({
   selector: 'app-detalle-list',
   standalone: true,
   imports: [
-    CommonModule,
+    CommonModule, RouterLink,
     MatCardModule, MatButtonModule, MatIconModule, MatTooltipModule,
     MatProgressSpinnerModule, MatSnackBarModule,
-    MatDialogModule, MatDividerModule,
+    MatDividerModule,
   ],
   templateUrl: './detalle-list.html',
   styleUrl: './detalle-list.css',
 })
 export class DetalleListComponent implements OnInit {
   private detalleService = inject(DetalleService);
-  private docenteService = inject(DocenteService);
   private horarioService = inject(HorarioService);
   private snackbar = inject(MatSnackBar);
-  private dialog = inject(MatDialog);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private destroyRef = inject(DestroyRef);
@@ -121,18 +116,6 @@ export class DetalleListComponent implements OnInit {
     this.router.navigate([`${base}/gestionar/${detalle.id_detalle_programa_modulo}`]);
   }
 
-  abrirDocenteCard(docenteId: number) {
-    this.docenteService.getById(docenteId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (docente) => {
-        this.dialog.open(DocenteCardDialogComponent, {
-          width: '480px',
-          data: docente,
-        });
-      },
-      error: () => this.snackbar.open('Error al cargar datos del docente', 'Cerrar', { duration: 4000 }),
-    });
-  }
-
   private cargarTodosHorarios() {
     const ids = this.detalles().map(d => d.id_detalle_programa_modulo);
     if (ids.length === 0) return;
@@ -171,6 +154,14 @@ export class DetalleListComponent implements OnInit {
     const map: Record<string, string> = {
       programado: 'Programado', en_curso: 'En Curso',
       reprogramado: 'Reprogramado', finalizado: 'Finalizado',
+    };
+    return map[estado] || estado;
+  }
+
+  contratacionEstadoLabel(estado: string): string {
+    const map: Record<string, string> = {
+      pendiente: 'Pendiente', en_curso: 'En Proceso',
+      formalizado: 'Formalizado', truncado: 'Truncado',
     };
     return map[estado] || estado;
   }

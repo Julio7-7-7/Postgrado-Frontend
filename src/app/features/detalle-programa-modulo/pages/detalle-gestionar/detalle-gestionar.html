@@ -28,18 +28,6 @@
         <form [formGroup]="form" class="form-body">
           <div class="form-fields">
             <mat-form-field appearance="outline" subscriptSizing="dynamic">
-              <mat-label>Docente</mat-label>
-              <mat-select formControlName="id_docente">
-                <mat-option [value]="null">Sin asignar</mat-option>
-                @for (doc of docentes(); track doc.id_docente) {
-                  <mat-option [value]="doc.id_docente">
-                    {{ doc.nombre }} {{ doc.apellido }}
-                  </mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" subscriptSizing="dynamic">
               <mat-label>Modalidad</mat-label>
               <mat-select formControlName="id_modalidad">
                 <mat-option [value]="null">—</mat-option>

@@ -1,0 +1,469 @@
+.page-container {
+  padding: var(--fich-space-lg);
+  max-width: 960px;
+  margin: 0 auto;
+  animation: fadeSlideIn 0.3s ease;
+}
+
+.back-btn {
+  margin-bottom: var(--fich-space-md);
+  color: var(--fich-text-secondary);
+}
+
+.header-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--fich-space-lg);
+  flex-wrap: wrap;
+  gap: var(--fich-space-sm);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: var(--fich-space-md);
+  flex-wrap: wrap;
+}
+
+.header-left h2 {
+  margin: 0;
+  font-weight: 700;
+  color: var(--fich-text);
+  font-size: 1.5rem;
+}
+
+.header-actions {
+  display: flex;
+  gap: var(--fich-space-sm);
+}
+
+.estado-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 16px;
+  border-radius: var(--fich-radius-full);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.estado-pendiente {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fbbf24;
+}
+
+.estado-en_curso {
+  background: var(--fich-primary-light);
+  color: var(--fich-primary);
+  border: 1px solid #bfdbfe;
+}
+
+.estado-formalizado {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #86efac;
+}
+
+.estado-truncado {
+  background: #fce4ec;
+  color: #c62828;
+  border: 1px solid #f48fb1;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--fich-space-md);
+  margin-bottom: var(--fich-space-lg);
+}
+
+@media (max-width: 768px) {
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.info-card {
+  border-radius: var(--fich-radius-lg);
+  box-shadow: var(--fich-shadow-sm);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+  overflow: hidden;
+  position: relative;
+}
+
+.info-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+}
+
+.docente-card::before {
+  background: linear-gradient(90deg, var(--fich-primary), #6366f1);
+}
+
+.modulo-card::before {
+  background: linear-gradient(90deg, #059669, #10b981);
+}
+
+.info-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--fich-shadow-lg);
+}
+
+.info-card:active {
+  transform: translateY(0);
+}
+
+.card-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--fich-radius-md);
+  font-weight: 700;
+  font-size: 1rem;
+  color: white;
+}
+
+.docente-avatar {
+  background: linear-gradient(135deg, var(--fich-primary), #6366f1);
+  box-shadow: 0 2px 8px rgba(30, 58, 138, 0.3);
+}
+
+.modulo-avatar {
+  background: linear-gradient(135deg, #059669, #10b981);
+  box-shadow: 0 2px 8px rgba(5, 150, 105, 0.3);
+}
+
+.modulo-avatar mat-icon {
+  color: white;
+  font-size: 22px;
+  width: 22px;
+  height: 22px;
+}
+
+.info-card mat-card-header {
+  padding-bottom: 8px;
+}
+
+.info-card mat-card-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--fich-text);
+}
+
+.info-card mat-card-subtitle {
+  font-size: 0.8rem;
+  color: var(--fich-text-muted);
+}
+
+.info-card mat-card-content {
+  padding-top: 0;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--fich-border-light);
+}
+
+.info-row:last-of-type {
+  border-bottom: none;
+}
+
+.info-label {
+  color: var(--fich-text-muted);
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+.info-value {
+  color: var(--fich-text);
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-align: right;
+}
+
+.monto {
+  color: var(--fich-success);
+  font-weight: 700;
+}
+
+.modulo-estado-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: var(--fich-radius-full);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.estado-programado {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.estado-reprogramado {
+  background: #f3e8ff;
+  color: #6b21a8;
+}
+
+.card-footer-link {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--fich-border);
+  color: var(--fich-primary);
+  font-size: 0.82rem;
+  font-weight: 500;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.info-card:hover .card-footer-link {
+  opacity: 1;
+}
+
+.card-footer-link mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+.ruta-card {
+  border-radius: var(--fich-radius-lg);
+  box-shadow: var(--fich-shadow-md);
+}
+
+.ruta-card mat-card-header mat-icon {
+  color: var(--fich-primary);
+}
+
+.ruta-subtitle-success {
+  color: var(--fich-success);
+  font-weight: 500;
+}
+
+.ruta-subtitle-muted {
+  color: var(--fich-text-muted);
+  font-style: italic;
+}
+
+.ruta-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: var(--fich-space-md) 0;
+}
+
+.ruta-paso {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--fich-space-md);
+  position: relative;
+  padding: var(--fich-space-md) 0;
+  min-height: 72px;
+}
+
+.paso-indicador {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 40px;
+  position: relative;
+  z-index: 1;
+}
+
+.paso-indicador mat-icon {
+  font-size: 28px;
+  width: 28px;
+  height: 28px;
+  background: white;
+  border-radius: 50%;
+}
+
+.icon-completado {
+  color: var(--fich-success);
+  filter: drop-shadow(0 1px 3px rgba(22, 163, 74, 0.3));
+}
+
+.icon-actual {
+  color: var(--fich-primary);
+  animation: pulse 2s infinite;
+}
+
+.icon-bloqueado {
+  color: var(--fich-text-faint);
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+
+.paso-contenido {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+}
+
+.paso-titulo {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--fich-text);
+}
+
+.ruta-paso.bloqueado .paso-titulo {
+  color: var(--fich-text-faint);
+}
+
+.paso-fecha {
+  font-size: 0.8rem;
+  color: var(--fich-text-muted);
+}
+
+.paso-acciones {
+  display: flex;
+  gap: var(--fich-space-sm);
+  margin-top: 2px;
+}
+
+.paso-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.85rem;
+  color: var(--fich-primary);
+  text-decoration: none;
+  padding: 4px 12px;
+  border-radius: var(--fich-radius-sm);
+  background: var(--fich-bg-subtle);
+  transition: background 0.15s, color 0.15s;
+}
+
+.paso-link:hover {
+  background: var(--fich-primary-light);
+  text-decoration: none;
+}
+
+.paso-link mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: #dc2626;
+}
+
+.paso-bloqueado {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.82rem;
+  color: var(--fich-text-faint);
+  font-style: italic;
+}
+
+.paso-bloqueado mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+.paso-upload .file-input {
+  display: none;
+}
+
+.paso-upload button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: var(--fich-radius-md);
+}
+
+.upload-progress {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  animation: fadeSlideIn 0.25s ease;
+}
+
+.upload-progress mat-progress-bar {
+  border-radius: 4px;
+  height: 6px;
+}
+
+.upload-progress mat-progress-bar.complete {
+  --mdc-linear-progress-active-indicator-color: var(--fich-success);
+}
+
+.upload-status {
+  font-size: 0.78rem;
+  color: var(--fich-text-muted);
+  font-weight: 500;
+}
+
+.paso-conector {
+  position: absolute;
+  left: 18px;
+  top: 50px;
+  bottom: -16px;
+  width: 2px;
+  background: var(--fich-border);
+}
+
+.ruta-paso.completado .paso-conector {
+  background: var(--fich-success);
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+  color: var(--fich-text-muted);
+}
+
+.loading-container p {
+  margin-top: 16px;
+}
+
+.error-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--fich-text-secondary);
+}
+
+.error-state mat-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+}
+
+.error-state p {
+  margin: 16px 0;
+}
+
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
