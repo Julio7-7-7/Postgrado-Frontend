@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ApiService } from '../../../core/services/api.service';
-import { DocumentoContratacion, DocumentoCreate } from '../models/documento.model';
+import { DocumentoContratacion, DocumentoCreate, TipoDocumentoContrato } from '../models/documento.model';
 
 @Injectable({ providedIn: 'root' })
 export class DocumentoService extends ApiService {
@@ -22,7 +22,22 @@ export class DocumentoService extends ApiService {
     return this.http.post<DocumentoContratacion>(`${this.baseUrl}/${this.endpoint}/`, data);
   }
 
+  subirPdf(contratacionId: number, tipo: TipoDocumentoContrato, file: File): Observable<DocumentoContratacion> {
+    const formData = new FormData();
+    formData.append('tipo', tipo);
+    formData.append('file', file);
+    return this.http.post<DocumentoContratacion>(
+      `${this.baseUrl}/${this.endpoint}/${contratacionId}/subir-pdf`,
+      formData,
+    );
+  }
+
   cancelar(id: number): Observable<DocumentoContratacion> {
     return this.http.patch<DocumentoContratacion>(`${this.baseUrl}/${this.endpoint}/${id}/cancelar`, {});
+  }
+
+  urlPdf(ruta: string | null): string {
+    if (!ruta) return '';
+    return `${this.baseUrl}${ruta}`;
   }
 }

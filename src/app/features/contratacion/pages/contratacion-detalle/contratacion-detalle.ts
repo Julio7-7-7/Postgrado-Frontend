@@ -11,6 +11,7 @@ import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog';
 import { ContratacionService } from '../../services/contratacion.service';
@@ -27,6 +28,7 @@ import { DetalleProgramaModulo } from '../../../detalle-programa-modulo/models/d
     CommonModule, RouterLink,
     MatButtonModule, MatIconModule, MatCardModule, MatDividerModule,
     MatSnackBarModule, MatProgressSpinnerModule, MatDialogModule, MatTooltipModule,
+    MatProgressBarModule,
   ],
   templateUrl: './contratacion-detalle.html',
   styleUrl: './contratacion-detalle.css',
@@ -45,7 +47,8 @@ export class ContratacionDetalleComponent implements OnInit {
   documentos = signal<DocumentoContratacion[]>([]);
   detalle = signal<DetalleProgramaModulo | null>(null);
   loading = signal(true);
-  subiendo = signal(false);
+  subiendo = signal<'ninguno' | 'file-read' | 'subiendo' | 'completado'>('ninguno');
+  progresoSubida = signal(0);
   error = signal<string | null>(null);
 
   documentosMap = computed(() => {
@@ -130,32 +133,55 @@ export class ContratacionDetalleComponent implements OnInit {
       return;
     }
 
-    this.subiendo.set(true);
+    this.subiendo.set('file-read');
 
     const reader = new FileReader();
+    reader.onprogress = (e) => {
+      if (e.lengthComputable) {
+        this.progresoSubida.set(Math.round((e.loaded / e.total) * 40));
+      }
+    };
     reader.onload = () => {
-      const base64 = reader.result as string;
-      this.documentoService.create({
-        id_contratacion: this.contratacionId,
-        tipo,
-        archivo_pdf_base64: base64,
-      }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      this.progresoSubida.set(40);
+      this.subiendo.set('subiendo');
+      this.documentoService.subirPdf(this.contratacionId, tipo, file).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: () => {
+          this.progresoSubida.set(100);
+          this.subiendo.set('completado');
           this.snackbar.open('Documento subido correctamente', 'OK', { duration: 3000 });
-          this.cargarDatos();
-          this.subiendo.set(false);
+          setTimeout(() => {
+            this.subiendo.set('ninguno');
+            this.progresoSubida.set(0);
+            this.cargarDatos();
+          }, 800);
         },
         error: (err) => {
+          this.subiendo.set('ninguno');
+          this.progresoSubida.set(0);
           this.snackbar.open(err.error?.detail || 'Error al subir documento', 'Cerrar', { duration: 4000 });
-          this.subiendo.set(false);
         },
       });
     };
     reader.onerror = () => {
+      this.subiendo.set('ninguno');
+      this.progresoSubida.set(0);
       this.snackbar.open('Error al leer el archivo', 'Cerrar', { duration: 4000 });
-      this.subiendo.set(false);
     };
     reader.readAsDataURL(file);
+  }
+
+  irADocente(id: number): void {
+    this.router.navigate(['/docentes', id]);
+  }
+
+  irAModulo(d: DetalleProgramaModulo | null): void {
+    if (!d) return;
+    this.router.navigate([
+      '/programas', d.id_programa,
+      'versiones', d.id_programa_version,
+      'ediciones', d.id_programa_version_edicion,
+      'modulos',
+    ], { queryParams: { destacar: d.id_detalle_programa_modulo } });
   }
 
   truncar(): void {
@@ -190,4 +216,5 @@ export class ContratacionDetalleComponent implements OnInit {
   }
 
   protected readonly RUTA_DOCUMENTAL = RUTA_DOCUMENTAL;
+  protected readonly urlPdf = (ruta: string | null) => this.documentoService.urlPdf(ruta);
 }
