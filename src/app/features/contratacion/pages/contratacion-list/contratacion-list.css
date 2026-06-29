@@ -104,7 +104,7 @@ td.mat-mdc-cell {
 .mat-column-sigla { width: 80px; text-align: center; }
 .mat-column-modulo { width: 140px; }
 .mat-column-fechas { width: 180px; }
-.mat-column-progreso { width: 110px; }
+.mat-column-progreso { width: 160px; }
 .mat-column-acciones { width: 110px; text-align: center; }
 
 .docente-name {
@@ -167,9 +167,29 @@ td.mat-mdc-cell {
   color: #92400e;
 }
 
-.prog-en_curso {
-  background: var(--fich-primary-light);
-  color: var(--fich-primary);
+.prog-verificacion {
+  background: #e0f2fe;
+  color: #075985;
+}
+
+.prog-convocatoria {
+  background: #e0f2fe;
+  color: #075985;
+}
+
+.prog-seleccion {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.prog-resolucion {
+  background: #ede9fe;
+  color: #5b21b6;
+}
+
+.prog-legal {
+  background: #fce7f3;
+  color: #9d174d;
 }
 
 .prog-formalizado {

@@ -1,6 +1,6 @@
 import { Component, OnInit, signal, computed, inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -12,23 +12,24 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatExpansionModule } from '@angular/material/expansion';
 
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog';
 import { ContratacionService } from '../../services/contratacion.service';
 import { DocumentoService } from '../../services/documento.service';
 import { DetalleService } from '../../../detalle-programa-modulo/services/detalle.service';
 import { ContratacionDocente } from '../../models/contratacion.model';
-import { DocumentoContratacion, RUTA_DOCUMENTAL, TipoDocumentoContrato } from '../../models/documento.model';
+import { DocumentoContratacion, ETAPAS_DOCUMENTALES, EtapaDocumental } from '../../models/documento.model';
 import { DetalleProgramaModulo } from '../../../detalle-programa-modulo/models/detalle.model';
 
 @Component({
   selector: 'app-contratacion-detalle',
   standalone: true,
   imports: [
-    CommonModule, RouterLink,
+    CommonModule,
     MatButtonModule, MatIconModule, MatCardModule, MatDividerModule,
     MatSnackBarModule, MatProgressSpinnerModule, MatDialogModule, MatTooltipModule,
-    MatProgressBarModule,
+    MatProgressBarModule, MatExpansionModule,
   ],
   templateUrl: './contratacion-detalle.html',
   styleUrl: './contratacion-detalle.css',
@@ -50,18 +51,42 @@ export class ContratacionDetalleComponent implements OnInit {
   subiendo = signal<'ninguno' | 'file-read' | 'subiendo' | 'completado'>('ninguno');
   progresoSubida = signal(0);
   error = signal<string | null>(null);
+  etapaExpandida = signal<string | null>(null);
+  montoEditando = signal(false);
+  montoInput = signal<number | null>(null);
 
   documentosMap = computed(() => {
-    const map = new Map<TipoDocumentoContrato, DocumentoContratacion>();
+    const map = new Map<string, DocumentoContratacion>();
     for (const doc of this.documentos()) {
       map.set(doc.tipo, doc);
     }
     return map;
   });
 
-  siguientePaso = computed(() => {
-    const docs = this.documentos();
-    return docs.length;
+  siguienteOrden = computed(() => this.documentos().length);
+
+  etapasConEstado = computed(() => {
+    const docs = this.documentosMap();
+    const orden = this.siguienteOrden();
+    const totalDocs = ETAPAS_DOCUMENTALES.flatMap(e => e.documentos).length;
+    let docIdx = 0;
+    return ETAPAS_DOCUMENTALES.map(etapa => {
+      const inicioEtapa = docIdx;
+      const docsEnEtapa = etapa.documentos.map(d => ({ info: d, doc: docs.get(d.tipo) ?? null }));
+      docIdx += etapa.documentos.length;
+
+      const completados = docsEnEtapa.filter(d => d.doc !== null).length;
+      const total = docsEnEtapa.length;
+      const todosCompletados = completados === total;
+      const algunoCompletado = completados > 0;
+      const activa = !todosCompletados && algunoCompletado
+        ? false
+        : orden >= inicioEtapa && (orden < inicioEtapa + total || todosCompletados);
+      const esActual = orden >= inicioEtapa && orden < inicioEtapa + total && !todosCompletados;
+      const bloqueada = orden <= inicioEtapa ? false : orden > inicioEtapa + total;
+
+      return { etapa, docsEnEtapa, completados, total, esActual, bloqueada, activa };
+    });
   });
 
   contratacionId = 0;
@@ -92,8 +117,26 @@ export class ContratacionDetalleComponent implements OnInit {
     });
 
     this.documentoService.getAll(this.contratacionId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (docs) => this.documentos.set(docs),
+      next: (docs) => {
+        this.documentos.set(docs);
+        this.autoExpandirEtapa();
+      },
     });
+  }
+
+  private autoExpandirEtapa(): void {
+    const orden = this.siguienteOrden();
+    let docIdx = 0;
+    for (const etapa of ETAPAS_DOCUMENTALES) {
+      if (orden >= docIdx && orden < docIdx + etapa.documentos.length) {
+        this.etapaExpandida.set(etapa.nombre);
+        return;
+      }
+      docIdx += etapa.documentos.length;
+    }
+    if (orden >= docIdx) {
+      this.etapaExpandida.set(ETAPAS_DOCUMENTALES[ETAPAS_DOCUMENTALES.length - 1]?.nombre ?? null);
+    }
   }
 
   private cargarDetalle(id: number): void {
@@ -108,12 +151,17 @@ export class ContratacionDetalleComponent implements OnInit {
     });
   }
 
-  pasoCompletado(idx: number): boolean {
-    return idx < this.siguientePaso();
+  pasoCompletado(docTipo: string): boolean {
+    return this.documentosMap().has(docTipo);
   }
 
-  pasoActual(idx: number): boolean {
-    return idx === this.siguientePaso() && this.siguientePaso() < RUTA_DOCUMENTAL.length
+  pasoActual(docTipo: string): boolean {
+    const docs = this.documentos();
+    const orden = docs.length;
+    const totalDocs = ETAPAS_DOCUMENTALES.flatMap(e => e.documentos).length;
+    if (orden >= totalDocs) return false;
+    const siguienteTipo = ETAPAS_DOCUMENTALES.flatMap(e => e.documentos)[orden]?.tipo;
+    return docTipo === siguienteTipo
       && this.contratacion()?.estado !== 'truncado'
       && this.contratacion()?.estado !== 'formalizado';
   }
@@ -123,7 +171,7 @@ export class ContratacionDetalleComponent implements OnInit {
     return !c || c.estado === 'truncado' || c.estado === 'formalizado';
   }
 
-  onFileSelected(event: Event, tipo: TipoDocumentoContrato): void {
+  onFileSelected(event: Event, tipo: string): void {
     const input = event.target as HTMLInputElement;
     if (!input.files || input.files.length === 0) return;
 
@@ -211,10 +259,59 @@ export class ContratacionDetalleComponent implements OnInit {
     });
   }
 
+  editarMonto(): void {
+    this.montoInput.set(this.contratacion()?.monto ?? null);
+    this.montoEditando.set(true);
+  }
+
+  cancelarMontoEdit(): void {
+    this.montoEditando.set(false);
+    this.montoInput.set(null);
+  }
+
+  guardarMonto(): void {
+    const nuevo = this.montoInput();
+    if (!this.contratacion()) return;
+    this.service.update(this.contratacionId, { monto: nuevo }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: () => {
+        this.snackbar.open('Monto actualizado', 'OK', { duration: 2000 });
+        this.montoEditando.set(false);
+        this.cargarDatos();
+      },
+      error: (err) => {
+        this.snackbar.open(err.error?.detail || 'Error al actualizar monto', 'Cerrar', { duration: 4000 });
+      },
+    });
+  }
+
   volver(): void {
     this.router.navigate(['/contrataciones']);
   }
 
-  protected readonly RUTA_DOCUMENTAL = RUTA_DOCUMENTAL;
+  estadoLabel(estado: string): string {
+    const map: Record<string, string> = {
+      pendiente: 'Pendiente',
+      verificacion: 'Verificación Presupuestaria',
+      convocatoria: 'Convocatoria',
+      seleccion: 'Selección',
+      resolucion: 'Resolución',
+      legal: 'Gestión Legal',
+      formalizado: 'Formalizado',
+      truncado: 'Truncado',
+    };
+    return map[estado] ?? estado;
+  }
+
+  totalDocs = computed(() =>
+    ETAPAS_DOCUMENTALES.reduce((acc, e) => acc + e.documentos.length, 0)
+  );
+
+  progresoGlobal = computed(() => {
+    const total = this.totalDocs();
+    if (total === 0) return 0;
+    return Math.round((this.documentos().length / total) * 100);
+  });
+
+  protected readonly ETAPAS_DOCUMENTALES = ETAPAS_DOCUMENTALES;
   protected readonly urlPdf = (ruta: string | null) => this.documentoService.urlPdf(ruta);
 }

@@ -25,13 +25,14 @@
         <h2>Contratación #{{ c?.id_contratacion }}</h2>
         <span class="estado-badge"
               [class.estado-pendiente]="c?.estado === 'pendiente'"
-              [class.estado-en_curso]="c?.estado === 'en_curso'"
+              [class.estado-verificacion]="c?.estado === 'verificacion'"
+              [class.estado-convocatoria]="c?.estado === 'convocatoria'"
+              [class.estado-seleccion]="c?.estado === 'seleccion'"
+              [class.estado-resolucion]="c?.estado === 'resolucion'"
+              [class.estado-legal]="c?.estado === 'legal'"
               [class.estado-formalizado]="c?.estado === 'formalizado'"
               [class.estado-truncado]="c?.estado === 'truncado'">
-          @if (c?.estado === 'en_curso') { En curso }
-          @else if (c?.estado === 'formalizado') { Formalizado }
-          @else if (c?.estado === 'truncado') { Truncado }
-          @else { Pendiente }
+          {{ estadoLabel(c?.estado ?? '') }}
         </span>
       </div>
       <div class="header-actions">
@@ -67,12 +68,26 @@
             <span class="info-label">Título</span>
             <span class="info-value">{{ c?.docente?.titulo || '—' }}</span>
           </div>
-          @if (c?.monto) {
-            <div class="info-row">
-              <span class="info-label">Monto</span>
-              <span class="info-value monto">Bs. {{ c?.monto | number:'1.2-2' }}</span>
-            </div>
-          }
+          <div class="info-row">
+            <span class="info-label">Monto</span>
+            @if (montoEditando()) {
+              <div class="monto-edit-inline">
+                <span class="monto-prefix">Bs.</span>
+                <input #montoInputEl type="number" step="0.01" class="monto-input"
+                       [value]="montoInput()" (input)="montoInput.set(+montoInputEl.value)"
+                       (keydown.enter)="guardarMonto()" (keydown.escape)="cancelarMontoEdit()"
+                       (blur)="guardarMonto()" autofocus>
+              </div>
+            } @else {
+              <span class="info-value monto">
+                Bs. {{ (c?.monto ?? 0) | number:'1.2-2' }}
+                <button mat-icon-button class="monto-edit-btn" (click)="editarMonto()"
+                        matTooltip="Editar monto" type="button">
+                  <mat-icon>edit</mat-icon>
+                </button>
+              </span>
+            }
+          </div>
           <div class="card-footer-link">
             <mat-icon>open_in_new</mat-icon> Ver perfil del docente
           </div>
@@ -128,84 +143,132 @@
       <mat-card-header>
         <mat-icon mat-card-avatar>timeline</mat-icon>
         <mat-card-title>Ruta documental</mat-card-title>
-        <mat-card-subtitle>
-          @if (c?.estado === 'formalizado') {
-            <span class="ruta-subtitle-success">Todos los documentos han sido subidos y la contratación está formalizada</span>
-          } @else if (c?.estado === 'truncado') {
-            <span class="ruta-subtitle-muted">Proceso truncado — los documentos quedan como historial. Puede iniciar una nueva contratación para este módulo.</span>
-          } @else {
-            Siga la secuencia para completar la contratación
-          }
-        </mat-card-subtitle>
       </mat-card-header>
       <mat-card-content>
-        <div class="ruta-timeline">
-          @for (paso of RUTA_DOCUMENTAL; track paso.tipo; let i = $index) {
-            <div class="ruta-paso"
-                 [class.completado]="pasoCompletado(i)"
-                 [class.actual]="pasoActual(i)"
-                 [class.bloqueado]="!pasoCompletado(i) && !pasoActual(i)">
-              <div class="paso-indicador">
-                @if (pasoCompletado(i)) {
-                  <mat-icon class="icon-completado">check_circle</mat-icon>
-                } @else if (pasoActual(i)) {
-                  <mat-icon class="icon-actual">radio_button_checked</mat-icon>
-                } @else {
-                  <mat-icon class="icon-bloqueado">radio_button_unchecked</mat-icon>
-                }
-              </div>
-              <div class="paso-contenido">
-                <span class="paso-titulo">{{ paso.label }}</span>
-                @if (pasoCompletado(i)) {
-                  @let doc = documentosMap().get(paso.tipo);
-                  <span class="paso-fecha">Subido el {{ (doc?.fecha_subida | date:'dd/MM/yyyy HH:mm') || '—' }}</span>
-                  <div class="paso-acciones">
-                    @if (doc?.archivo_pdf) {
-                      <a [href]="urlPdf(doc?.archivo_pdf ?? null)" target="_blank" class="paso-link" matTooltip="Ver PDF">
-                        <mat-icon>picture_as_pdf</mat-icon> Ver documento
-                      </a>
-                    }
-                  </div>
-                } @else if (pasoActual(i)) {
-                  <div class="paso-upload">
-                    <input type="file" accept=".pdf,application/pdf"
-                           #fileInput
-                           (change)="onFileSelected($event, paso.tipo)"
-                           class="file-input"
-                           [disabled]="subiendo() !== 'ninguno'">
-                    <button mat-raised-button color="primary"
-                            [disabled]="subiendo() !== 'ninguno'"
-                            (click)="fileInput.click()">
-                      @if (subiendo() === 'ninguno') {
-                        <mat-icon>upload_file</mat-icon>
-                        Subir PDF
-                      } @else {
-                        <mat-spinner diameter="20"></mat-spinner>
-                        Subiendo...
-                      }
-                    </button>
-                  </div>
-                  @if (subiendo() !== 'ninguno') {
-                    <div class="upload-progress">
-                      <mat-progress-bar mode="determinate" [value]="progresoSubida()"
-                                        [class.complete]="subiendo() === 'completado'"></mat-progress-bar>
-                      <span class="upload-status">
-                        @if (subiendo() === 'file-read') { Leyendo archivo... }
-                        @else if (subiendo() === 'subiendo') { Subiendo al servidor... }
-                        @else { ¡Completado! }
-                      </span>
-                    </div>
+        <div class="global-progress">
+          <div class="global-progress-header">
+            <span class="global-progress-label">Progreso general</span>
+            <span class="global-progress-count">{{ documentos().length }}/{{ totalDocs() }} documentos</span>
+          </div>
+          <mat-progress-bar mode="determinate" [value]="progresoGlobal()"
+                           [class.progress-complete]="progresoGlobal() === 100"
+                           class="global-progress-bar"></mat-progress-bar>
+          @if (c?.estado === 'formalizado') {
+            <span class="global-hint global-hint-success">Todos los documentos han sido subidos y la contratación está formalizada</span>
+          } @else if (c?.estado === 'truncado') {
+            <span class="global-hint global-hint-muted">Proceso truncado — los documentos quedan como historial</span>
+          } @else {
+            <span class="global-hint">Siga la secuencia para completar la contratación</span>
+          }
+        </div>
+
+        <div class="etapas-container">
+          @for (etapaState of etapasConEstado(); track etapaState.etapa.nombre; let ei = $index) {
+            <div class="etapa-wrapper"
+                 [class.etapa-bloqueada]="etapaState.bloqueada && !etapaState.esActual"
+                 [class.etapa-completada]="etapaState.completados === etapaState.total && etapaState.total > 0">
+              <div class="etapa-header" (click)="etapaExpandida.set(etapaExpandida() === etapaState.etapa.nombre ? null : etapaState.etapa.nombre)"
+                   [class.etapa-header-actual]="etapaState.esActual"
+                   [class.etapa-header-completada]="etapaState.completados === etapaState.total && etapaState.total > 0">
+                <div class="etapa-header-left">
+                  @if (etapaState.completados === etapaState.total && etapaState.total > 0) {
+                    <mat-icon class="etapa-icon-completada">check_circle</mat-icon>
+                  } @else if (etapaState.esActual) {
+                    <mat-icon class="etapa-icon-actual">play_circle</mat-icon>
+                  } @else {
+                    <mat-icon class="etapa-icon-bloqueada">radio_button_unchecked</mat-icon>
                   }
-                } @else {
-                  <span class="paso-bloqueado">
-                    <mat-icon>lock</mat-icon> Complete el paso anterior
-                  </span>
-                }
+                  <span class="etapa-nombre">{{ etapaState.etapa.label }}</span>
+                </div>
+                <div class="etapa-header-right">
+                  <span class="etapa-progreso">{{ etapaState.completados }}/{{ etapaState.total }}</span>
+                  <mat-icon class="etapa-expand-icon">
+                    {{ etapaExpandida() === etapaState.etapa.nombre ? 'expand_less' : 'expand_more' }}
+                  </mat-icon>
+                </div>
               </div>
-              @if (i < RUTA_DOCUMENTAL.length - 1) {
-                <div class="paso-conector"></div>
+
+              @if (etapaExpandida() === etapaState.etapa.nombre) {
+                <div class="etapa-docs"
+                     [class.etapa-docs-completada]="etapaState.completados === etapaState.total && etapaState.total > 0">
+                  @for (docState of etapaState.docsEnEtapa; track docState.info.tipo; let di = $index) {
+                    @let completado = docState.doc !== null;
+                    @let activo = pasoActual(docState.info.tipo);
+                    @let bloqueado = !completado && !activo;
+
+                    <div class="doc-item"
+                         [class.doc-completado]="completado"
+                         [class.doc-activo]="activo"
+                         [class.doc-bloqueado]="bloqueado">
+                      <div class="doc-indicador">
+                        @if (completado) {
+                          <mat-icon class="doc-icon-ok">check_circle</mat-icon>
+                        } @else if (activo) {
+                          <mat-icon class="doc-icon-current">radio_button_checked</mat-icon>
+                        } @else {
+                          <mat-icon class="doc-icon-locked">radio_button_unchecked</mat-icon>
+                        }
+                      </div>
+                      <div class="doc-contenido">
+                        <div class="doc-titulo">{{ docState.info.label }}</div>
+                        @if (completado) {
+                          <div class="doc-meta">
+                            <span class="doc-fecha">Subido el {{ (docState.doc!.fecha_subida | date:'dd/MM/yyyy HH:mm') || '—' }}</span>
+                            @if (docState.doc!.archivo_pdf) {
+                              <a [href]="urlPdf(docState.doc!.archivo_pdf)" target="_blank" class="doc-link" matTooltip="Ver PDF">
+                                <mat-icon>picture_as_pdf</mat-icon> Ver documento
+                              </a>
+                            }
+                          </div>
+                        } @else if (activo) {
+                          <div class="doc-upload">
+                            <input type="file" accept=".pdf,application/pdf"
+                                   #fileInput
+                                   (change)="onFileSelected($event, docState.info.tipo)"
+                                   class="file-input"
+                                   [disabled]="subiendo() !== 'ninguno'">
+                            <button mat-raised-button color="primary"
+                                    [disabled]="subiendo() !== 'ninguno'"
+                                    (click)="fileInput.click()">
+                              @if (subiendo() === 'ninguno') {
+                                <mat-icon>upload_file</mat-icon>
+                              }
+                              @if (subiendo() !== 'ninguno') {
+                                <mat-spinner diameter="20"></mat-spinner>
+                              }
+                              {{ subiendo() === 'ninguno' ? 'Subir PDF' : 'Subiendo...' }}
+                            </button>
+                          </div>
+                          @if (subiendo() !== 'ninguno') {
+                            <div class="upload-progress">
+                              <mat-progress-bar mode="determinate" [value]="progresoSubida()"
+                                                [class.complete]="subiendo() === 'completado'"></mat-progress-bar>
+                              <span class="upload-status">
+                                @if (subiendo() === 'file-read') { Leyendo archivo... }
+                                @else if (subiendo() === 'subiendo') { Subiendo al servidor... }
+                                @else { ¡Completado! }
+                              </span>
+                            </div>
+                          }
+                        } @else {
+                          <span class="doc-bloqueado-msg">
+                            <mat-icon>lock</mat-icon> Complete el paso anterior
+                          </span>
+                        }
+                      </div>
+                    </div>
+                    @if (di < etapaState.docsEnEtapa.length - 1) {
+                      <div class="doc-conector"
+                           [class.doc-conector-ok]="completado && etapaState.docsEnEtapa[di + 1]?.doc !== null"></div>
+                    }
+                  }
+                </div>
               }
             </div>
+
+            @if (ei < etapasConEstado().length - 1) {
+              <div class="etapa-divider"></div>
+            }
           }
         </div>
       </mat-card-content>

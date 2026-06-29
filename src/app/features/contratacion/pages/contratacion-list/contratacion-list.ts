@@ -19,7 +19,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog';
 import { ContratacionService } from '../../services/contratacion.service';
 import { ContratacionDocente, ContratacionEstado } from '../../models/contratacion.model';
-import { RUTA_DOCUMENTAL } from '../../models/documento.model';
+import { ETAPAS_DOCUMENTALES } from '../../models/documento.model';
 import { ProgramaService } from '../../../programa/services/programa.service';
 import { Programa } from '../../../programa/models/programa.model';
 
@@ -91,10 +91,15 @@ export class ContratacionListComponent implements OnInit {
   }
 
   progresoTexto(estado: ContratacionEstado): string {
+    const total = ETAPAS_DOCUMENTALES.flatMap(e => e.documentos).length;
     const map: Record<ContratacionEstado, string> = {
-      pendiente: '0/' + RUTA_DOCUMENTAL.length,
-      en_curso: 'En trámite',
-      formalizado: RUTA_DOCUMENTAL.length + '/' + RUTA_DOCUMENTAL.length,
+      pendiente: '0/' + total,
+      verificacion: 'Verificación',
+      convocatoria: 'Convocatoria',
+      seleccion: 'Selección',
+      resolucion: 'Resolución',
+      legal: 'Gestión Legal',
+      formalizado: total + '/' + total,
       truncado: 'Truncado',
     };
     return map[estado];

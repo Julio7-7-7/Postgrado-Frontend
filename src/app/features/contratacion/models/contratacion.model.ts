@@ -1,6 +1,6 @@
 import { Docente } from '../../docente/models/docente.model';
 
-export type ContratacionEstado = 'pendiente' | 'en_curso' | 'formalizado' | 'truncado';
+export type ContratacionEstado = 'pendiente' | 'verificacion' | 'convocatoria' | 'seleccion' | 'resolucion' | 'legal' | 'formalizado' | 'truncado';
 
 export interface ContratacionDocente {
   id_contratacion: number;

@@ -54,10 +54,34 @@
   border: 1px solid #fbbf24;
 }
 
-.estado-en_curso {
-  background: var(--fich-primary-light);
-  color: var(--fich-primary);
-  border: 1px solid #bfdbfe;
+.estado-verificacion {
+  background: #e0f2fe;
+  color: #075985;
+  border: 1px solid #7dd3fc;
+}
+
+.estado-convocatoria {
+  background: #e0f2fe;
+  color: #075985;
+  border: 1px solid #7dd3fc;
+}
+
+.estado-seleccion {
+  background: #dbeafe;
+  color: #1e40af;
+  border: 1px solid #93c5fd;
+}
+
+.estado-resolucion {
+  background: #ede9fe;
+  color: #5b21b6;
+  border: 1px solid #c4b5fd;
+}
+
+.estado-legal {
+  background: #fce7f3;
+  color: #9d174d;
+  border: 1px solid #f9a8d4;
 }
 
 .estado-formalizado {
@@ -196,6 +220,63 @@
 .monto {
   color: var(--fich-success);
   font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.monto-edit-btn {
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
+  --mdc-icon-button-state-layer-size: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 2px;
+}
+
+.monto-edit-btn mat-icon {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+  line-height: 14px;
+  color: var(--fich-text-muted);
+  display: block;
+}
+
+.monto-edit-btn:hover mat-icon {
+  color: var(--fich-primary);
+}
+
+.monto-edit-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.monto-prefix {
+  color: var(--fich-text-muted);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.monto-input {
+  width: 100px;
+  padding: 4px 8px;
+  border: 2px solid var(--fich-primary);
+  border-radius: var(--fich-radius-sm);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--fich-success);
+  background: var(--fich-bg-card);
+  outline: none;
+  text-align: right;
+  transition: border-color 0.15s;
+}
+
+.monto-input:focus {
+  box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.15);
 }
 
 .modulo-estado-badge {
@@ -247,156 +328,314 @@
 }
 
 .ruta-card mat-card-header mat-icon {
-  color: var(--fich-primary);
-}
-
-.ruta-subtitle-success {
   color: var(--fich-success);
-  font-weight: 500;
 }
 
-.ruta-subtitle-muted {
+.global-progress {
+  padding: 0 4px 16px 4px;
+}
+
+.global-progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.global-progress-label {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--fich-text);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.global-progress-count {
+  font-size: 0.82rem;
+  font-weight: 600;
   color: var(--fich-text-muted);
+  background: var(--fich-bg-subtle);
+  padding: 2px 12px;
+  border-radius: var(--fich-radius-full);
+}
+
+.global-progress-bar {
+  height: 8px;
+  border-radius: 4px;
+  --mdc-linear-progress-track-color: var(--fich-border-light);
+}
+
+.global-progress-bar.progress-complete {
+  --mdc-linear-progress-active-indicator-color: var(--fich-success);
+}
+
+.global-hint {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--fich-text-muted);
+  margin-top: 8px;
+}
+
+.global-hint-success {
+  color: var(--fich-success);
+  font-weight: 600;
+}
+
+.global-hint-muted {
   font-style: italic;
 }
 
-.ruta-timeline {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  padding: var(--fich-space-md) 0;
+.etapas-container {
+  padding: var(--fich-space-sm) 0;
 }
 
-.ruta-paso {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--fich-space-md);
-  position: relative;
-  padding: var(--fich-space-md) 0;
-  min-height: 72px;
+.etapa-wrapper {
+  border-radius: var(--fich-radius-md);
+  overflow: hidden;
+  transition: box-shadow 0.2s ease;
 }
 
-.paso-indicador {
+.etapa-wrapper:hover {
+  box-shadow: var(--fich-shadow-sm);
+}
+
+.etapa-header {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
   align-items: center;
-  min-width: 40px;
-  position: relative;
-  z-index: 1;
+  padding: 14px 16px;
+  cursor: pointer;
+  border-radius: var(--fich-radius-md);
+  transition: background 0.15s ease;
+  background: var(--fich-bg-subtle);
+  border: 1px solid var(--fich-border-light);
+  user-select: none;
 }
 
-.paso-indicador mat-icon {
-  font-size: 28px;
-  width: 28px;
-  height: 28px;
-  background: white;
-  border-radius: 50%;
+.etapa-header:hover {
+  background: var(--fich-bg-hover);
 }
 
-.icon-completado {
-  color: var(--fich-success);
-  filter: drop-shadow(0 1px 3px rgba(22, 163, 74, 0.3));
+.etapa-header-actual {
+  background: var(--fich-primary-light) !important;
+  border-color: #bfdbfe;
 }
 
-.icon-actual {
-  color: var(--fich-primary);
-  animation: pulse 2s infinite;
+.etapa-header-completada {
+  background: #f0fdf4 !important;
+  border-color: #86efac !important;
+  box-shadow: inset 3px 0 0 var(--fich-success);
 }
 
-.icon-bloqueado {
-  color: var(--fich-text-faint);
-}
-
-@keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.15); }
-}
-
-.paso-contenido {
+.etapa-header-left {
   display: flex;
-  flex-direction: column;
-  gap: 6px;
-  flex: 1;
-  min-width: 0;
+  align-items: center;
+  gap: 10px;
 }
 
-.paso-titulo {
+.etapa-header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.etapa-nombre {
   font-weight: 600;
   font-size: 0.95rem;
   color: var(--fich-text);
 }
 
-.ruta-paso.bloqueado .paso-titulo {
+.etapa-completada .etapa-nombre {
+  color: var(--fich-success);
+}
+
+.etapa-progreso {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--fich-text-muted);
+  background: var(--fich-bg-card);
+  padding: 2px 10px;
+  border-radius: var(--fich-radius-full);
+  border: 1px solid var(--fich-border);
+}
+
+.etapa-completada .etapa-progreso {
+  color: var(--fich-success);
+  border-color: #bbf7d0;
+  background: #f0fdf4;
+}
+
+.etapa-expand-icon {
+  color: var(--fich-text-muted);
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.etapa-icon-completada {
+  color: var(--fich-success);
+  font-size: 22px;
+  width: 22px;
+  height: 22px;
+}
+
+.etapa-icon-actual {
+  color: var(--fich-primary);
+  font-size: 22px;
+  width: 22px;
+  height: 22px;
+  animation: pulse 2s infinite;
+}
+
+.etapa-icon-bloqueada {
+  color: var(--fich-text-faint);
+  font-size: 22px;
+  width: 22px;
+  height: 22px;
+}
+
+.etapa-divider {
+  height: 1px;
+  background: var(--fich-border-light);
+  margin: 4px 0;
+}
+
+.etapa-completada + .etapa-divider {
+  background: #bbf7d0;
+}
+
+.etapa-completada + .etapa-divider + .etapa-wrapper .etapa-divider {
+  background: var(--fich-border-light);
+}
+
+.etapa-bloqueada .etapa-header {
+  opacity: 0.55;
+}
+
+.etapa-icon-completada, .doc-icon-ok {
+  filter: drop-shadow(0 1px 3px rgba(22, 163, 74, 0.3));
+}
+
+.etapa-docs {
+  padding: 8px 16px 12px 16px;
+  border-left: 2px solid var(--fich-border-light);
+  margin-left: 30px;
+  margin-top: 4px;
+  transition: border-color 0.3s ease;
+}
+
+.etapa-docs-completada {
+  border-left-color: var(--fich-success);
+}
+
+.doc-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 0;
+  position: relative;
+}
+
+.doc-indicador {
+  display: flex;
+  align-items: center;
+  min-width: 24px;
+  padding-top: 2px;
+}
+
+.doc-indicador mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.doc-icon-ok {
+  color: var(--fich-success);
+}
+
+.doc-icon-current {
+  color: var(--fich-primary);
+  animation: pulse 2s infinite;
+}
+
+.doc-icon-locked {
   color: var(--fich-text-faint);
 }
 
-.paso-fecha {
-  font-size: 0.8rem;
+.doc-contenido {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.doc-titulo {
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--fich-text);
+  line-height: 1.3;
+}
+
+.doc-bloqueado .doc-titulo {
+  color: var(--fich-text-faint);
+}
+
+.doc-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--fich-space-md);
+  flex-wrap: wrap;
+}
+
+.doc-fecha {
+  font-size: 0.78rem;
   color: var(--fich-text-muted);
 }
 
-.paso-acciones {
-  display: flex;
-  gap: var(--fich-space-sm);
-  margin-top: 2px;
-}
-
-.paso-link {
+.doc-link {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   color: var(--fich-primary);
   text-decoration: none;
-  padding: 4px 12px;
+  padding: 3px 10px;
   border-radius: var(--fich-radius-sm);
   background: var(--fich-bg-subtle);
   transition: background 0.15s, color 0.15s;
 }
 
-.paso-link:hover {
+.doc-link:hover {
   background: var(--fich-primary-light);
   text-decoration: none;
 }
 
-.paso-link mat-icon {
-  font-size: 18px;
-  width: 18px;
-  height: 18px;
-  color: #dc2626;
-}
-
-.paso-bloqueado {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 0.82rem;
-  color: var(--fich-text-faint);
-  font-style: italic;
-}
-
-.paso-bloqueado mat-icon {
+.doc-link mat-icon {
   font-size: 16px;
   width: 16px;
   height: 16px;
+  color: #dc2626;
 }
 
-.paso-upload .file-input {
+.doc-upload .file-input {
   display: none;
 }
 
-.paso-upload button {
+.doc-upload button {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   border-radius: var(--fich-radius-md);
+  font-size: 0.85rem;
+  padding: 0 16px;
 }
 
 .upload-progress {
-  margin-top: 8px;
+  margin-top: 6px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
   animation: fadeSlideIn 0.25s ease;
 }
 
@@ -410,21 +649,33 @@
 }
 
 .upload-status {
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   color: var(--fich-text-muted);
   font-weight: 500;
 }
 
-.paso-conector {
-  position: absolute;
-  left: 18px;
-  top: 50px;
-  bottom: -16px;
-  width: 2px;
-  background: var(--fich-border);
+.doc-bloqueado-msg {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.78rem;
+  color: var(--fich-text-faint);
+  font-style: italic;
 }
 
-.ruta-paso.completado .paso-conector {
+.doc-bloqueado-msg mat-icon {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+}
+
+.doc-conector {
+  height: 1px;
+  background: var(--fich-border-light);
+  margin: 0 0 0 30px;
+}
+
+.doc-conector-ok {
   background: var(--fich-success);
 }
 
@@ -455,6 +706,11 @@
 
 .error-state p {
   margin: 16px 0;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
 }
 
 @keyframes fadeSlideIn {
