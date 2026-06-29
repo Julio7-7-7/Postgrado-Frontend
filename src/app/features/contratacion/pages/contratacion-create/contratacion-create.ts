@@ -1,7 +1,7 @@
 import { Component, OnInit, signal, inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormControl } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Observable, of } from 'rxjs';
 import { map, startWith, debounceTime } from 'rxjs/operators';
@@ -40,6 +40,7 @@ export class ContratacionCreateComponent implements OnInit {
   private detalleService = inject(DetalleService);
   private snackbar = inject(MatSnackBar);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private destroyRef = inject(DestroyRef);
 
   form: FormGroup;
@@ -98,6 +99,14 @@ export class ContratacionCreateComponent implements OnInit {
     this.countCargados++;
     if (this.countCargados >= 2) {
       this.loadingDatos.set(false);
+
+      const preSelectedId = this.route.snapshot.queryParamMap.get('id_detalle_modulo');
+      if (preSelectedId) {
+        const found = this.detalles().find(d => d.id_detalle_programa_modulo === +preSelectedId);
+        if (found) {
+          this.seleccionarModulo(found);
+        }
+      }
     }
   }
 

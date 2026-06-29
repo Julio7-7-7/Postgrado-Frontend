@@ -70,7 +70,7 @@
             <mat-card class="version-card" [class.vigente]="v.vigente" (click)="irAEdiciones(v.id_programa_version)">
               <div class="card-foto">
                 @if (v.foto) {
-                  <img [src]="apiUrl + v.foto" [alt]="'Versión ' + v.version" />
+                  <img [src]="apiUrl + v.foto" [alt]="'V' + v.version" />
                 } @else {
                   <div class="card-foto-placeholder">
                     <mat-icon>layers</mat-icon>
@@ -79,7 +79,7 @@
               </div>
               <mat-card-content>
                 <div class="card-header-row">
-                  <span class="version-badge">v{{ v.version }}</span>
+                  <span class="version-badge">V{{ v.version }}</span>
                   @if (v.vigente) {
                     <span class="estado-chip vigente">Vigente</span>
                   } @else {

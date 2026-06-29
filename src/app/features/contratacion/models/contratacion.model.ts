@@ -11,6 +11,10 @@ export interface ContratacionDocente {
   fecha_fin: string | null;
   estado: ContratacionEstado;
   docente: Docente;
+  id_programa: number;
+  programa_nombre: string;
+  modulo_sigla: string;
+  modulo_nombre: string;
   created_at: string;
   updated_at: string;
 }
