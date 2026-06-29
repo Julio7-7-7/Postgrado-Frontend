@@ -1,0 +1,96 @@
+<div class="page-container">
+  <button mat-stroked-button class="back-btn" (click)="volver()">
+    <mat-icon>arrow_back</mat-icon> Volver al carrusel
+  </button>
+
+  @if (isLoading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="50" color="primary"></mat-spinner>
+      <p>Cargando historial...</p>
+    </div>
+  } @else if (error()) {
+    <div class="error-state">
+      <mat-icon color="warn">error_outline</mat-icon>
+      <p>{{ error() }}</p>
+      <button mat-flat-button color="primary" (click)="cargarDatos()">
+        <mat-icon>refresh</mat-icon> Reintentar
+      </button>
+    </div>
+  } @else {
+    @let ctx = contexto();
+
+    <div class="header-section">
+      <div class="header-left">
+        <h2>Historial de cambios</h2>
+        @if (ctx) {
+          <span class="header-contexto">
+            {{ ctx.programa_nombre }} · V{{ ctx.programa_version }} E{{ ctx.edicion }}
+            · {{ ctx.modulo_sigla }} · {{ ctx.modulo_nombre }}
+          </span>
+        }
+      </div>
+      <span class="total-badge">{{ historiales().length }} {{ historiales().length === 1 ? 'cambio' : 'cambios' }}</span>
+    </div>
+
+    @if (entradasConDiff().length === 0) {
+      <div class="empty-state">
+        <mat-icon>history</mat-icon>
+        <p>Este módulo no tiene cambios registrados.</p>
+      </div>
+    } @else {
+      <div class="timeline">
+        <div class="timeline-line"></div>
+        @for (entry of entradasConDiff(); track entry.id_historial; let i = $index) {
+          <div class="timeline-entry">
+            <div class="timeline-dot" [class]="tipoCambioClass(entry.tipos)"></div>
+            <mat-card class="historial-card" [class]="tipoCambioClass(entry.tipos)">
+              <mat-card-header>
+                <div class="card-header-content">
+                  <div class="card-header-left">
+                    <mat-icon [class]="'tipo-icon ' + tipoCambioClass(entry.tipos)">{{ tipoCambioIcon(entry.tipos) }}</mat-icon>
+                    <span class="card-title">{{ tipoCambioLabel(entry.tipos) }}</span>
+                  </div>
+                  <div class="card-header-right">
+                    <span class="card-timeago">{{ timeAgo(entry.created_at) }}</span>
+                    @if (isManual(entry)) {
+                      <span class="badge-manual" matTooltip="Cambio realizado manualmente por un usuario">Manual</span>
+                    } @else {
+                      <span class="badge-auto" matTooltip="Cambio automático por fechas">Auto</span>
+                    }
+                  </div>
+                </div>
+              </mat-card-header>
+
+              <mat-card-content>
+                @for (diff of entry.diffs; track diff.campo) {
+                  <div class="diff-section">
+                    <div class="diff-label">{{ diff.label }}</div>
+                    <div class="diff-lines">
+                      <div class="diff-line diff-old">
+                        <span class="diff-sign">−</span>
+                        <span class="diff-value">{{ diff.valor_anterior }}</span>
+                      </div>
+                      <div class="diff-line diff-new">
+                        <span class="diff-sign">+</span>
+                        <span class="diff-value">{{ diff.valor_nuevo }}</span>
+                      </div>
+                    </div>
+                  </div>
+                }
+
+                <div class="motivo-section">
+                  <span class="motivo-text">"{{ entry.motivo }}"</span>
+                </div>
+
+                <div class="footer-timestamp">
+                  <mat-icon>schedule</mat-icon>
+                  {{ formatDateTime(entry.created_at) }}
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        }
+      </div>
+    }
+  }
+</div>

@@ -136,6 +136,9 @@
             </mat-card-content>
 
             <mat-card-actions>
+              <button mat-stroked-button (click)="verHistorial(detalle)" class="historial-btn" matTooltip="Ver historial de cambios">
+                <mat-icon>history</mat-icon> Historial
+              </button>
               <button mat-raised-button color="primary" (click)="abrirGestionar(detalle)" class="gestionar-btn">
                 <mat-icon>edit</mat-icon> Gestionar
               </button>

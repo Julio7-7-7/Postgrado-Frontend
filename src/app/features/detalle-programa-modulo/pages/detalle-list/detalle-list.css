@@ -418,19 +418,37 @@
   border-radius: var(--fich-radius-sm);
 }
 
-.mat-mdc-card-actions {
+mat-card-actions {
+  display: flex;
+  gap: 8px;
   padding: var(--fich-space-md) var(--fich-space-xl) var(--fich-space-lg);
   border-top: 1px solid var(--fich-border-light);
 }
 
 .gestionar-btn {
-  width: 100%;
+  flex: 1;
   padding: 8px 0;
   font-size: 0.95rem;
   font-weight: 600;
 }
+
 .gestionar-btn mat-icon {
   margin-right: 6px;
+}
+
+.historial-btn {
+  border-radius: var(--fich-radius-md);
+  font-size: 0.82rem;
+  font-weight: 500;
+  padding: 8px 14px;
+  flex-shrink: 0;
+}
+
+.historial-btn mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  margin-right: 4px;
 }
 
 .carousel-dots {

@@ -133,6 +133,11 @@ export class DetalleListComponent implements OnInit {
     this.router.navigate([`${base}/gestionar/${detalle.id_detalle_programa_modulo}`]);
   }
 
+  verHistorial(detalle: DetalleProgramaModulo) {
+    const base = this.router.url.replace(/\/modulos.*/, '/modulos');
+    this.router.navigate([`${base}/historial/${detalle.id_detalle_programa_modulo}`]);
+  }
+
   private cargarTodosHorarios() {
     const ids = this.detalles().map(d => d.id_detalle_programa_modulo);
     if (ids.length === 0) return;

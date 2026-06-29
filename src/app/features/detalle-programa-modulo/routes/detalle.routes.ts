@@ -16,4 +16,9 @@ export const DETALLE_ROUTES: Routes = [
     loadComponent: () =>
       import('../pages/detalle-form/detalle-form').then(m => m.DetalleFormComponent),
   },
+  {
+    path: 'historial/:detalleId',
+    loadComponent: () =>
+      import('../pages/historial-page/historial-page').then(m => m.HistorialPageComponent),
+  },
 ];
