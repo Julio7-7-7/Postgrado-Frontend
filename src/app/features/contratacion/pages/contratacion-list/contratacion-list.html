@@ -53,7 +53,21 @@
         }
       </mat-form-field>
 
-      <div class="filter-spacer"></div>
+      <mat-form-field appearance="outline" class="filter-sort" subscriptSizing="dynamic">
+        <mat-icon matPrefix>swap_vert</mat-icon>
+        <mat-select [value]="sortField()" (valueChange)="sortField.set($event)">
+          <mat-option value="estado">Por etapa</mat-option>
+          <mat-option value="docente">Por docente</mat-option>
+          <mat-option value="programa">Por programa</mat-option>
+          <mat-option value="fecha_inicio">Por fecha inicio</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <button mat-icon-button class="sort-dir-btn"
+              (click)="sortDirection.set(sortDirection() === 'asc' ? 'desc' : 'asc')"
+              matTooltip="{{ sortDirection() === 'asc' ? 'Ascendente' : 'Descendente' }}">
+        <mat-icon>{{ sortDirection() === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
+      </button>
 
       <button mat-raised-button color="primary" routerLink="nuevo" class="btn-nuevo">
         <mat-icon>add</mat-icon>
