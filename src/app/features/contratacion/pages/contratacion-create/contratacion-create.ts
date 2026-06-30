@@ -19,8 +19,10 @@ import { MatDividerModule } from '@angular/material/divider';
 import { ContratacionService } from '../../services/contratacion.service';
 import { DocenteService } from '../../../docente/services/docente.service';
 import { DetalleService } from '../../../detalle-programa-modulo/services/detalle.service';
+import { ProgramaService } from '../../../programa/services/programa.service';
 import { DetalleProgramaModulo } from '../../../detalle-programa-modulo/models/detalle.model';
 import { Docente } from '../../../docente/models/docente.model';
+import { Programa } from '../../../programa/models/programa.model';
 
 @Component({
   selector: 'app-contratacion-create',
@@ -39,25 +41,29 @@ export class ContratacionCreateComponent implements OnInit {
   private service = inject(ContratacionService);
   private docenteService = inject(DocenteService);
   private detalleService = inject(DetalleService);
+  private programaService = inject(ProgramaService);
   private snackbar = inject(MatSnackBar);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private destroyRef = inject(DestroyRef);
 
   form: FormGroup;
+  programas = signal<Programa[]>([]);
   docentes = signal<Docente[]>([]);
   detalles = signal<DetalleProgramaModulo[]>([]);
   loading = signal(false);
   loadingDatos = signal(true);
 
+  programaControl = new FormControl('');
   docenteControl = new FormControl('');
   moduloControl = new FormControl('');
 
+  selectedPrograma = signal<Programa | null>(null);
   selectedDocente = signal<Docente | null>(null);
   selectedModulo = signal<DetalleProgramaModulo | null>(null);
 
+  filteredProgramas$: Observable<Programa[]> = of([]);
   filteredDocentes$: Observable<Docente[]> = of([]);
-  filteredDetalles$: Observable<DetalleProgramaModulo[]> = of([]);
 
   constructor() {
     this.form = this.fb.group({
@@ -68,6 +74,13 @@ export class ContratacionCreateComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.programaService.getAll().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (data) => {
+        this.programas.set(data.filter(p => p.estado === 'activo'));
+        this.verificarCarga();
+      },
+    });
+
     this.docenteService.getAll('activo').pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (data) => {
         this.docentes.set(data);
@@ -75,23 +88,16 @@ export class ContratacionCreateComponent implements OnInit {
       },
     });
 
-    this.detalleService.getAll().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (data) => {
-        this.detalles.set(data);
-        this.verificarCarga();
-      },
-    });
+    this.filteredProgramas$ = this.programaControl.valueChanges.pipe(
+      startWith(''),
+      debounceTime(100),
+      map(value => this._filterProgramas(value ?? '')),
+    );
 
     this.filteredDocentes$ = this.docenteControl.valueChanges.pipe(
       startWith(''),
       debounceTime(100),
       map(value => this._filterDocentes(value ?? '')),
-    );
-
-    this.filteredDetalles$ = this.moduloControl.valueChanges.pipe(
-      startWith(''),
-      debounceTime(100),
-      map(value => this._filterDetalles(value ?? '')),
     );
   }
 
@@ -103,12 +109,29 @@ export class ContratacionCreateComponent implements OnInit {
 
       const preSelectedId = this.route.snapshot.queryParamMap.get('id_detalle_modulo');
       if (preSelectedId) {
-        const found = this.detalles().find(d => d.id_detalle_programa_modulo === +preSelectedId);
-        if (found) {
-          this.seleccionarModulo(found);
-        }
+        this.detalleService.getById(+preSelectedId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+          next: (d) => {
+            this.seleccionarProgramaPorId(d.id_programa, () => this.seleccionarModulo(d));
+          },
+        });
       }
     }
+  }
+
+  private seleccionarProgramaPorId(id: number, luego?: () => void): void {
+    const p = this.programas().find(p => p.id_programa === id);
+    if (p) {
+      this.seleccionarPrograma(p, luego);
+    }
+  }
+
+  private _filterProgramas(value: string): Programa[] {
+    const q = value.toLowerCase().trim();
+    const all = this.programas();
+    if (!q) return all.slice(0, 5);
+    return all.filter(p =>
+      p.nombre_programa.toLowerCase().includes(q)
+    );
   }
 
   private _filterDocentes(value: string): Docente[] {
@@ -124,24 +147,48 @@ export class ContratacionCreateComponent implements OnInit {
     );
   }
 
-  private _filterDetalles(value: string): DetalleProgramaModulo[] {
-    const q = value.toLowerCase().trim();
-    const all = this.detalles();
-    if (!q) return [];
-    return all.filter(d => {
-      const programa = (d.programa_nombre || '').toLowerCase();
-      const modulo = d.modulo.nombre_modulo.toLowerCase();
-      const sigla = d.modulo.sigla.toLowerCase();
-      const version = String(d.programa_version_numero || '');
-      const edicion = String(d.edicion || '');
-      const label = `${programa} v${version} e${edicion} #${d.orden} ${modulo} ${sigla}`;
-      return label.includes(q) ||
-        modulo.includes(q) ||
-        sigla.includes(q) ||
-        programa.includes(q) ||
-        version.includes(q) ||
-        edicion.includes(q);
+  seleccionarPrograma(p: Programa | null, luego?: () => void): void {
+    if (!p) return;
+    this.selectedPrograma.set(p);
+    this.programaControl.setValue(p.nombre_programa);
+    this.limpiarModulo();
+    this.cargarModulos(p.id_programa, luego);
+  }
+
+  limpiarPrograma(): void {
+    this.selectedPrograma.set(null);
+    this.programaControl.setValue('');
+    this.detalles.set([]);
+    this.limpiarModulo();
+  }
+
+  private cargarModulos(programaId: number, luego?: () => void): void {
+    this.detalleService.getAll(undefined, programaId, true).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (data) => {
+        this.detalles.set(data);
+        if (luego) luego();
+      },
     });
+  }
+
+  filteredDetalles(): DetalleProgramaModulo[] {
+    const q = (this.moduloControl.value ?? '').toLowerCase().trim();
+    const all = this.detalles();
+    if (!q) return all.slice(0, 10);
+    return all.filter(d => {
+      const label = this.searchLabel(d);
+      return label.includes(q);
+    });
+  }
+
+  private searchLabel(d: DetalleProgramaModulo): string {
+    return [
+      d.modulo.nombre_modulo,
+      d.modulo.sigla,
+      `V${d.programa_version_numero}`,
+      `E${d.edicion}`,
+      `#${d.orden}`,
+    ].join(' ').toLowerCase();
   }
 
   irANuevoDocente(): void {
@@ -174,9 +221,7 @@ export class ContratacionCreateComponent implements OnInit {
   }
 
   detalleLabel(d: DetalleProgramaModulo): string {
-    const programa = d.programa_nombre || `Programa #${d.id_programa}`;
-    const version = d.programa_version_numero || d.id_programa_version;
-    return `${programa} V${version} E${d.edicion} · #${d.orden} ${d.modulo.nombre_modulo} (${d.modulo.sigla})`;
+    return `V${d.programa_version_numero} E${d.edicion} · #${d.orden} ${d.modulo.nombre_modulo} (${d.modulo.sigla})`;
   }
 
   guardar(): void {
