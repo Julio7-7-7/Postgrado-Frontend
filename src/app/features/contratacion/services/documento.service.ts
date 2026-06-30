@@ -32,10 +32,6 @@ export class DocumentoService extends ApiService {
     );
   }
 
-  cancelar(id: number): Observable<DocumentoContratacion> {
-    return this.http.patch<DocumentoContratacion>(`${this.baseUrl}/${this.endpoint}/${id}/cancelar`, {});
-  }
-
   urlPdf(ruta: string | null): string {
     if (!ruta) return '';
     return `${this.baseUrl}${ruta}`;
