@@ -181,7 +181,7 @@ export class EdicionFormComponent implements OnInit {
   private cargarVersion(id: number) {
     this.versionService.getById(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (data) => {
-        this.infoVersion.set(`${data.programa.nombre_programa} — v${data.version}`);
+        this.infoVersion.set(`${data.programa.nombre_programa} — V${data.version}`);
         const tipo = data.programa.tipo_programa;
         this.duracionMinimaMeses.set(tipo.duracion_minima_meses);
         this.tipoNombre.set(tipo.nombre);

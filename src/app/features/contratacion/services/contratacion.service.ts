@@ -8,11 +8,13 @@ import { ContratacionDocente, ContratacionCreate } from '../models/contratacion.
 export class ContratacionService extends ApiService {
   private readonly endpoint = 'contratacion-docente';
 
-  getAll(docenteId?: number, detalleId?: number, estado?: string): Observable<ContratacionDocente[]> {
+  getAll(docenteId?: number, detalleId?: number, estado?: string, q?: string, programaId?: number): Observable<ContratacionDocente[]> {
     let params = new HttpParams();
     if (docenteId) params = params.set('docente_id', docenteId);
     if (detalleId) params = params.set('detalle_id', detalleId);
     if (estado) params = params.set('estado', estado);
+    if (q) params = params.set('q', q);
+    if (programaId) params = params.set('programa_id', programaId);
     return this.http.get<ContratacionDocente[]>(`${this.baseUrl}/${this.endpoint}/`, { params });
   }
 

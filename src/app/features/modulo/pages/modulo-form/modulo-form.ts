@@ -86,7 +86,7 @@ export class ModuloFormComponent implements OnInit {
   private cargarVersion(id: number) {
     this.versionService.getById(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (data) => {
-        this.infoVersion.set(`${data.programa.nombre_programa} — v${data.version}`);
+        this.infoVersion.set(`${data.programa.nombre_programa} — V${data.version}`);
         if (data.programa.estado !== 'activo' && !this.idEditando) {
           this.snackbar.open('No se pueden agregar módulos a un programa inactivo', 'Cerrar', { duration: 4000 });
           this.router.navigate(['/programas', data.id_programa, 'versiones', id, 'modulos']);

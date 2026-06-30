@@ -83,6 +83,65 @@ h1, h2, h3, h4, h5, h6 {
   border-radius: var(--fich-radius-lg) !important;
 }
 
+/* ─── Form field roundedness & visual flair ─── */
+.mdc-text-field--outlined {
+  --mdc-outlined-text-field-outline-width: 1.5px;
+}
+.mdc-text-field--outlined .mdc-notched-outline__leading,
+.mdc-text-field--outlined .mdc-notched-outline__trailing {
+  border-color: var(--fich-border) !important;
+}
+.mdc-text-field--outlined .mdc-notched-outline__leading {
+  border-radius: var(--fich-radius-xl) 0 0 var(--fich-radius-xl) !important;
+}
+.mdc-text-field--outlined .mdc-notched-outline__trailing {
+  border-radius: 0 var(--fich-radius-xl) var(--fich-radius-xl) 0 !important;
+}
+.mdc-text-field--outlined.mdc-text-field--focused .mdc-notched-outline__leading,
+.mdc-text-field--outlined.mdc-text-field--focused .mdc-notched-outline__trailing {
+  border-color: var(--fich-primary) !important;
+  border-width: 2px !important;
+}
+.mdc-text-field--outlined.mdc-text-field--focused {
+  background: rgba(30, 58, 138, 0.03);
+}
+.mdc-text-field--outlined:hover .mdc-notched-outline__leading,
+.mdc-text-field--outlined:hover .mdc-notched-outline__trailing {
+  border-color: var(--fich-text-muted) !important;
+}
+.mat-form-field-appearance-outline .mat-mdc-text-field-wrapper {
+  background: var(--fich-bg-card) !important;
+  border-radius: var(--fich-radius-xl) !important;
+  transition: box-shadow var(--fich-transition), background var(--fich-transition);
+}
+.mat-form-field-appearance-outline.mat-focused .mat-mdc-text-field-wrapper {
+  box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.08);
+  background: white !important;
+}
+.mat-mdc-form-field.mat-focused .mat-mdc-form-field-focus-overlay {
+  opacity: 0 !important;
+}
+.mat-mdc-form-field .mat-mdc-text-field-wrapper {
+  border-radius: var(--fich-radius-xl) !important;
+}
+
+.mat-select-panel-wrap .mat-mdc-select-panel {
+  border-radius: var(--fich-radius-md) !important;
+  padding: 6px !important;
+  box-shadow: var(--fich-shadow-lg) !important;
+}
+.mat-mdc-select-panel .mat-mdc-option {
+  border-radius: var(--fich-radius-sm) !important;
+  margin-bottom: 2px;
+  min-height: 44px;
+}
+.mat-mdc-select-panel .mat-mdc-option.mdc-list-item--selected {
+  background: var(--fich-primary-light) !important;
+}
+.mat-mdc-select-panel .mat-mdc-option:hover:not(.mdc-list-item--disabled) {
+  background: var(--fich-bg-hover) !important;
+}
+
 /* ─── Page fade-in (applied to all routed pages via .page-container) ─── */
 .page-container {
   animation: fadeSlideIn 0.3s ease;

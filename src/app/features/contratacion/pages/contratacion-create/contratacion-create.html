@@ -57,6 +57,10 @@
                     </div>
                   </mat-option>
                 }
+                <mat-divider class="add-divider"></mat-divider>
+                <mat-option class="add-docente-option" (click)="irANuevoDocente()">
+                  <mat-icon>add_circle_outline</mat-icon> Añadir nuevo docente
+                </mat-option>
               </mat-autocomplete>
               @if (!selectedDocente() && docenteControl.touched) {
                 <mat-error>Seleccione un docente</mat-error>

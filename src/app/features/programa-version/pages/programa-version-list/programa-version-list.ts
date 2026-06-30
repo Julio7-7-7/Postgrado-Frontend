@@ -112,7 +112,7 @@ export class ProgramaVersionListComponent implements OnInit {
       width: '420px',
       data: {
         titulo: 'Confirmar Cambio de Estado',
-        mensaje: `¿Está seguro de que desea ${accion} la versión v${version.version} del programa?`,
+        mensaje: `¿Está seguro de que desea ${accion} la V${version.version} del programa?`,
       },
     });
 
@@ -130,7 +130,7 @@ export class ProgramaVersionListComponent implements OnInit {
             )
           );
           this.snackbar.open(
-            `Versión ${version.version} ${nuevoVigente ? 'activada' : 'desactivada'} con éxito`,
+            `V${version.version} ${nuevoVigente ? 'activada' : 'desactivada'} con éxito`,
             'OK',
             { duration: 3000 }
           );

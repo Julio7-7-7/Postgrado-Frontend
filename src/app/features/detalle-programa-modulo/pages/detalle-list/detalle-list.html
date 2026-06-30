@@ -5,6 +5,15 @@
         <mat-icon>arrow_back</mat-icon>
       </button>
       <div>
+        @if (contexto(); as ctx) {
+          <div class="breadcrumb-contexto">
+            <span class="breadcrumb-programa">{{ ctx.programa }}</span>
+            <span class="breadcrumb-sep">·</span>
+            <span class="breadcrumb-version">V{{ ctx.version }}</span>
+            <span class="breadcrumb-sep">·</span>
+            <span class="breadcrumb-edicion">E{{ ctx.edicion }}</span>
+          </div>
+        }
         <h2>Módulos de la Edición</h2>
         <p class="subtitle">Vista rápida de módulos, docentes y horarios</p>
       </div>
@@ -72,7 +81,11 @@
                       }
                     </div>
                   } @else {
-                    <span class="info-value sin-asignar">Sin asignar</span>
+                    <button mat-stroked-button color="primary" class="btn-contratar"
+                            (click)="empezarContratacion(detalle)"
+                            matTooltip="Asignar docente a este módulo">
+                      <mat-icon>person_add</mat-icon> Empezar contratación
+                    </button>
                   }
                 </div>
 
@@ -123,6 +136,9 @@
             </mat-card-content>
 
             <mat-card-actions>
+              <button mat-stroked-button (click)="verHistorial(detalle)" class="historial-btn" matTooltip="Ver historial de cambios">
+                <mat-icon>history</mat-icon> Historial
+              </button>
               <button mat-raised-button color="primary" (click)="abrirGestionar(detalle)" class="gestionar-btn">
                 <mat-icon>edit</mat-icon> Gestionar
               </button>

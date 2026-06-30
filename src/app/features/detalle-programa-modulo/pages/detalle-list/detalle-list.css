@@ -13,6 +13,27 @@
 }
 .header-left { display: flex; align-items: center; gap: 16px; }
 .back-btn { margin-right: 4px; }
+.breadcrumb-contexto {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 2px;
+  font-size: 0.85rem;
+}
+.breadcrumb-programa {
+  font-weight: 700;
+  color: var(--fich-primary-dark);
+}
+.breadcrumb-sep {
+  color: var(--fich-text-faint);
+  font-weight: 300;
+}
+.breadcrumb-version,
+.breadcrumb-edicion {
+  font-weight: 600;
+  color: var(--fich-text-secondary);
+}
+
 .header-section h2 {
   margin: 0;
   color: var(--fich-primary-dark);
@@ -186,6 +207,20 @@
 .info-value.sin-asignar {
   color: var(--fich-text-faint);
   font-style: italic;
+}
+
+.btn-contratar {
+  font-size: 0.78rem;
+  padding: 2px 12px;
+  min-height: 32px;
+  line-height: 1;
+  border-color: var(--fich-primary);
+}
+.btn-contratar mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  margin-right: 4px;
 }
 
 .info-value.fechas {
@@ -383,19 +418,37 @@
   border-radius: var(--fich-radius-sm);
 }
 
-.mat-mdc-card-actions {
+mat-card-actions {
+  display: flex;
+  gap: 8px;
   padding: var(--fich-space-md) var(--fich-space-xl) var(--fich-space-lg);
   border-top: 1px solid var(--fich-border-light);
 }
 
 .gestionar-btn {
-  width: 100%;
+  flex: 1;
   padding: 8px 0;
   font-size: 0.95rem;
   font-weight: 600;
 }
+
 .gestionar-btn mat-icon {
   margin-right: 6px;
+}
+
+.historial-btn {
+  border-radius: var(--fich-radius-md);
+  font-size: 0.82rem;
+  font-weight: 500;
+  padding: 8px 14px;
+  flex-shrink: 0;
+}
+
+.historial-btn mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  margin-right: 4px;
 }
 
 .carousel-dots {

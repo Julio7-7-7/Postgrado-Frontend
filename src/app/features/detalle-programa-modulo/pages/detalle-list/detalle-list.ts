@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject, DestroyRef } from '@angular/core';
+import { Component, OnInit, signal, computed, inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -42,6 +42,17 @@ export class DetalleListComponent implements OnInit {
   error = signal<string | null>(null);
 
   horarios = signal<Record<number, Horario[]>>({});
+
+  contexto = computed(() => {
+    const d = this.detalles();
+    if (d.length === 0) return null;
+    const primero = d[0];
+    return {
+      programa: primero.programa_nombre,
+      version: primero.programa_version_numero,
+      edicion: primero.edicion,
+    };
+  });
 
   ngOnInit(): void {
     const match = this.router.url.match(/\/ediciones\/(\d+)\/modulos/);
@@ -111,9 +122,20 @@ export class DetalleListComponent implements OnInit {
     }
   }
 
+  empezarContratacion(detalle: DetalleProgramaModulo) {
+    this.router.navigate(['/contrataciones/nuevo'], {
+      queryParams: { id_detalle_modulo: detalle.id_detalle_programa_modulo }
+    });
+  }
+
   abrirGestionar(detalle: DetalleProgramaModulo) {
     const base = this.router.url.replace(/\/modulos.*/, '/modulos');
     this.router.navigate([`${base}/gestionar/${detalle.id_detalle_programa_modulo}`]);
+  }
+
+  verHistorial(detalle: DetalleProgramaModulo) {
+    const base = this.router.url.replace(/\/modulos.*/, '/modulos');
+    this.router.navigate([`${base}/historial/${detalle.id_detalle_programa_modulo}`]);
   }
 
   private cargarTodosHorarios() {

@@ -1,7 +1,7 @@
 import { Component, OnInit, signal, inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormControl } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Observable, of } from 'rxjs';
 import { map, startWith, debounceTime } from 'rxjs/operators';
@@ -14,6 +14,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatDividerModule } from '@angular/material/divider';
 
 import { ContratacionService } from '../../services/contratacion.service';
 import { DocenteService } from '../../../docente/services/docente.service';
@@ -28,7 +29,7 @@ import { Docente } from '../../../docente/models/docente.model';
     CommonModule, ReactiveFormsModule, RouterLink,
     MatFormFieldModule, MatInputModule, MatButtonModule,
     MatCardModule, MatIconModule, MatSnackBarModule,
-    MatProgressSpinnerModule, MatAutocompleteModule,
+    MatProgressSpinnerModule, MatAutocompleteModule, MatDividerModule,
   ],
   templateUrl: './contratacion-create.html',
   styleUrl: './contratacion-create.css',
@@ -40,6 +41,7 @@ export class ContratacionCreateComponent implements OnInit {
   private detalleService = inject(DetalleService);
   private snackbar = inject(MatSnackBar);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private destroyRef = inject(DestroyRef);
 
   form: FormGroup;
@@ -98,13 +100,21 @@ export class ContratacionCreateComponent implements OnInit {
     this.countCargados++;
     if (this.countCargados >= 2) {
       this.loadingDatos.set(false);
+
+      const preSelectedId = this.route.snapshot.queryParamMap.get('id_detalle_modulo');
+      if (preSelectedId) {
+        const found = this.detalles().find(d => d.id_detalle_programa_modulo === +preSelectedId);
+        if (found) {
+          this.seleccionarModulo(found);
+        }
+      }
     }
   }
 
   private _filterDocentes(value: string): Docente[] {
     const q = value.toLowerCase().trim();
     const all = this.docentes();
-    if (!q) return all;
+    if (!q) return all.slice(0, 5);
     return all.filter(d =>
       d.nombre.toLowerCase().includes(q) ||
       d.apellido.toLowerCase().includes(q) ||
@@ -134,7 +144,12 @@ export class ContratacionCreateComponent implements OnInit {
     });
   }
 
-  seleccionarDocente(d: Docente): void {
+  irANuevoDocente(): void {
+    this.router.navigate(['/docentes', 'nuevo']);
+  }
+
+  seleccionarDocente(d: Docente | null): void {
+    if (!d) return;
     this.selectedDocente.set(d);
     this.docenteControl.setValue(`${d.nombre} ${d.apellido} — ${d.ci} ${d.extension}`);
     this.form.patchValue({ id_docente: d.id_docente });
