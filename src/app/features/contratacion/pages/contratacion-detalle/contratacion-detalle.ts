@@ -73,7 +73,11 @@ export class ContratacionDetalleComponent implements OnInit {
     return map;
   });
 
-  siguienteOrden = computed(() => this.documentos().length);
+  siguienteOrden = computed(() => {
+    const docs = this.documentos();
+    if (docs.length === 0) return 0;
+    return new Set(docs.map(d => d.orden)).size;
+  });
 
   versionesAnteriores(orden: number): DocumentoContratacion[] {
     const docs = this.versionesPorOrden().get(orden) ?? [];
@@ -211,14 +215,18 @@ export class ContratacionDetalleComponent implements OnInit {
       this.progresoSubida.set(40);
       this.subiendo.set('subiendo');
       this.documentoService.subirPdf(this.contratacionId, file, ordenReemplazo).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-        next: () => {
+        next: (doc) => {
+          this.documentos.update(docs => [...docs, doc]);
+          this.progresoSubida.set(80);
+          this.service.getById(this.contratacionId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+            next: (c) => this.contratacion.set(c),
+          });
           this.progresoSubida.set(100);
           this.subiendo.set('completado');
           this.snackbar.open('Documento subido correctamente', 'OK', { duration: 3000 });
           setTimeout(() => {
             this.subiendo.set('ninguno');
             this.progresoSubida.set(0);
-            this.cargarDatos();
           }, 800);
         },
         error: (err) => {
@@ -327,7 +335,8 @@ export class ContratacionDetalleComponent implements OnInit {
   progresoGlobal = computed(() => {
     const total = this.totalDocs();
     if (total === 0) return 0;
-    return Math.round((this.documentos().length / total) * 100);
+    const completados = new Set(this.documentos().map(d => d.orden)).size;
+    return Math.round((completados / total) * 100);
   });
 
   protected readonly ETAPAS_DOCUMENTALES = ETAPAS_DOCUMENTALES;

@@ -148,7 +148,7 @@
         <div class="global-progress">
           <div class="global-progress-header">
             <span class="global-progress-label">Progreso general</span>
-            <span class="global-progress-count">{{ documentos().length }}/{{ totalDocs() }} documentos</span>
+            <span class="global-progress-count">{{ siguienteOrden() }}/{{ totalDocs() }} documentos</span>
           </div>
           <mat-progress-bar mode="determinate" [value]="progresoGlobal()"
                            [class.progress-complete]="progresoGlobal() === 100"
