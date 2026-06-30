@@ -16,5 +16,6 @@ export interface HistorialModulo {
     modulo_sigla: string;
     modulo_nombre: string;
     orden: number;
+    estado_actual: string | null;
   } | null;
 }
