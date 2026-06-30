@@ -63,7 +63,35 @@ export class ContratacionDetalleComponent implements OnInit {
     return map;
   });
 
-  siguienteOrden = computed(() => this.documentos().length);
+  versionesPorTipo = computed(() => {
+    const map = new Map<string, DocumentoContratacion[]>();
+    for (const doc of this.documentos()) {
+      const arr = map.get(doc.tipo) ?? [];
+      arr.push(doc);
+      map.set(doc.tipo, arr);
+    }
+    return map;
+  });
+
+  siguienteOrden = computed(() => this.documentosMap().size);
+
+  versionesAnteriores(tipo: string): DocumentoContratacion[] {
+    const docs = this.versionesPorTipo().get(tipo) ?? [];
+    if (docs.length <= 1) return [];
+    return docs.slice(0, -1);
+  }
+
+  documentoActual(tipo: string): DocumentoContratacion | null {
+    return this.documentosMap().get(tipo) ?? null;
+  }
+
+  mostrarVersionesAnteriores = signal<string | null>(null);
+
+  toggleVersiones(tipo: string): void {
+    this.mostrarVersionesAnteriores.set(
+      this.mostrarVersionesAnteriores() === tipo ? null : tipo
+    );
+  }
 
   etapasConEstado = computed(() => {
     const docs = this.documentosMap();

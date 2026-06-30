@@ -214,10 +214,48 @@
                         @if (completado) {
                           <div class="doc-meta">
                             <span class="doc-fecha">Subido el {{ (docState.doc!.fecha_subida | date:'dd/MM/yyyy HH:mm') || '—' }}</span>
-                            @if (docState.doc!.archivo_pdf) {
-                              <a [href]="urlPdf(docState.doc!.archivo_pdf)" target="_blank" class="doc-link" matTooltip="Ver PDF">
-                                <mat-icon>picture_as_pdf</mat-icon> Ver documento
-                              </a>
+                            <div class="doc-actions">
+                              @if (docState.doc!.archivo_pdf) {
+                                <a [href]="urlPdf(docState.doc!.archivo_pdf)" target="_blank" class="doc-link" matTooltip="Ver PDF">
+                                  <mat-icon>picture_as_pdf</mat-icon> Ver PDF
+                                </a>
+                              }
+                              @if (!pasosBloqueados()) {
+                                <input type="file" accept=".pdf,application/pdf"
+                                       #inputReemplazo
+                                       [hidden]="true"
+                                       (change)="onFileSelected($event, docState.info.tipo)">
+                                <button mat-stroked-button color="primary" class="reemplazar-btn"
+                                        (click)="inputReemplazo.click()"
+                                        [disabled]="subiendo() !== 'ninguno'"
+                                        matTooltip="Reemplazar este documento">
+                                  <mat-icon>upload_file</mat-icon> Reemplazar
+                                </button>
+                              }
+                            </div>
+                            @if (versionesAnteriores(docState.info.tipo).length > 0) {
+                              <div class="versiones-link">
+                                <mat-icon>history</mat-icon>
+                                <span class="versiones-text" (click)="toggleVersiones(docState.info.tipo)"
+                                      role="button" tabindex="0"
+                                      (keydown.enter)="toggleVersiones(docState.info.tipo)">
+                                  {{ versionesAnteriores(docState.info.tipo).length }} versión(es) anterior(es)
+                                </span>
+                              </div>
+                              @if (mostrarVersionesAnteriores() === docState.info.tipo) {
+                                <div class="versiones-lista">
+                                  @for (v of versionesAnteriores(docState.info.tipo); track v.id_documento) {
+                                    <div class="version-item">
+                                      <span class="version-fecha">{{ (v.fecha_subida | date:'dd/MM/yyyy HH:mm') || '—' }}</span>
+                                      @if (v.archivo_pdf) {
+                                        <a [href]="urlPdf(v.archivo_pdf)" target="_blank" class="doc-link" matTooltip="Ver PDF anterior">
+                                          <mat-icon>picture_as_pdf</mat-icon> Ver
+                                        </a>
+                                      }
+                                    </div>
+                                  }
+                                </div>
+                              }
                             }
                           </div>
                         } @else if (activo) {
