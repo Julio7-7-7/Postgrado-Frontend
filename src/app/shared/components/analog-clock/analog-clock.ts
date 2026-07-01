@@ -264,6 +264,7 @@ export class AnalogClockComponent implements OnInit {
       } else if (p === 'AM' && this.selectedHour >= 12) {
         this.selectedHour -= 12;
       }
+      this.emitValue();
     }
     this.period = p;
   }
@@ -300,6 +301,8 @@ export class AnalogClockComponent implements OnInit {
         this.selectedHour = h === 12 ? 0 : h;
       }
 
+      this.selectedMinute = 0;
+      this.emitValue();
       this.mode = 'minute';
     } else {
       const m = Math.round(deg / 6) % 60;

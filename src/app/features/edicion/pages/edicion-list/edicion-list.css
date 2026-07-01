@@ -48,7 +48,7 @@
   border-radius: var(--fich-radius-lg);
   border: 1px solid var(--fich-border-light);
   overflow: hidden;
-  box-shadow: var(--fich-shadow-lg);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04), 0 1px 2px rgba(15, 23, 42, 0.02);
 }
 
 .full-width-table {
@@ -56,7 +56,8 @@
 }
 
 tr.mat-mdc-header-row {
-  background-color: var(--fich-bg-subtle);
+  background: var(--fich-bg-subtle);
+  border-bottom: 2px solid var(--fich-border);
 }
 
 th.mat-mdc-header-cell {
@@ -72,11 +73,25 @@ td.mat-mdc-cell {
   padding: 12px 16px !important;
   font-size: 0.92rem;
   border-bottom: 1px solid var(--fich-border-light);
+  transition: background var(--fich-transition);
+}
+
+tr.mat-mdc-row {
+  transition: all var(--fich-transition);
+}
+
+tr.mat-mdc-row:nth-child(even) {
+  background: var(--fich-bg-subtle);
 }
 
 tr.mat-mdc-row:hover {
-  background-color: var(--fich-bg-hover);
+  background: var(--fich-primary-light);
 }
+
+tr.mat-mdc-row:active {
+  background: var(--fich-bg-active);
+}
+
 .clickable-row {
   cursor: pointer;
 }
@@ -124,37 +139,34 @@ tr.mat-mdc-row:hover {
 .estado-chip {
   display: inline-flex;
   align-items: center;
-  padding: 3px 10px;
+  gap: 4px;
+  padding: 3px 12px;
   border-radius: var(--fich-radius-full);
   font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.3px;
   text-transform: capitalize;
+  transition: all var(--fich-transition);
 }
 
 .estado-chip.programado {
-  background: var(--fich-primary-light);
-  color: var(--fich-primary-dark);
+  background: var(--fich-est-programado-bg);
+  color: var(--fich-est-programado);
 }
 
 .estado-chip.en-curso {
-  background: var(--fich-success-light);
-  color: var(--fich-success);
-}
-
-.estado-chip.pausado {
-  background: var(--fich-warning-light);
-  color: var(--fich-warning);
+  background: var(--fich-est-en-curso-bg);
+  color: var(--fich-est-en-curso);
 }
 
 .estado-chip.finalizado {
-  background: var(--fich-bg-hover);
-  color: var(--fich-text-muted);
+  background: var(--fich-est-finalizado-bg);
+  color: var(--fich-est-finalizado);
 }
 
 .estado-chip.cancelado {
-  background: var(--fich-accent-light);
-  color: var(--fich-danger);
+  background: var(--fich-est-truncado-bg);
+  color: var(--fich-est-truncado);
 }
 
 .loading-container,

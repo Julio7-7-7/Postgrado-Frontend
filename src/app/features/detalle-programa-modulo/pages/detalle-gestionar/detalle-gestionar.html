@@ -39,6 +39,8 @@
           <mat-radio-group formControlName="nuevo_estado" class="estado-radio-group">
             @for (opt of estadosDisponibles(); track opt.value) {
               <mat-radio-button [value]="opt.value"
+                [disabled]="opt.disabled"
+                [matTooltip]="opt.disabled ? 'No puede mantener En Curso si cambia las fechas. Cancele si se equivocó.' : ''"
                 [class.selected]="opt.value === form.get('nuevo_estado')?.value"
                 [class.actual]="opt.actual">
                 {{ opt.label }}

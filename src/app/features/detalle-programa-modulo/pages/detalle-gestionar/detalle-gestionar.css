@@ -183,6 +183,12 @@
   background: var(--fich-primary-light);
 }
 
+.estado-radio-group mat-radio-button.mat-mdc-radio-button-disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  text-decoration: line-through;
+}
+
 /* ─── Fechas ─── */
 
 .fechas-body {

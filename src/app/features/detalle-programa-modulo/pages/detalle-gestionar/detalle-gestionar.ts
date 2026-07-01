@@ -23,7 +23,8 @@ import { DetalleProgramaModulo, DetalleUpdate } from '../../models/detalle.model
 import { Horario, HorarioCreate, HorarioUpdate } from '../../../horario/models/horario.model';
 import { HorarioDialogComponent, HorarioDialogData } from '../../../horario/components/horario-dialog/horario-dialog';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog';
-import { aFechaString } from '../../../../core/utils/date-utils';
+import { ConfirmCambiosDialogComponent, ConfirmCambiosData, CambioResumen } from '../../../../shared/components/confirm-cambios-dialog/confirm-cambios-dialog';
+import { aFechaString, aFechaDisplay, isoAString } from '../../../../core/utils/date-utils';
 
 interface PendingCreate { type: 'crear'; tempId: number; data: HorarioCreate; }
 interface PendingUpdate { type: 'actualizar'; id: number; data: HorarioUpdate; }
@@ -137,9 +138,20 @@ export class DetalleGestionarComponent implements OnInit {
     const d = this.detalle();
     if (!d) return [];
     const permitidos = this.ESTADO_TRANSICIONES[d.estado] ?? [];
+    const fechasModificadas = this.estadoOriginal === 'en_curso' && this.fechasChanged;
     return [
-      { value: d.estado, label: this.etiquetaEstado(d.estado), actual: true },
-      ...permitidos.map(v => ({ value: v, label: this.etiquetaEstado(v), actual: false })),
+      {
+        value: d.estado,
+        label: this.etiquetaEstado(d.estado),
+        actual: true,
+        disabled: fechasModificadas && d.estado === 'en_curso',
+      },
+      ...permitidos.map(v => ({
+        value: v,
+        label: this.etiquetaEstado(v),
+        actual: false,
+        disabled: false,
+      })),
     ];
   });
 
@@ -242,26 +254,34 @@ export class DetalleGestionarComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
         this.ajustarFechaFin();
+        if (this.estadoOriginal === 'en_curso' && this.fechasChanged
+            && this.form.value.nuevo_estado !== 'reprogramado') {
+          this.form.patchValue({ nuevo_estado: 'reprogramado' }, { emitEvent: false });
+        }
+      });
+
+    this.form.get('fecha_fin')?.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        if (this.estadoOriginal === 'en_curso' && this.fechasChanged
+            && this.form.value.nuevo_estado !== 'reprogramado') {
+          this.form.patchValue({ nuevo_estado: 'reprogramado' }, { emitEvent: false });
+        }
       });
   }
 
   private autoFillFechas() {
+    const hoy = new Date();
     const fi = this.form.get('fecha_inicio');
     const ff = this.form.get('fecha_fin');
-    if (!fi?.value) {
-      fi?.setValue(new Date());
-    }
-    if (!ff?.value) {
-      const base = fi?.value || new Date();
-      const fin = new Date(base);
-      fin.setDate(fin.getDate() + this.DURACION_MINIMA_DIAS);
-      ff?.setValue(fin, { emitEvent: false });
-      this.fechaFinManual = false;
-    }
+    fi?.setValue(hoy);
+    const fin = new Date(hoy);
+    fin.setDate(fin.getDate() + this.DURACION_MINIMA_DIAS);
+    ff?.setValue(fin, { emitEvent: false });
+    this.fechaFinManual = false;
   }
 
   private ajustarFechaFin() {
-    if (this.fechaFinManual) return;
     const fi = this.form.get('fecha_inicio')?.value;
     const ff = this.form.get('fecha_fin')?.value;
     if (!fi || !ff) return;
@@ -270,6 +290,7 @@ export class DetalleGestionarComponent implements OnInit {
       const nuevoFin = new Date(fi);
       nuevoFin.setDate(nuevoFin.getDate() + this.DURACION_MINIMA_DIAS);
       this.form.get('fecha_fin')?.setValue(nuevoFin, { emitEvent: false });
+      this.fechaFinManual = false;
     }
   }
 
@@ -325,6 +346,61 @@ export class DetalleGestionarComponent implements OnInit {
 
   guardar() {
     if (!this.puedeGuardar) return;
+
+    if (this.tieneCambiosDetalle) {
+      const dialogRef = this.dialog.open(ConfirmCambiosDialogComponent, {
+        width: '480px',
+        data: this.buildConfirmData(),
+      });
+      dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(confirmado => {
+        if (!confirmado) return;
+        this.ejecutarGuardar();
+      });
+    } else {
+      this.ejecutarGuardar();
+    }
+  }
+
+  private buildConfirmData(): ConfirmCambiosData {
+    const d = this.detalle()!;
+    const cambios: CambioResumen[] = [];
+
+    if (this.estadoChanged) {
+      cambios.push({
+        campo: 'Estado',
+        antes: this.etiquetaEstado(this.estadoOriginal),
+        despues: this.etiquetaEstado(this.form.value.nuevo_estado),
+      });
+    }
+    if (this.fechasChanged) {
+      const fi = this.form.value.fecha_inicio;
+      const ff = this.form.value.fecha_fin;
+      cambios.push({
+        campo: 'Inicio',
+        antes: isoAString(this.fechaInicioOriginal),
+        despues: fi ? aFechaDisplay(fi) : '—',
+      });
+      cambios.push({
+        campo: 'Fin',
+        antes: isoAString(this.fechaFinOriginal),
+        despues: ff ? aFechaDisplay(ff) : '—',
+      });
+    }
+
+    return {
+      modulo: d.modulo.nombre_modulo,
+      sigla: d.modulo.sigla,
+      programa: d.programa_nombre,
+      version: d.programa_version_numero,
+      edicion: d.edicion,
+      orden: d.orden,
+      modalidad: d.modalidad?.nombre ?? null,
+      docente: d.docente ? `${d.docente.nombre} ${d.docente.apellido}` : null,
+      cambios,
+    };
+  }
+
+  private ejecutarGuardar() {
     this.saving.set(true);
 
     const d = this.detalle();
