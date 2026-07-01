@@ -92,13 +92,22 @@ export class EdicionListComponent implements OnInit {
 
   estadoClass(estado: string): string {
     const map: Record<string, string> = {
-      programado: 'programado',
-      en_curso: 'en-curso',
-      pausado: 'pausado',
-      finalizado: 'finalizado',
-      cancelado: 'cancelado',
+      programado: 'estado-programado',
+      en_curso: 'estado-en_curso',
+      reprogramado: 'estado-reprogramado',
+      finalizado: 'estado-finalizado',
     };
     return map[estado] || '';
+  }
+
+  estadoLabel(estado: string): string {
+    const map: Record<string, string> = {
+      programado: 'Programado',
+      en_curso: 'En Curso',
+      reprogramado: 'Reprogramado',
+      finalizado: 'Finalizado',
+    };
+    return map[estado] || estado;
   }
 
   abrirDetalle(edicion: ProgramaVersionEdicion): void {

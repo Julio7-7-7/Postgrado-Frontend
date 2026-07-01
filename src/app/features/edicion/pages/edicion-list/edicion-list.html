@@ -61,7 +61,7 @@
         <ng-container matColumnDef="estado">
           <th mat-header-cell *matHeaderCellDef>Estado</th>
           <td mat-cell *matCellDef="let element">
-            <span class="estado-chip {{ estadoClass(element.estado) }}">{{ element.estado }}</span>
+            <span class="estado-chip {{ estadoClass(element.estado) }}">{{ estadoLabel(element.estado) }}</span>
           </td>
         </ng-container>
 

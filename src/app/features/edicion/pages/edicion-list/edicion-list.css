@@ -149,24 +149,24 @@ tr.mat-mdc-row:active {
   transition: all var(--fich-transition);
 }
 
-.estado-chip.programado {
+.estado-chip.estado-programado {
   background: var(--fich-est-programado-bg);
   color: var(--fich-est-programado);
 }
 
-.estado-chip.en-curso {
+.estado-chip.estado-en_curso {
   background: var(--fich-est-en-curso-bg);
   color: var(--fich-est-en-curso);
 }
 
-.estado-chip.finalizado {
-  background: var(--fich-est-finalizado-bg);
-  color: var(--fich-est-finalizado);
+.estado-chip.estado-reprogramado {
+  background: var(--fich-est-reprogramado-bg);
+  color: var(--fich-est-reprogramado);
 }
 
-.estado-chip.cancelado {
-  background: var(--fich-est-truncado-bg);
-  color: var(--fich-est-truncado);
+.estado-chip.estado-finalizado {
+  background: var(--fich-est-finalizado-bg);
+  color: var(--fich-est-finalizado);
 }
 
 .loading-container,
