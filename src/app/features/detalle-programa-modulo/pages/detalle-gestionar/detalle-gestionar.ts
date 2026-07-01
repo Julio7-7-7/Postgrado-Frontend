@@ -4,7 +4,6 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { of, forkJoin } from 'rxjs';
-import { skip } from 'rxjs/operators';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -77,16 +76,8 @@ export class DetalleGestionarComponent implements OnInit {
 
   fechaFinManual = false;
 
-  private readonly PendingActionTypes = {
-    CREAR: 'crear',
-    ACTUALIZAR: 'actualizar',
-    ELIMINAR: 'eliminar',
-    REACTIVAR: 'reactivar',
-  } as const;
-
   form: FormGroup;
   detalle = signal<DetalleProgramaModulo | null>(null);
-  loading = signal(false);
   cargandoDatos = signal(true);
   horarios = signal<Horario[]>([]);
   pendingActions = signal<PendingAction[]>([]);

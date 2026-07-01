@@ -1,7 +1,7 @@
 import { Component, OnInit, signal, inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -21,7 +21,6 @@ import { ModuloCreate } from '../../models/modulo.model';
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    RouterLink,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
