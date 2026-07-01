@@ -22,6 +22,203 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--fich-text);
 }
 
+.mat-mdc-tooltip {
+  font-size: 12px !important;
+  --mdc-plain-tooltip-container-color: var(--fich-text) !important;
+  --mdc-plain-tooltip-container-shape: var(--fich-radius-sm) !important;
+}
+
+/* ─── Estado Badge System (Global) ─── */
+.estado-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 14px;
+  border-radius: var(--fich-radius-full);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1.4;
+  transition: all var(--fich-transition);
+  white-space: nowrap;
+}
+
+.estado-pill mat-icon,
+.estado-pill .pill-icon {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+/* Modulo estados */
+.estado-pill.programado {
+  background: var(--fich-est-programado-bg);
+  color: var(--fich-est-programado);
+  border: 1px solid var(--fich-est-programado-border);
+}
+.estado-pill.en-curso {
+  background: var(--fich-est-en-curso-bg);
+  color: var(--fich-est-en-curso);
+  border: 1px solid var(--fich-est-en-curso-border);
+}
+.estado-pill.reprogramado {
+  background: var(--fich-est-reprogramado-bg);
+  color: var(--fich-est-reprogramado);
+  border: 1px solid var(--fich-est-reprogramado-border);
+}
+.estado-pill.finalizado {
+  background: var(--fich-est-finalizado-bg);
+  color: var(--fich-est-finalizado);
+  border: 1px solid var(--fich-est-finalizado-border);
+}
+
+/* Contratacion estados */
+.estado-pill.pendiente {
+  background: var(--fich-est-pendiente-bg);
+  color: var(--fich-est-pendiente);
+  border: 1px solid var(--fich-est-pendiente-border);
+}
+.estado-pill.verificacion {
+  background: var(--fich-est-verificacion-bg);
+  color: var(--fich-est-verificacion);
+  border: 1px solid var(--fich-est-verificacion-border);
+}
+.estado-pill.convocatoria {
+  background: var(--fich-est-convocatoria-bg);
+  color: var(--fich-est-convocatoria);
+  border: 1px solid var(--fich-est-convocatoria-border);
+}
+.estado-pill.seleccion {
+  background: var(--fich-est-seleccion-bg);
+  color: var(--fich-est-seleccion);
+  border: 1px solid var(--fich-est-seleccion-border);
+}
+.estado-pill.resolucion {
+  background: var(--fich-est-resolucion-bg);
+  color: var(--fich-est-resolucion);
+  border: 1px solid var(--fich-est-resolucion-border);
+}
+.estado-pill.legal {
+  background: var(--fich-est-legal-bg);
+  color: var(--fich-est-legal);
+  border: 1px solid var(--fich-est-legal-border);
+}
+.estado-pill.formalizado {
+  background: var(--fich-est-formalizado-bg);
+  color: var(--fich-est-formalizado);
+  border: 1px solid var(--fich-est-formalizado-border);
+}
+.estado-pill.truncado {
+  background: var(--fich-est-truncado-bg);
+  color: var(--fich-est-truncado);
+  border: 1px solid var(--fich-est-truncado-border);
+}
+
+/* Entity estados */
+.estado-pill.activo {
+  background: var(--fich-est-activo-bg);
+  color: var(--fich-est-activo);
+  border: 1px solid var(--fich-est-activo-border);
+}
+.estado-pill.inactivo {
+  background: var(--fich-est-inactivo-bg);
+  color: var(--fich-est-inactivo);
+  border: 1px solid var(--fich-est-inactivo-border);
+}
+.estado-pill.vigente {
+  background: var(--fich-est-vigente-bg);
+  color: var(--fich-est-vigente);
+  border: 1px solid var(--fich-est-vigente-border);
+}
+.estado-pill.historico {
+  background: var(--fich-est-historico-bg);
+  color: var(--fich-est-historico);
+  border: 1px solid var(--fich-est-historico-border);
+}
+
+/* ─── Global Table Styles ─── */
+.fich-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.fich-table .mat-mdc-header-row {
+  background: var(--fich-bg-subtle);
+  border-bottom: 2px solid var(--fich-border);
+}
+
+.fich-table .mat-mdc-header-cell {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--fich-text-muted);
+  padding: 14px 16px;
+}
+
+.fich-table .mat-mdc-row {
+  transition: background var(--fich-transition);
+}
+
+.fich-table .mat-mdc-row:nth-child(even) {
+  background: var(--fich-bg-subtle);
+}
+
+.fich-table .mat-mdc-row:hover {
+  background: var(--fich-primary-light);
+}
+
+.fich-table .mat-mdc-cell {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--fich-border-light);
+  font-size: 0.9rem;
+  color: var(--fich-text-secondary);
+}
+
+/* ─── Card Depth ─── */
+.fich-card {
+  background: var(--fich-bg-card);
+  border-radius: var(--fich-radius-lg);
+  border: 1px solid rgba(226, 232, 240, 0.6);
+  box-shadow: var(--fich-shadow-sm);
+  transition: all var(--fich-transition);
+}
+.fich-card:hover {
+  box-shadow: var(--fich-shadow-md);
+  border-color: var(--fich-border);
+}
+
+/* ─── Focus Ring ─── */
+*:focus-visible {
+  outline: 2px solid var(--fich-primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ─── Selection ─── */
+::selection {
+  background: var(--fich-primary-light);
+  color: var(--fich-primary-dark);
+}
+
+/* ─── Scrollbar ─── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--fich-text-x-faint);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--fich-text-muted);
+}
+
 .mat-mdc-tooltip { font-size: 12px !important; }
 
 .mat-mdc-form-field.mat-focused .mdc-floating-label {
@@ -379,10 +576,4 @@ h1, h2, h3, h4, h5, h6 {
 /* ─── Smooth scrolling ─── */
 html {
   scroll-behavior: smooth;
-}
-
-/* ─── Selection ─── */
-::selection {
-  background: var(--fich-primary-light);
-  color: var(--fich-primary-dark);
 }

@@ -1,15 +1,17 @@
 .navbar {
   height: 68px;
-  background: var(--fich-bg-card);
+  background:
+    linear-gradient(180deg, var(--fich-bg-card) 0%, rgba(248, 250, 252, 0.98) 100%);
   border-bottom: 1px solid var(--fich-border);
   display: flex;
   align-items: center;
   padding: 0 24px;
   gap: 8px;
-  box-shadow: var(--fich-shadow-sm);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
   position: sticky;
   top: 0;
   z-index: 100;
+  backdrop-filter: blur(12px);
 }
 
 /* ─── Override MDC toolbar text color (set to white in theme) ─── */
@@ -49,14 +51,16 @@
   flex-direction: column;
   align-items: center;
   line-height: 1;
-  background: linear-gradient(135deg, var(--fich-primary) 0%, var(--fich-primary-hover) 100%);
+  background: linear-gradient(135deg, var(--fich-primary) 0%, var(--fich-primary-hover) 50%, #312e81 100%);
   padding: 6px 10px 5px;
   border-radius: var(--fich-radius-sm);
   min-width: 48px;
-  transition: transform var(--fich-transition);
+  transition: transform var(--fich-transition), box-shadow var(--fich-transition);
+  box-shadow: 0 2px 8px rgba(30, 58, 138, 0.2);
 }
 .navbar-brand:hover .brand-emblem {
-  transform: scale(1.05);
+  transform: scale(1.06);
+  box-shadow: 0 4px 14px rgba(30, 58, 138, 0.35);
 }
 
 .brand-fich {
@@ -126,7 +130,7 @@
 .nav-link:hover {
   background: var(--fich-bg-hover);
   transform: translateY(-2px);
-  box-shadow: var(--fich-shadow-md);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
 }
 
 .nav-link mat-icon {
@@ -147,9 +151,10 @@
 
 /* ─── Active state ─── */
 :host ::ng-deep .nav-active.mat-mdc-button {
-  background: var(--fich-primary-light) !important;
+  background: linear-gradient(135deg, var(--fich-primary-light) 0%, #e0e7ff 100%) !important;
   --mdc-text-button-label-text-color: var(--fich-primary) !important;
   font-weight: 600;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
 }
 
 :host ::ng-deep .nav-active::after {
@@ -158,10 +163,10 @@
   bottom: -1px;
   left: 50%;
   transform: translateX(-50%);
-  width: 60%;
-  height: 2px;
-  background: var(--fich-primary);
-  border-radius: 1px 1px 0 0;
+  width: 70%;
+  height: 3px;
+  background: linear-gradient(90deg, var(--fich-primary), #6366f1);
+  border-radius: 2px 2px 0 0;
 }
 
 :host ::ng-deep .nav-active mat-icon {

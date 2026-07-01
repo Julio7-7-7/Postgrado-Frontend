@@ -49,51 +49,51 @@
 }
 
 .estado-pendiente {
-  background: #fef3c7;
-  color: #92400e;
-  border: 1px solid #fbbf24;
+  background: var(--fich-est-pendiente-bg);
+  color: var(--fich-est-pendiente);
+  border: 1px solid var(--fich-est-pendiente-border);
 }
 
 .estado-verificacion {
-  background: #e0f2fe;
-  color: #075985;
-  border: 1px solid #7dd3fc;
+  background: var(--fich-est-verificacion-bg);
+  color: var(--fich-est-verificacion);
+  border: 1px solid var(--fich-est-verificacion-border);
 }
 
 .estado-convocatoria {
-  background: #e0f2fe;
-  color: #075985;
-  border: 1px solid #7dd3fc;
+  background: var(--fich-est-convocatoria-bg);
+  color: var(--fich-est-convocatoria);
+  border: 1px solid var(--fich-est-convocatoria-border);
 }
 
 .estado-seleccion {
-  background: #dbeafe;
-  color: #1e40af;
-  border: 1px solid #93c5fd;
+  background: var(--fich-est-seleccion-bg);
+  color: var(--fich-est-seleccion);
+  border: 1px solid var(--fich-est-seleccion-border);
 }
 
 .estado-resolucion {
-  background: #ede9fe;
-  color: #5b21b6;
-  border: 1px solid #c4b5fd;
+  background: var(--fich-est-resolucion-bg);
+  color: var(--fich-est-resolucion);
+  border: 1px solid var(--fich-est-resolucion-border);
 }
 
 .estado-legal {
-  background: #fce7f3;
-  color: #9d174d;
-  border: 1px solid #f9a8d4;
+  background: var(--fich-est-legal-bg);
+  color: var(--fich-est-legal);
+  border: 1px solid var(--fich-est-legal-border);
 }
 
 .estado-formalizado {
-  background: #dcfce7;
-  color: #166534;
-  border: 1px solid #86efac;
+  background: var(--fich-est-formalizado-bg);
+  color: var(--fich-est-formalizado);
+  border: 1px solid var(--fich-est-formalizado-border);
 }
 
 .estado-truncado {
-  background: #fce4ec;
-  color: #c62828;
-  border: 1px solid #f48fb1;
+  background: var(--fich-est-truncado-bg);
+  color: var(--fich-est-truncado);
+  border: 1px solid var(--fich-est-truncado-border);
 }
 
 .info-grid {
@@ -282,20 +282,22 @@
 .modulo-estado-badge {
   display: inline-flex;
   align-items: center;
+  gap: 4px;
   padding: 2px 10px;
   border-radius: var(--fich-radius-full);
   font-size: 0.75rem;
   font-weight: 600;
+  transition: all var(--fich-transition);
 }
 
 .estado-programado {
-  background: #dbeafe;
-  color: #1e40af;
+  background: var(--fich-est-programado-bg);
+  color: var(--fich-est-programado);
 }
 
 .estado-reprogramado {
-  background: #f3e8ff;
-  color: #6b21a8;
+  background: var(--fich-est-reprogramado-bg);
+  color: var(--fich-est-reprogramado);
 }
 
 .card-footer-link {
@@ -418,12 +420,12 @@
 
 .etapa-header-actual {
   background: var(--fich-primary-light) !important;
-  border-color: #bfdbfe;
+  border-color: var(--fich-est-programado-border);
 }
 
 .etapa-header-completada {
-  background: #f0fdf4 !important;
-  border-color: #86efac !important;
+  background: var(--fich-est-en-curso-bg) !important;
+  border-color: var(--fich-est-en-curso-border) !important;
   box-shadow: inset 3px 0 0 var(--fich-success);
 }
 
@@ -461,8 +463,8 @@
 
 .etapa-completada .etapa-progreso {
   color: var(--fich-success);
-  border-color: #bbf7d0;
-  background: #f0fdf4;
+  border-color: var(--fich-est-en-curso-border);
+  background: var(--fich-est-en-curso-bg);
 }
 
 .etapa-expand-icon {
@@ -501,7 +503,7 @@
 }
 
 .etapa-completada + .etapa-divider {
-  background: #bbf7d0;
+  background: var(--fich-est-en-curso-border);
 }
 
 .etapa-completada + .etapa-divider + .etapa-wrapper .etapa-divider {
