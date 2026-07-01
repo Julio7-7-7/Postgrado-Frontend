@@ -163,7 +163,7 @@ export class GestionarModuloDialogComponent {
 
   agregarHorario() {
     const subRef = this.dialog.open(HorarioDialogComponent, {
-      width: '520px',
+      width: '760px',
       data: { detalleId: this.data.detalle.id_detalle_programa_modulo } satisfies HorarioDialogData,
     });
     subRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result: HorarioCreate | undefined) => {
@@ -182,7 +182,7 @@ export class GestionarModuloDialogComponent {
 
   editarHorario(horario: Horario) {
     const subRef = this.dialog.open(HorarioDialogComponent, {
-      width: '520px',
+      width: '760px',
       data: {
         detalleId: horario.id_detalle_programa_modulo,
         horario: {
