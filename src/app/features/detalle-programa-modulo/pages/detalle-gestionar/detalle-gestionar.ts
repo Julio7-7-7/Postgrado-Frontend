@@ -1,29 +1,36 @@
-import { Component, OnInit, signal, inject, DestroyRef } from '@angular/core';
+import { Component, OnInit, signal, computed, inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { of, forkJoin } from 'rxjs';
+import { skip } from 'rxjs/operators';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatRadioModule } from '@angular/material/radio';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
+import { MatDividerModule } from '@angular/material/divider';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { provideNativeDateAdapter, MAT_DATE_LOCALE } from '@angular/material/core';
 import { DetalleService } from '../../services/detalle.service';
-import { ModalidadService } from '../../../modalidad/services/modalidad.service';
 import { HorarioService } from '../../../horario/services/horario.service';
-import { Modalidad } from '../../../modalidad/models/modalidad.model';
 import { DetalleProgramaModulo, DetalleUpdate } from '../../models/detalle.model';
 import { Horario, HorarioCreate, HorarioUpdate } from '../../../horario/models/horario.model';
 import { HorarioDialogComponent, HorarioDialogData } from '../../../horario/components/horario-dialog/horario-dialog';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog';
-import { ModificarDialogComponent, ModificarResult } from '../../components/modificar-dialog/modificar-dialog';
 import { aFechaString } from '../../../../core/utils/date-utils';
+
+interface PendingCreate { type: 'crear'; tempId: number; data: HorarioCreate; }
+interface PendingUpdate { type: 'actualizar'; id: number; data: HorarioUpdate; }
+interface PendingDelete { type: 'eliminar'; id: number; }
+interface PendingReactivar { type: 'reactivar'; id: number; }
+type PendingAction = PendingCreate | PendingUpdate | PendingDelete | PendingReactivar;
 
 @Component({
   selector: 'app-detalle-gestionar',
@@ -44,8 +51,8 @@ import { aFechaString } from '../../../../core/utils/date-utils';
     CommonModule, ReactiveFormsModule,
     MatButtonModule, MatIconModule, MatTooltipModule,
     MatFormFieldModule, MatInputModule, MatSelectModule,
-    MatDatepickerModule, MatProgressSpinnerModule, MatSnackBarModule,
-    MatDialogModule,
+    MatRadioModule, MatDatepickerModule, MatProgressSpinnerModule,
+    MatSnackBarModule, MatDividerModule, MatDialogModule,
   ],
   templateUrl: './detalle-gestionar.html',
   styleUrl: './detalle-gestionar.css',
@@ -53,7 +60,6 @@ import { aFechaString } from '../../../../core/utils/date-utils';
 export class DetalleGestionarComponent implements OnInit {
   private fb = inject(FormBuilder);
   private detalleService = inject(DetalleService);
-  private modalidadService = inject(ModalidadService);
   private horarioService = inject(HorarioService);
   private snackbar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
@@ -61,20 +67,126 @@ export class DetalleGestionarComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private destroyRef = inject(DestroyRef);
 
+  private readonly DURACION_MINIMA_DIAS = 30;
+  private readonly ESTADO_TRANSICIONES: Record<string, string[]> = {
+    programado: ['en_curso'],
+    en_curso: ['reprogramado', 'finalizado'],
+    reprogramado: ['en_curso'],
+    finalizado: [],
+  };
+
+  fechaFinManual = false;
+
+  private readonly PendingActionTypes = {
+    CREAR: 'crear',
+    ACTUALIZAR: 'actualizar',
+    ELIMINAR: 'eliminar',
+    REACTIVAR: 'reactivar',
+  } as const;
+
   form: FormGroup;
   detalle = signal<DetalleProgramaModulo | null>(null);
-  idEdicion = signal<number>(0);
   loading = signal(false);
   cargandoDatos = signal(true);
-
-  modalidades = signal<Modalidad[]>([]);
   horarios = signal<Horario[]>([]);
+  pendingActions = signal<PendingAction[]>([]);
+  saving = signal(false);
+
+  horariosVisibles = computed(() => {
+    const base = this.horarios();
+    const actions = this.pendingActions();
+
+    const deletedIds = new Set(
+      actions.filter(a => a.type === 'eliminar').map(a => (a as PendingDelete).id)
+    );
+
+    const updates = new Map<number, Partial<Horario>>();
+    for (const a of actions) {
+      if (a.type === 'actualizar') updates.set(a.id, { ...(a as PendingUpdate).data } as any);
+      if (a.type === 'reactivar') {
+        const prev = updates.get(a.id) || {};
+        updates.set(a.id, { ...prev, estado: 'activo' });
+      }
+    }
+
+    const items: Horario[] = base
+      .filter(h => !deletedIds.has(h.id_horario))
+      .map(h => {
+        const upd = updates.get(h.id_horario);
+        return upd ? { ...h, ...upd } : h;
+      });
+
+    for (const a of actions) {
+      if (a.type === 'crear') {
+        const c = a as PendingCreate;
+        items.push({
+          id_horario: c.tempId,
+          id_detalle_programa_modulo: c.data.id_detalle_programa_modulo,
+          dia: c.data.dia,
+          hora_ini: c.data.hora_ini,
+          hora_fin: c.data.hora_fin,
+          aula: c.data.aula ?? null,
+          estado: 'activo',
+          created_at: '',
+          updated_at: '',
+        });
+      }
+    }
+
+    return items;
+  });
+
+  horariosChanged = computed(() => this.pendingActions().length > 0);
+
+  estadoOriginal = '';
+  fechaInicioOriginal: string | null = null;
+  fechaFinOriginal: string | null = null;
+
+  estadosDisponibles = computed(() => {
+    const d = this.detalle();
+    if (!d) return [];
+    const permitidos = this.ESTADO_TRANSICIONES[d.estado] ?? [];
+    return [
+      { value: d.estado, label: this.etiquetaEstado(d.estado), actual: true },
+      ...permitidos.map(v => ({ value: v, label: this.etiquetaEstado(v), actual: false })),
+    ];
+  });
+
+  get estadoChanged(): boolean {
+    return this.form.value.nuevo_estado !== this.estadoOriginal;
+  }
+
+  get fechasChanged(): boolean {
+    const v = this.form.value;
+    return aFechaString(v.fecha_inicio) !== this.fechaInicioOriginal
+        || aFechaString(v.fecha_fin) !== this.fechaFinOriginal;
+  }
+
+  get tieneCambiosDetalle(): boolean {
+    return this.estadoChanged || this.fechasChanged;
+  }
+
+  get tieneCambios(): boolean {
+    return this.tieneCambiosDetalle || this.horariosChanged();
+  }
+
+  get motivoRequerido(): boolean {
+    return this.tieneCambiosDetalle;
+  }
+
+  get puedeGuardar(): boolean {
+    if (!this.tieneCambios || this.saving()) return false;
+    if (!this.motivoRequerido) return true;
+    const mot = this.form.get('motivo')?.value || '';
+    return mot.length >= 5;
+  }
 
   constructor() {
     this.form = this.fb.group({
-      id_modalidad: [null],
+      nuevo_estado: ['', Validators.required],
       fecha_inicio: [null],
       fecha_fin: [null],
+      motivo: [''],
     });
   }
 
@@ -85,15 +197,7 @@ export class DetalleGestionarComponent implements OnInit {
       this.volverAlCarrusel();
       return;
     }
-
-    this.cargarModalidades();
     this.cargarDetalle(+detalleId);
-  }
-
-  private cargarModalidades() {
-    this.modalidadService.getAll().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (data) => this.modalidades.set(data.filter(m => m.estado === 'activo')),
-    });
   }
 
   private cargarDetalle(id: number) {
@@ -101,15 +205,19 @@ export class DetalleGestionarComponent implements OnInit {
     this.detalleService.getById(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (data) => {
         this.detalle.set(data);
-        this.idEdicion.set(data.id_programa_version_edicion);
+        this.estadoOriginal = data.estado;
+        this.fechaInicioOriginal = data.fecha_inicio;
+        this.fechaFinOriginal = data.fecha_fin;
         this.form.patchValue({
-          id_modalidad: data.id_modalidad,
+          nuevo_estado: data.estado,
           fecha_inicio: data.fecha_inicio ? new Date(data.fecha_inicio) : null,
           fecha_fin: data.fecha_fin ? new Date(data.fecha_fin) : null,
+          motivo: '',
         });
-        this.form.markAsPristine();
         this.cargandoDatos.set(false);
+        this.fechaFinManual = false;
         this.cargarHorarios();
+        this.configurarListeners();
       },
       error: () => {
         this.cargandoDatos.set(false);
@@ -122,127 +230,139 @@ export class DetalleGestionarComponent implements OnInit {
   private cargarHorarios() {
     const d = this.detalle();
     if (!d) return;
-    this.horarioService.getAll(d.id_detalle_programa_modulo).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (data) => this.horarios.set(data),
-    });
+    this.horarioService.getAll(d.id_detalle_programa_modulo)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (data) => this.horarios.set(data),
+        error: () => this.snackbar.open('Error al cargar horarios', 'Cerrar', { duration: 3000 }),
+      });
   }
 
-  labelEstado(estado: string): string {
+  private configurarListeners() {
+    this.form.get('nuevo_estado')?.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(estado => {
+        if (estado === 'en_curso' && estado !== this.estadoOriginal) {
+          this.autoFillFechas();
+        }
+      });
+
+    this.form.get('fecha_inicio')?.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.ajustarFechaFin();
+      });
+  }
+
+  private autoFillFechas() {
+    const fi = this.form.get('fecha_inicio');
+    const ff = this.form.get('fecha_fin');
+    if (!fi?.value) {
+      fi?.setValue(new Date());
+    }
+    if (!ff?.value) {
+      const base = fi?.value || new Date();
+      const fin = new Date(base);
+      fin.setDate(fin.getDate() + this.DURACION_MINIMA_DIAS);
+      ff?.setValue(fin, { emitEvent: false });
+      this.fechaFinManual = false;
+    }
+  }
+
+  private ajustarFechaFin() {
+    if (this.fechaFinManual) return;
+    const fi = this.form.get('fecha_inicio')?.value;
+    const ff = this.form.get('fecha_fin')?.value;
+    if (!fi || !ff) return;
+    const diff = Math.round((ff.getTime() - fi.getTime()) / 86400000);
+    if (diff < this.DURACION_MINIMA_DIAS) {
+      const nuevoFin = new Date(fi);
+      nuevoFin.setDate(nuevoFin.getDate() + this.DURACION_MINIMA_DIAS);
+      this.form.get('fecha_fin')?.setValue(nuevoFin, { emitEvent: false });
+    }
+  }
+
+  marcarFechaFinManual() {
+    this.fechaFinManual = true;
+  }
+
+  etiquetaEstado(estado: string): string {
     const map: Record<string, string> = {
-      programado: 'Programado', en_curso: 'En Curso', reprogramado: 'Reprogramado', finalizado: 'Finalizado',
+      programado: 'Programado', en_curso: 'En Curso',
+      reprogramado: 'Reprogramado', finalizado: 'Finalizado',
     };
     return map[estado] || estado;
   }
 
-  abrirModificarDialog() {
-    const d = this.detalle();
-    if (!d) return;
-    this.loading.set(true);
-    this.detalleService.getAll(this.idEdicion()).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (modulos) => {
-        this.loading.set(false);
-        const dialogRef = this.dialog.open(ModificarDialogComponent, {
-          width: '700px',
-          data: { detalle: d, modulos },
-        });
-        dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result: ModificarResult | undefined) => {
-          if (!result) return;
-          this.aplicarModificacion(result);
-        });
-      },
-      error: () => {
-        this.loading.set(false);
-        this.snackbar.open('Error al cargar datos', 'Cerrar', { duration: 4000 });
-      },
-    });
+  diaLabel(dia: string): string {
+    const map: Record<string, string> = {
+      lunes: 'Lun', martes: 'Mar', miercoles: 'Mié',
+      jueves: 'Jue', viernes: 'Vie', sabado: 'Sáb', domingo: 'Dom',
+    };
+    return map[dia] || dia;
   }
 
-  private aplicarModificacion(result: ModificarResult) {
-    const d = this.detalle();
-    if (!d) return;
-    this.loading.set(true);
-
-    const estadoCambio = result.estado !== d.estado;
-    const fechasCambio = result.fecha_inicio !== d.fecha_inicio || result.fecha_fin !== d.fecha_fin;
-
-    const hayPatch = estadoCambio || fechasCambio;
-    const hayReorder = !!result.ordenes;
-
-    if (!hayPatch && !hayReorder) {
-      this.loading.set(false);
-      return;
+  private buildPatch(): DetalleUpdate {
+    const patch: DetalleUpdate = {};
+    if (this.estadoChanged) {
+      patch.estado = this.form.value.nuevo_estado;
     }
+    if (this.fechasChanged) {
+      patch.fecha_inicio = this.form.value.fecha_inicio
+        ? aFechaString(this.form.value.fecha_inicio) : null;
+      patch.fecha_fin = this.form.value.fecha_fin
+        ? aFechaString(this.form.value.fecha_fin) : null;
+    }
+    patch.motivo = this.form.value.motivo;
+    return patch;
+  }
 
-    const hacerPatch = () => {
-      if (!hayPatch) {
-        if (hayReorder) return hacerReorder();
-        this.loading.set(false);
-        return;
-      }
+  private flushHorarios() {
+    const pending = this.pendingActions();
+    if (pending.length === 0) return of(null);
 
-      const patch: DetalleUpdate = {};
-      if (estadoCambio) {
-        patch.estado = result.estado;
-        patch.motivo = result.motivo;
-      }
-      if (fechasCambio) {
-        patch.fecha_inicio = result.fecha_inicio;
-        patch.fecha_fin = result.fecha_fin;
-      }
+    const observables = pending.map(a => {
+      if (a.type === 'crear') return this.horarioService.create(a.data);
+      if (a.type === 'actualizar') return this.horarioService.update(a.id, a.data);
+      if (a.type === 'eliminar') return this.horarioService.cancelar(a.id);
+      if (a.type === 'reactivar') return this.horarioService.update(a.id, { estado: 'activo' });
+      return of(null);
+    });
 
-      this.detalleService.update(d.id_detalle_programa_modulo, patch)
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe({
-          next: () => { if (hayReorder) hacerReorder(); else finalizar(); },
-          error: (err) => this.manejarError(err),
-        });
-    };
-
-    const hacerReorder = () => {
-      this.detalleService.reordenar({ id_edicion: d.id_programa_version_edicion, ordenes: result.ordenes! })
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe({
-          next: () => finalizar(),
-          error: (err) => this.manejarError(err),
-        });
-    };
-
-    const finalizar = () => {
-      this.loading.set(false);
-      this.snackbar.open('Módulo modificado con éxito', 'OK', { duration: 3000 });
-      this.cargarDetalle(d.id_detalle_programa_modulo);
-    };
-
-    hacerPatch();
+    return forkJoin(observables);
   }
 
   guardar() {
-    if (this.form.invalid || !this.detalle()) return;
-    this.loading.set(true);
-    const raw = this.form.value;
+    if (!this.puedeGuardar) return;
+    this.saving.set(true);
 
-    const datos: DetalleUpdate = {
-      id_modalidad: raw.id_modalidad ?? null,
-      fecha_inicio: raw.fecha_inicio ? aFechaString(raw.fecha_inicio) : null,
-      fecha_fin: raw.fecha_fin ? aFechaString(raw.fecha_fin) : null,
-    };
+    const d = this.detalle();
+    if (!d) return;
 
-    this.detalleService.update(this.detalle()!.id_detalle_programa_modulo, datos)
+    const flush$ = this.flushHorarios();
+    const detalle$ = this.tieneCambiosDetalle
+      ? this.detalleService.update(d.id_detalle_programa_modulo, this.buildPatch())
+      : of(null);
+
+    forkJoin({ detalle: detalle$, horarios: flush$ })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: () => this.recargarTrasAccion('Módulo actualizado con éxito'),
+        next: () => {
+          this.pendingActions.set([]);
+          this.saving.set(false);
+          this.snackbar.open('Cambios guardados con éxito', 'OK', { duration: 3000 });
+          if (this.tieneCambiosDetalle) {
+            this.cargarDetalle(d.id_detalle_programa_modulo);
+          } else {
+            this.volverAlCarrusel();
+          }
+        },
         error: (err) => this.manejarError(err),
       });
   }
 
-  private recargarTrasAccion(mensaje = 'Módulo actualizado con éxito') {
-    this.loading.set(false);
-    this.snackbar.open(mensaje, 'OK', { duration: 3000 });
-    this.cargarDetalle(this.detalle()!.id_detalle_programa_modulo);
-  }
-
   private manejarError(err: any) {
-    this.loading.set(false);
+    this.saving.set(false);
     const detalle = err.error?.detail;
     const mensaje = Array.isArray(detalle)
       ? detalle.map((d: any) => d.msg || JSON.stringify(d)).join(' | ')
@@ -253,26 +373,24 @@ export class DetalleGestionarComponent implements OnInit {
   agregarHorario() {
     const d = this.detalle();
     if (!d) return;
-    const dialogRef = this.dialog.open(HorarioDialogComponent, {
-      width: '500px',
+    const subRef = this.dialog.open(HorarioDialogComponent, {
+      width: '520px',
       data: { detalleId: d.id_detalle_programa_modulo } satisfies HorarioDialogData,
     });
-    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result: HorarioCreate | undefined) => {
+    subRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result: HorarioCreate | undefined) => {
       if (!result) return;
       result.id_detalle_programa_modulo = d.id_detalle_programa_modulo;
-      this.horarioService.create(result).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-        next: () => {
-          this.cargarHorarios();
-          this.snackbar.open('Horario agregado', 'OK', { duration: 3000 });
-        },
-        error: (err) => this.snackbar.open(err.error?.detail || 'Error al crear horario', 'Cerrar', { duration: 5000 }),
-      });
+      this.pendingActions.update(prev => [...prev, {
+        type: 'crear',
+        tempId: Date.now() + Math.random(),
+        data: result,
+      }]);
     });
   }
 
   editarHorario(horario: Horario) {
-    const dialogRef = this.dialog.open(HorarioDialogComponent, {
-      width: '500px',
+    const subRef = this.dialog.open(HorarioDialogComponent, {
+      width: '520px',
       data: {
         detalleId: horario.id_detalle_programa_modulo,
         horario: {
@@ -284,56 +402,39 @@ export class DetalleGestionarComponent implements OnInit {
         },
       } satisfies HorarioDialogData,
     });
-    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result: HorarioUpdate | undefined) => {
+    subRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result: HorarioUpdate | undefined) => {
       if (!result) return;
-      this.horarioService.update(horario.id_horario, result).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-        next: () => {
-          this.cargarHorarios();
-          this.snackbar.open('Horario actualizado', 'OK', { duration: 3000 });
-        },
-        error: (err) => this.snackbar.open(err.error?.detail || 'Error al actualizar horario', 'Cerrar', { duration: 5000 }),
-      });
+      this.pendingActions.update(prev => [...prev, {
+        type: 'actualizar',
+        id: horario.id_horario,
+        data: result,
+      }]);
+    });
+  }
+
+  eliminarHorario(horario: Horario) {
+    const confirmRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '420px',
+      data: {
+        titulo: 'Eliminar Horario',
+        mensaje: `¿Está seguro de eliminar el horario del ${this.diaLabel(horario.dia)} ${horario.hora_ini}-${horario.hora_fin}?`,
+      },
+    });
+    confirmRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((confirmado: boolean) => {
+      if (!confirmado) return;
+      this.pendingActions.update(prev => [...prev, { type: 'eliminar', id: horario.id_horario }]);
     });
   }
 
   reactivarHorario(horario: Horario) {
-    this.horarioService.update(horario.id_horario, { estado: 'activo' })
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => {
-          this.cargarHorarios();
-          this.snackbar.open('Horario restaurado', 'OK', { duration: 3000 });
-        },
-        error: (err) => this.snackbar.open(err.error?.detail || 'Error al restaurar horario', 'Cerrar', { duration: 5000 }),
-      });
+    this.pendingActions.update(prev => [...prev, { type: 'reactivar', id: horario.id_horario }]);
   }
 
-  eliminarHorario(horario: Horario) {
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      width: '420px',
-      data: {
-        titulo: 'Eliminar Horario',
-        mensaje: `¿Está seguro de eliminar el horario del ${horario.dia} ${horario.hora_ini}-${horario.hora_fin}?`,
-      },
-    });
-    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((confirmado: boolean) => {
-      if (!confirmado) return;
-      this.horarioService.cancelar(horario.id_horario).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-        next: () => {
-          this.cargarHorarios();
-          this.snackbar.open('Horario eliminado', 'OK', { duration: 3000 });
-        },
-        error: () => this.snackbar.open('Error al eliminar horario', 'Cerrar', { duration: 4000 }),
-      });
-    });
-  }
-
-  diaLabel(dia: string): string {
-    const map: Record<string, string> = {
-      lunes: 'Lun', martes: 'Mar', miercoles: 'Mié',
-      jueves: 'Jue', viernes: 'Vie', sabado: 'Sáb', domingo: 'Dom',
-    };
-    return map[dia] || dia;
+  verHistorial() {
+    const d = this.detalle();
+    if (!d) return;
+    const base = this.router.url.replace(/\/gestionar\/\d+/, '/modulos');
+    this.router.navigate([`${base}/historial/${d.id_detalle_programa_modulo}`]);
   }
 
   volverAlCarrusel() {

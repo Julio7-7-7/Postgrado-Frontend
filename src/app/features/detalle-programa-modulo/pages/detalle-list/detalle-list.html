@@ -20,6 +20,14 @@
     </div>
   </div>
 
+  <div class="cronologia-bar">
+    <button mat-stroked-button (click)="abrirReordenar()" class="cronologia-btn"
+      [disabled]="detalles().length < 2" matTooltip="Reordenar módulos">
+      <mat-icon>swap_vert</mat-icon> Cronología de módulos
+    </button>
+    <span class="cronologia-hint">Arrastrá los módulos para cambiar su orden de ejecución</span>
+  </div>
+
   @if (isLoading()) {
     <div class="loading-container">
       <mat-spinner diameter="50" color="primary"></mat-spinner>
@@ -136,11 +144,11 @@
             </mat-card-content>
 
             <mat-card-actions>
-              <button mat-stroked-button (click)="verHistorial(detalle)" class="historial-btn" matTooltip="Ver historial de cambios">
+              <button mat-stroked-button (click)="verHistorial(detalle)" class="action-btn historial-btn" matTooltip="Ver historial de cambios">
                 <mat-icon>history</mat-icon> Historial
               </button>
-              <button mat-raised-button color="primary" (click)="abrirGestionar(detalle)" class="gestionar-btn">
-                <mat-icon>edit</mat-icon> Gestionar
+              <button mat-raised-button color="primary" (click)="abrirGestionar(detalle)" class="action-btn gestionar-btn">
+                <mat-icon>edit_square</mat-icon> Gestionar
               </button>
             </mat-card-actions>
           </mat-card>

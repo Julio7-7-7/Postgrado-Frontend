@@ -1,0 +1,148 @@
+<h2 mat-dialog-title>
+  <div class="gestionar-title">
+    <div class="gestionar-title-text">
+      <span class="title-sigla">{{ data.detalle.modulo.sigla }}</span>
+      {{ data.detalle.modulo.nombre_modulo }}
+    </div>
+    <span class="title-orden">#{{ data.detalle.orden }}</span>
+  </div>
+</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="form" class="dialog-scroll">
+    <!-- Estado -->
+    <div class="section">
+      <div class="section-head">
+        <mat-icon class="section-icon">flag</mat-icon>
+        <span class="section-title">Estado</span>
+      </div>
+      <div class="section-body">
+        <mat-radio-group formControlName="nuevo_estado" class="estado-radio-group">
+          @for (opt of estadosDisponibles(); track opt.value) {
+            <mat-radio-button [value]="opt.value"
+              [class.selected]="opt.value === form.get('nuevo_estado')?.value"
+              [class.mantener]="opt.value === data.detalle.estado">
+              {{ opt.label }}
+            </mat-radio-button>
+          }
+        </mat-radio-group>
+      </div>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <!-- Fechas -->
+    <div class="section">
+      <div class="section-head">
+        <mat-icon class="section-icon">calendar_month</mat-icon>
+        <span class="section-title">Fechas</span>
+      </div>
+      <div class="section-body">
+        <div class="fechas-row">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Fecha inicio</mat-label>
+            <input matInput [matDatepicker]="picker1" formControlName="fecha_inicio">
+            <mat-datepicker-toggle matIconSuffix [for]="picker1"></mat-datepicker-toggle>
+            <mat-datepicker #picker1></mat-datepicker>
+          </mat-form-field>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Fecha fin</mat-label>
+            <input matInput [matDatepicker]="picker2" formControlName="fecha_fin">
+            <mat-datepicker-toggle matIconSuffix [for]="picker2"></mat-datepicker-toggle>
+            <mat-datepicker #picker2></mat-datepicker>
+          </mat-form-field>
+        </div>
+      </div>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <!-- Horarios -->
+    <div class="section">
+      <div class="section-head">
+        <mat-icon class="section-icon">schedule</mat-icon>
+        <span class="section-title">Horarios</span>
+        <button mat-stroked-button type="button" (click)="agregarHorario()" class="add-btn">
+          <mat-icon>add</mat-icon> Agregar
+        </button>
+      </div>
+      <div class="section-body">
+        @if (horarios().length === 0) {
+          <div class="empty-horarios">
+            <mat-icon>event_busy</mat-icon>
+            <p>Sin horarios registrados</p>
+          </div>
+        }
+        <div class="horarios-list">
+          @for (h of horarios(); track h.id_horario) {
+            <div class="horario-item" [class.cancelado]="h.estado === 'cancelado'">
+              <span class="dia-badge">{{ diaLabel(h.dia) }}</span>
+              <span class="hora-range">{{ h.hora_ini }} — {{ h.hora_fin }}</span>
+              @if (h.aula) {
+                <span class="aula-tag">{{ h.aula }}</span>
+              }
+              <div class="horario-actions">
+                <button mat-icon-button type="button" size="small" (click)="editarHorario(h)" matTooltip="Editar horario">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                @if (h.estado === 'cancelado') {
+                  <button mat-icon-button type="button" size="small" (click)="reactivarHorario(h)" matTooltip="Restaurar horario" class="restore-btn">
+                    <mat-icon>restore</mat-icon>
+                  </button>
+                } @else {
+                  <button mat-icon-button type="button" size="small" (click)="eliminarHorario(h)" matTooltip="Eliminar horario">
+                    <mat-icon>delete_outline</mat-icon>
+                  </button>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <!-- Motivo -->
+    <div class="section">
+      <div class="section-head">
+        <mat-icon class="section-icon">description</mat-icon>
+        <span class="section-title">Justificación</span>
+      </div>
+      <div class="section-body">
+        @if (motivoRequerido) {
+          <p class="section-hint">Toda modificación de estado o fechas debe ser justificada.</p>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Describa el motivo de la modificación</mat-label>
+            <textarea matInput formControlName="motivo" rows="3"
+              placeholder="Ej: Cambio de fechas por feriado nacional..."></textarea>
+            @if (form.get('motivo')?.value?.length > 0 && form.get('motivo')?.value?.length < 5) {
+              <mat-error>Mínimo 5 caracteres</mat-error>
+            }
+          </mat-form-field>
+        } @else {
+          <p class="section-hint">Agregue o modifique horarios sin necesidad de justificación.</p>
+        }
+      </div>
+    </div>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="dialog-actions">
+  <div class="actions-info">
+    @if (!tieneCambios) {
+      <span class="actions-hint">Sin cambios detectados</span>
+    }
+  </div>
+  <button mat-button (click)="onNoClick()" [disabled]="saving()">Cancelar</button>
+  <button mat-raised-button color="primary"
+    [disabled]="!puedeGuardar"
+    (click)="confirmar()">
+    @if (saving()) {
+      <mat-spinner diameter="18"></mat-spinner>
+    } @else {
+      <mat-icon>check</mat-icon>
+    }
+    Realizar modificación
+  </button>
+</mat-dialog-actions>

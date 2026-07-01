@@ -10,10 +10,12 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { DetalleService } from '../../services/detalle.service';
 import { HorarioService } from '../../../horario/services/horario.service';
 import { DetalleProgramaModulo } from '../../models/detalle.model';
 import { Horario } from '../../../horario/models/horario.model';
+import { ReordenarModulosDialogComponent, ReordenarModulosData } from '../../components/reordenar-modulos-dialog/reordenar-modulos-dialog';
 
 @Component({
   selector: 'app-detalle-list',
@@ -22,7 +24,7 @@ import { Horario } from '../../../horario/models/horario.model';
     CommonModule, RouterLink,
     MatCardModule, MatButtonModule, MatIconModule, MatTooltipModule,
     MatProgressSpinnerModule, MatSnackBarModule,
-    MatDividerModule,
+    MatDividerModule, MatDialogModule,
   ],
   templateUrl: './detalle-list.html',
   styleUrl: './detalle-list.css',
@@ -31,6 +33,7 @@ export class DetalleListComponent implements OnInit {
   private detalleService = inject(DetalleService);
   private horarioService = inject(HorarioService);
   private snackbar = inject(MatSnackBar);
+  private dialog = inject(MatDialog);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private destroyRef = inject(DestroyRef);
@@ -131,6 +134,21 @@ export class DetalleListComponent implements OnInit {
   abrirGestionar(detalle: DetalleProgramaModulo) {
     const base = this.router.url.replace(/\/modulos.*/, '/modulos');
     this.router.navigate([`${base}/gestionar/${detalle.id_detalle_programa_modulo}`]);
+  }
+
+  abrirReordenar() {
+    const dialogRef = this.dialog.open(ReordenarModulosDialogComponent, {
+      width: '600px',
+      data: {
+        idEdicion: this.idEdicion(),
+        modulos: this.detalles(),
+      } satisfies ReordenarModulosData,
+    });
+    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result: boolean | undefined) => {
+      if (result) {
+        this.cargarDetalles();
+      }
+    });
   }
 
   verHistorial(detalle: DetalleProgramaModulo) {
