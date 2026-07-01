@@ -148,7 +148,7 @@
         <div class="global-progress">
           <div class="global-progress-header">
             <span class="global-progress-label">Progreso general</span>
-            <span class="global-progress-count">{{ documentos().length }}/{{ totalDocs() }} documentos</span>
+            <span class="global-progress-count">{{ siguienteOrden() }}/{{ totalDocs() }} documentos</span>
           </div>
           <mat-progress-bar mode="determinate" [value]="progresoGlobal()"
                            [class.progress-complete]="progresoGlobal() === 100"
@@ -191,9 +191,9 @@
               @if (etapaExpandida() === etapaState.etapa.nombre) {
                 <div class="etapa-docs"
                      [class.etapa-docs-completada]="etapaState.completados === etapaState.total && etapaState.total > 0">
-                  @for (docState of etapaState.docsEnEtapa; track docState.info.tipo; let di = $index) {
+                  @for (docState of etapaState.docsEnEtapa; track docState.ordenGlobal; let di = $index) {
                     @let completado = docState.doc !== null;
-                    @let activo = pasoActual(docState.info.tipo);
+                    @let activo = pasoActual(docState.ordenGlobal);
                     @let bloqueado = !completado && !activo;
 
                     <div class="doc-item"
@@ -214,6 +214,9 @@
                         @if (completado) {
                           <div class="doc-meta">
                             <span class="doc-fecha">Subido el {{ (docState.doc!.fecha_subida | date:'dd/MM/yyyy HH:mm') || '—' }}</span>
+                            @if (docState.doc!.tipo) {
+                              <span class="doc-filename">{{ docState.doc!.tipo }}</span>
+                            }
                             <div class="doc-actions">
                               @if (docState.doc!.archivo_pdf) {
                                 <a [href]="urlPdf(docState.doc!.archivo_pdf)" target="_blank" class="doc-link" matTooltip="Ver PDF">
@@ -224,7 +227,7 @@
                                 <input type="file" accept=".pdf,application/pdf"
                                        #inputReemplazo
                                        [hidden]="true"
-                                       (change)="onFileSelected($event, docState.info.tipo)">
+                                       (change)="onFileSelected($event, docState.ordenGlobal)">
                                 <button mat-stroked-button color="primary" class="reemplazar-btn"
                                         (click)="inputReemplazo.click()"
                                         [disabled]="subiendo() !== 'ninguno'"
@@ -233,20 +236,23 @@
                                 </button>
                               }
                             </div>
-                            @if (versionesAnteriores(docState.info.tipo).length > 0) {
+                            @if (versionesAnteriores(docState.ordenGlobal).length > 0) {
                               <div class="versiones-link">
                                 <mat-icon>history</mat-icon>
-                                <span class="versiones-text" (click)="toggleVersiones(docState.info.tipo)"
+                                <span class="versiones-text" (click)="toggleVersiones(docState.ordenGlobal)"
                                       role="button" tabindex="0"
-                                      (keydown.enter)="toggleVersiones(docState.info.tipo)">
-                                  {{ versionesAnteriores(docState.info.tipo).length }} versión(es) anterior(es)
+                                      (keydown.enter)="toggleVersiones(docState.ordenGlobal)">
+                                  {{ versionesAnteriores(docState.ordenGlobal).length }} versión(es) anterior(es)
                                 </span>
                               </div>
-                              @if (mostrarVersionesAnteriores() === docState.info.tipo) {
+                              @if (mostrarVersionesAnteriores() === docState.ordenGlobal) {
                                 <div class="versiones-lista">
-                                  @for (v of versionesAnteriores(docState.info.tipo); track v.id_documento) {
+                                  @for (v of versionesAnteriores(docState.ordenGlobal); track v.id_documento) {
                                     <div class="version-item">
                                       <span class="version-fecha">{{ (v.fecha_subida | date:'dd/MM/yyyy HH:mm') || '—' }}</span>
+                                      @if (v.tipo) {
+                                        <span class="version-filename">{{ v.tipo }}</span>
+                                      }
                                       @if (v.archivo_pdf) {
                                         <a [href]="urlPdf(v.archivo_pdf)" target="_blank" class="doc-link" matTooltip="Ver PDF anterior">
                                           <mat-icon>picture_as_pdf</mat-icon> Ver
@@ -262,7 +268,7 @@
                           <div class="doc-upload">
                             <input type="file" accept=".pdf,application/pdf"
                                    #fileInput
-                                   (change)="onFileSelected($event, docState.info.tipo)"
+                                   (change)="onFileSelected($event)"
                                    class="file-input"
                                    [disabled]="subiendo() !== 'ninguno'">
                             <button mat-raised-button color="primary"

@@ -22,10 +22,12 @@ export class DocumentoService extends ApiService {
     return this.http.post<DocumentoContratacion>(`${this.baseUrl}/${this.endpoint}/`, data);
   }
 
-  subirPdf(contratacionId: number, tipo: string, file: File): Observable<DocumentoContratacion> {
+  subirPdf(contratacionId: number, file: File, ordenReemplazo?: number): Observable<DocumentoContratacion> {
     const formData = new FormData();
-    formData.append('tipo', tipo);
     formData.append('file', file);
+    if (ordenReemplazo !== undefined) {
+      formData.append('orden', String(ordenReemplazo));
+    }
     return this.http.post<DocumentoContratacion>(
       `${this.baseUrl}/${this.endpoint}/${contratacionId}/subir-pdf`,
       formData,

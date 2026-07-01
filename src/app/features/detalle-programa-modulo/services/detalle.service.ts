@@ -18,10 +18,16 @@ export interface ReordenarRequest {
 export class DetalleService extends ApiService {
   private readonly endpoint = 'detalle-programa-modulo';
 
-  getAll(edicion_id?: number): Observable<DetalleProgramaModulo[]> {
+  getAll(edicion_id?: number, programa_id?: number, disponible?: boolean): Observable<DetalleProgramaModulo[]> {
     let params = new HttpParams();
     if (edicion_id) {
       params = params.set('edicion_id', edicion_id);
+    }
+    if (programa_id) {
+      params = params.set('programa_id', programa_id);
+    }
+    if (disponible) {
+      params = params.set('disponible', 'true');
     }
     return this.http.get<DetalleProgramaModulo[]>(`${this.baseUrl}/${this.endpoint}/`, { params });
   }

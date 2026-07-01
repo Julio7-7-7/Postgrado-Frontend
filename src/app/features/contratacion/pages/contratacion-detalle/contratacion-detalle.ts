@@ -19,7 +19,7 @@ import { ContratacionService } from '../../services/contratacion.service';
 import { DocumentoService } from '../../services/documento.service';
 import { DetalleService } from '../../../detalle-programa-modulo/services/detalle.service';
 import { ContratacionDocente } from '../../models/contratacion.model';
-import { DocumentoContratacion, ETAPAS_DOCUMENTALES, EtapaDocumental } from '../../models/documento.model';
+import { DocumentoContratacion, ETAPAS_DOCUMENTALES } from '../../models/documento.model';
 import { DetalleProgramaModulo } from '../../../detalle-programa-modulo/models/detalle.model';
 
 @Component({
@@ -55,52 +55,55 @@ export class ContratacionDetalleComponent implements OnInit {
   montoEditando = signal(false);
   montoInput = signal<number | null>(null);
 
-  documentosMap = computed(() => {
-    const map = new Map<string, DocumentoContratacion>();
+  documentosPorOrden = computed(() => {
+    const map = new Map<number, DocumentoContratacion>();
     for (const doc of this.documentos()) {
-      map.set(doc.tipo, doc);
+      map.set(doc.orden, doc);
     }
     return map;
   });
 
-  versionesPorTipo = computed(() => {
-    const map = new Map<string, DocumentoContratacion[]>();
+  versionesPorOrden = computed(() => {
+    const map = new Map<number, DocumentoContratacion[]>();
     for (const doc of this.documentos()) {
-      const arr = map.get(doc.tipo) ?? [];
+      const arr = map.get(doc.orden) ?? [];
       arr.push(doc);
-      map.set(doc.tipo, arr);
+      map.set(doc.orden, arr);
     }
     return map;
   });
 
-  siguienteOrden = computed(() => this.documentosMap().size);
+  siguienteOrden = computed(() => {
+    const docs = this.documentos();
+    if (docs.length === 0) return 0;
+    return new Set(docs.map(d => d.orden)).size;
+  });
 
-  versionesAnteriores(tipo: string): DocumentoContratacion[] {
-    const docs = this.versionesPorTipo().get(tipo) ?? [];
+  versionesAnteriores(orden: number): DocumentoContratacion[] {
+    const docs = this.versionesPorOrden().get(orden) ?? [];
     if (docs.length <= 1) return [];
     return docs.slice(0, -1);
   }
 
-  documentoActual(tipo: string): DocumentoContratacion | null {
-    return this.documentosMap().get(tipo) ?? null;
-  }
+  mostrarVersionesAnteriores = signal<number | null>(null);
 
-  mostrarVersionesAnteriores = signal<string | null>(null);
-
-  toggleVersiones(tipo: string): void {
+  toggleVersiones(orden: number): void {
     this.mostrarVersionesAnteriores.set(
-      this.mostrarVersionesAnteriores() === tipo ? null : tipo
+      this.mostrarVersionesAnteriores() === orden ? null : orden
     );
   }
 
   etapasConEstado = computed(() => {
-    const docs = this.documentosMap();
+    const docsPorOrden = this.documentosPorOrden();
     const orden = this.siguienteOrden();
-    const totalDocs = ETAPAS_DOCUMENTALES.flatMap(e => e.documentos).length;
     let docIdx = 0;
     return ETAPAS_DOCUMENTALES.map(etapa => {
       const inicioEtapa = docIdx;
-      const docsEnEtapa = etapa.documentos.map(d => ({ info: d, doc: docs.get(d.tipo) ?? null }));
+      const docsEnEtapa = etapa.documentos.map((d, i) => ({
+        info: d,
+        doc: docsPorOrden.get(inicioEtapa + i) ?? null,
+        ordenGlobal: inicioEtapa + i,
+      }));
       docIdx += etapa.documentos.length;
 
       const completados = docsEnEtapa.filter(d => d.doc !== null).length;
@@ -179,17 +182,8 @@ export class ContratacionDetalleComponent implements OnInit {
     });
   }
 
-  pasoCompletado(docTipo: string): boolean {
-    return this.documentosMap().has(docTipo);
-  }
-
-  pasoActual(docTipo: string): boolean {
-    const docs = this.documentos();
-    const orden = docs.length;
-    const totalDocs = ETAPAS_DOCUMENTALES.flatMap(e => e.documentos).length;
-    if (orden >= totalDocs) return false;
-    const siguienteTipo = ETAPAS_DOCUMENTALES.flatMap(e => e.documentos)[orden]?.tipo;
-    return docTipo === siguienteTipo
+  pasoActual(orden: number): boolean {
+    return orden === this.siguienteOrden()
       && this.contratacion()?.estado !== 'truncado'
       && this.contratacion()?.estado !== 'formalizado';
   }
@@ -199,7 +193,7 @@ export class ContratacionDetalleComponent implements OnInit {
     return !c || c.estado === 'truncado' || c.estado === 'formalizado';
   }
 
-  onFileSelected(event: Event, tipo: string): void {
+  onFileSelected(event: Event, ordenReemplazo?: number): void {
     const input = event.target as HTMLInputElement;
     if (!input.files || input.files.length === 0) return;
 
@@ -220,15 +214,19 @@ export class ContratacionDetalleComponent implements OnInit {
     reader.onload = () => {
       this.progresoSubida.set(40);
       this.subiendo.set('subiendo');
-      this.documentoService.subirPdf(this.contratacionId, tipo, file).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-        next: () => {
+      this.documentoService.subirPdf(this.contratacionId, file, ordenReemplazo).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+        next: (doc) => {
+          this.documentos.update(docs => [...docs, doc]);
+          this.progresoSubida.set(80);
+          this.service.getById(this.contratacionId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+            next: (c) => this.contratacion.set(c),
+          });
           this.progresoSubida.set(100);
           this.subiendo.set('completado');
           this.snackbar.open('Documento subido correctamente', 'OK', { duration: 3000 });
           setTimeout(() => {
             this.subiendo.set('ninguno');
             this.progresoSubida.set(0);
-            this.cargarDatos();
           }, 800);
         },
         error: (err) => {
@@ -337,7 +335,8 @@ export class ContratacionDetalleComponent implements OnInit {
   progresoGlobal = computed(() => {
     const total = this.totalDocs();
     if (total === 0) return 0;
-    return Math.round((this.documentos().length / total) * 100);
+    const completados = new Set(this.documentos().map(d => d.orden)).size;
+    return Math.round((completados / total) * 100);
   });
 
   protected readonly ETAPAS_DOCUMENTALES = ETAPAS_DOCUMENTALES;

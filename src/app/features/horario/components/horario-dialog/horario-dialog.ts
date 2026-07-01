@@ -7,6 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { AnalogClockComponent } from '../../../../shared/components/analog-clock/analog-clock';
 import { Dia, HorarioCreate, HorarioUpdate } from '../../models/horario.model';
 
 export interface HorarioDialogData {
@@ -21,6 +22,7 @@ export interface HorarioDialogData {
     CommonModule, ReactiveFormsModule,
     MatDialogModule, MatFormFieldModule, MatInputModule,
     MatSelectModule, MatButtonModule, MatIconModule,
+    AnalogClockComponent,
   ],
   template: `
     <h2 mat-dialog-title>{{ data.horario ? 'Editar Horario' : 'Agregar Horario' }}</h2>
@@ -34,50 +36,31 @@ export interface HorarioDialogData {
             }
           </mat-select>
         </mat-form-field>
-        <div class="time-row">
-          <div class="time-group">
-            <span class="time-label">Hora inicio</span>
-            <div class="time-picker">
-              <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                <mat-select formControlName="hora_ini_h" placeholder="HH">
-                  @for (h of horas; track h) {
-                    <mat-option [value]="h">{{ h }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
-              <span class="time-sep">:</span>
-              <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                <mat-select formControlName="hora_ini_m" placeholder="MM">
-                  @for (m of minutos; track m) {
-                    <mat-option [value]="m">{{ m }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
-              <mat-icon class="clock-icon">schedule</mat-icon>
+
+        <div class="clocks-row">
+          <div class="clock-card">
+            <div class="clock-card-header">
+              <mat-icon>schedule</mat-icon>
+              <span>Inicio</span>
             </div>
+            <app-analog-clock
+              [value]="form.get('hora_ini')?.value || '08:00'"
+              (valueChange)="onIniChange($event)"
+            />
           </div>
-          <div class="time-group">
-            <span class="time-label">Hora fin</span>
-            <div class="time-picker">
-              <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                <mat-select formControlName="hora_fin_h" placeholder="HH">
-                  @for (h of horas; track h) {
-                    <mat-option [value]="h">{{ h }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
-              <span class="time-sep">:</span>
-              <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                <mat-select formControlName="hora_fin_m" placeholder="MM">
-                  @for (m of minutos; track m) {
-                    <mat-option [value]="m">{{ m }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
-              <mat-icon class="clock-icon">schedule</mat-icon>
+
+          <div class="clock-card">
+            <div class="clock-card-header">
+              <mat-icon>schedule</mat-icon>
+              <span>Fin</span>
             </div>
+            <app-analog-clock
+              [value]="form.get('hora_fin')?.value || '09:00'"
+              (valueChange)="onFinChange($event)"
+            />
           </div>
         </div>
+
         <mat-form-field appearance="outline">
           <mat-label>Aula</mat-label>
           <input matInput formControlName="aula" placeholder="Opcional">
@@ -92,40 +75,67 @@ export interface HorarioDialogData {
     </mat-dialog-actions>
   `,
   styles: [`
-    .horario-form { display: flex; flex-direction: column; gap: 16px; min-width: 420px; padding-top: 8px; }
-    .time-row { display: flex; gap: 20px; }
-    .time-group { flex: 1; display: flex; flex-direction: column; gap: 4px; }
-    .time-label { font-size: 0.75rem; font-weight: 600; color: var(--fich-text-muted); padding-left: 4px; text-transform: uppercase; letter-spacing: 0.04em; }
-    .time-picker { display: flex; align-items: flex-start; gap: 4px; }
-    .time-picker mat-form-field { width: 64px; }
-    ::ng-deep .time-picker .mat-mdc-text-field-wrapper { padding: 0 8px !important; }
-    ::ng-deep .time-picker .mat-mdc-form-field-subscript-wrapper { display: none !important; }
-    ::ng-deep .time-picker .mat-mdc-select-trigger { font-size: 1rem; font-weight: 700; font-family: 'Roboto Mono', monospace; color: var(--fich-primary-dark); }
-    .time-sep { font-size: 1.5rem; font-weight: 800; color: var(--fich-primary-dark); padding: 12px 0 0 0; line-height: 1; }
-    .clock-icon { color: var(--fich-text-faint); font-size: 22px; width: 22px; height: 22px; margin: 10px 0 0 4px; }
+    .horario-form { display: flex; flex-direction: column; gap: 16px; padding-top: 8px; }
+    .clocks-row { display: flex; gap: 16px; justify-content: center; }
+    .clock-card {
+      flex: 1;
+      min-width: 0;
+      border: 1.5px solid var(--fich-border);
+      border-radius: var(--fich-radius-lg);
+      padding: 12px 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: var(--fich-bg-subtle);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .clock-card:focus-within,
+    .clock-card:hover {
+      border-color: var(--fich-primary);
+      box-shadow: 0 0 0 3px var(--fich-primary-light);
+    }
+    .clock-card-header {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--fich-text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 4px;
+    }
+    .clock-card-header mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+      color: var(--fich-primary);
+    }
   `]
 })
 export class HorarioDialogComponent {
   form: FormGroup;
   dias: Dia[] = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'];
-  horas: string[] = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'));
-  minutos: string[] = ['00', '15', '30', '45'];
 
   constructor(
     private fb: FormBuilder,
     public dialogRef: MatDialogRef<HorarioDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: HorarioDialogData,
   ) {
-    const ini = data.horario?.hora_ini?.split(':') || ['', ''];
-    const fin = data.horario?.hora_fin?.split(':') || ['', ''];
     this.form = this.fb.group({
       dia: [data.horario?.dia || '', Validators.required],
-      hora_ini_h: [ini[0] || '', Validators.required],
-      hora_ini_m: [ini[1] || '', Validators.required],
-      hora_fin_h: [fin[0] || '', Validators.required],
-      hora_fin_m: [fin[1] || '', Validators.required],
+      hora_ini: [data.horario?.hora_ini || '08:00', Validators.required],
+      hora_fin: [data.horario?.hora_fin || '09:00', Validators.required],
       aula: [data.horario?.aula || ''],
     });
+  }
+
+  onIniChange(val: string) {
+    this.form.patchValue({ hora_ini: val });
+  }
+
+  onFinChange(val: string) {
+    this.form.patchValue({ hora_fin: val });
   }
 
   onNoClick(): void {
@@ -137,8 +147,8 @@ export class HorarioDialogComponent {
     const v = this.form.value;
     const resultado: HorarioCreate | HorarioUpdate = {
       dia: v.dia,
-      hora_ini: `${v.hora_ini_h}:${v.hora_ini_m}`,
-      hora_fin: `${v.hora_fin_h}:${v.hora_fin_m}`,
+      hora_ini: v.hora_ini,
+      hora_fin: v.hora_fin,
       aula: v.aula || null,
     } as any;
     if (this.data.horario) {

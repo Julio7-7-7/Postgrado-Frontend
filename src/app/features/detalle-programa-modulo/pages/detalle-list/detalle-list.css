@@ -34,6 +34,40 @@
   color: var(--fich-text-secondary);
 }
 
+.header-section { align-items: flex-start; }
+
+.cronologia-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--fich-space-md);
+  margin-bottom: var(--fich-space-lg);
+  padding: var(--fich-space-sm) var(--fich-space-md);
+  background: var(--fich-bg-subtle);
+  border: 1px solid var(--fich-border-light);
+  border-radius: var(--fich-radius-md);
+}
+
+.cronologia-btn {
+  font-size: 0.85rem;
+  padding: 6px 18px;
+  border-radius: var(--fich-radius-md);
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.cronologia-btn mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  margin-right: 6px;
+}
+
+.cronologia-hint {
+  font-size: 0.8rem;
+  color: var(--fich-text-faint);
+  font-style: italic;
+}
+
 .header-section h2 {
   margin: 0;
   color: var(--fich-primary-dark);
@@ -423,25 +457,32 @@ mat-card-actions {
   gap: 8px;
   padding: var(--fich-space-md) var(--fich-space-xl) var(--fich-space-lg);
   border-top: 1px solid var(--fich-border-light);
+  justify-content: flex-end;
 }
 
-.gestionar-btn {
-  flex: 1;
-  padding: 8px 0;
-  font-size: 0.95rem;
-  font-weight: 600;
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  font-weight: 500;
+  transition: var(--fich-transition);
 }
 
-.gestionar-btn mat-icon {
+.action-btn mat-icon {
   margin-right: 6px;
 }
 
+.gestionar-btn {
+  font-size: 0.92rem;
+  font-weight: 600;
+  padding: 8px 20px;
+  min-width: 140px;
+}
+
 .historial-btn {
-  border-radius: var(--fich-radius-md);
-  font-size: 0.82rem;
-  font-weight: 500;
-  padding: 8px 14px;
+  font-size: 0.8rem;
+  padding: 6px 14px;
   flex-shrink: 0;
+  border-radius: var(--fich-radius-md);
 }
 
 .historial-btn mat-icon {

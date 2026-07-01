@@ -18,4 +18,10 @@ export class HistorialService extends ApiService {
       `${this.baseUrl}/${this.endpoint}/detalle/${detalleId}/enriquecido`
     );
   }
+
+  getByEdicion(edicionId: number): Observable<HistorialModulo[]> {
+    return this.http.get<HistorialModulo[]>(
+      `${this.baseUrl}/${this.endpoint}/edicion/${edicionId}`
+    );
+  }
 }

@@ -50,11 +50,16 @@ export class ContratacionListComponent implements OnInit {
 
   terminoBusqueda = signal('');
   filtroProgramaId = signal<number | null>(null);
+  sortField = signal<'estado' | 'docente' | 'programa' | 'fecha_inicio'>('estado');
+  sortDirection = signal<'asc' | 'desc'>('asc');
 
   listaFiltrada = computed(() => {
     const busqueda = this.terminoBusqueda().toLowerCase().trim();
     const progId = this.filtroProgramaId();
-    return this.listaTotal().filter(c => {
+    const campo = this.sortField();
+    const dir = this.sortDirection();
+
+    const filtrados = this.listaTotal().filter(c => {
       if (progId && c.id_programa !== progId) return false;
       if (busqueda) {
         const nombre = `${c.docente.nombre} ${c.docente.apellido}`.toLowerCase();
@@ -62,6 +67,39 @@ export class ContratacionListComponent implements OnInit {
         if (!nombre.includes(busqueda) && !ci.includes(busqueda)) return false;
       }
       return true;
+    });
+
+    const ordenEstados: Record<string, number> = {
+      pendiente: 0,
+      verificacion: 1,
+      convocatoria: 2,
+      seleccion: 3,
+      resolucion: 4,
+      legal: 5,
+      formalizado: 6,
+      truncado: 7,
+    };
+    const factor = dir === 'asc' ? 1 : -1;
+
+    return [...filtrados].sort((a, b) => {
+      let cmp = 0;
+      switch (campo) {
+        case 'estado':
+          cmp = (ordenEstados[a.estado] ?? 99) - (ordenEstados[b.estado] ?? 99);
+          break;
+        case 'docente':
+          cmp = `${a.docente.apellido} ${a.docente.nombre}`.localeCompare(
+            `${b.docente.apellido} ${b.docente.nombre}`
+          );
+          break;
+        case 'programa':
+          cmp = (a.programa_nombre || '').localeCompare(b.programa_nombre || '');
+          break;
+        case 'fecha_inicio':
+          cmp = (a.fecha_inicio || '').localeCompare(b.fecha_inicio || '');
+          break;
+      }
+      return cmp * factor;
     });
   });
 

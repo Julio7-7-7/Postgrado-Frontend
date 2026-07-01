@@ -21,4 +21,9 @@ export const EDICION_ROUTES: Routes = [
     loadChildren: () =>
       import('../../detalle-programa-modulo/routes/detalle.routes').then(m => m.DETALLE_ROUTES),
   },
+  {
+    path: ':edicionId/historial',
+    loadComponent: () =>
+      import('../../detalle-programa-modulo/pages/historial-edicion-page/historial-edicion-page').then(m => m.HistorialEdicionPageComponent),
+  },
 ];

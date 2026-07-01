@@ -593,6 +593,15 @@
   color: var(--fich-text-muted);
 }
 
+.doc-filename {
+  font-size: 0.78rem;
+  color: var(--fich-text-faint);
+  font-style: italic;
+  padding: 2px 8px;
+  background: var(--fich-bg-subtle);
+  border-radius: var(--fich-radius-sm);
+}
+
 .doc-link {
   display: inline-flex;
   align-items: center;
@@ -787,6 +796,12 @@
 .version-fecha {
   color: var(--fich-text-muted);
   font-size: 0.78rem;
+}
+
+.version-filename {
+  font-size: 0.78rem;
+  color: var(--fich-text-faint);
+  font-style: italic;
 }
 
 @keyframes fadeSlideIn {
