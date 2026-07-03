@@ -99,7 +99,7 @@
 
                 <div class="info-row">
                   <span class="info-label">Modalidad</span>
-                  <span class="info-value">{{ detalle.modalidad?.nombre || '—' }}</span>
+                  <span class="info-value">{{ detalle.modalidad ? (detalle.modalidad.charAt(0).toUpperCase() + detalle.modalidad.slice(1)) : '—' }}</span>
                 </div>
 
                 <div class="info-row">

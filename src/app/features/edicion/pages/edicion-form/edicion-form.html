@@ -15,12 +15,12 @@
         <div class="form-row">
           <mat-form-field appearance="outline">
             <mat-label>Modalidad</mat-label>
-            <mat-select formControlName="id_modalidad">
-              @for (m of modalidades(); track m.id_modalidad) {
-                <mat-option [value]="m.id_modalidad">{{ m.nombre }}</mat-option>
+            <mat-select formControlName="modalidad">
+              @for (m of modalidadOptions; track m) {
+                <mat-option [value]="m">{{ modalidadLabel(m) }}</mat-option>
               }
             </mat-select>
-            @if (form.get('id_modalidad')?.hasError('required')) {
+            @if (form.get('modalidad')?.hasError('required')) {
               <mat-error>Seleccione una modalidad</mat-error>
             }
           </mat-form-field>

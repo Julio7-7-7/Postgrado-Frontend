@@ -16,9 +16,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { provideNativeDateAdapter, MAT_DATE_LOCALE } from '@angular/material/core';
 import { DetalleService } from '../../services/detalle.service';
-import { ModalidadService } from '../../../modalidad/services/modalidad.service';
-import { Modalidad } from '../../../modalidad/models/modalidad.model';
-import { DetalleProgramaModulo, DetalleUpdate } from '../../models/detalle.model';
+import { DetalleProgramaModulo, DetalleUpdate, ModalidadType } from '../../models/detalle.model';
 import { aFechaString } from '../../../../core/utils/date-utils';
 
 @Component({
@@ -48,7 +46,6 @@ import { aFechaString } from '../../../../core/utils/date-utils';
 export class DetalleFormComponent implements OnInit {
   private fb = inject(FormBuilder);
   private detalleService = inject(DetalleService);
-  private modalidadService = inject(ModalidadService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private snackbar = inject(MatSnackBar);
@@ -60,7 +57,7 @@ export class DetalleFormComponent implements OnInit {
   loading = signal(false);
   cargandoDatos = signal(false);
 
-  modalidades = signal<Modalidad[]>([]);
+  modalidadOptions: (ModalidadType | null)[] = [null, 'presencial', 'virtual', 'semipresencial'];
 
   estadoOptions = [
     { value: 'programado', label: 'Programado' },
@@ -73,7 +70,7 @@ export class DetalleFormComponent implements OnInit {
 
   constructor() {
     this.form = this.fb.group({
-      id_modalidad: [null],
+      modalidad: [null],
       orden: [null, [Validators.required, Validators.min(1)]],
       fecha_inicio: [null],
       fecha_fin: [null],
@@ -84,18 +81,10 @@ export class DetalleFormComponent implements OnInit {
   ngOnInit(): void {
     const detalleId = this.route.snapshot.paramMap.get('detalleId');
 
-    this.cargarModalidades();
-
     if (detalleId) {
       this.idEditando = +detalleId;
       this.cargarDatosParaEditar(this.idEditando);
     }
-  }
-
-  private cargarModalidades() {
-    this.modalidadService.getAll().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (data) => this.modalidades.set(data.filter(m => m.estado === 'activo')),
-    });
   }
 
   private cargarDatosParaEditar(id: number) {
@@ -105,7 +94,7 @@ export class DetalleFormComponent implements OnInit {
         this.idEdicion.set(data.id_programa_version_edicion);
         this.infoModulo.set(`${data.modulo.sigla} — ${data.modulo.nombre_modulo}`);
         this.form.patchValue({
-          id_modalidad: data.id_modalidad,
+          modalidad: data.modalidad,
           orden: data.orden,
           fecha_inicio: data.fecha_inicio ? new Date(data.fecha_inicio) : null,
           fecha_fin: data.fecha_fin ? new Date(data.fecha_fin) : null,
@@ -134,7 +123,7 @@ export class DetalleFormComponent implements OnInit {
     const raw = this.form.value;
 
     const datos: DetalleUpdate = {
-      id_modalidad: raw.id_modalidad ?? null,
+      modalidad: raw.modalidad ?? null,
       orden: raw.orden,
       fecha_inicio: raw.fecha_inicio ? aFechaString(raw.fecha_inicio) : null,
       fecha_fin: raw.fecha_fin ? aFechaString(raw.fecha_fin) : null,
