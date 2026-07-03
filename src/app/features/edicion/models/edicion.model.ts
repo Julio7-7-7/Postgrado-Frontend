@@ -1,10 +1,11 @@
 import { ProgramaVersion } from '../../programa-version/models/programa-version.model';
-import { Modalidad } from '../../modalidad/models/modalidad.model';
+
+export type ModalidadType = 'presencial' | 'virtual' | 'semipresencial';
 
 export interface ProgramaVersionEdicion {
   id_programa_version_edicion: number;
   id_programa_version: number;
-  id_modalidad: number;
+  modalidad: ModalidadType;
   edicion: number;
   gestion: string;
   es_historico: boolean;
@@ -15,14 +16,13 @@ export interface ProgramaVersionEdicion {
   descripcion: string | null;
   precio: number | null;
   programa_version: ProgramaVersion;
-  modalidad: Modalidad;
   created_at: string;
   updated_at: string;
 }
 
 export interface ProgramaVersionEdicionCreate {
   id_programa_version: number;
-  id_modalidad: number;
+  modalidad: ModalidadType;
   gestion?: string | null;
   es_historico?: boolean;
   edicion?: number | null;

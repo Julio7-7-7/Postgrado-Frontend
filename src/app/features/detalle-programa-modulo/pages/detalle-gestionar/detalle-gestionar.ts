@@ -394,7 +394,7 @@ export class DetalleGestionarComponent implements OnInit {
       version: d.programa_version_numero,
       edicion: d.edicion,
       orden: d.orden,
-      modalidad: d.modalidad?.nombre ?? null,
+      modalidad: d.modalidad ? d.modalidad.charAt(0).toUpperCase() + d.modalidad.slice(1) : null,
       docente: d.docente ? `${d.docente.nombre} ${d.docente.apellido}` : null,
       cambios,
     };

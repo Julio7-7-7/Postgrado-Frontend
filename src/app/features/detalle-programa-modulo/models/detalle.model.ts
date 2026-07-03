@@ -1,5 +1,7 @@
 import { ContratacionDocente } from '../../contratacion/models/contratacion.model';
 
+export type ModalidadType = 'presencial' | 'virtual' | 'semipresencial';
+
 export interface DetalleProgramaModulo {
   id_detalle_programa_modulo: number;
   id_programa_version_edicion: number;
@@ -9,7 +11,7 @@ export interface DetalleProgramaModulo {
   programa_nombre: string;
   programa_version_numero: number;
   id_modulo: number;
-  id_modalidad: number | null;
+  modalidad: ModalidadType | null;
   orden: number;
   fecha_inicio: string | null;
   fecha_fin: string | null;
@@ -26,17 +28,13 @@ export interface DetalleProgramaModulo {
     nombre: string;
     apellido: string;
   } | null;
-  modalidad: {
-    id_modalidad: number;
-    nombre: string;
-  } | null;
   contratacion: ContratacionDocente | null;
   created_at: string;
   updated_at: string;
 }
 
 export interface DetalleUpdate {
-  id_modalidad?: number | null;
+  modalidad?: ModalidadType | null;
   orden?: number | null;
   fecha_inicio?: string | null;
   fecha_fin?: string | null;

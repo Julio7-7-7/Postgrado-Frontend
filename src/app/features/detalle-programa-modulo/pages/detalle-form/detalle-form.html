@@ -39,12 +39,10 @@
         <div class="form-row">
           <mat-form-field appearance="outline" class="field-full">
             <mat-label>Modalidad</mat-label>
-            <mat-select formControlName="id_modalidad">
+            <mat-select formControlName="modalidad">
               <mat-option [value]="null">Sin modalidad</mat-option>
-              @for (modalidad of modalidades(); track modalidad.id_modalidad) {
-                <mat-option [value]="modalidad.id_modalidad">
-                  {{ modalidad.nombre }}
-                </mat-option>
+              @for (m of ['presencial', 'virtual', 'semipresencial']; track m) {
+                <mat-option [value]="m">{{ m.charAt(0).toUpperCase() + m.slice(1) }}</mat-option>
               }
             </mat-select>
           </mat-form-field>

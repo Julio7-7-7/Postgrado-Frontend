@@ -63,7 +63,7 @@
                     <div class="card-meta">
                       <span>{{ edicion.gestion }}</span>
                       <span class="card-sep">·</span>
-                      <span>{{ edicion.modalidad.nombre }}</span>
+                      <span>{{ edicion.modalidad.charAt(0).toUpperCase() + edicion.modalidad.slice(1) }}</span>
                     </div>
                     <div class="card-fechas">
                       <mat-icon class="card-fecha-icon">calendar_today</mat-icon>
@@ -103,7 +103,7 @@
                     <div class="card-meta">
                       <span>{{ edicion.gestion }}</span>
                       <span class="card-sep">·</span>
-                      <span>{{ edicion.modalidad.nombre }}</span>
+                      <span>{{ edicion.modalidad.charAt(0).toUpperCase() + edicion.modalidad.slice(1) }}</span>
                     </div>
                     <div class="card-fechas">
                       <mat-icon class="card-fecha-icon">calendar_today</mat-icon>

@@ -16,10 +16,8 @@ import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { provideNativeDateAdapter, MAT_DATE_LOCALE } from '@angular/material/core';
 import { EdicionService } from '../../services/edicion.service';
-import { ModalidadService } from '../../../modalidad/services/modalidad.service';
 import { ProgramaVersionService } from '../../../programa-version/services/programa-version.service';
-import { ProgramaVersionEdicion, ProgramaVersionEdicionCreate } from '../../models/edicion.model';
-import { Modalidad } from '../../../modalidad/models/modalidad.model';
+import { ProgramaVersionEdicion, ProgramaVersionEdicionCreate, ModalidadType } from '../../models/edicion.model';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog';
 import { aFechaString } from '../../../../core/utils/date-utils';
 
@@ -60,7 +58,6 @@ import { aFechaString } from '../../../../core/utils/date-utils';
 export class EdicionFormComponent implements OnInit {
   private fb = inject(FormBuilder);
   private edicionService = inject(EdicionService);
-  private modalidadService = inject(ModalidadService);
   private versionService = inject(ProgramaVersionService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
@@ -74,7 +71,7 @@ export class EdicionFormComponent implements OnInit {
   idEditando: number | null = null;
   loading = signal(false);
   cargandoDatos = signal(false);
-  modalidades = signal<Modalidad[]>([]);
+  modalidadOptions: ModalidadType[] = ['presencial', 'virtual', 'semipresencial'];
   infoVersion = signal('');
   duracionMinimaMeses = signal<number | null>(null);
   tipoNombre = signal('');
@@ -133,7 +130,7 @@ export class EdicionFormComponent implements OnInit {
 
   constructor() {
     this.form = this.fb.group({
-      id_modalidad: [null, Validators.required],
+      modalidad: ['presencial', Validators.required],
       gestion: [''],
       edicion: [null],
       es_historico: [false],
@@ -157,7 +154,6 @@ export class EdicionFormComponent implements OnInit {
     const progMatch = this.router.url.match(/\/programas\/(\d+)\/versiones/);
     this.idPrograma.set(progMatch ? +progMatch[1] : 0);
 
-    this.cargarModalidades();
     this.cargarVersion(this.idVersion());
     this.cargarEdicionesVersion(this.idVersion());
     this.suscribirFechaInicio();
@@ -168,12 +164,6 @@ export class EdicionFormComponent implements OnInit {
       this.idEditando = +edicionId;
       this.cargarDatosParaEditar(this.idEditando);
     }
-  }
-
-  private cargarModalidades() {
-    this.modalidadService.getAll().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (data) => this.modalidades.set(data.filter(m => m.estado === 'activo')),
-    });
   }
 
   private cargarVersion(id: number) {
@@ -305,6 +295,10 @@ export class EdicionFormComponent implements OnInit {
     return null;
   }
 
+  modalidadLabel(m: string): string {
+    return m.charAt(0).toUpperCase() + m.slice(1);
+  }
+
   guardar() {
     if (this.form.invalid) return;
 
@@ -353,7 +347,7 @@ export class EdicionFormComponent implements OnInit {
 
     const datos: ProgramaVersionEdicionCreate = {
       id_programa_version: this.idVersion(),
-      id_modalidad: raw.id_modalidad,
+      modalidad: raw.modalidad,
       es_historico: raw.es_historico || undefined,
       edicion: raw.edicion || undefined,
       gestion: raw.gestion || undefined,
