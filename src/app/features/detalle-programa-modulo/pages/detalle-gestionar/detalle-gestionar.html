@@ -60,15 +60,24 @@
         <div class="section-body fechas-body">
           <mat-form-field appearance="outline" subscriptSizing="dynamic">
             <mat-label>Fecha inicio</mat-label>
-            <input matInput [matDatepicker]="picker1" formControlName="fecha_inicio">
+            <input matInput [matDatepicker]="picker1" formControlName="fecha_inicio"
+                   [min]="minFechaInicio()" [max]="maxFechaInicio()">
             <mat-datepicker-toggle matIconSuffix [for]="picker1"></mat-datepicker-toggle>
             <mat-datepicker #picker1></mat-datepicker>
+            @if (minFechaInicio(); as min) {
+              <mat-hint>Desde {{ min | date:'dd/MM/yyyy' }}</mat-hint>
+            }
           </mat-form-field>
           <mat-form-field appearance="outline" subscriptSizing="dynamic">
             <mat-label>Fecha fin</mat-label>
-            <input matInput [matDatepicker]="picker2" formControlName="fecha_fin" (dateChange)="marcarFechaFinManual()">
+            <input matInput [matDatepicker]="picker2" formControlName="fecha_fin"
+                   (dateChange)="marcarFechaFinManual()"
+                   [min]="form.get('fecha_inicio')?.value" [max]="maxFechaFin()">
             <mat-datepicker-toggle matIconSuffix [for]="picker2"></mat-datepicker-toggle>
             <mat-datepicker #picker2></mat-datepicker>
+            @if (maxFechaFin(); as max) {
+              <mat-hint align="end">Hasta {{ max | date:'dd/MM/yyyy' }}</mat-hint>
+            }
           </mat-form-field>
         </div>
       </div>

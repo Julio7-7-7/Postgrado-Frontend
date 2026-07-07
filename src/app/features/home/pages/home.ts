@@ -173,7 +173,7 @@ export class HomeComponent implements OnInit {
   convertirFecha(fecha: string | null): string {
     if (!fecha) return '—';
     const d = new Date(fecha + 'T12:00:00');
-    return d.toLocaleDateString('es-BO', { day: '2-digit', month: 'short', year: 'numeric' });
+    return d.toLocaleDateString('es-BO', { day: '2-digit', month: '2-digit', year: 'numeric' });
   }
 
 

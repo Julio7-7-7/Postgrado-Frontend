@@ -14,3 +14,9 @@ export function isoAString(iso: string | null): string {
   const d = new Date(iso + 'T00:00:00');
   return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
 }
+
+export function aDate(iso: string | null): Date | null {
+  if (!iso) return null;
+  const d = new Date(iso + 'T00:00:00');
+  return isNaN(d.getTime()) ? null : d;
+}

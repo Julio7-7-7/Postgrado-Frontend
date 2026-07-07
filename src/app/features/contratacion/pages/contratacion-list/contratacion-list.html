@@ -103,9 +103,9 @@
         <ng-container matColumnDef="fechas">
           <th mat-header-cell *matHeaderCellDef>Fechas</th>
           <td mat-cell *matCellDef="let c" class="fechas-cell">
-            <span class="fecha-val">{{ (c.fecha_inicio | date:'dd/MM/yy') || '—' }}</span>
+            <span class="fecha-val">{{ (c.fecha_inicio | date:'dd/MM/yyyy') || '—' }}</span>
             <span class="fecha-sep">→</span>
-            <span class="fecha-val">{{ (c.fecha_fin | date:'dd/MM/yy') || '—' }}</span>
+            <span class="fecha-val">{{ (c.fecha_fin | date:'dd/MM/yyyy') || '—' }}</span>
           </td>
         </ng-container>
 

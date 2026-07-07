@@ -9,7 +9,7 @@ export const MODULO_ROUTES: Routes = [
   {
     path: 'nuevo',
     loadComponent: () =>
-      import('../pages/modulo-form/modulo-form').then(m => m.ModuloFormComponent),
+      import('../pages/modulo-batch/modulo-batch').then(m => m.ModuloBatchComponent),
   },
   {
     path: 'editar/:moduloId',

@@ -131,7 +131,7 @@
                 }
                 <div class="horarios-list">
                   @for (h of horariosDe(detalle); track h.id_horario) {
-                    <div class="horario-item" [class.cancelado]="h.estado === 'cancelado'">
+                    <div class="horario-item">
                       <span class="dia-badge">{{ diaLabel(h.dia) }}</span>
                       <span class="hora-range">{{ h.hora_ini }} — {{ h.hora_fin }}</span>
                       @if (h.aula) {
@@ -146,6 +146,9 @@
             <mat-card-actions>
               <button mat-stroked-button (click)="verHistorial(detalle)" class="action-btn historial-btn" matTooltip="Ver historial de cambios">
                 <mat-icon>history</mat-icon> Historial
+              </button>
+              <button mat-stroked-button (click)="verCuadroHorario(detalle)" class="action-btn cuadro-btn" matTooltip="Ver calendario con días de clase">
+                <mat-icon>calendar_view_month</mat-icon> Ver Cuadro Horario
               </button>
               <button mat-raised-button color="primary" (click)="abrirGestionar(detalle)" class="action-btn gestionar-btn">
                 <mat-icon>edit_square</mat-icon> Gestionar

@@ -17,7 +17,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { provideNativeDateAdapter, MAT_DATE_LOCALE } from '@angular/material/core';
 import { DetalleService } from '../../services/detalle.service';
 import { DetalleProgramaModulo, DetalleUpdate, ModalidadType } from '../../models/detalle.model';
-import { aFechaString } from '../../../../core/utils/date-utils';
+import { aFechaString, aDate } from '../../../../core/utils/date-utils';
 
 @Component({
   selector: 'app-detalle-form',
@@ -96,8 +96,8 @@ export class DetalleFormComponent implements OnInit {
         this.form.patchValue({
           modalidad: data.modalidad,
           orden: data.orden,
-          fecha_inicio: data.fecha_inicio ? new Date(data.fecha_inicio) : null,
-          fecha_fin: data.fecha_fin ? new Date(data.fecha_fin) : null,
+          fecha_inicio: aDate(data.fecha_inicio),
+          fecha_fin: aDate(data.fecha_fin),
           estado: data.estado,
         });
         this.cargandoDatos.set(false);

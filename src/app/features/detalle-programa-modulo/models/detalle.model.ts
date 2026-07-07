@@ -15,6 +15,8 @@ export interface DetalleProgramaModulo {
   orden: number;
   fecha_inicio: string | null;
   fecha_fin: string | null;
+  fecha_inicio_edicion: string | null;
+  fecha_fin_edicion: string | null;
   estado: 'programado' | 'en_curso' | 'reprogramado' | 'finalizado';
   modulo: {
     id_modulo: number;

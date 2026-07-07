@@ -7,6 +7,8 @@ export interface ProgramaVersionEdicion {
   id_programa_version: number;
   modalidad: ModalidadType;
   edicion: number;
+  semestre: number;
+  anio: number;
   gestion: string;
   es_historico: boolean;
   estado: 'programado' | 'en_curso' | 'reprogramado' | 'finalizado';
@@ -23,7 +25,8 @@ export interface ProgramaVersionEdicion {
 export interface ProgramaVersionEdicionCreate {
   id_programa_version: number;
   modalidad: ModalidadType;
-  gestion?: string | null;
+  semestre?: number | null;
+  anio?: number | null;
   es_historico?: boolean;
   edicion?: number | null;
   estado?: 'programado' | 'en_curso' | 'reprogramado' | 'finalizado';
