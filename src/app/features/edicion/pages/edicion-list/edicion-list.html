@@ -69,7 +69,7 @@
           <th mat-header-cell *matHeaderCellDef>Fechas</th>
           <td mat-cell *matCellDef="let element" class="fechas-cell">
             @if (element.fecha_inicio && element.fecha_fin) {
-              {{ element.fecha_inicio | date:'shortDate' }} — {{ element.fecha_fin | date:'shortDate' }}
+              {{ (element.fecha_inicio | date:'dd/MM/yyyy') || '—' }} — {{ (element.fecha_fin | date:'dd/MM/yyyy') || '—' }}
             } @else {
               <span class="sin-datos">—</span>
             }

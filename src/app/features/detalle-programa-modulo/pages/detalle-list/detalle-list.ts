@@ -178,8 +178,14 @@ export class DetalleListComponent implements OnInit {
     });
   }
 
+  private readonly ORDEN_DIAS: Record<string, number> = {
+    lunes: 1, martes: 2, miercoles: 3, jueves: 4,
+    viernes: 5, sabado: 6, domingo: 7,
+  };
+
   horariosDe(detalle: DetalleProgramaModulo): Horario[] {
-    return this.horarios()[detalle.id_detalle_programa_modulo] || [];
+    const lista = this.horarios()[detalle.id_detalle_programa_modulo] || [];
+    return [...lista].sort((a, b) => (this.ORDEN_DIAS[a.dia] ?? 99) - (this.ORDEN_DIAS[b.dia] ?? 99));
   }
 
   diaLabel(dia: string): string {

@@ -79,10 +79,66 @@ export class DetalleGestionarComponent implements OnInit {
 
   form: FormGroup;
   detalle = signal<DetalleProgramaModulo | null>(null);
+  hermanos = signal<DetalleProgramaModulo[]>([]);
   cargandoDatos = signal(true);
   horarios = signal<Horario[]>([]);
   pendingActions = signal<PendingAction[]>([]);
   saving = signal(false);
+
+  /** Fecha mínima para fecha_inicio (edición + hermano anterior) */
+  minFechaInicio = computed<Date | null>(() => {
+    const d = this.detalle();
+    if (!d) return null;
+    const edStart = d.fecha_inicio_edicion ? this.parseDate(d.fecha_inicio_edicion) : null;
+    const prevEnd = this.fechaFinHermanoAnterior();
+    if (edStart && prevEnd) return edStart > prevEnd ? edStart : prevEnd;
+    return edStart || prevEnd || null;
+  });
+
+  /** Fecha máxima para fecha_inicio (no después del fin de edición) */
+  maxFechaInicio = computed<Date | null>(() => {
+    const d = this.detalle();
+    return d?.fecha_fin_edicion ? this.parseDate(d.fecha_fin_edicion) : null;
+  });
+
+  /** Fecha máxima para fecha_fin (edición + hermano siguiente) */
+  maxFechaFin = computed<Date | null>(() => {
+    const d = this.detalle();
+    const edEnd = d?.fecha_fin_edicion ? this.parseDate(d.fecha_fin_edicion) : null;
+    const nextStart = this.fechaInicioHermanoSiguiente();
+    if (edEnd && nextStart) return edEnd < nextStart ? edEnd : nextStart;
+    return edEnd || nextStart || null;
+  });
+
+  private fechaFinHermanoAnterior(): Date | null {
+    const d = this.detalle();
+    if (!d) return null;
+    const anterior = this.hermanos()
+      .filter(h => h.orden < d.orden && h.fecha_fin)
+      .sort((a, b) => b.orden - a.orden)[0];
+    if (!anterior?.fecha_fin) return null;
+    const fin = new Date(anterior.fecha_fin);
+    fin.setDate(fin.getDate() + 1);
+    return fin;
+  }
+
+  private fechaInicioHermanoSiguiente(): Date | null {
+    const d = this.detalle();
+    if (!d) return null;
+    const siguiente = this.hermanos()
+      .filter(h => h.orden > d.orden && h.fecha_inicio)
+      .sort((a, b) => a.orden - b.orden)[0];
+    if (!siguiente?.fecha_inicio) return null;
+    const inicio = new Date(siguiente.fecha_inicio);
+    inicio.setDate(inicio.getDate() - 1);
+    return inicio;
+  }
+
+  private parseDate(s: string | null): Date | null {
+    if (!s) return null;
+    const d = new Date(s);
+    return isNaN(d.getTime()) ? null : d;
+  }
 
   horariosVisibles = computed(() => {
     const base = this.horarios();
@@ -125,7 +181,11 @@ export class DetalleGestionarComponent implements OnInit {
       }
     }
 
-    return items;
+    const ORDEN_DIAS: Record<string, number> = {
+      lunes: 1, martes: 2, miercoles: 3, jueves: 4,
+      viernes: 5, sabado: 6, domingo: 7,
+    };
+    return items.sort((a, b) => (ORDEN_DIAS[a.dia] ?? 99) - (ORDEN_DIAS[b.dia] ?? 99));
   });
 
   horariosChanged = computed(() => this.pendingActions().length > 0);
@@ -217,16 +277,23 @@ export class DetalleGestionarComponent implements OnInit {
           fecha_fin: data.fecha_fin ? new Date(data.fecha_fin) : null,
           motivo: '',
         });
-        this.cargandoDatos.set(false);
         this.fechaFinManual = false;
         this.cargarHorarios();
+        this.cargarHermanos(data.id_programa_version_edicion);
         this.configurarListeners();
+        this.cargandoDatos.set(false);
       },
       error: () => {
         this.cargandoDatos.set(false);
         this.snackbar.open('Error al cargar datos del módulo', 'Cerrar', { duration: 4000 });
         this.volverAlCarrusel();
       },
+    });
+  }
+
+  private cargarHermanos(edicionId: number) {
+    this.detalleService.getAll(edicionId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (modulos) => this.hermanos.set(modulos),
     });
   }
 
@@ -271,13 +338,19 @@ export class DetalleGestionarComponent implements OnInit {
   }
 
   private autoFillFechas() {
-    const hoy = new Date();
-    const fi = this.form.get('fecha_inicio');
-    const ff = this.form.get('fecha_fin');
-    fi?.setValue(hoy);
-    const fin = new Date(hoy);
+    const fiControl = this.form.get('fecha_inicio');
+    const ffControl = this.form.get('fecha_fin');
+    const min = this.minFechaInicio();
+    let inicio = new Date();
+    if (min && inicio < min) inicio = new Date(min);
+    const maxInicio = this.maxFechaInicio();
+    if (maxInicio && inicio > maxInicio) inicio = new Date(maxInicio);
+    fiControl?.setValue(inicio);
+    const fin = new Date(inicio);
     fin.setDate(fin.getDate() + this.DURACION_MINIMA_DIAS);
-    ff?.setValue(fin, { emitEvent: false });
+    const maxFin = this.maxFechaFin();
+    if (maxFin && fin > maxFin) fin.setTime(maxFin.getTime());
+    ffControl?.setValue(fin, { emitEvent: false });
     this.fechaFinManual = false;
   }
 
@@ -287,8 +360,10 @@ export class DetalleGestionarComponent implements OnInit {
     if (!fi || !ff) return;
     const diff = Math.round((ff.getTime() - fi.getTime()) / 86400000);
     if (diff < this.DURACION_MINIMA_DIAS) {
-      const nuevoFin = new Date(fi);
+      let nuevoFin = new Date(fi);
       nuevoFin.setDate(nuevoFin.getDate() + this.DURACION_MINIMA_DIAS);
+      const maxFin = this.maxFechaFin();
+      if (maxFin && nuevoFin > maxFin) nuevoFin = new Date(maxFin);
       this.form.get('fecha_fin')?.setValue(nuevoFin, { emitEvent: false });
       this.fechaFinManual = false;
     }
