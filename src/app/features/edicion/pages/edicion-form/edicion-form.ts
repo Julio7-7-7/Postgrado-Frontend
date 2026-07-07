@@ -18,6 +18,8 @@ import { provideNativeDateAdapter, MAT_DATE_LOCALE } from '@angular/material/cor
 import { EdicionService } from '../../services/edicion.service';
 import { ProgramaVersionService } from '../../../programa-version/services/programa-version.service';
 import { ProgramaVersionEdicion, ProgramaVersionEdicionCreate, ModalidadType } from '../../models/edicion.model';
+import { ModuloService } from '../../../modulo/services/modulo.service';
+import { Modulo } from '../../../modulo/models/modulo.model';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog';
 import { aFechaString } from '../../../../core/utils/date-utils';
 
@@ -59,6 +61,7 @@ export class EdicionFormComponent implements OnInit {
   private fb = inject(FormBuilder);
   private edicionService = inject(EdicionService);
   private versionService = inject(ProgramaVersionService);
+  private moduloService = inject(ModuloService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private snackbar = inject(MatSnackBar);
@@ -77,6 +80,7 @@ export class EdicionFormComponent implements OnInit {
   tipoNombre = signal('');
   edicionesVersion = signal<ProgramaVersionEdicion[]>([]);
   esHistorico = signal(false);
+  modulosActivos = signal<Modulo[]>([]);
 
   gestionSugerida = computed(() => {
     const ediciones = this.edicionesVersion().sort(
@@ -175,6 +179,12 @@ export class EdicionFormComponent implements OnInit {
         this.tipoNombre.set(tipo.nombre);
       },
       error: () => this.router.navigate(['/programas']),
+    });
+
+    this.moduloService.getAll(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (data) => {
+        this.modulosActivos.set(data.filter(m => m.estado === 'activo'));
+      },
     });
   }
 
@@ -330,6 +340,10 @@ export class EdicionFormComponent implements OnInit {
     }
 
     this.ejecutarGuardar();
+  }
+
+  irAModulos(): void {
+    this.router.navigate(['/programas', this.idPrograma(), 'versiones', this.idVersion(), 'modulos', 'nuevo']);
   }
 
   volverALista(): void {

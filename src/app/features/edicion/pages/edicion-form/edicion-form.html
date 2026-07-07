@@ -9,6 +9,26 @@
 
     <mat-divider></mat-divider>
 
+    <div class="modulos-section">
+      <div class="modulos-header">
+        <h3 class="modulos-title">Módulos que se cargarán</h3>
+        <button mat-stroked-button type="button" class="btn-add-modulo" (click)="irAModulos()">
+          <mat-icon>add</mat-icon>
+          Añadir módulo
+        </button>
+      </div>
+      @if (modulosActivos().length > 0) {
+        <div class="modulos-list">
+          @for (mod of modulosActivos(); track mod.id_modulo) {
+            <span class="modulo-chip">{{ mod.sigla }} — {{ mod.nombre_modulo }}</span>
+          }
+        </div>
+        <p class="modulos-count">{{ modulosActivos().length }} módulo(s) activo(s)</p>
+      } @else {
+        <p class="modulos-empty">No hay módulos activos. Cree al menos un módulo activo antes de crear la edición.</p>
+      }
+    </div>
+
     <mat-card-content>
       <form [formGroup]="form" (ngSubmit)="guardar()" class="form-layout">
 
