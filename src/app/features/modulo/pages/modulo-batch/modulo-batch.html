@@ -1,0 +1,137 @@
+<div class="batch-container">
+  <div class="batch-header">
+    <div>
+      <h2>Nuevos Módulos</h2>
+      @if (infoVersion()) {
+        <p class="subtitle">Versión: {{ infoVersion() }}</p>
+      }
+    </div>
+    <button mat-stroked-button type="button" (click)="volverALista()" class="btn-cancelar-header">
+      <mat-icon>arrow_back</mat-icon>
+      Volver
+    </button>
+  </div>
+
+  <div class="batch-body">
+    @if (modulosExistentes() > 0) {
+      <div class="existing-banner">
+        <mat-icon>info</mat-icon>
+        <span>Ya existen {{ modulosExistentes() }} módulo(s). Los nuevos continuarán desde el #{{ modulosExistentes() + 1 }}.</span>
+      </div>
+    }
+
+    @if (errorVersion()) {
+      <div class="error-banner">
+        <mat-icon>warning</mat-icon>
+        <span>No es posible agregar módulos a esta versión.</span>
+      </div>
+    } @else {
+      <div class="timeline">
+        @for (form of formularios(); track form; let i = $index) {
+          <div class="timeline-item">
+            <div class="timeline-connector">
+              <div class="timeline-dot">{{ modulosExistentes() + i + 1 }}</div>
+              @if (i < formularios().length - 1) {
+                <div class="timeline-line"></div>
+              }
+            </div>
+
+            <mat-card class="modulo-card" [class.card-remove]="formularios().length > 1">
+              <div class="card-header">
+                <span class="card-title">Módulo #{{ modulosExistentes() + i + 1 }}</span>
+                @if (formularios().length > 1) {
+                  <button
+                    mat-icon-button
+                    type="button"
+                    class="btn-remove"
+                    (click)="eliminarFormulario(i)"
+                    matTooltip="Eliminar este módulo"
+                  >
+                    <mat-icon>close</mat-icon>
+                  </button>
+                }
+              </div>
+
+              <div class="card-body">
+                <div class="form-row">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Sigla</mat-label>
+                    <input matInput [formControl]="fc(form, 'sigla')" placeholder="Ej: MATE-101" maxlength="20">
+                    @if (form.get('sigla')?.hasError('required')) {
+                      <mat-error>Obligatorio</mat-error>
+                    }
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Nombre del Módulo</mat-label>
+                    <input matInput [formControl]="fc(form, 'nombre_modulo')" placeholder="Ej: Matemáticas I">
+                    @if (form.get('nombre_modulo')?.hasError('required')) {
+                      <mat-error>Obligatorio</mat-error>
+                    }
+                    @if (form.get('nombre_modulo')?.hasError('minlength')) {
+                      <mat-error>Mín. 3 caracteres</mat-error>
+                    }
+                  </mat-form-field>
+                </div>
+
+                <div class="form-row">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Horas Académicas</mat-label>
+                    <input matInput type="number" [formControl]="fc(form, 'horas_academicas')" placeholder="Ej: 80" min="1">
+                    @if (form.get('horas_academicas')?.hasError('required')) {
+                      <mat-error>Obligatorio</mat-error>
+                    }
+                    @if (form.get('horas_academicas')?.hasError('min')) {
+                      <mat-error>Debe ser > 0</mat-error>
+                    }
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Créditos</mat-label>
+                    <input matInput type="number" [formControl]="fc(form, 'creditos')" placeholder="Ej: 5" min="1">
+                    @if (form.get('creditos')?.hasError('required')) {
+                      <mat-error>Obligatorio</mat-error>
+                    }
+                    @if (form.get('creditos')?.hasError('min')) {
+                      <mat-error>Debe ser > 0</mat-error>
+                    }
+                  </mat-form-field>
+                </div>
+
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Descripción</mat-label>
+                  <textarea matInput [formControl]="fc(form, 'descripcion')" placeholder="Ej: Contenido del módulo..." rows="2" maxlength="500"></textarea>
+                  <mat-hint align="end">{{ form.get('descripcion')?.value?.length || 0 }}/500</mat-hint>
+                </mat-form-field>
+              </div>
+            </mat-card>
+          </div>
+        }
+      </div>
+
+      <div class="batch-actions">
+        <button mat-stroked-button type="button" class="btn-add" (click)="agregarFormulario()">
+          <mat-icon>add</mat-icon>
+          Añadir otro módulo
+        </button>
+
+        <div class="batch-footer-actions">
+          <button mat-stroked-button type="button" (click)="volverALista()" class="btn-cancelar">
+            Cancelar
+          </button>
+          <button
+            mat-raised-button
+            color="primary"
+            type="button"
+            class="btn-guardar-todo"
+            [disabled]="!puedeGuardar"
+            (click)="guardarTodo()"
+          >
+            <mat-icon>{{ guardando() ? 'hourglass_empty' : 'save' }}</mat-icon>
+            {{ guardando() ? 'Guardando...' : 'Guardar ' + formularios().length + ' módulo(s)' }}
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+</div>
