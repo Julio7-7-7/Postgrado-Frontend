@@ -46,9 +46,25 @@
           </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>Gestión</mat-label>
-            <input matInput formControlName="gestion" placeholder="Ej: 1-2026 (se auto-asigna si se deja vacío)">
-            <mat-hint>Auto: {{ gestionSugerida() }}. La fecha de inicio debe coincidir con el semestre indicado</mat-hint>
+            <mat-label>Semestre</mat-label>
+            <mat-select formControlName="semestre">
+              <mat-option [value]="null">Auto</mat-option>
+              @for (s of semestreOptions; track s) {
+                <mat-option [value]="s">{{ s }}° Semestre</mat-option>
+              }
+            </mat-select>
+            <mat-hint>Auto: {{ semestreSugerido() ?? '—' }}°</mat-hint>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Año</mat-label>
+            <mat-select formControlName="anio">
+              <mat-option [value]="null">Auto</mat-option>
+              @for (a of anioOptions; track a) {
+                <mat-option [value]="a">{{ a }}</mat-option>
+              }
+            </mat-select>
+            <mat-hint>Auto: {{ anioSugerido() ?? '—' }}</mat-hint>
           </mat-form-field>
         </div>
 

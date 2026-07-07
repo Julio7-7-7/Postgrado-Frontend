@@ -82,22 +82,33 @@ export class EdicionFormComponent implements OnInit {
   esHistorico = signal(false);
   modulosActivos = signal<Modulo[]>([]);
 
-  gestionSugerida = computed(() => {
+  semestreOptions = [1, 2];
+  anioOptions = Array.from({ length: 11 }, (_, i) => new Date().getFullYear() - 3 + i);
+
+  semestreSugerido = computed(() => {
     const ediciones = this.edicionesVersion().sort(
       (a, b) => b.edicion - a.edicion
     );
     const ultima = ediciones[0];
-    if (!ultima?.gestion) return 'Se asignará automáticamente';
-
-    const partes = ultima.gestion.split('-');
-    if (partes.length !== 2) return 'Se asignará automáticamente';
-
-    const mitad = parseInt(partes[0]);
-    const anio = parseInt(partes[1]);
-
-    if (mitad === 1) return `2-${anio}`;
-    return `1-${anio + 1}`;
+    if (!ultima) return null;
+    return ultima.semestre === 1 ? 2 : 1;
   });
+
+  anioSugerido = computed(() => {
+    const ediciones = this.edicionesVersion().sort(
+      (a, b) => b.edicion - a.edicion
+    );
+    const ultima = ediciones[0];
+    if (!ultima) return null;
+    return ultima.semestre === 1 ? ultima.anio : ultima.anio + 1;
+  });
+
+  get gestionPreview(): string {
+    const s = this.form.get('semestre')?.value;
+    const a = this.form.get('anio')?.value;
+    if (s && a) return `${s}-${a}`;
+    return '—';
+  }
 
   siguienteEdicion = computed(() => {
     const ediciones = this.edicionesVersion();
@@ -135,7 +146,8 @@ export class EdicionFormComponent implements OnInit {
   constructor() {
     this.form = this.fb.group({
       modalidad: ['presencial', Validators.required],
-      gestion: [''],
+      semestre: [null],
+      anio: [null],
       edicion: [null],
       es_historico: [false],
       fecha_inicio: [null],
@@ -285,22 +297,17 @@ export class EdicionFormComponent implements OnInit {
 
   errorGestion(): string | null {
     if (this.esHistorico()) return null;
-    const gestion = this.form.get('gestion')?.value;
+    const semestre = this.form.get('semestre')?.value;
+    const anio = this.form.get('anio')?.value;
     const fechaInicio = this.form.get('fecha_inicio')?.value;
-    if (!gestion || !fechaInicio) return null;
-
-    const partes = gestion.split('-');
-    if (partes.length !== 2) return null;
-
-    const mitad = parseInt(partes[0]);
-    if (isNaN(mitad) || (mitad !== 1 && mitad !== 2)) return null;
+    if (!semestre || !anio || !fechaInicio) return null;
 
     const mes = new Date(fechaInicio).getMonth() + 1;
-    if (mitad === 1 && mes > 6) {
-      return `La gestión ${gestion} corresponde al primer semestre, pero la fecha de inicio está en el segundo`;
+    if (semestre === 1 && mes > 6) {
+      return `El semestre ${semestre} no coincide con la fecha (${fechaInicio}) que está en el segundo semestre`;
     }
-    if (mitad === 2 && mes <= 6) {
-      return `La gestión ${gestion} corresponde al segundo semestre, pero la fecha de inicio está en el primero`;
+    if (semestre === 2 && mes <= 6) {
+      return `El semestre ${semestre} no coincide con la fecha (${fechaInicio}) que está en el primer semestre`;
     }
     return null;
   }
@@ -364,7 +371,8 @@ export class EdicionFormComponent implements OnInit {
       modalidad: raw.modalidad,
       es_historico: raw.es_historico || undefined,
       edicion: raw.edicion || undefined,
-      gestion: raw.gestion || undefined,
+      semestre: raw.semestre || undefined,
+      anio: raw.anio || undefined,
       fecha_inicio: raw.fecha_inicio ? aFechaString(raw.fecha_inicio) : null,
       fecha_fin: raw.fecha_fin ? aFechaString(raw.fecha_fin) : null,
       cupo_maximo: raw.cupo_maximo ?? undefined,
