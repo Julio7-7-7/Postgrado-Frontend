@@ -24,7 +24,7 @@ import { Horario, HorarioCreate, HorarioUpdate } from '../../../horario/models/h
 import { HorarioDialogComponent, HorarioDialogData } from '../../../horario/components/horario-dialog/horario-dialog';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog';
 import { ConfirmCambiosDialogComponent, ConfirmCambiosData, CambioResumen } from '../../../../shared/components/confirm-cambios-dialog/confirm-cambios-dialog';
-import { aFechaString, aFechaDisplay, isoAString } from '../../../../core/utils/date-utils';
+import { aFechaString, aFechaDisplay, isoAString, aDate } from '../../../../core/utils/date-utils';
 
 interface PendingCreate { type: 'crear'; tempId: number; data: HorarioCreate; }
 interface PendingUpdate { type: 'actualizar'; id: number; data: HorarioUpdate; }
@@ -117,7 +117,8 @@ export class DetalleGestionarComponent implements OnInit {
       .filter(h => h.orden < d.orden && h.fecha_fin)
       .sort((a, b) => b.orden - a.orden)[0];
     if (!anterior?.fecha_fin) return null;
-    const fin = new Date(anterior.fecha_fin);
+    const fin = aDate(anterior.fecha_fin);
+    if (!fin) return null;
     fin.setDate(fin.getDate() + 1);
     return fin;
   }
@@ -129,7 +130,8 @@ export class DetalleGestionarComponent implements OnInit {
       .filter(h => h.orden > d.orden && h.fecha_inicio)
       .sort((a, b) => a.orden - b.orden)[0];
     if (!siguiente?.fecha_inicio) return null;
-    const inicio = new Date(siguiente.fecha_inicio);
+    const inicio = aDate(siguiente.fecha_inicio);
+    if (!inicio) return null;
     inicio.setDate(inicio.getDate() - 1);
     return inicio;
   }
@@ -273,8 +275,8 @@ export class DetalleGestionarComponent implements OnInit {
         this.fechaFinOriginal = data.fecha_fin;
         this.form.patchValue({
           nuevo_estado: data.estado,
-          fecha_inicio: data.fecha_inicio ? new Date(data.fecha_inicio) : null,
-          fecha_fin: data.fecha_fin ? new Date(data.fecha_fin) : null,
+          fecha_inicio: aDate(data.fecha_inicio),
+          fecha_fin: aDate(data.fecha_fin),
           motivo: '',
         });
         this.fechaFinManual = false;
@@ -519,14 +521,15 @@ export class DetalleGestionarComponent implements OnInit {
       width: '760px',
       data: { detalleId: d.id_detalle_programa_modulo } satisfies HorarioDialogData,
     });
-    subRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result: HorarioCreate | undefined) => {
-      if (!result) return;
-      result.id_detalle_programa_modulo = d.id_detalle_programa_modulo;
-      this.pendingActions.update(prev => [...prev, {
-        type: 'crear',
-        tempId: Date.now() + Math.random(),
-        data: result,
-      }]);
+    subRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result: HorarioCreate[] | undefined) => {
+      if (!result || result.length === 0) return;
+      for (const h of result) {
+        this.pendingActions.update(prev => [...prev, {
+          type: 'crear',
+          tempId: Date.now() + Math.random(),
+          data: h,
+        }]);
+      }
     });
   }
 
@@ -580,6 +583,7 @@ export class DetalleGestionarComponent implements OnInit {
   }
 
   volverAlCarrusel() {
+    this.pendingActions.set([]);
     const base = this.router.url.replace(/\/gestionar\/\d+.*/, '');
     this.router.navigate([base], { replaceUrl: true });
   }

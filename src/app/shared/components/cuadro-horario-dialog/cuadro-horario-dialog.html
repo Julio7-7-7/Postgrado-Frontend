@@ -1,0 +1,66 @@
+<h2 mat-dialog-title>
+  <mat-icon class="title-icon">calendar_view_month</mat-icon>
+  <span>{{ data.moduloSigla }} — {{ data.moduloNombre }}</span>
+</h2>
+
+<mat-dialog-content>
+  <div class="toolbar">
+    <div class="toolbar-row">
+      <mat-icon>date_range</mat-icon>
+      <span>{{ data.fecha_inicio | date:'dd/MM/yyyy' }} — {{ data.fecha_fin | date:'dd/MM/yyyy' }}</span>
+    </div>
+    @if (patronTexto) {
+      <div class="toolbar-patron">
+        <mat-icon>repeat</mat-icon>
+        <span>{{ patronTexto }}</span>
+      </div>
+    }
+  </div>
+
+  @if (months.length === 0) {
+    <div class="empty">
+      <mat-icon>info</mat-icon>
+      <p>No hay fechas definidas para este módulo o no hay horarios registrados.</p>
+    </div>
+  }
+
+  <div class="months">
+    @for (m of months; track m.month + '-' + m.year) {
+      <div class="month">
+        <div class="month-title">{{ m.monthName }} {{ m.year }}</div>
+        <div class="cal">
+          <div class="cal-headers">
+            @for (label of diaLabels; track label) {
+              <span class="cal-header">{{ label }}</span>
+            }
+          </div>
+          @for (week of m.weeks; track $index) {
+            <div class="cal-week">
+              @for (day of week; track $index) {
+                @if (day.isPadding) {
+                  <span class="day empty"></span>
+                } @else {
+                  <span class="day"
+                    [class.out]="!day.isInRange"
+                    [class.today]="day.isToday"
+                    [class.bubble]="day.hasClass"
+                    [matTooltip]="tooltipTexto(day)"
+                    matTooltipPosition="above">
+                    <span class="day-num">{{ day.dayNumber }}</span>
+                    @if (day.hasClass) {
+                      <span class="day-dot"></span>
+                    }
+                  </span>
+                }
+              }
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cerrar</button>
+</mat-dialog-actions>

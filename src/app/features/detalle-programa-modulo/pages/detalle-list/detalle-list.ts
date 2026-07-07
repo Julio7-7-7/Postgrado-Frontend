@@ -16,6 +16,7 @@ import { HorarioService } from '../../../horario/services/horario.service';
 import { DetalleProgramaModulo } from '../../models/detalle.model';
 import { Horario } from '../../../horario/models/horario.model';
 import { ReordenarModulosDialogComponent, ReordenarModulosData } from '../../components/reordenar-modulos-dialog/reordenar-modulos-dialog';
+import { CuadroHorarioDialogComponent, CuadroHorarioData } from '../../../../shared/components/cuadro-horario-dialog/cuadro-horario-dialog';
 
 @Component({
   selector: 'app-detalle-list',
@@ -156,6 +157,24 @@ export class DetalleListComponent implements OnInit {
     this.router.navigate([`${base}/historial/${detalle.id_detalle_programa_modulo}`]);
   }
 
+  verCuadroHorario(detalle: DetalleProgramaModulo) {
+    this.horarioService.getAll(detalle.id_detalle_programa_modulo)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(horarios => {
+        this.dialog.open(CuadroHorarioDialogComponent, {
+          width: '720px',
+          maxHeight: '90vh',
+          data: {
+            fecha_inicio: detalle.fecha_inicio,
+            fecha_fin: detalle.fecha_fin,
+            horarios: horarios.filter(h => h.estado === 'activo'),
+            moduloNombre: detalle.modulo.nombre_modulo,
+            moduloSigla: detalle.modulo.sigla,
+          } satisfies CuadroHorarioData,
+        });
+      });
+  }
+
   private cargarTodosHorarios() {
     const ids = this.detalles().map(d => d.id_detalle_programa_modulo);
     if (ids.length === 0) return;
@@ -185,7 +204,9 @@ export class DetalleListComponent implements OnInit {
 
   horariosDe(detalle: DetalleProgramaModulo): Horario[] {
     const lista = this.horarios()[detalle.id_detalle_programa_modulo] || [];
-    return [...lista].sort((a, b) => (this.ORDEN_DIAS[a.dia] ?? 99) - (this.ORDEN_DIAS[b.dia] ?? 99));
+    return [...lista]
+      .filter(h => h.estado === 'activo')
+      .sort((a, b) => (this.ORDEN_DIAS[a.dia] ?? 99) - (this.ORDEN_DIAS[b.dia] ?? 99));
   }
 
   diaLabel(dia: string): string {

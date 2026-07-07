@@ -21,7 +21,7 @@ import { ProgramaVersionEdicion, ProgramaVersionEdicionCreate, ModalidadType } f
 import { ModuloService } from '../../../modulo/services/modulo.service';
 import { Modulo } from '../../../modulo/models/modulo.model';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog';
-import { aFechaString } from '../../../../core/utils/date-utils';
+import { aFechaString, aDate } from '../../../../core/utils/date-utils';
 
 @Component({
   selector: 'app-edicion-form',
@@ -52,7 +52,6 @@ import { aFechaString } from '../../../../core/utils/date-utils';
     MatDatepickerModule,
     MatDialogModule,
     MatCheckboxModule,
-    ConfirmDialogComponent,
   ],
   templateUrl: './edicion-form.html',
   styleUrl: './edicion-form.css',
@@ -219,7 +218,7 @@ export class EdicionFormComponent implements OnInit {
     this.edicionService.getById(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (data) => {
         this.form.patchValue(data);
-        this.fechaInicioValor.set(data.fecha_inicio ? new Date(data.fecha_inicio) : null);
+        this.fechaInicioValor.set(aDate(data.fecha_inicio));
         this.cargandoDatos.set(false);
       },
       error: () => {

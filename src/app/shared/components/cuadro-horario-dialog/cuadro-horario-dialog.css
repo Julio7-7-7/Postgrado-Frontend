@@ -1,0 +1,239 @@
+[mat-dialog-title] {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  padding: 20px 24px 12px;
+  margin: 0;
+  color: var(--fich-text);
+}
+
+.title-icon {
+  color: var(--fich-primary);
+  font-size: 22px;
+  width: 22px;
+  height: 22px;
+}
+
+mat-dialog-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0 24px;
+  min-width: 520px;
+  max-height: 72vh;
+}
+
+mat-dialog-actions {
+  padding: 12px 24px 16px;
+  margin: 0;
+}
+
+.toolbar {
+  padding: 0 0 16px;
+  border-bottom: 1px solid var(--fich-border);
+  margin-bottom: 20px;
+}
+
+.toolbar-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--fich-text-secondary);
+}
+
+.toolbar-row mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  color: var(--fich-primary);
+  opacity: 0.7;
+}
+
+.toolbar-patron {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--fich-primary-dark);
+  background: var(--fich-primary-light);
+  padding: 8px 12px;
+  border-radius: var(--fich-radius-sm);
+  line-height: 1.5;
+  white-space: pre-line;
+  margin-top: 8px;
+}
+
+.toolbar-patron mat-icon {
+  font-size: 15px;
+  width: 15px;
+  height: 15px;
+  color: var(--fich-primary);
+  flex-shrink: 0;
+  margin-top: 2px;
+  opacity: 0.8;
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 60px 0;
+  color: var(--fich-text-faint);
+}
+
+.empty mat-icon {
+  font-size: 36px;
+  width: 36px;
+  height: 36px;
+  opacity: 0.25;
+}
+
+.empty p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.months {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  padding-bottom: 8px;
+}
+
+.month {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.month-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--fich-text);
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--fich-border);
+}
+
+.cal {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--fich-border);
+  border-radius: var(--fich-radius-sm);
+  overflow: hidden;
+}
+
+.cal-headers {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  background: var(--fich-bg-subtle);
+  border-bottom: 1px solid var(--fich-border);
+}
+
+.cal-header {
+  text-align: center;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--fich-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 8px 0 6px;
+}
+
+.cal-week {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+
+.cal-week + .cal-week {
+  border-top: 1px solid var(--fich-border-light);
+}
+
+.day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 10px 0 8px;
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: var(--fich-text);
+  cursor: default;
+  transition: background 0.12s;
+  min-height: 48px;
+}
+
+.day + .day {
+  border-left: 1px solid var(--fich-border-light);
+}
+
+.day.empty {
+  visibility: hidden;
+}
+
+.day.out {
+  color: var(--fich-text-faint);
+  opacity: 0.2;
+}
+
+.day.today .day-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  background: var(--fich-primary);
+  color: #fff;
+  border-radius: 50%;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.day.has-class .day-num {
+  font-weight: 600;
+  color: var(--fich-primary-dark);
+}
+
+.day.has-class:hover {
+  background: var(--fich-primary-light);
+}
+
+.day-num {
+  line-height: 1;
+}
+
+.day-dot {
+  display: block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--fich-primary);
+  flex-shrink: 0;
+  opacity: 0.85;
+}
+
+@media (max-width: 600px) {
+  mat-dialog-content {
+    min-width: unset;
+    padding: 0 16px;
+  }
+
+  .day {
+    padding: 8px 0 6px;
+    font-size: 0.8rem;
+    min-height: 40px;
+  }
+
+  .day.today .day-num {
+    width: 26px;
+    height: 26px;
+    font-size: 0.8rem;
+  }
+}
