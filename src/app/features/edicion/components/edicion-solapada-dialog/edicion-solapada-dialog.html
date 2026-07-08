@@ -1,0 +1,58 @@
+<h2 mat-dialog-title class="dialog-title">
+  <mat-icon class="title-icon">warning_amber</mat-icon>
+  Ediciones Solapadas
+</h2>
+
+<mat-dialog-content>
+  <p class="dialog-desc">
+    Las siguientes ediciones tienen fechas que se superponen con tu nueva edición:
+  </p>
+
+  <div class="timeline-header">
+    <span class="tl-label">{{ formatDate(minDate) }}</span>
+    <span class="tl-label">{{ formatDate(maxDate) }}</span>
+  </div>
+
+  <div class="timeline">
+    @for (item of items; track $index) {
+      <div class="tl-row" [class.is-nueva]="item.esNueva">
+        <div class="tl-bar-container">
+          <div class="tl-bar" [style.left.%]="pct(item.inicio)" [style.width.%]="pct(item.fin) - pct(item.inicio)">
+            <div class="tl-bar-fill"></div>
+          </div>
+          @if (!item.esNueva && hasOverlap(item)) {
+            <div class="tl-overlap"
+              [style.left.%]="pct(overlapStart(item))"
+              [style.width.%]="pct(overlapEnd(item)) - pct(overlapStart(item))">
+            </div>
+          }
+        </div>
+        <div class="tl-label-group">
+          <span class="tl-name">{{ item.gestion }}</span>
+          <span class="tl-dates">{{ formatDate(item.inicio) }} — {{ formatDate(item.fin) }}</span>
+        </div>
+      </div>
+    }
+  </div>
+
+  <div class="overlap-details">
+    <p class="details-title">Detalle del solapamiento:</p>
+    @for (ed of data.ediciones; track $index) {
+      @let solapaInicio = overlapStart(items[$index]);
+      @let solapaFin = overlapEnd(items[$index]);
+      @if (hasOverlap(items[$index])) {
+        <div class="detail-item">
+          <span class="detail-gestion">{{ ed.gestion }}</span>
+          <span class="detail-range">del <strong>{{ formatDate(solapaInicio) }}</strong> al <strong>{{ formatDate(solapaFin) }}</strong></span>
+        </div>
+      }
+    }
+  </div>
+
+  <p class="dialog-question">¿Deseas continuar de todas formas?</p>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancelar()">Cancelar</button>
+  <button mat-flat-button color="primary" (click)="confirmar()">Continuar</button>
+</mat-dialog-actions>

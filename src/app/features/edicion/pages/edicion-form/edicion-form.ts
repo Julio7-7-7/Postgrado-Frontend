@@ -20,7 +20,7 @@ import { ProgramaVersionService } from '../../../programa-version/services/progr
 import { ProgramaVersionEdicion, ProgramaVersionEdicionCreate, ModalidadType } from '../../models/edicion.model';
 import { ModuloService } from '../../../modulo/services/modulo.service';
 import { Modulo } from '../../../modulo/models/modulo.model';
-import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog';
+import { EdicionSolapadaDialogComponent } from '../../components/edicion-solapada-dialog/edicion-solapada-dialog';
 import { aFechaString, aDate } from '../../../../core/utils/date-utils';
 
 @Component({
@@ -52,6 +52,7 @@ import { aFechaString, aDate } from '../../../../core/utils/date-utils';
     MatDatepickerModule,
     MatDialogModule,
     MatCheckboxModule,
+    EdicionSolapadaDialogComponent,
   ],
   templateUrl: './edicion-form.html',
   styleUrl: './edicion-form.css',
@@ -134,12 +135,6 @@ export class EdicionFormComponent implements OnInit {
 
   get haySolapamiento(): boolean {
     return this.edicionesSolapadas().length > 0;
-  }
-
-  get textoAdvertenciaSolapamiento(): string {
-    return this.edicionesSolapadas().map(e =>
-      `"${e.gestion}" (${e.fecha_inicio} – ${e.fecha_fin || '?'})`
-    ).join(', ');
   }
 
   constructor() {
@@ -331,11 +326,18 @@ export class EdicionFormComponent implements OnInit {
     }
 
     if (this.haySolapamiento) {
-      const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-        width: '480px',
+      const dialogRef = this.dialog.open(EdicionSolapadaDialogComponent, {
+        width: '560px',
         data: {
-          titulo: 'Ediciones Solapadas',
-          mensaje: `Ya existen ediciones que se solapan con las fechas seleccionadas: ${this.textoAdvertenciaSolapamiento}. ¿Desea continuar de todas formas?`,
+          nuevasFechas: {
+            inicio: aFechaString(this.form.value.fecha_inicio),
+            fin: this.form.value.fecha_fin ? aFechaString(this.form.value.fecha_fin) : null,
+          },
+          ediciones: this.edicionesSolapadas().map(e => ({
+            gestion: e.gestion,
+            fecha_inicio: e.fecha_inicio,
+            fecha_fin: e.fecha_fin,
+          })),
         },
       });
       dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((confirmado: boolean) => {

@@ -1,4 +1,4 @@
-<div class="page-container feature-modulo">
+<div class="page-container">
   @if (cargandoDatos()) {
     <div class="loading-container">
       <mat-spinner diameter="50" color="primary"></mat-spinner>
@@ -101,11 +101,14 @@
           }
           <div class="horarios-list">
             @for (h of horariosVisibles(); track h.id_horario) {
-              <div class="horario-item" [class.cancelado]="h.estado === 'cancelado'">
+              <div class="horario-item" [class.cancelado]="h.estado === 'cancelado'" [class.conflicto]="conflictosHorarios().has(h.id_horario)">
                 <span class="dia-badge">{{ diaLabel(h.dia) }}</span>
                 <span class="hora-range">{{ h.hora_ini }} — {{ h.hora_fin }}</span>
                 @if (h.aula) {
                   <span class="aula-tag">{{ h.aula }}</span>
+                }
+                @if (conflictosHorarios().has(h.id_horario)) {
+                  <mat-icon class="conflicto-icon" matTooltip="Este horario se superpone con otro en el mismo módulo">warning_amber</mat-icon>
                 }
                 <div class="horario-actions">
                   <button mat-icon-button type="button" size="small" (click)="editarHorario(h)" matTooltip="Editar horario">

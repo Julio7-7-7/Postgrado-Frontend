@@ -192,6 +192,22 @@ export class DetalleGestionarComponent implements OnInit {
 
   horariosChanged = computed(() => this.pendingActions().length > 0);
 
+  conflictosHorarios = computed(() => {
+    const items = this.horariosVisibles().filter(h => h.estado !== 'cancelado');
+    const conflictIds = new Set<number>();
+    for (let i = 0; i < items.length; i++) {
+      for (let j = i + 1; j < items.length; j++) {
+        const a = items[i];
+        const b = items[j];
+        if (a.dia === b.dia && a.hora_ini < b.hora_fin && a.hora_fin > b.hora_ini) {
+          conflictIds.add(a.id_horario);
+          conflictIds.add(b.id_horario);
+        }
+      }
+    }
+    return conflictIds;
+  });
+
   estadoOriginal = '';
   fechaInicioOriginal: string | null = null;
   fechaFinOriginal: string | null = null;

@@ -32,11 +32,11 @@ body {
 
 :root {
   /* ─── Brand Colors ─── */
-  --fich-primary: #1e3a8a;
-  --fich-primary-hover: #2563eb;
+  --fich-primary: #4338ca;
+  --fich-primary-hover: #4f46e5;
   --fich-primary-light: #eef2ff;
   --fich-primary-lighter: #e0e7ff;
-  --fich-primary-dark: #1e2d5e;
+  --fich-primary-dark: #3730a3;
   --fich-accent: #dc2626;
   --fich-accent-light: #fef2f2;
   --fich-accent-lighter: #fee2e2;
@@ -140,7 +140,7 @@ body {
   --fich-shadow-md: 0 4px 6px rgba(15, 23, 42, 0.05), 0 2px 4px rgba(15, 23, 42, 0.04);
   --fich-shadow-lg: 0 10px 15px rgba(15, 23, 42, 0.06), 0 4px 6px rgba(15, 23, 42, 0.04);
   --fich-shadow-xl: 0 20px 25px rgba(15, 23, 42, 0.08), 0 8px 10px rgba(15, 23, 42, 0.04);
-  --fich-shadow-glow: 0 0 20px rgba(30, 58, 138, 0.12);
+  --fich-shadow-glow: 0 0 20px rgba(67, 56, 202, 0.12);
   --fich-shadow-glow-success: 0 0 20px rgba(5, 150, 105, 0.12);
   --fich-shadow-glow-warning: 0 0 20px rgba(217, 119, 6, 0.12);
 
@@ -169,6 +169,6 @@ body {
   /* ─── Material Overrides ─── */
   --mat-toolbar-container-background-color: var(--fich-primary) !important;
   --mat-toolbar-container-text-color: white !important;
-  --mat-sys-primary: #1e3a8a;
+  --mat-sys-primary: #4338ca;
   --mat-sys-on-primary: white;
 }
