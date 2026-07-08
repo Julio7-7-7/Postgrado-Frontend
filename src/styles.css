@@ -4,14 +4,21 @@
   box-sizing: border-box;
 }
 
-html, body {
+html {
+  height: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
   height: 100%;
   margin: 0;
   font-family: 'Inter', 'Roboto', sans-serif;
   font-size: 14px;
   line-height: 1.6;
   color: var(--fich-text);
-  background: var(--fich-bg);
+  background:
+    radial-gradient(ellipse 100% 50% at 50% 0%, rgba(30, 58, 138, 0.015) 0%, transparent 100%),
+    var(--fich-bg);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -218,8 +225,6 @@ h1, h2, h3, h4, h5, h6 {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--fich-text-muted);
 }
-
-.mat-mdc-tooltip { font-size: 12px !important; }
 
 .mat-mdc-form-field.mat-focused .mdc-floating-label {
   color: var(--fich-primary) !important;
@@ -573,7 +578,92 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
-/* ─── Smooth scrolling ─── */
-html {
-  scroll-behavior: smooth;
+/* ─── Feature Color System ─── */
+.feature-programas { --feature-color: var(--fich-feature-programa); --feature-color-light: var(--fich-feature-programa-light); }
+.feature-tipos-programa { --feature-color: var(--fich-feature-tipo-programa); --feature-color-light: var(--fich-feature-tipo-programa-light); }
+.feature-docente { --feature-color: var(--fich-feature-docente); --feature-color-light: var(--fich-feature-docente-light); }
+.feature-contratacion { --feature-color: var(--fich-feature-contratacion); --feature-color-light: var(--fich-feature-contratacion-light); }
+.feature-alumno { --feature-color: var(--fich-feature-alumno); --feature-color-light: var(--fich-feature-alumno-light); }
+.feature-edicion { --feature-color: var(--fich-feature-edicion); --feature-color-light: var(--fich-feature-edicion-light); }
+.feature-modulo { --feature-color: var(--fich-feature-modulo); --feature-color-light: var(--fich-feature-modulo-light); }
+.feature-home { --feature-color: var(--fich-feature-home); }
+
+.page-container {
+  --page-accent: var(--feature-color, var(--fich-primary));
+  --page-accent-light: var(--feature-color-light, var(--fich-primary-light));
 }
+
+.page-container .header-section {
+  padding-left: 14px;
+  border-left: 3px solid var(--page-accent);
+  margin-bottom: 20px;
+}
+
+.page-container .header-section h2 {
+  color: var(--page-accent);
+}
+
+.page-container .header-section .subtitle {
+  color: var(--fich-text-muted);
+}
+
+.page-container .btn-nuevo.mat-mdc-raised-button {
+  background-color: var(--page-accent) !important;
+}
+
+.page-container .btn-nuevo.mat-mdc-raised-button:hover {
+  filter: brightness(1.1);
+}
+
+.page-container .filters-bar .mat-mdc-form-field.mat-focused .mdc-floating-label {
+  color: var(--page-accent) !important;
+}
+
+.page-container .filters-bar .mat-mdc-form-field.mat-focused .mdc-notched-outline__leading,
+.page-container .filters-bar .mat-mdc-form-field.mat-focused .mdc-notched-outline__trailing {
+  border-color: var(--page-accent) !important;
+  border-width: 2px !important;
+}
+
+.page-container .mat-mdc-row:hover {
+  background: color-mix(in srgb, var(--page-accent) 6%, transparent) !important;
+}
+
+.page-container .mat-mdc-row .mat-mdc-cell button[color="primary"] {
+  color: var(--page-accent) !important;
+}
+
+.page-container .empty-state mat-icon {
+  color: var(--page-accent);
+  opacity: 0.3;
+}
+
+.page-container .btn-guardar.mat-mdc-raised-button {
+  background-color: var(--page-accent) !important;
+}
+
+.page-container .btn-guardar.mat-mdc-raised-button:hover:not([disabled]) {
+  filter: brightness(1.1);
+}
+
+.page-container .btn-nuevo.mat-mdc-raised-button::before,
+.page-container .btn-guardar.mat-mdc-raised-button::before {
+  background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 50%);
+}
+
+.page-container .back-btn {
+  color: var(--page-accent) !important;
+}
+
+.page-container .sort-dir-btn {
+  color: var(--page-accent) !important;
+}
+
+/* ─── Feature-specific "Nuevo" button icon rotations ─── */
+.feature-contratacion .btn-nuevo mat-icon { transition: transform 0.25s ease; }
+.feature-contratacion .btn-nuevo:hover mat-icon { transform: scale(1.15) rotate(-90deg); }
+.feature-docente .btn-nuevo mat-icon { transition: transform 0.25s ease; }
+.feature-docente .btn-nuevo:hover mat-icon { transform: scale(1.15); }
+.feature-tipos-programa .btn-nuevo mat-icon { transition: transform 0.25s ease; }
+.feature-tipos-programa .btn-nuevo:hover mat-icon { transform: scale(1.15) rotate(90deg); }
+

@@ -1,156 +1,187 @@
-<div class="home">
-  <section class="hero">
-    <div class="hero-bg"></div>
-    <div class="hero-content">
-      <div class="hero-emblem">
-        <div class="hero-logo">
-          <span class="hero-fich">FICH</span>
-          <span class="hero-upc">UPC</span>
-        </div>
-      </div>
-      <h1 class="hero-title">Sistema de Control de Posgrado</h1>
-      <p class="hero-subtitle">
-        Gestión académica integral para programas de posgrado de la Facultad de Ingeniería — Unidad de Postgrado Chaco
-      </p>
+<div class="dashboard">
+  <header class="dash-header">
+    <div class="dash-header-left">
+      <h1 class="dash-title">Panel de Control</h1>
+      <time class="dash-date">{{ fechaHoy }}</time>
     </div>
-  </section>
-
-  <div class="home-body">
-    <div class="stats-row stagger-list">
-      <div class="stat-card">
-        <mat-icon class="stat-icon program-icon">menu_book</mat-icon>
-        <div class="stat-info">
-          <span class="stat-value">{{ totalProgramas() }}</span>
-          <span class="stat-label">Programas activos</span>
-        </div>
-      </div>
-      <div class="stat-card">
-        <mat-icon class="stat-icon teacher-icon">person_pin</mat-icon>
-        <div class="stat-info">
-          <span class="stat-value">{{ totalDocentes() }}</span>
-          <span class="stat-label">Docentes registrados</span>
-        </div>
-      </div>
-      <div class="stat-card">
-        <mat-icon class="stat-icon mod-icon">bookmarks</mat-icon>
-        <div class="stat-info">
-          <span class="stat-value">{{ edicionesActivas().length }}</span>
-          <span class="stat-label">Ediciones activas</span>
-        </div>
-      </div>
+    <div class="dash-actions">
+      <button mat-stroked-button class="quick-btn" routerLink="/programas/nuevo">
+        <mat-icon>add</mat-icon> Programa
+      </button>
+      <button mat-stroked-button class="quick-btn" routerLink="/docentes/nuevo">
+        <mat-icon>add</mat-icon> Docente
+      </button>
+      <button mat-stroked-button class="quick-btn" routerLink="/ediciones/nueva">
+        <mat-icon>add</mat-icon> Edición
+      </button>
     </div>
+  </header>
 
-    @if (edicionesActivas().length > 0) {
-      <section class="carousel-section">
-        <h2 class="section-title">Oferta Académica</h2>
-
-        <div class="carousel-wrapper">
-          <div class="carousel-viewport" (wheel)="onWheel($event)">
-            <div class="carousel-track" #track>
-              @for (edicion of edicionesActivas(); track edicion.id_programa_version_edicion) {
-                <div class="carousel-card" (click)="irAModulos(edicion)">
-                  <div class="card-photo">
-                    @if (edicion.programa_version.foto) {
-                      <img [src]="getFotoUrl(edicion.programa_version.foto)" (error)="onImgError($event)" alt="" />
-                    }
-                  </div>
-                  <div class="card-body">
-                    <div class="card-badges">
-                      <span class="badge badge--version">V{{ edicion.programa_version.version }}</span>
-                      <span class="badge badge--edicion">E{{ edicion.edicion }}</span>
-                    </div>
-                    <div class="card-programa">{{ edicion.programa_version.programa.nombre_programa }}</div>
-                    <div class="card-meta">
-                      <span>{{ edicion.gestion }}</span>
-                      <span class="card-sep">·</span>
-                      <span>{{ edicion.modalidad.charAt(0).toUpperCase() + edicion.modalidad.slice(1) }}</span>
-                    </div>
-                    <div class="card-fechas">
-                      <mat-icon class="card-fecha-icon">calendar_today</mat-icon>
-                      {{ convertirFecha(edicion.fecha_inicio) }} — {{ convertirFecha(edicion.fecha_fin) }}
-                    </div>
-                    @if (edicion.cupo_maximo) {
-                      <div class="card-cupo">
-                        <mat-icon class="card-cupo-icon">groups</mat-icon>
-                        <span>Cupo: {{ edicion.cupo_maximo }} personas</span>
-                      </div>
-                    }
-                    <div class="card-footer">
-                      <span [class]="'card-estado estado-badge--' + edicion.estado">
-                        {{ edicion.estado === 'en_curso' ? 'En curso' : (edicion.estado.charAt(0).toUpperCase() + edicion.estado.slice(1)) }}
-                      </span>
-                      <span class="card-cta">
-                        Ver programa
-                        <mat-icon>arrow_forward</mat-icon>
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              }
-              @for (edicion of edicionesActivas(); track 'c-' + edicion.id_programa_version_edicion) {
-                <div class="carousel-card" (click)="irAModulos(edicion)">
-                  <div class="card-photo">
-                    @if (edicion.programa_version.foto) {
-                      <img [src]="getFotoUrl(edicion.programa_version.foto)" (error)="onImgError($event)" alt="" />
-                    }
-                  </div>
-                  <div class="card-body">
-                    <div class="card-badges">
-                      <span class="badge badge--version">V{{ edicion.programa_version.version }}</span>
-                      <span class="badge badge--edicion">E{{ edicion.edicion }}</span>
-                    </div>
-                    <div class="card-programa">{{ edicion.programa_version.programa.nombre_programa }}</div>
-                    <div class="card-meta">
-                      <span>{{ edicion.gestion }}</span>
-                      <span class="card-sep">·</span>
-                      <span>{{ edicion.modalidad.charAt(0).toUpperCase() + edicion.modalidad.slice(1) }}</span>
-                    </div>
-                    <div class="card-fechas">
-                      <mat-icon class="card-fecha-icon">calendar_today</mat-icon>
-                      {{ convertirFecha(edicion.fecha_inicio) }} — {{ convertirFecha(edicion.fecha_fin) }}
-                    </div>
-                    @if (edicion.cupo_maximo) {
-                      <div class="card-cupo">
-                        <mat-icon class="card-cupo-icon">groups</mat-icon>
-                        <span>Cupo: {{ edicion.cupo_maximo }} personas</span>
-                      </div>
-                    }
-                    <div class="card-footer">
-                      <span [class]="'card-estado estado-badge--' + edicion.estado">
-                        {{ edicion.estado === 'en_curso' ? 'En curso' : (edicion.estado.charAt(0).toUpperCase() + edicion.estado.slice(1)) }}
-                      </span>
-                      <span class="card-cta">
-                        Ver programa
-                        <mat-icon>arrow_forward</mat-icon>
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              }
-            </div>
-          </div>
-        </div>
-      </section>
-    }
-
-    <h2 class="section-title">Módulos del Sistema</h2>
-
-    <div class="cards-grid stagger-list">
-      @for (card of cards; track card.path; let i = $index) {
-        <mat-card class="nav-card" [class]="'nav-card nav-card--' + i" [routerLink]="card.path">
-          <mat-card-content>
-            <div class="card-icon-wrap">
-              <mat-icon>{{ card.icon }}</mat-icon>
-            </div>
-            <h3>{{ card.title }}</h3>
-            <p>{{ card.desc }}</p>
-            <div class="card-arrow">
-              <span>Ir</span>
-              <mat-icon>arrow_forward</mat-icon>
-            </div>
-          </mat-card-content>
-        </mat-card>
-      }
+  <div class="dash-stats">
+    <div class="dash-stat" [routerLink]="'/programas'" [style.background]="'var(--fich-feature-programa-light)'">
+      <div class="dash-stat-icon" [style.background]="'var(--fich-feature-programa)'"><mat-icon>menu_book</mat-icon></div>
+      <div class="dash-stat-body">
+        <span class="dash-stat-value">{{ totalProgramas() }}</span>
+        <span class="dash-stat-label">Programas</span>
+      </div>
+      <mat-icon class="dash-stat-arrow">chevron_right</mat-icon>
+    </div>
+    <div class="dash-stat" [routerLink]="'/docentes'" [style.background]="'var(--fich-feature-docente-light)'">
+      <div class="dash-stat-icon" [style.background]="'var(--fich-feature-docente)'"><mat-icon>person_pin</mat-icon></div>
+      <div class="dash-stat-body">
+        <span class="dash-stat-value">{{ totalDocentes() }}</span>
+        <span class="dash-stat-label">Docentes</span>
+      </div>
+      <mat-icon class="dash-stat-arrow">chevron_right</mat-icon>
+    </div>
+    <div class="dash-stat" [routerLink]="'/tipos-programa'" [style.background]="'var(--fich-feature-tipo-programa-light)'">
+      <div class="dash-stat-icon" [style.background]="'var(--fich-feature-tipo-programa)'"><mat-icon>category</mat-icon></div>
+      <div class="dash-stat-body">
+        <span class="dash-stat-value">—</span>
+        <span class="dash-stat-label">Tipos</span>
+      </div>
+      <mat-icon class="dash-stat-arrow">chevron_right</mat-icon>
+    </div>
+    <div class="dash-stat" [routerLink]="'/docentes'" [style.background]="'var(--fich-feature-alumno-light)'">
+      <div class="dash-stat-icon" [style.background]="'var(--fich-feature-alumno)'"><mat-icon>people</mat-icon></div>
+      <div class="dash-stat-body">
+        <span class="dash-stat-value">—</span>
+        <span class="dash-stat-label">Alumnos</span>
+      </div>
+      <mat-icon class="dash-stat-arrow">chevron_right</mat-icon>
     </div>
   </div>
+
+  @if (edicionesActivas().length === 0) {
+    <div class="dash-empty">
+      <mat-icon>event_busy</mat-icon>
+      <p>No hay ediciones activas</p>
+    </div>
+  } @else {
+    <section class="carousel-section">
+      <div class="carousel-section-header">
+        <div class="carousel-section-left">
+          <h2><mat-icon>event_note</mat-icon> Oferta Académica</h2>
+          <span class="carousel-count">{{ edicionesActivas().length }} ediciones activas</span>
+        </div>
+        <div class="carousel-section-arrows">
+          <button class="carousel-arrow carousel-arrow--prev" (click)="scrollCarousel(-1)" matTooltip="Anterior">
+            <mat-icon>chevron_left</mat-icon>
+          </button>
+          <button class="carousel-arrow carousel-arrow--next" (click)="scrollCarousel(1)" matTooltip="Siguiente">
+            <mat-icon>chevron_right</mat-icon>
+          </button>
+        </div>
+      </div>
+
+      <div class="carousel-viewport" (wheel)="onWheel($event)">
+        <div class="carousel-track" #track>
+          @for (edicion of edicionesActivas(); track edicion.id_programa_version_edicion) {
+            <div class="carousel-card" (click)="irAModulos(edicion)">
+              <div class="carousel-card-banner" [style.background]="getBannerGradient(edicion.estado)">
+                @if (edicion.programa_version.foto) {
+                  <img [src]="getFotoUrl(edicion.programa_version.foto)" (error)="onImgError($event)" alt="" class="carousel-card-photo" />
+                }
+                <div class="carousel-card-banner-overlay"></div>
+                <div class="carousel-card-badges">
+                  <span class="carousel-badge carousel-badge--version">V{{ edicion.programa_version.version }}</span>
+                  <span class="carousel-badge carousel-badge--edicion">E{{ edicion.edicion }}</span>
+                </div>
+                <span class="carousel-card-tipo">{{ edicion.programa_version.programa.tipo_programa.nombre }}</span>
+              </div>
+              <div class="carousel-card-body">
+                <h3 class="carousel-card-title">{{ edicion.programa_version.programa.nombre_programa }}</h3>
+                <div class="carousel-card-meta">
+                  <div class="carousel-card-meta-row">
+                    <mat-icon>calendar_today</mat-icon>
+                    <span>{{ convertirFecha(edicion.fecha_inicio) }} — {{ convertirFecha(edicion.fecha_fin) }}</span>
+                  </div>
+                  <div class="carousel-card-meta-row">
+                    <mat-icon>schedule</mat-icon>
+                    <span>{{ edicion.gestion }} · {{ edicion.modalidad.charAt(0).toUpperCase() + edicion.modalidad.slice(1) }}</span>
+                  </div>
+                  @if (edicion.cupo_maximo) {
+                    <div class="carousel-card-meta-row">
+                      <mat-icon>groups</mat-icon>
+                      <span>Cupo: {{ edicion.cupo_maximo }}</span>
+                    </div>
+                  }
+                </div>
+                <div class="carousel-card-footer">
+                  <span [class]="'carousel-card-status estado-badge--' + edicion.estado">
+                    {{ edicion.estado === 'en_curso' ? 'En curso' : (edicion.estado.charAt(0).toUpperCase() + edicion.estado.slice(1)) }}
+                  </span>
+                  <span class="carousel-card-cta">
+                    Ver módulos <mat-icon>arrow_forward</mat-icon>
+                  </span>
+                </div>
+              </div>
+            </div>
+          }
+          @for (edicion of edicionesActivas(); track 'c-' + edicion.id_programa_version_edicion) {
+            <div class="carousel-card" (click)="irAModulos(edicion)">
+              <div class="carousel-card-banner" [style.background]="getBannerGradient(edicion.estado)">
+                @if (edicion.programa_version.foto) {
+                  <img [src]="getFotoUrl(edicion.programa_version.foto)" (error)="onImgError($event)" alt="" class="carousel-card-photo" />
+                }
+                <div class="carousel-card-banner-overlay"></div>
+                <div class="carousel-card-badges">
+                  <span class="carousel-badge carousel-badge--version">V{{ edicion.programa_version.version }}</span>
+                  <span class="carousel-badge carousel-badge--edicion">E{{ edicion.edicion }}</span>
+                </div>
+                <span class="carousel-card-tipo">{{ edicion.programa_version.programa.tipo_programa.nombre }}</span>
+              </div>
+              <div class="carousel-card-body">
+                <h3 class="carousel-card-title">{{ edicion.programa_version.programa.nombre_programa }}</h3>
+                <div class="carousel-card-meta">
+                  <div class="carousel-card-meta-row">
+                    <mat-icon>calendar_today</mat-icon>
+                    <span>{{ convertirFecha(edicion.fecha_inicio) }} — {{ convertirFecha(edicion.fecha_fin) }}</span>
+                  </div>
+                  <div class="carousel-card-meta-row">
+                    <mat-icon>schedule</mat-icon>
+                    <span>{{ edicion.gestion }} · {{ edicion.modalidad.charAt(0).toUpperCase() + edicion.modalidad.slice(1) }}</span>
+                  </div>
+                  @if (edicion.cupo_maximo) {
+                    <div class="carousel-card-meta-row">
+                      <mat-icon>groups</mat-icon>
+                      <span>Cupo: {{ edicion.cupo_maximo }}</span>
+                    </div>
+                  }
+                </div>
+                <div class="carousel-card-footer">
+                  <span [class]="'carousel-card-status estado-badge--' + edicion.estado">
+                    {{ edicion.estado === 'en_curso' ? 'En curso' : (edicion.estado.charAt(0).toUpperCase() + edicion.estado.slice(1)) }}
+                  </span>
+                  <span class="carousel-card-cta">
+                    Ver módulos <mat-icon>arrow_forward</mat-icon>
+                  </span>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </section>
+  }
+
+  <section class="modules-section">
+    <div class="modules-section-header">
+      <h2><mat-icon>apps</mat-icon> Acceso Directo</h2>
+    </div>
+    <div class="modules-grid">
+      @for (card of cards; track card.path) {
+        <div class="module-card" [routerLink]="card.path">
+          <div class="module-card-icon" [style.background]="card.bg">
+            <mat-icon>{{ card.icon }}</mat-icon>
+          </div>
+          <div class="module-card-body">
+            <span class="module-card-title">{{ card.title }}</span>
+            <span class="module-card-desc">{{ card.desc }}</span>
+          </div>
+          <mat-icon class="module-card-arrow">arrow_outward</mat-icon>
+        </div>
+      }
+    </div>
+  </section>
 </div>

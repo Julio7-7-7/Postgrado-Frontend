@@ -103,7 +103,7 @@ body {
   --fich-est-legal-bg: #fff1f2;
   --fich-est-legal-border: #fecdd3;
 
-  /* ─── Tinted Neutrals ─── */
+  /* ─── Tinted Neutrals (con calidez sutil, inspirado en Notion) ─── */
   --fich-text: #0f172a;
   --fich-text-secondary: #334155;
   --fich-text-muted: #64748b;
@@ -111,7 +111,7 @@ body {
   --fich-text-x-faint: #cbd5e1;
   --fich-border: #e2e8f0;
   --fich-border-light: #f1f5f9;
-  --fich-bg: #f1f5f9;
+  --fich-bg: #f4f6f9;
   --fich-bg-card: #ffffff;
   --fich-bg-subtle: #f8fafc;
   --fich-bg-hover: #f1f5f9;
@@ -148,6 +148,23 @@ body {
   --fich-transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   --fich-transition-slow: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   --fich-transition-bounce: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* ─── Feature Accent Colors ─── */
+  --fich-feature-programa: #1e3a8a;
+  --fich-feature-programa-light: #eef2ff;
+  --fich-feature-tipo-programa: #7c3aed;
+  --fich-feature-tipo-programa-light: #f5f3ff;
+  --fich-feature-docente: #0d9488;
+  --fich-feature-docente-light: #f0fdfa;
+  --fich-feature-contratacion: #d97706;
+  --fich-feature-contratacion-light: #fffbeb;
+  --fich-feature-alumno: #0891b2;
+  --fich-feature-alumno-light: #ecfeff;
+  --fich-feature-edicion: #4f46e5;
+  --fich-feature-edicion-light: #eef2ff;
+  --fich-feature-modulo: #0d9488;
+  --fich-feature-modulo-light: #f0fdfa;
+  --fich-feature-home: #1e3a8a;
 
   /* ─── Material Overrides ─── */
   --mat-toolbar-container-background-color: var(--fich-primary) !important;
