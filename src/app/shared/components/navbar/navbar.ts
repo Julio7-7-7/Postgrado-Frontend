@@ -21,13 +21,13 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 export class NavbarComponent {
   router = inject(Router);
 
-  navItems: { path: string; label: string; icon: string; exact?: boolean }[] = [
-    { path: '/', label: 'Inicio', icon: 'home', exact: true },
-    { path: '/programas', label: 'Programas', icon: 'school' },
-    { path: '/tipos-programa', label: 'Tipos', icon: 'category' },
-    { path: '/alumnos', label: 'Alumnos', icon: 'people' },
-    { path: '/docentes', label: 'Docentes', icon: 'badge' },
-    { path: '/contrataciones', label: 'Contrataciones', icon: 'assignment' },
+  navItems: { path: string; label: string; icon: string; exact?: boolean; feature: string }[] = [
+    { path: '/', label: 'Inicio', icon: 'home', exact: true, feature: 'home' },
+    { path: '/programas', label: 'Programas', icon: 'school', feature: 'programas' },
+    { path: '/tipos-programa', label: 'Tipos', icon: 'category', feature: 'tipos-programa' },
+    { path: '/alumnos', label: 'Alumnos', icon: 'people', feature: 'alumno' },
+    { path: '/docentes', label: 'Docentes', icon: 'badge', feature: 'docente' },
+    { path: '/contrataciones', label: 'Contrataciones', icon: 'assignment', feature: 'contratacion' },
   ];
 
   isActive(path: string, exact: boolean = false): boolean {

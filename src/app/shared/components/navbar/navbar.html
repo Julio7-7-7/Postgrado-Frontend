@@ -7,7 +7,7 @@
     <div class="brand-divider"></div>
     <div class="brand-text">
       <span class="brand-title">Unidad de Postgrado</span>
-      <span class="brand-subtitle">Chaco</span>
+      <span class="brand-subtitle">Facultad de Ingeniería — Chaco</span>
     </div>
   </div>
 
@@ -21,6 +21,7 @@
         routerLinkActive="nav-active"
         [routerLinkActiveOptions]="{ exact: item.exact ?? false }"
         class="nav-link"
+        [class]="'nav-link nav-' + item.feature"
         [matTooltip]="item.label"
       >
         <mat-icon>{{ item.icon }}</mat-icon>

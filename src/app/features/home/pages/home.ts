@@ -19,9 +19,10 @@ interface NavCard {
   icon: string;
   title: string;
   desc: string;
+  bg: string;
 }
 
-const CARD_STEP = 400; // 380 card + 20 gap
+const CARD_STEP = 380;
 
 @Component({
   selector: 'app-home',
@@ -48,22 +49,26 @@ export class HomeComponent implements OnInit {
 
   totalProgramas = signal(0);
   totalDocentes = signal(0);
-  isLoadingStats = signal(true);
 
   edicionesActivas = signal<ProgramaVersionEdicion[]>([]);
+
+  fechaHoy = '';
 
   private offset = 0;
   private autoScrollId: number | null = null;
   private scrollTimeout: ReturnType<typeof setTimeout> | null = null;
 
   cards: NavCard[] = [
-    { path: '/programas', icon: 'menu_book', title: 'Programas', desc: 'Gestiona maestrías, diplomados y cursos' },
-    { path: '/tipos-programa', icon: 'category', title: 'Tipos de Programa', desc: 'Categorías académicas y duración' },
-    { path: '/alumnos', icon: 'people', title: 'Alumnos', desc: 'Inscripciones y documentación' },
-    { path: '/docentes', icon: 'person_pin', title: 'Docentes', desc: 'Banco de docentes y asignaciones' },
+    { path: '/programas', icon: 'menu_book', title: 'Programas', desc: 'Maestrías, diplomados y cursos', bg: 'linear-gradient(135deg, #eef2ff, #dbeafe)' },
+    { path: '/docentes', icon: 'person_pin', title: 'Docentes', desc: 'Banco de docentes y asignaciones', bg: 'linear-gradient(135deg, #f0fdfa, #ccfbf1)' },
+    { path: '/alumnos', icon: 'people', title: 'Alumnos', desc: 'Inscripciones y perfiles', bg: 'linear-gradient(135deg, #ecfeff, #cffafe)' },
+    { path: '/tipos-programa', icon: 'category', title: 'Tipos de Programa', desc: 'Categorías académicas', bg: 'linear-gradient(135deg, #f5f3ff, #ede9fe)' },
   ];
 
   ngOnInit(): void {
+    this.fechaHoy = new Date().toLocaleDateString('es-BO', {
+      day: '2-digit', month: 'long', year: 'numeric',
+    });
     this.cargarStats();
     this.cargarEdiciones();
     this.destroyRef.onDestroy(() => this.detenerAutoScroll());
@@ -72,14 +77,9 @@ export class HomeComponent implements OnInit {
   private cargarStats() {
     this.programaService.getAll().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (data) => this.totalProgramas.set(data.length),
-      error: () => this.isLoadingStats.set(false),
     });
     this.docenteService.getAll().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (data) => {
-        this.totalDocentes.set(data.length);
-        this.isLoadingStats.set(false);
-      },
-      error: () => this.isLoadingStats.set(false),
+      next: (data) => this.totalDocentes.set(data.length),
     });
   }
 
@@ -95,6 +95,24 @@ export class HomeComponent implements OnInit {
     });
   }
 
+  getFotoUrl(foto: string | null): string {
+    return foto ? `${this.apiUrl}${foto}` : '';
+  }
+
+  onImgError(event: Event): void {
+    (event.target as HTMLImageElement).style.display = 'none';
+  }
+
+  getBannerGradient(estado: string): string {
+    switch (estado) {
+      case 'en_curso': return 'linear-gradient(135deg, #0d9488, #0f766e)';
+      case 'programado': return 'linear-gradient(135deg, #1e3a8a, #1e40af)';
+      case 'reprogramado': return 'linear-gradient(135deg, #ca8a04, #a16207)';
+      case 'finalizado': return 'linear-gradient(135deg, #64748b, #475569)';
+      default: return 'linear-gradient(135deg, #1e3a8a, #7c3aed)';
+    }
+  }
+
   private get track(): HTMLElement | null {
     return this.trackRef?.nativeElement ?? null;
   }
@@ -108,14 +126,21 @@ export class HomeComponent implements OnInit {
     if (el) el.style.transform = `translateX(${this.offset}px)`;
   }
 
+  scrollCarousel(dir: number): void {
+    this.detenerAutoScroll();
+    this.offset += dir * CARD_STEP;
+    this.clampOffset();
+    this.aplicarTransform();
+    if (this.scrollTimeout) clearTimeout(this.scrollTimeout);
+    this.scrollTimeout = setTimeout(() => this.iniciarAutoScroll(), 2500);
+  }
+
   onWheel(event: WheelEvent): void {
     event.preventDefault();
     this.detenerAutoScroll();
-
     this.offset -= event.deltaY || event.deltaX;
     this.clampOffset();
     this.aplicarTransform();
-
     if (this.scrollTimeout) clearTimeout(this.scrollTimeout);
     this.scrollTimeout = setTimeout(() => this.iniciarAutoScroll(), 1800);
   }
@@ -129,9 +154,8 @@ export class HomeComponent implements OnInit {
   private iniciarAutoScroll(): void {
     this.detenerAutoScroll();
     if (!this.track || this.totalWidth === 0) return;
-
     const step = () => {
-      this.offset -= 0.6;
+      this.offset -= 0.5;
       if (this.offset <= -this.totalWidth) {
         this.offset = 0;
       }
@@ -152,14 +176,6 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  getFotoUrl(foto: string | null): string {
-    return foto ? `${this.apiUrl}${foto}` : '';
-  }
-
-  onImgError(event: Event): void {
-    (event.target as HTMLImageElement).style.display = 'none';
-  }
-
   irAModulos(edicion: ProgramaVersionEdicion): void {
     const programa = edicion.programa_version.programa;
     this.router.navigate([
@@ -175,6 +191,4 @@ export class HomeComponent implements OnInit {
     const d = new Date(fecha + 'T12:00:00');
     return d.toLocaleDateString('es-BO', { day: '2-digit', month: '2-digit', year: 'numeric' });
   }
-
-
 }

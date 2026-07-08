@@ -4,7 +4,7 @@
 
     <div class="form-header">
       <h2>{{ idEditando ? 'Editar Tipo de Programa' : 'Nuevo Tipo de Programa' }}</h2>
-      <p>Complete la información del tipo de programa académico</p>
+      <p>Complete la información del tipo de programa</p>
     </div>
 
     <mat-divider></mat-divider>
@@ -13,7 +13,7 @@
       <form [formGroup]="form" (ngSubmit)="guardar()" class="form-layout">
 
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Nombre del Programa</mat-label>
+          <mat-label>Nombre del Tipo de Programa</mat-label>
           <input
             matInput
             formControlName="nombre"

@@ -1,25 +1,21 @@
 .navbar {
-  height: 68px;
-  background:
-    linear-gradient(180deg, var(--fich-bg-card) 0%, rgba(248, 250, 252, 0.98) 100%);
+  height: 64px;
+  background: var(--fich-bg-card);
   border-bottom: 1px solid var(--fich-border);
   display: flex;
   align-items: center;
-  padding: 0 24px;
-  gap: 8px;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+  padding: 0 20px;
+  gap: 6px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
   position: sticky;
   top: 0;
   z-index: 100;
-  backdrop-filter: blur(12px);
 }
 
-/* ─── Override MDC toolbar text color (set to white in theme) ─── */
 :host ::ng-deep .navbar {
   --mat-toolbar-container-text-color: var(--fich-text);
 }
 
-/* ─── Override MDC button label color for nav links ─── */
 :host ::ng-deep .nav-link.mat-mdc-button {
   --mdc-text-button-label-text-color: var(--fich-text-muted);
 }
@@ -35,9 +31,9 @@
 .navbar-brand {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
   cursor: pointer;
-  padding: 6px 12px 6px 0;
+  padding: 4px 10px 4px 0;
   border-radius: 10px;
   transition: background var(--fich-transition);
   user-select: none;
@@ -51,27 +47,27 @@
   flex-direction: column;
   align-items: center;
   line-height: 1;
-  background: linear-gradient(135deg, var(--fich-primary) 0%, var(--fich-primary-hover) 50%, #312e81 100%);
-  padding: 6px 10px 5px;
+  background: linear-gradient(135deg, var(--fich-primary) 0%, #1d4ed8 50%, #312e81 100%);
+  padding: 5px 9px 4px;
   border-radius: var(--fich-radius-sm);
-  min-width: 48px;
+  min-width: 44px;
   transition: transform var(--fich-transition), box-shadow var(--fich-transition);
-  box-shadow: 0 2px 8px rgba(30, 58, 138, 0.2);
+  box-shadow: 0 2px 6px rgba(30, 58, 138, 0.15);
 }
 .navbar-brand:hover .brand-emblem {
-  transform: scale(1.06);
-  box-shadow: 0 4px 14px rgba(30, 58, 138, 0.35);
+  transform: scale(1.05);
+  box-shadow: 0 3px 10px rgba(30, 58, 138, 0.25);
 }
 
 .brand-fich {
-  font-size: 0.55rem;
+  font-size: 0.5rem;
   font-weight: 800;
-  letter-spacing: 2.5px;
-  color: rgba(255,255,255,0.85);
+  letter-spacing: 2.8px;
+  color: rgba(255,255,255,0.8);
 }
 
 .brand-upc {
-  font-size: 1.3rem;
+  font-size: 1.2rem;
   font-weight: 900;
   color: #ffffff;
   line-height: 1.1;
@@ -79,7 +75,7 @@
 
 .brand-divider {
   width: 1px;
-  height: 34px;
+  height: 28px;
   background: var(--fich-border);
 }
 
@@ -89,7 +85,7 @@
 }
 
 .brand-title {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: 700;
   color: var(--fich-text);
   letter-spacing: -0.3px;
@@ -97,10 +93,10 @@
 }
 
 .brand-subtitle {
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   font-weight: 500;
   color: var(--fich-text-muted);
-  letter-spacing: 0.5px;
+  letter-spacing: 0.4px;
 }
 
 .navbar-spacer {
@@ -110,51 +106,55 @@
 .navbar-nav {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 1px;
 }
 
 .nav-link {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 16px;
+  gap: 6px;
+  padding: 5px 12px;
   border-radius: var(--fich-radius-sm);
   font-weight: 500;
-  font-size: 0.85rem;
-  height: 42px;
+  font-size: 0.82rem;
+  height: 38px;
   position: relative;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  will-change: transform, box-shadow;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .nav-link:hover {
   background: var(--fich-bg-hover);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
 }
 
 .nav-link mat-icon {
-  font-size: 22px;
-  width: 22px;
-  height: 22px;
-  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  transition: transform 0.2s ease, color 0.2s ease;
   color: inherit;
 }
 
+.nav-home mat-icon { color: var(--fich-feature-home); opacity: 0.7; }
+.nav-programas mat-icon { color: var(--fich-feature-programa); opacity: 0.7; }
+.nav-tipos-programa mat-icon { color: var(--fich-feature-tipo-programa); opacity: 0.7; }
+.nav-alumno mat-icon { color: var(--fich-feature-alumno); opacity: 0.7; }
+.nav-docente mat-icon { color: var(--fich-feature-docente); opacity: 0.7; }
+.nav-contratacion mat-icon { color: var(--fich-feature-contratacion); opacity: 0.7; }
+
 .nav-link:hover mat-icon {
   transform: scale(1.15);
+  opacity: 1;
+  filter: brightness(1.15);
 }
 
 .nav-label {
   color: inherit;
 }
 
-/* ─── Active state ─── */
 :host ::ng-deep .nav-active.mat-mdc-button {
-  background: linear-gradient(135deg, var(--fich-primary-light) 0%, #e0e7ff 100%) !important;
+  background: var(--fich-primary-light) !important;
   --mdc-text-button-label-text-color: var(--fich-primary) !important;
   font-weight: 600;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
 }
 
 :host ::ng-deep .nav-active::after {
@@ -163,36 +163,67 @@
   bottom: -1px;
   left: 50%;
   transform: translateX(-50%);
-  width: 70%;
-  height: 3px;
-  background: linear-gradient(90deg, var(--fich-primary), #6366f1);
-  border-radius: 2px 2px 0 0;
+  width: 60%;
+  height: 2px;
+  background: var(--fich-primary);
+  border-radius: 1px;
 }
 
 :host ::ng-deep .nav-active mat-icon {
   color: var(--fich-primary) !important;
 }
 
-/* ─── Right-side actions ─── */
+:host ::ng-deep .nav-active.nav-home {
+  --nav-accent: var(--fich-feature-home);
+}
+:host ::ng-deep .nav-active.nav-programas {
+  --nav-accent: var(--fich-feature-programa);
+}
+:host ::ng-deep .nav-active.nav-tipos-programa {
+  --nav-accent: var(--fich-feature-tipo-programa);
+}
+:host ::ng-deep .nav-active.nav-alumno {
+  --nav-accent: var(--fich-feature-alumno);
+}
+:host ::ng-deep .nav-active.nav-docente {
+  --nav-accent: var(--fich-feature-docente);
+}
+:host ::ng-deep .nav-active.nav-contratacion {
+  --nav-accent: var(--fich-feature-contratacion);
+}
+
+:host ::ng-deep .nav-active {
+  background: color-mix(in srgb, var(--nav-accent, var(--fich-primary)) 10%, transparent) !important;
+  --mdc-text-button-label-text-color: var(--nav-accent, var(--fich-primary)) !important;
+}
+
+:host ::ng-deep .nav-active::after {
+  background: var(--nav-accent, var(--fich-primary));
+}
+
+:host ::ng-deep .nav-active mat-icon {
+  color: var(--nav-accent, var(--fich-primary)) !important;
+}
+
 .navbar-actions {
   display: flex;
   align-items: center;
-  gap: 4px;
-  margin-left: 8px;
-  padding-left: 12px;
+  gap: 2px;
+  margin-left: 6px;
+  padding-left: 10px;
   border-left: 1px solid var(--fich-border);
 }
 
 .notif-btn, .profile-btn {
   color: var(--fich-text-muted);
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: color var(--fich-transition);
 }
 .notif-btn:hover, .profile-btn:hover {
   color: var(--fich-primary);
-  transform: translateY(-2px);
 }
+
 .profile-btn mat-icon {
-  font-size: 28px;
-  width: 28px;
-  height: 28px;
+  font-size: 26px;
+  width: 26px;
+  height: 26px;
 }
