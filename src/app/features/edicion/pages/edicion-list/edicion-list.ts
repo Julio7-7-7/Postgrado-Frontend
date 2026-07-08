@@ -2,7 +2,6 @@ import { Component, OnInit, signal, inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -20,7 +19,6 @@ import { ProgramaVersion } from '../../../programa-version/models/programa-versi
   imports: [
     CommonModule,
     RouterLink,
-    MatTableModule,
     MatButtonModule,
     MatIconModule,
     MatTooltipModule,
@@ -45,8 +43,6 @@ export class EdicionListComponent implements OnInit {
   ediciones = signal<ProgramaVersionEdicion[]>([]);
   isLoading = signal(true);
   error = signal<string | null>(null);
-
-  columnas: string[] = ['edicion', 'gestion', 'modalidad', 'estado', 'fechas', 'precio', 'acciones'];
 
   ngOnInit(): void {
     const match = this.router.url.match(/\/versiones\/(\d+)\/ediciones/);

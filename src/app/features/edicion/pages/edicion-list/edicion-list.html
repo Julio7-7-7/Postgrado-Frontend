@@ -36,82 +36,7 @@
       </button>
     </div>
   } @else {
-    <div class="table-wrapper">
-      <table mat-table [dataSource]="ediciones()" class="full-width-table">
-        <ng-container matColumnDef="edicion">
-          <th mat-header-cell *matHeaderCellDef>Edición</th>
-          <td mat-cell *matCellDef="let element">
-            <span class="edicion-badge">E{{ element.edicion }}</span>
-            @if (element.es_historico) {
-              <span class="historico-chip">Histórico</span>
-            }
-          </td>
-        </ng-container>
-
-        <ng-container matColumnDef="gestion">
-          <th mat-header-cell *matHeaderCellDef>Gestión</th>
-          <td mat-cell *matCellDef="let element">{{ element.gestion }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="modalidad">
-          <th mat-header-cell *matHeaderCellDef>Modalidad</th>
-          <td mat-cell *matCellDef="let element">{{ element.modalidad.charAt(0).toUpperCase() + element.modalidad.slice(1) }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="estado">
-          <th mat-header-cell *matHeaderCellDef>Estado</th>
-          <td mat-cell *matCellDef="let element">
-            <span class="estado-chip {{ estadoClass(element.estado) }}">{{ estadoLabel(element.estado) }}</span>
-          </td>
-        </ng-container>
-
-        <ng-container matColumnDef="fechas">
-          <th mat-header-cell *matHeaderCellDef>Fechas</th>
-          <td mat-cell *matCellDef="let element" class="fechas-cell">
-            @if (element.fecha_inicio && element.fecha_fin) {
-              {{ (element.fecha_inicio | date:'dd/MM/yyyy') || '—' }} — {{ (element.fecha_fin | date:'dd/MM/yyyy') || '—' }}
-            } @else {
-              <span class="sin-datos">—</span>
-            }
-          </td>
-        </ng-container>
-
-        <ng-container matColumnDef="precio">
-          <th mat-header-cell *matHeaderCellDef>Precio</th>
-          <td mat-cell *matCellDef="let element">
-            @if (element.precio) {
-              ${{ element.precio | number:'1.2-2' }}
-            } @else {
-              <span class="sin-datos">—</span>
-            }
-          </td>
-        </ng-container>
-
-        <ng-container matColumnDef="acciones">
-          <th mat-header-cell *matHeaderCellDef>Acciones</th>
-          <td mat-cell *matCellDef="let element" class="acciones-cell">
-            <button
-              mat-icon-button
-              color="primary"
-              [routerLink]="['editar', element.id_programa_version_edicion]"
-              matTooltip="Editar edición"
-            >
-              <mat-icon>edit</mat-icon>
-            </button>
-            <button
-              mat-icon-button
-              [routerLink]="[element.id_programa_version_edicion, 'historial']"
-              matTooltip="Ver historial de la edición"
-            >
-              <mat-icon>history</mat-icon>
-            </button>
-          </td>
-        </ng-container>
-
-        <tr mat-header-row *matHeaderRowDef="columnas"></tr>
-        <tr mat-row *matRowDef="let row; columns: columnas" class="clickable-row" (click)="abrirDetalle(row)"></tr>
-      </table>
-
+    <div class="cards-wrapper">
       @if (ediciones().length === 0) {
         <div class="empty-state">
           <mat-icon>calendar_month</mat-icon>
@@ -119,6 +44,62 @@
           <button mat-stroked-button color="primary" routerLink="nuevo">
             <mat-icon>add</mat-icon> Crear primera edición
           </button>
+        </div>
+      }
+
+      @for (e of ediciones(); track e.id_programa_version_edicion) {
+        <div class="edicion-card {{ estadoClass(e.estado) }}" (click)="abrirDetalle(e)">
+          <div class="card-bar"></div>
+          <div class="card-body">
+            <div class="card-top">
+              <div class="card-top-left">
+                <span class="edicion-badge">E{{ e.edicion }}</span>
+                <span class="card-gestion">{{ e.gestion }}</span>
+                @if (e.es_historico) {
+                  <span class="historico-chip">Histórico</span>
+                }
+              </div>
+              <span class="estado-chip {{ estadoClass(e.estado) }}">{{ estadoLabel(e.estado) }}</span>
+            </div>
+
+            <div class="card-main">
+              <div class="card-fechas">
+                @if (e.fecha_inicio && e.fecha_fin) {
+                  <div class="fecha-range-bar">
+                    <span class="fecha-label">{{ e.fecha_inicio | date:'dd/MM/yyyy' }}</span>
+                    <span class="fecha-track">
+                      <span class="fecha-fill" [style.width.%]="100"></span>
+                    </span>
+                    <span class="fecha-label">{{ e.fecha_fin | date:'dd/MM/yyyy' }}</span>
+                  </div>
+                } @else {
+                  <span class="sin-datos">Fechas no asignadas</span>
+                }
+              </div>
+
+              <div class="card-meta">
+                <span class="meta-tag">{{ e.modalidad.charAt(0).toUpperCase() + e.modalidad.slice(1) }}</span>
+                @if (e.precio) {
+                  <span class="card-precio">${{ e.precio | number:'1.2-2' }}</span>
+                }
+              </div>
+            </div>
+
+            <div class="card-actions" (click)="$event.stopPropagation()">
+              <a class="action-btn" [routerLink]="['editar', e.id_programa_version_edicion]">
+                <mat-icon>edit</mat-icon>
+                <span>Editar</span>
+              </a>
+              <a class="action-btn" [routerLink]="[e.id_programa_version_edicion, 'modulos']">
+                <mat-icon>view_module</mat-icon>
+                <span>Módulos</span>
+              </a>
+              <a class="action-btn" [routerLink]="[e.id_programa_version_edicion, 'historial']">
+                <mat-icon>history</mat-icon>
+                <span>Historial</span>
+              </a>
+            </div>
+          </div>
         </div>
       }
     </div>
