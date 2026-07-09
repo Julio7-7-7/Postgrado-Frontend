@@ -1,0 +1,171 @@
+<div class="landing">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+      <div class="hero-emblem">
+        <span class="hero-fich">FICH</span>
+        <span class="hero-upc">UPC</span>
+      </div>
+      <h1>Unidad de Postgrado</h1>
+      <p class="hero-sub">Facultad de Ingeniería — Chaco</p>
+      <p class="hero-desc">
+        Formación académica de alto nivel para profesionales comprometidos con el desarrollo regional.
+      </p>
+    </div>
+  </section>
+
+  <!-- CARRUSEL OFERTA ACADÉMICA -->
+  <section class="carrusel-section">
+    <div class="section-header">
+      <h2><mat-icon>school</mat-icon> Oferta Académica</h2>
+      <p>Programas de maestría, diplomado y cursos disponibles</p>
+    </div>
+
+    @if (cargando()) {
+      <div class="carrusel-loading">
+        <mat-icon class="spin">sync</mat-icon>
+        <span>Cargando programas...</span>
+      </div>
+    }
+
+    @if (!cargando() && ediciones().length === 0) {
+      <div class="carrusel-empty">
+        <mat-icon>info</mat-icon>
+        <p>No hay programas disponibles en este momento.</p>
+      </div>
+    }
+
+    @if (!cargando() && ediciones().length > 0) {
+      <div class="carousel-stage">
+        @for (ed of ediciones(); track ed.id_programa_version_edicion; let i = $index) {
+          <mat-card class="oferta-card"
+            [class.active]="i === currentSlide()"
+            [class.prev]="i === currentSlide() - 1 || (currentSlide() === 0 && i === ediciones().length - 1)"
+            [class.next]="i === currentSlide() + 1 || (currentSlide() === ediciones().length - 1 && i === 0)"
+            [class.hidden]="!(i === currentSlide() || i === currentSlide() - 1 || i === currentSlide() + 1 ||
+              (currentSlide() === 0 && i === ediciones().length - 1) ||
+              (currentSlide() === ediciones().length - 1 && i === 0))">
+
+            <div class="card-accent" [style.background]="getBannerGradient(ed.estado)"></div>
+
+            <div class="card-img-wrapper">
+              @if (ed.programa_version.foto) {
+                <img [src]="getFotoUrl(ed.programa_version.foto)" class="card-foto"
+                     (error)="$event.target.style.display='none'">
+              } @else {
+                <div class="card-foto-placeholder">
+                  <mat-icon>school</mat-icon>
+                </div>
+              }
+              <div class="card-img-overlay">
+                <span class="card-tipo">{{ ed.programa_version.programa.tipo_programa.nombre }}</span>
+              </div>
+            </div>
+
+            <mat-card-content>
+              <div class="card-info">
+                <div class="card-tags">
+                  <span class="card-estado" [style.background]="getBannerGradient(ed.estado) + '20'" [style.color]="getBannerGradient(ed.estado).includes('0d9488') ? '#0d9488' : getBannerGradient(ed.estado).includes('1e3a8a') ? '#1e3a8a' : getBannerGradient(ed.estado).includes('ca8a04') ? '#ca8a04' : '#1e3a8a'">
+                    {{ ed.estado === 'en_curso' ? 'En curso' : ed.estado === 'programado' ? 'Próximo' : ed.estado }}
+                  </span>
+                  <span class="card-edicion">Ed. {{ ed.edicion }} — {{ ed.gestion }}</span>
+                </div>
+                <h3>{{ ed.programa_version.programa.nombre_programa }}</h3>
+              </div>
+
+              <div class="card-meta">
+                <div class="meta-item">
+                  <mat-icon>calendar_today</mat-icon>
+                  <span>{{ convertirFecha(ed.fecha_inicio) }} — {{ convertirFecha(ed.fecha_fin) }}</span>
+                </div>
+                <div class="meta-item">
+                  <mat-icon>groups</mat-icon>
+                  <span>{{ ed.cupo_maximo ? ed.cupo_maximo + ' cupos' : 'Cupo ilimitado' }}</span>
+                </div>
+                <div class="meta-item">
+                  <mat-icon>schedule</mat-icon>
+                  <span>{{ ed.modalidad }}</span>
+                </div>
+              </div>
+
+              @if (ed.precio) {
+                <div class="card-precio">
+                  <span class="precio-label">Inversión</span>
+                  <span class="precio-valor">Bs {{ ed.precio.toLocaleString('es-BO') }}</span>
+                </div>
+              }
+            </mat-card-content>
+
+            <mat-card-actions>
+              <button mat-raised-button color="primary" class="card-btn" (click)="inscribirse(ed)">
+                <mat-icon>assignment</mat-icon> Inscribirme
+              </button>
+              @if (i !== currentSlide()) {
+                <div class="card-click-catcher" (click)="irASlide(i)"></div>
+              }
+            </mat-card-actions>
+          </mat-card>
+        }
+      </div>
+
+      <div class="carrusel-controls">
+        <button class="nav-btn" (click)="irASlide(currentSlide() - 1 < 0 ? ediciones().length - 1 : currentSlide() - 1)" aria-label="Anterior">
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+        <div class="carrusel-dots">
+          @for (ed of ediciones(); track ed.id_programa_version_edicion; let i = $index) {
+            <button class="dot" [class.active]="i === currentSlide()" (click)="irASlide(i)" [attr.aria-label]="'Ir a ' + (i + 1)"></button>
+          }
+        </div>
+        <button class="nav-btn" (click)="irASlide((currentSlide() + 1) % ediciones().length)" aria-label="Siguiente">
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      </div>
+    }
+  </section>
+
+  <!-- SOBRE NOSOTROS -->
+  <section class="about-section">
+    <div class="about-content">
+      <h2>Sobre la Unidad de Postgrado</h2>
+      <p>
+        La <strong>Unidad de Postgrado de la Facultad de Ingeniería — Chaco (FICH)</strong>,
+        dependiente de la <strong>Universidad Autónoma Gabriel René Moreno</strong>, es un
+        referente académico en la región chaqueña de Bolivia. Desde nuestra fundación, formamos
+        profesionales altamente capacitados con programas de maestría, diplomado y cursos de
+        especialización diseñados para responder a las necesidades del desarrollo regional y nacional.
+      </p>
+      <p>
+        Nuestro compromiso es con la excelencia: combinamos una plana docente de primer nivel,
+        infraestructura moderna y un modelo educativo flexible que integra la presencialidad con
+        herramientas digitales de vanguardia.
+      </p>
+    </div>
+  </section>
+
+  <!-- PILARES -->
+  <section class="pilares-section">
+    <div class="section-header">
+      <h2><mat-icon>layers</mat-icon> Nuestros Pilares</h2>
+      <p>Los cuatro ejes que guían nuestra gestión académica y administrativa</p>
+    </div>
+    <div class="pilares-grid">
+      @for (p of pilares; track p.titulo) {
+        <mat-card class="pilar-card">
+          <div class="pilar-icon" [style.background]="p.color + '18'" [style.color]="p.color">
+            <mat-icon>{{ p.icon }}</mat-icon>
+          </div>
+          <h3>{{ p.titulo }}</h3>
+          <p>{{ p.desc }}</p>
+        </mat-card>
+      }
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="landing-footer">
+    <p>© 2026 Unidad de Postgrado — Facultad de Ingeniería, Universidad Autónoma Gabriel René Moreno</p>
+  </footer>
+</div>

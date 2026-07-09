@@ -1,0 +1,69 @@
+<div class="login-page">
+  <div class="login-container">
+    <div class="brand">
+      <div class="brand-emblem">
+        <span class="fich">FICH</span>
+        <span class="upc">UPC</span>
+      </div>
+      <h1>Unidad de Postgrado</h1>
+      <p class="subtitle">Facultad de Ingeniería — Chaco</p>
+    </div>
+
+    @if (step() === 'roles') {
+      <div class="roles-step">
+        <h2>Iniciar Sesión</h2>
+        <p class="role-desc">Seleccioná tu perfil</p>
+        <div class="role-grid">
+          @for (role of roles; track role.key) {
+            <button class="role-card" (click)="selectRole(role.key)">
+              <mat-icon class="role-icon" [style.color]="role.color">{{ role.icon }}</mat-icon>
+              <span class="role-label">{{ role.label }}</span>
+              <span class="role-desc-small">{{ role.description }}</span>
+            </button>
+          }
+        </div>
+      </div>
+    }
+
+    @if (step() === 'form') {
+      <div class="form-step">
+        <button class="back-btn" (click)="volver()">
+          <mat-icon>arrow_back</mat-icon> Volver
+        </button>
+
+        <div class="selected-role">
+          @let role = roles.find(r => r.key === selectedRole());
+          @if (role) {
+            <mat-icon [style.color]="role.color">{{ role.icon }}</mat-icon>
+            <span>{{ role.label }}</span>
+          }
+        </div>
+
+        <form class="login-form" (ngSubmit)="login()">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Correo electrónico</mat-label>
+            <input matInput type="email" [(ngModel)]="email" name="email"
+                   placeholder="tu@correo.com" required autocomplete="email">
+            <mat-icon matPrefix>email</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Contraseña</mat-label>
+            <input matInput type="password" [(ngModel)]="password" name="password"
+                   placeholder="••••••••" required autocomplete="current-password">
+            <mat-icon matPrefix>lock</mat-icon>
+          </mat-form-field>
+
+          <button mat-raised-button color="primary" type="submit" class="full-width"
+                  [disabled]="loading">
+            @if (loading) {
+              <mat-icon>hourglass_top</mat-icon> Ingresando...
+            } @else {
+              <mat-icon>login</mat-icon> Ingresar
+            }
+          </button>
+        </form>
+      </div>
+    }
+  </div>
+</div>

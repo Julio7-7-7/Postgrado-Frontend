@@ -1,0 +1,145 @@
+@let a = alumno();
+
+<div class="perfil-container">
+  @if (cargando()) {
+    <mat-card class="loading-card">
+      <mat-card-content>
+        <div class="loading">Cargando perfil...</div>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  @if (!cargando() && a) {
+    <mat-card class="perfil-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar>person</mat-icon>
+        <mat-card-title>{{ a.nombre }} {{ a.apellido }}</mat-card-title>
+        <mat-card-subtitle>{{ a.correo }}</mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        @if (!editando()) {
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="label">CI</span>
+              <span class="value">{{ a.ci || '—' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Pasaporte</span>
+              <span class="value">{{ a.pasaporte || '—' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Nombre</span>
+              <span class="value">{{ a.nombre }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Apellido</span>
+              <span class="value">{{ a.apellido }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Fecha de Nacimiento</span>
+              <span class="value">{{ a.fecha_nacimiento ? (a.fecha_nacimiento | date:'dd/MM/yyyy') : '—' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Género</span>
+              <span class="value">{{ a.genero ? (a.genero | titlecase) : '—' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Celular</span>
+              <span class="value">{{ a.celular || '—' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Correo</span>
+              <span class="value">{{ a.correo }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Dirección</span>
+              <span class="value">{{ a.direccion || '—' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Estado</span>
+              <span class="value">
+                <span class="estado-badge"
+                      [class.activo]="a.estado === 'activo'"
+                      [class.inactivo]="a.estado === 'inactivo'"
+                      [class.graduado]="a.estado === 'graduado'">
+                  {{ a.estado }}
+                </span>
+              </span>
+            </div>
+          </div>
+        }
+
+        @if (editando()) {
+          <form #perfilForm="ngForm" class="edit-form">
+            <div class="form-row">
+              <mat-form-field appearance="outline">
+                <mat-label>CI</mat-label>
+                <input matInput [(ngModel)]="editData.ci" name="ci" placeholder="Cédula de identidad">
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Pasaporte</mat-label>
+                <input matInput [(ngModel)]="editData.pasaporte" name="pasaporte" placeholder="Pasaporte">
+              </mat-form-field>
+            </div>
+            <div class="form-row">
+              <mat-form-field appearance="outline">
+                <mat-label>Nombre</mat-label>
+                <input matInput [(ngModel)]="editData.nombre" name="nombre" required placeholder="Nombre">
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Apellido</mat-label>
+                <input matInput [(ngModel)]="editData.apellido" name="apellido" required placeholder="Apellido">
+              </mat-form-field>
+            </div>
+            <div class="form-row">
+              <mat-form-field appearance="outline">
+                <mat-label>Fecha de Nacimiento</mat-label>
+                <input matInput [matDatepicker]="picker" [(ngModel)]="editData.fecha_nacimiento" name="fecha_nacimiento">
+                <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-datepicker #picker></mat-datepicker>
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Género</mat-label>
+                <mat-select [(ngModel)]="editData.genero" name="genero">
+                  <mat-option [value]="null">—</mat-option>
+                  @for (g of generos; track g) {
+                    <mat-option [value]="g">{{ g | titlecase }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            </div>
+            <div class="form-row">
+              <mat-form-field appearance="outline">
+                <mat-label>Celular</mat-label>
+                <input matInput [(ngModel)]="editData.celular" name="celular" placeholder="Celular">
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Correo</mat-label>
+                <input matInput [(ngModel)]="editData.correo" name="correo" required type="email" placeholder="Correo electrónico">
+              </mat-form-field>
+            </div>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Dirección</mat-label>
+              <input matInput [(ngModel)]="editData.direccion" name="direccion" placeholder="Dirección">
+            </mat-form-field>
+          </form>
+        }
+      </mat-card-content>
+
+      <mat-card-actions align="end">
+        @if (!editando()) {
+          <button mat-stroked-button color="primary" (click)="iniciarEdicion()">
+            <mat-icon>edit</mat-icon> Editar Perfil
+          </button>
+        }
+        @if (editando()) {
+          <button mat-button (click)="cancelarEdicion()">Cancelar</button>
+          <button mat-raised-button color="primary" (click)="guardar()" [disabled]="guardando()">
+            <mat-icon>save</mat-icon> {{ guardando() ? 'Guardando...' : 'Guardar' }}
+          </button>
+        }
+      </mat-card-actions>
+    </mat-card>
+  }
+</div>

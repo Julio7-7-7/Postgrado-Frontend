@@ -1,0 +1,104 @@
+.inscripciones-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.page-header {
+  margin-bottom: 24px;
+}
+
+.page-header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #1e293b;
+}
+
+.subtitle {
+  margin: 4px 0 0;
+  color: #64748b;
+}
+
+.loading,
+.empty {
+  text-align: center;
+  padding: 48px;
+  color: #64748b;
+}
+
+.empty mat-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 12px;
+  color: #94a3b8;
+}
+
+.inscripciones-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.inscripcion-card {
+  border-radius: 12px;
+}
+
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.programa-info h3 {
+  margin: 0;
+  font-size: 1rem;
+  color: #1e293b;
+}
+
+.edicion-info {
+  margin: 2px 0 0;
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.estado-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: 1px solid;
+  white-space: nowrap;
+}
+
+.details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.detail-row .label {
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.detail-row .value {
+  font-size: 0.85rem;
+  color: #1e293b;
+  font-weight: 500;
+}
