@@ -1,0 +1,71 @@
+<div class="usuarios-toolbar">
+  <h2>Usuarios</h2>
+  <button mat-raised-flat color="primary" (click)="abrirFormulario()">
+    <mat-icon>add</mat-icon> Nuevo Usuario
+  </button>
+</div>
+
+@if (isLoading()) {
+  <div class="loading-container"><mat-spinner diameter="40"></mat-spinner></div>
+} @else if (error()) {
+  <div class="error-container">
+    <p>{{ error() }}</p>
+    <button mat-raised-flat (click)="cargarDatos()">Reintentar</button>
+  </div>
+} @else {
+  <table mat-table [dataSource]="usuarios()" class="mat-elevation-z2">
+    <ng-container matColumnDef="email">
+      <th mat-header-cell *matHeaderCellDef>Email</th>
+      <td mat-cell *matCellDef="let u">{{ u.email }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="profile">
+      <th mat-header-cell *matHeaderCellDef>Perfil</th>
+      <td mat-cell *matCellDef="let u">
+        {{ u.profile_nombre || '-' }}
+        @if (u.profile_type) {
+          <br><span class="profile-type">{{ u.profile_type }}</span>
+        }
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="rol">
+      <th mat-header-cell *matHeaderCellDef>Rol</th>
+      <td mat-cell *matCellDef="let u">
+        <span class="rol-badge">{{ u.rol }}</span>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="activo">
+      <th mat-header-cell *matHeaderCellDef>Estado</th>
+      <td mat-cell *matCellDef="let u">
+        <span [class.activo]="u.activo" [class.inactivo]="!u.activo">
+          {{ u.activo ? 'Activo' : 'Inactivo' }}
+        </span>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="acciones">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let u">
+        <button mat-icon-button matTooltip="Cambiar rol" (click)="cambiarRol(u)">
+          <mat-icon>swap_horiz</mat-icon>
+        </button>
+        <button mat-icon-button
+                [matTooltip]="u.activo ? 'Desactivar usuario' : 'Activar usuario'"
+                (click)="toggleActivo(u)">
+          <mat-icon [style.color]="u.activo ? 'orange' : 'green'">
+            {{ u.activo ? 'block' : 'check_circle' }}
+          </mat-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="columnas"></tr>
+    <tr mat-row *matRowDef="let row; columns: columnas;"></tr>
+  </table>
+
+  @if (usuarios().length === 0) {
+    <div class="empty">No hay usuarios registrados</div>
+  }
+}
