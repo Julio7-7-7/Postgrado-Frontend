@@ -77,7 +77,7 @@ export class AuthService {
     localStorage.removeItem('auth_user');
     this.token.set(null);
     this.user.set(null);
-    this.router.navigate(['/login']);
+    this.router.navigate(['/']);
   }
 
   getRoles() {

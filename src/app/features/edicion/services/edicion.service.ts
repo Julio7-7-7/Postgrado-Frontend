@@ -19,6 +19,10 @@ export class EdicionService extends ApiService {
     return this.http.get<ProgramaVersionEdicion>(`${this.baseUrl}/${this.endpoint}/${id}`);
   }
 
+  getActivas(): Observable<ProgramaVersionEdicion[]> {
+    return this.http.get<ProgramaVersionEdicion[]>(`${this.baseUrl}/${this.endpoint}/activas`);
+  }
+
   create(data: ProgramaVersionEdicionCreate): Observable<ProgramaVersionEdicion> {
     return this.http.post<ProgramaVersionEdicion>(`${this.baseUrl}/${this.endpoint}/`, data);
   }

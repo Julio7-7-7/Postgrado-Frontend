@@ -1,0 +1,71 @@
+<div class="inscripciones-container">
+  <div class="page-header">
+    <h1><mat-icon>assignment_ind</mat-icon> Mis Inscripciones</h1>
+    <p class="subtitle">Programas a los que estás inscripto</p>
+  </div>
+
+  @if (cargando()) {
+    <div class="loading">Cargando inscripciones...</div>
+  }
+
+  @if (!cargando() && inscripciones().length === 0) {
+    <div class="empty">
+      <mat-icon>info</mat-icon>
+      <p>Todavía no tenés inscripciones. Explorá la oferta académica para inscribirte.</p>
+    </div>
+  }
+
+  @if (!cargando() && inscripciones().length > 0) {
+    <div class="inscripciones-list">
+      @for (ins of inscripciones(); track ins.id_detalle_programa_alumno) {
+        <mat-card class="inscripcion-card">
+          <mat-card-content>
+            <div class="card-top">
+              <div class="programa-info">
+                <h3>{{ ins.programa_version_edicion.programa_version.programa.nombre_programa || 'Programa' }}</h3>
+                @if (ins.programa_version_edicion.gestion) {
+                  <p class="edicion-info">Ed. {{ ins.programa_version_edicion.edicion }} — {{ ins.programa_version_edicion.gestion }}</p>
+                }
+              </div>
+              <div class="estado-chip" [style.background]="estadoColor(ins.estado) + '20'"
+                   [style.color]="estadoColor(ins.estado)" [style.border-color]="estadoColor(ins.estado)">
+                {{ ins.estado }}
+              </div>
+            </div>
+
+            <mat-divider></mat-divider>
+
+            <div class="details">
+              <div class="detail-row">
+                <span class="label">Modalidad</span>
+                <span class="value">{{ ins.modalidad_academica.nombre_modalidad || '—' }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Fecha de Inscripción</span>
+                <span class="value">{{ convertirFecha(ins.fecha_inscripcion) }}</span>
+              </div>
+              @if (ins.descuento_aplicado > 0) {
+                <div class="detail-row">
+                  <span class="label">Descuento</span>
+                  <span class="value">{{ ins.descuento_aplicado }}%</span>
+                </div>
+              }
+              @if (ins.tipo_descuento) {
+                <div class="detail-row">
+                  <span class="label">Tipo Descuento</span>
+                  <span class="value">{{ ins.tipo_descuento.nombre }}</span>
+                </div>
+              }
+              @if (ins.programa_version_edicion.precio) {
+                <div class="detail-row">
+                  <span class="label">Precio</span>
+                  <span class="value">Bs {{ ins.programa_version_edicion.precio }}</span>
+                </div>
+              }
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+  }
+</div>
