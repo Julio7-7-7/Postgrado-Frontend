@@ -11,6 +11,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { AdminService } from '../services/admin.service';
 import { UserAdminResponse, RolResponse } from '../models/admin.models';
 import { UsuarioFormComponent } from './usuario-form';
+import { ConfirmDialog, RolChangeDialog } from './admin-dialogs';
 
 @Component({
   selector: 'app-usuarios-list',
@@ -19,7 +20,7 @@ import { UsuarioFormComponent } from './usuario-form';
     CommonModule,
     MatButtonModule, MatIconModule, MatTooltipModule,
     MatTableModule, MatProgressSpinnerModule,
-    MatSnackBarModule, MatDialogModule,
+    MatSnackBarModule, MatDialogModule, ConfirmDialog, RolChangeDialog,
   ],
   templateUrl: './usuarios-list.html',
   styleUrl: './usuarios-list.css',
@@ -40,6 +41,7 @@ export class UsuariosListComponent implements OnInit {
     this.cargarDatos();
     this.service.getAllRoles().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: data => this.roles.set(data),
+      error: () => this.snackbar.open('Error al cargar roles', 'Cerrar', { duration: 3000 }),
     });
   }
 
@@ -63,39 +65,42 @@ export class UsuariosListComponent implements OnInit {
 
   cambiarRol(u: UserAdminResponse): void {
     const opciones = this.roles().filter(r => r.id_rol !== u.id_rol);
-    const opcionesStr = opciones.map(r => `${r.id_rol}: ${r.nombre}`).join('\n');
-    const input = prompt(
-      `Cambiar rol de "${u.email}" (actual: ${u.rol})\n\n` +
-      `Opciones:\n${opcionesStr}\n\nIngresá el número del nuevo rol:`,
-    );
-    if (!input) return;
-    const idRol = parseInt(input, 10);
-    if (isNaN(idRol) || !this.roles().some(r => r.id_rol === idRol)) {
-      this.snackbar.open('Rol inválido', 'Cerrar', { duration: 3000 });
-      return;
-    }
-    this.service.changeUserRole(u.id_usuario, { id_rol: idRol })
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => {
-          this.snackbar.open('Rol actualizado', 'Cerrar', { duration: 3000 });
-          this.cargarDatos();
-        },
-        error: err => this.snackbar.open(err.error?.detail || 'Error', 'Cerrar', { duration: 4000 }),
-      });
+    const dialogRef = this.dialog.open(RolChangeDialog, {
+      width: '400px',
+      data: { email: u.email, roleActual: u.rol, opciones },
+    });
+    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(id_rol => {
+      if (!id_rol) return;
+      this.service.changeUserRole(u.id_usuario, { id_rol })
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: () => {
+            this.snackbar.open('Rol actualizado', 'Cerrar', { duration: 3000 });
+            this.cargarDatos();
+          },
+          error: err => this.snackbar.open(err.error?.detail || 'Error', 'Cerrar', { duration: 4000 }),
+        });
+    });
   }
 
   toggleActivo(u: UserAdminResponse): void {
     const msg = u.activo ? 'desactivar' : 'activar';
-    if (!confirm(`¿${msg} al usuario "${u.email}"?`)) return;
-    this.service.toggleUserActive(u.id_usuario)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => {
-          this.snackbar.open(`Usuario ${msg}do`, 'Cerrar', { duration: 3000 });
-          this.cargarDatos();
-        },
-        error: err => this.snackbar.open(err.error?.detail || 'Error', 'Cerrar', { duration: 4000 }),
-      });
+    const dialogRef = this.dialog.open(ConfirmDialog, {
+      id: 'confirm-dialog',
+      width: '400px',
+      data: { message: `¿${msg} al usuario "${u.email}"?` },
+    });
+    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(result => {
+      if (!result) return;
+      this.service.toggleUserActive(u.id_usuario)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: () => {
+            this.snackbar.open(`Usuario ${msg}do`, 'Cerrar', { duration: 3000 });
+            this.cargarDatos();
+          },
+          error: err => this.snackbar.open(err.error?.detail || 'Error', 'Cerrar', { duration: 4000 }),
+        });
+    });
   }
 }

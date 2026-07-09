@@ -1,8 +1,4 @@
-.usuarios-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-.usuarios-toolbar h2 { margin: 0; }
-.loading-container, .error-container, .empty { display: flex; flex-direction: column; align-items: center; padding: 48px; gap: 16px; }
-table { width: 100%; }
-.profile-type { font-size: 0.85em; color: rgba(0,0,0,0.5); }
-.rol-badge { background: #e8eaf6; padding: 4px 12px; border-radius: 16px; font-size: 0.85em; }
-.activo { color: #2e7d32; font-weight: 500; }
-.inactivo { color: #c62828; font-weight: 500; }
+.toolbar-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.toolbar-row h3 { margin: 0; font-size: 1.1rem; }
+.loading-container, .error-container { display: flex; flex-direction: column; align-items: center; padding: 48px; gap: 16px; }
+.profile-type { font-size: 0.85em; color: var(--fich-text-muted, rgba(0,0,0,0.5)); }

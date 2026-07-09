@@ -5,13 +5,13 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTableModule } from '@angular/material/table';
-import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { AdminService } from '../services/admin.service';
 import { RolResponse } from '../models/admin.models';
 import { RolFormComponent } from './rol-form';
+import { ConfirmDialog } from './admin-dialogs';
 
 @Component({
   selector: 'app-roles-list',
@@ -19,34 +19,32 @@ import { RolFormComponent } from './rol-form';
   imports: [
     CommonModule,
     MatButtonModule, MatIconModule, MatTooltipModule,
-    MatTableModule, MatChipsModule, MatProgressSpinnerModule,
-    MatSnackBarModule, MatDialogModule,
+    MatTableModule, MatProgressSpinnerModule,
+    MatSnackBarModule, MatDialogModule, ConfirmDialog,
   ],
   template: `
-    <div class="roles-toolbar">
-      <h2>Roles</h2>
-      <button mat-raised-flat color="primary" (click)="abrirFormulario()">
+    <div class="toolbar-row">
+      <h3>Roles</h3>
+      <button mat-raised-button color="primary" class="btn-nuevo" (click)="abrirFormulario()">
         <mat-icon>add</mat-icon> Nuevo Rol
       </button>
     </div>
 
     @if (isLoading()) {
-      <div class="loading-container">
-        <mat-spinner diameter="40"></mat-spinner>
-      </div>
+      <div class="loading-container"><mat-spinner diameter="40"></mat-spinner></div>
     } @else if (error()) {
       <div class="error-container">
         <p>{{ error() }}</p>
-        <button mat-raised-flat (click)="cargarDatos()">Reintentar</button>
+        <button mat-raised-button (click)="cargarDatos()">Reintentar</button>
       </div>
     } @else {
-      <table mat-table [dataSource]="roles()" class="mat-elevation-z2">
+      <table mat-table [dataSource]="roles()" class="fich-table mat-elevation-z2">
         <ng-container matColumnDef="nombre">
           <th mat-header-cell *matHeaderCellDef>Rol</th>
           <td mat-cell *matCellDef="let r">
             <strong>{{ r.nombre }}</strong>
             @if (r.descripcion) {
-              <br><span class="descripcion">{{ r.descripcion }}</span>
+              <br><span class="desc-text">{{ r.descripcion }}</span>
             }
           </td>
         </ng-container>
@@ -54,7 +52,7 @@ import { RolFormComponent } from './rol-form';
         <ng-container matColumnDef="permisos">
           <th mat-header-cell *matHeaderCellDef>Permisos</th>
           <td mat-cell *matCellDef="let r">
-            <span class="permiso-count">{{ r.permisos.length }} permisos</span>
+            <span class="estado-pill activo">{{ r.permisos.length }} permisos</span>
           </td>
         </ng-container>
 
@@ -77,17 +75,18 @@ import { RolFormComponent } from './rol-form';
       </table>
 
       @if (roles().length === 0) {
-        <div class="empty">No hay roles registrados</div>
+        <div class="empty-state">
+          <mat-icon>admin_panel_settings</mat-icon>
+          <p>No hay roles registrados</p>
+        </div>
       }
     }
   `,
   styles: [`
-    .roles-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-    .roles-toolbar h2 { margin: 0; }
-    .loading-container, .error-container, .empty { display: flex; flex-direction: column; align-items: center; padding: 48px; gap: 16px; }
-    table { width: 100%; }
-    .descripcion { font-size: 0.85em; color: var(--mat-table-text-color, rgba(0,0,0,0.6)); }
-    .permiso-count { background: var(--mat-chip-container-background-color, #e8eaf6); padding: 4px 12px; border-radius: 16px; font-size: 0.85em; }
+    .toolbar-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .toolbar-row h3 { margin: 0; font-size: 1.1rem; }
+    .loading-container, .error-container { display: flex; flex-direction: column; align-items: center; padding: 48px; gap: 16px; }
+    .desc-text { font-size: 0.85em; color: var(--fich-text-muted, rgba(0,0,0,0.55)); }
   `],
 })
 export class RolesListComponent implements OnInit {
@@ -128,13 +127,19 @@ export class RolesListComponent implements OnInit {
   }
 
   eliminarRol(rol: RolResponse): void {
-    if (!confirm(`¿Eliminar el rol "${rol.nombre}"?`)) return;
-    this.service.deleteRol(rol.id_rol).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: () => {
-        this.snackbar.open('Rol eliminado', 'Cerrar', { duration: 3000 });
-        this.cargarDatos();
-      },
-      error: err => this.snackbar.open(err.error?.detail || 'Error al eliminar', 'Cerrar', { duration: 4000 }),
+    const dialogRef = this.dialog.open(ConfirmDialog, {
+      width: '400px',
+      data: { message: `¿Eliminar el rol "${rol.nombre}"?` },
+    });
+    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(result => {
+      if (!result) return;
+      this.service.deleteRol(rol.id_rol).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+        next: () => {
+          this.snackbar.open('Rol eliminado', 'Cerrar', { duration: 3000 });
+          this.cargarDatos();
+        },
+        error: err => this.snackbar.open(err.error?.detail || 'Error al eliminar', 'Cerrar', { duration: 4000 }),
+      });
     });
   }
 }

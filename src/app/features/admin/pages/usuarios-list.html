@@ -1,6 +1,6 @@
-<div class="usuarios-toolbar">
-  <h2>Usuarios</h2>
-  <button mat-raised-flat color="primary" (click)="abrirFormulario()">
+<div class="toolbar-row">
+  <h3>Usuarios</h3>
+  <button mat-raised-button color="primary" class="btn-nuevo" (click)="abrirFormulario()">
     <mat-icon>add</mat-icon> Nuevo Usuario
   </button>
 </div>
@@ -10,10 +10,10 @@
 } @else if (error()) {
   <div class="error-container">
     <p>{{ error() }}</p>
-    <button mat-raised-flat (click)="cargarDatos()">Reintentar</button>
+    <button mat-raised-button (click)="cargarDatos()">Reintentar</button>
   </div>
 } @else {
-  <table mat-table [dataSource]="usuarios()" class="mat-elevation-z2">
+  <table mat-table [dataSource]="usuarios()" class="fich-table mat-elevation-z2">
     <ng-container matColumnDef="email">
       <th mat-header-cell *matHeaderCellDef>Email</th>
       <td mat-cell *matCellDef="let u">{{ u.email }}</td>
@@ -32,14 +32,14 @@
     <ng-container matColumnDef="rol">
       <th mat-header-cell *matHeaderCellDef>Rol</th>
       <td mat-cell *matCellDef="let u">
-        <span class="rol-badge">{{ u.rol }}</span>
+        <span class="estado-pill activo">{{ u.rol }}</span>
       </td>
     </ng-container>
 
     <ng-container matColumnDef="activo">
       <th mat-header-cell *matHeaderCellDef>Estado</th>
       <td mat-cell *matCellDef="let u">
-        <span [class.activo]="u.activo" [class.inactivo]="!u.activo">
+        <span class="estado-pill" [class.activo]="u.activo" [class.inactivo]="!u.activo">
           {{ u.activo ? 'Activo' : 'Inactivo' }}
         </span>
       </td>
@@ -54,7 +54,7 @@
         <button mat-icon-button
                 [matTooltip]="u.activo ? 'Desactivar usuario' : 'Activar usuario'"
                 (click)="toggleActivo(u)">
-          <mat-icon [style.color]="u.activo ? 'orange' : 'green'">
+          <mat-icon [style.color]="u.activo ? 'var(--fich-est-warning)' : 'var(--fich-est-activo)'">
             {{ u.activo ? 'block' : 'check_circle' }}
           </mat-icon>
         </button>
@@ -66,6 +66,9 @@
   </table>
 
   @if (usuarios().length === 0) {
-    <div class="empty">No hay usuarios registrados</div>
+    <div class="empty-state">
+      <mat-icon>people</mat-icon>
+      <p>No hay usuarios registrados</p>
+    </div>
   }
 }

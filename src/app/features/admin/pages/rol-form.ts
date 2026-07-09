@@ -8,6 +8,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { AdminService } from '../services/admin.service';
 import { PermisoResponse, RolResponse, RolCreate, RolUpdate } from '../models/admin.models';
@@ -25,7 +26,7 @@ interface PermisoGroup {
     CommonModule, FormsModule,
     MatDialogModule, MatButtonModule, MatFormFieldModule,
     MatInputModule, MatCheckboxModule, MatExpansionModule,
-    MatSnackBarModule,
+    MatProgressSpinnerModule, MatSnackBarModule,
   ],
   template: `
     <h2 mat-dialog-title>{{ esEdicion() ? 'Editar Rol' : 'Nuevo Rol' }}</h2>
@@ -41,12 +42,12 @@ interface PermisoGroup {
         <textarea matInput [(ngModel)]="descripcion" rows="2"></textarea>
       </mat-form-field>
 
-      <h3>Permisos</h3>
+      <h3 style="margin-top: 20px; margin-bottom: 8px;">Permisos</h3>
       @if (isLoadingPermisos()) {
-        <p>Cargando permisos...</p>
+        <div class="loading-permisos"><mat-spinner diameter="24"></mat-spinner> Cargando permisos...</div>
       } @else {
         @for (group of grupos(); track group.prefix) {
-          <mat-expansion-panel [expanded]="true">
+          <mat-expansion-panel>
             <mat-expansion-panel-header>
               <mat-panel-title>
                 <mat-checkbox [checked]="grupoCompleto(group)"
@@ -78,7 +79,8 @@ interface PermisoGroup {
 
     <mat-dialog-actions align="end">
       <button mat-button mat-dialog-close>Cancelar</button>
-      <button mat-raised-flat color="primary" [disabled]="!nombre.trim() || guardando()"
+      <button mat-raised-button color="primary" class="btn-guardar"
+              [disabled]="!nombre.trim() || guardando()"
               (click)="guardar()">
         {{ guardando() ? 'Guardando...' : 'Guardar' }}
       </button>
@@ -86,9 +88,10 @@ interface PermisoGroup {
   `,
   styles: [`
     .full-width { width: 100%; margin-bottom: 12px; }
+    .loading-permisos { display: flex; align-items: center; gap: 12px; padding: 24px; color: var(--fich-text-muted, rgba(0,0,0,0.55)); }
     .permiso-row { padding: 4px 0 4px 24px; }
-    .permiso-desc { color: rgba(0,0,0,0.55); font-size: 0.9em; }
-    code { background: #f5f5f5; padding: 2px 6px; border-radius: 4px; font-size: 0.9em; }
+    .permiso-desc { color: var(--fich-text-muted, rgba(0,0,0,0.55)); font-size: 0.9em; }
+    code { background: var(--fich-bg-muted, #f5f5f5); padding: 2px 6px; border-radius: 4px; font-size: 0.9em; }
     mat-expansion-panel { margin-bottom: 8px; }
   `],
 })
