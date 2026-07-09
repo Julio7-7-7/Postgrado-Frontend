@@ -1,0 +1,44 @@
+<div class="login-page">
+  <div class="login-card">
+    <div class="login-header">
+      <mat-icon class="login-icon">school</mat-icon>
+      <h1>Control de Posgrado</h1>
+      <p class="login-sub">FICH — Universidad Peruana de Ciencias</p>
+    </div>
+
+    <div class="login-form">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Rol</mat-label>
+        <mat-select [(ngModel)]="selectedRol">
+          @for (r of roles(); track r.id_rol) {
+            <mat-option [value]="r.id_rol">
+              {{ r.nombre | titlecase }}
+            </mat-option>
+          }
+        </mat-select>
+        <mat-icon matIconPrefix>badge</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Correo electrónico</mat-label>
+        <input matInput type="email" [(ngModel)]="email" placeholder="correo@fich.edu.pe">
+        <mat-icon matIconPrefix>email</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Contraseña</mat-label>
+        <input matInput type="password" [(ngModel)]="password" (keydown.enter)="login()">
+        <mat-icon matIconPrefix>lock</mat-icon>
+      </mat-form-field>
+
+      <button mat-flat-button class="btn-login" (click)="login()" [disabled]="loading()">
+        @if (loading()) {
+          <mat-spinner diameter="20" />
+        } @else {
+          <mat-icon>login</mat-icon>
+          Ingresar
+        }
+      </button>
+    </div>
+  </div>
+</div>
