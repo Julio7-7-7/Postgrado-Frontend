@@ -1,3 +1,4 @@
+@if (isLogged()) {
 <mat-toolbar class="navbar">
   <div class="navbar-brand" routerLink="/">
     <div class="brand-emblem">
@@ -14,7 +15,7 @@
   <div class="navbar-spacer"></div>
 
   <nav class="navbar-nav">
-    @for (item of navItems; track item.path) {
+    @for (item of navItems(); track item.path) {
       <a
         mat-button
         [routerLink]="item.path"
@@ -31,26 +32,24 @@
   </nav>
 
   <div class="navbar-actions">
-    <button mat-icon-button class="notif-btn" matTooltip="Notificaciones">
-      <mat-icon>notifications</mat-icon>
-    </button>
     <button mat-icon-button [matMenuTriggerFor]="profileMenu" class="profile-btn" matTooltip="Usuario">
       <mat-icon>account_circle</mat-icon>
     </button>
     <mat-menu #profileMenu="matMenu" xPosition="before" class="profile-menu">
       <button mat-menu-item disabled>
         <mat-icon>person</mat-icon>
-        <span>Admin</span>
+        <span>{{ user()?.email }}</span>
+      </button>
+      <button mat-menu-item disabled>
+        <mat-icon>badge</mat-icon>
+        <span>{{ user()?.rol }}</span>
       </button>
       <mat-divider></mat-divider>
-      <button mat-menu-item disabled>
-        <mat-icon>settings</mat-icon>
-        <span>Configuración</span>
-      </button>
-      <button mat-menu-item>
+      <button mat-menu-item (click)="logout()">
         <mat-icon>logout</mat-icon>
         <span>Cerrar sesión</span>
       </button>
     </mat-menu>
   </div>
 </mat-toolbar>
+}
