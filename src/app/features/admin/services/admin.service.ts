@@ -4,7 +4,7 @@ import { ApiService } from '../../../core/services/api.service';
 import {
   RolResponse, RolCreate, RolUpdate,
   PermisoResponse,
-  UserAdminResponse, UserAdminCreate, UserChangeRol,
+  UserAdminResponse, UserAdminCreate, UserUpdateRoles,
 } from '../models/admin.models';
 
 @Injectable({ providedIn: 'root' })
@@ -45,8 +45,8 @@ export class AdminService extends ApiService {
     return this.http.post(`${this.baseUrl}/usuarios/`, data);
   }
 
-  changeUserRole(id: number, data: UserChangeRol): Observable<any> {
-    return this.http.put(`${this.baseUrl}/usuarios/${id}/rol`, data);
+  updateUserRoles(id: number, data: UserUpdateRoles): Observable<any> {
+    return this.http.put(`${this.baseUrl}/usuarios/${id}/roles`, data);
   }
 
   toggleUserActive(id: number): Observable<any> {

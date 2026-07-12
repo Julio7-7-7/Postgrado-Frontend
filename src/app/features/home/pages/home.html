@@ -37,15 +37,15 @@
     <div class="dash-stat" [routerLink]="'/tipos-programa'" [style.background]="'var(--fich-primary-light)'">
       <div class="dash-stat-icon" [style.background]="'var(--fich-primary)'"><mat-icon>category</mat-icon></div>
       <div class="dash-stat-body">
-        <span class="dash-stat-value">—</span>
+        <span class="dash-stat-value">{{ totalTipos() }}</span>
         <span class="dash-stat-label">Tipos</span>
       </div>
       <mat-icon class="dash-stat-arrow">chevron_right</mat-icon>
     </div>
-    <div class="dash-stat" [routerLink]="'/docentes'" [style.background]="'var(--fich-primary-light)'">
+    <div class="dash-stat" [routerLink]="'/alumnos'" [style.background]="'var(--fich-primary-light)'">
       <div class="dash-stat-icon" [style.background]="'var(--fich-primary)'"><mat-icon>people</mat-icon></div>
       <div class="dash-stat-body">
-        <span class="dash-stat-value">—</span>
+        <span class="dash-stat-value">{{ totalAlumnos() }}</span>
         <span class="dash-stat-label">Alumnos</span>
       </div>
       <mat-icon class="dash-stat-arrow">chevron_right</mat-icon>

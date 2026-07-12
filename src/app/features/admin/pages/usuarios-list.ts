@@ -11,7 +11,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { AdminService } from '../services/admin.service';
 import { UserAdminResponse, RolResponse } from '../models/admin.models';
 import { UsuarioFormComponent } from './usuario-form';
-import { ConfirmDialog, RolChangeDialog } from './admin-dialogs';
+import { ConfirmDialog, RolesChangeDialog } from './admin-dialogs';
 
 @Component({
   selector: 'app-usuarios-list',
@@ -20,7 +20,7 @@ import { ConfirmDialog, RolChangeDialog } from './admin-dialogs';
     CommonModule,
     MatButtonModule, MatIconModule, MatTooltipModule,
     MatTableModule, MatProgressSpinnerModule,
-    MatSnackBarModule, MatDialogModule, ConfirmDialog, RolChangeDialog,
+    MatSnackBarModule, MatDialogModule, ConfirmDialog, RolesChangeDialog,
   ],
   templateUrl: './usuarios-list.html',
   styleUrl: './usuarios-list.css',
@@ -35,7 +35,7 @@ export class UsuariosListComponent implements OnInit {
   roles = signal<RolResponse[]>([]);
   isLoading = signal(true);
   error = signal<string | null>(null);
-  columnas = ['email', 'profile', 'rol', 'activo', 'acciones'];
+  columnas = ['email', 'profile', 'roles', 'activo', 'acciones'];
 
   ngOnInit(): void {
     this.cargarDatos();
@@ -63,19 +63,18 @@ export class UsuariosListComponent implements OnInit {
     });
   }
 
-  cambiarRol(u: UserAdminResponse): void {
-    const opciones = this.roles().filter(r => r.id_rol !== u.id_rol);
-    const dialogRef = this.dialog.open(RolChangeDialog, {
+  cambiarRoles(u: UserAdminResponse): void {
+    const dialogRef = this.dialog.open(RolesChangeDialog, {
       width: '400px',
-      data: { email: u.email, roleActual: u.rol, opciones },
+      data: { email: u.email, rolesActuales: u.id_roles, opciones: this.roles() },
     });
-    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(id_rol => {
-      if (!id_rol) return;
-      this.service.changeUserRole(u.id_usuario, { id_rol })
+    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(result => {
+      if (!result) return;
+      this.service.updateUserRoles(u.id_usuario, { roles: result })
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: () => {
-            this.snackbar.open('Rol actualizado', 'Cerrar', { duration: 3000 });
+            this.snackbar.open('Roles actualizados', 'Cerrar', { duration: 3000 });
             this.cargarDatos();
           },
           error: err => this.snackbar.open(err.error?.detail || 'Error', 'Cerrar', { duration: 4000 }),

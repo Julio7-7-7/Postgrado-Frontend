@@ -29,8 +29,8 @@ export interface UserAdminResponse {
   id_usuario: number;
   email: string;
   activo: boolean;
-  rol: string;
-  id_rol: number;
+  roles: string[];
+  id_roles: number[];
   profile_type: string | null;
   profile_nombre: string | null;
   created_at: string;
@@ -39,13 +39,13 @@ export interface UserAdminResponse {
 export interface UserAdminCreate {
   email: string;
   password: string;
-  id_rol: number;
+  roles: number[];
   ci: string;
   nombre: string;
   apellido: string;
   celular?: string | null;
 }
 
-export interface UserChangeRol {
-  id_rol: number;
+export interface UserUpdateRoles {
+  roles: number[];
 }

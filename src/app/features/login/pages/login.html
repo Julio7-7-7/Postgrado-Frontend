@@ -9,35 +9,10 @@
       <p class="subtitle">Facultad de Ingeniería — Chaco</p>
     </div>
 
-    @if (step() === 'roles') {
-      <div class="roles-step">
-        <h2>Iniciar Sesión</h2>
-        <p class="role-desc">Seleccioná tu perfil</p>
-        <div class="role-grid">
-          @for (role of roles; track role.key) {
-            <button class="role-card" (click)="selectRole(role.key)">
-              <mat-icon class="role-icon" [style.color]="role.color">{{ role.icon }}</mat-icon>
-              <span class="role-label">{{ role.label }}</span>
-              <span class="role-desc-small">{{ role.description }}</span>
-            </button>
-          }
-        </div>
-      </div>
-    }
-
-    @if (step() === 'form') {
+    @if (step() === 'credentials') {
       <div class="form-step">
-        <button class="back-btn" (click)="volver()">
-          <mat-icon>arrow_back</mat-icon> Volver
-        </button>
-
-        <div class="selected-role">
-          @let role = roles.find(r => r.key === selectedRole());
-          @if (role) {
-            <mat-icon [style.color]="role.color">{{ role.icon }}</mat-icon>
-            <span>{{ role.label }}</span>
-          }
-        </div>
+        <h2>Iniciar Sesión</h2>
+        <p class="role-desc">Ingresá tus credenciales</p>
 
         <form class="login-form" (ngSubmit)="login()">
           <mat-form-field appearance="outline" class="full-width">
@@ -59,10 +34,32 @@
             @if (loading) {
               <mat-icon>hourglass_top</mat-icon> Ingresando...
             } @else {
-              <mat-icon>login</mat-icon> Ingresar
+              <mat-icon>login</mat-icon> Continuar
             }
           </button>
         </form>
+      </div>
+    }
+
+    @if (step() === 'roles') {
+      <div class="roles-step">
+        <button class="back-btn" (click)="volver()">
+          <mat-icon>arrow_back</mat-icon> Volver
+        </button>
+
+        <h2>Seleccioná tu perfil</h2>
+        <p class="role-desc">Tenés acceso con múltiples roles</p>
+
+        <div class="role-grid">
+          @for (rol of userRoles(); track rol.id_rol) {
+            <button class="role-card" (click)="seleccionarRol(rol.id_rol)" [disabled]="loading">
+              <mat-icon class="role-icon" [style.color]="getRolColor(rol.nombre)">
+                {{ getRolIcon(rol.nombre) }}
+              </mat-icon>
+              <span class="role-label">{{ getRolLabel(rol.nombre) }}</span>
+            </button>
+          }
+        </div>
       </div>
     }
   </div>
