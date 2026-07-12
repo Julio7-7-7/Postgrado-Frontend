@@ -410,3 +410,34 @@ El backend resuelve esto en `_obtener_permisos()` (`dependencies.py:74`) al mome
 - Endpoint dashboard: estadísticas del admin
 - Filtrado de alumnos por período: endpoint `GET /alumnos/por-periodo/{id_periodo}`
 - Subida de documentos por alumno + validación por admin
+
+### Fix sesión 2026-07-12 — Multi-role bugs + docente + dashboard
+1. Fix `_obtener_profile_info` ahora recibe `nombre_rol` para devolver el profile correcto según el rol seleccionado (antes siempre devolvía "alumno" para usuarios multi-rol)
+2. Fix `seleccionar-rol` ahora filtra por `id_usuario` + `id_rol` (antes solo filtraba por `id_rol`, podía agarrar rol de otro usuario)
+3. Fix `SelectRolRequest` ahora requiere `id_usuario` + `id_rol` (antes solo `id_rol`)
+4. Fix `roles.py:eliminar_rol` ahora consulta `UsuarioRol` en vez de `Usuario.id_rol` (campo eliminado)
+5. Eliminado schema obsoleto `UserChangeRol`
+6. Navbar docente ahora muestra: Mi Perfil, Mis Alumnos, Oferta Académica (antes solo veía "Alumnos" que iba al portal de estudiante)
+7. Login redirige docentes a `/docentes/:id_profile` en vez de `/dashboard` vacío
+8. Seed docente ahora incluye permiso `docentes.ver`
+9. Fix `GradoEnum` — seed usaba `"Licenciado"` pero el enum solo acepta `"Lic."`
+10. Dashboard stats ahora carga datos reales: Programas, Docentes, Tipos, Alumnos (antes Tipos y Alumnos mostraban "—")
+11. `AlumnoService` ahora tiene método `getAll()`
+12. Link "Alumnos" en dashboard ahora apunta a `/alumnos` en vez de `/docentes`
+
+### Archivos tocados
+**Backend:**
+- `dependencies.py` — `_obtener_profile_info` recibe `nombre_rol`
+- `routers/auth.py` — `seleccionar-rol` filtra por `id_usuario` + `id_rol`, pasa `nombre_rol` a `_obtener_profile_info`
+- `routers/roles.py` — `eliminar_rol` usa `UsuarioRol` en vez de `Usuario.id_rol`
+- `schemas/auth.py` — `SelectRolRequest` con `id_usuario` + `id_rol`
+- `schemas/admin.py` — eliminado `UserChangeRol`
+- `seed.py` — grado `"Licenciado"` → `"Lic."`, docente incluye `docentes.ver`
+
+**Frontend:**
+- `auth.service.ts` — `seleccionarRol` recibe `id_usuario` + `id_rol`
+- `login.ts` — almacena `loginUserId` del step1, pasa `id_usuario` a `seleccionarRol`
+- `navbar.ts` — `docenteItems` array, navItems filtra por rol
+- `home.ts` — inyecta `TipoProgramaService` + `AlumnoService`, carga stats
+- `home.html` — stats reales, link Alumnos → `/alumnos`
+- `alumno.service.ts` — nuevo método `getAll()`

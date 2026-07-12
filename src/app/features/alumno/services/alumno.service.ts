@@ -7,6 +7,10 @@ import { Alumno, AlumnoUpdate } from '../models/alumno.model';
 export class AlumnoService extends ApiService {
   private readonly endpoint = 'alumnos';
 
+  getAll(): Observable<Alumno[]> {
+    return this.http.get<Alumno[]>(`${this.baseUrl}/${this.endpoint}/`);
+  }
+
   getMiPerfil(): Observable<Alumno> {
     return this.http.get<Alumno>(`${this.baseUrl}/${this.endpoint}/mi-perfil`);
   }

@@ -10,6 +10,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ProgramaService } from '../../programa/services/programa.service';
 import { DocenteService } from '../../docente/services/docente.service';
+import { TipoProgramaService } from '../../tipo-programa/services/tipo-programa.service';
+import { AlumnoService } from '../../alumno/services/alumno.service';
 import { EdicionService } from '../../edicion/services/edicion.service';
 import { ProgramaVersionEdicion } from '../../edicion/models/edicion.model';
 import { environment } from '../../../../environments/environment';
@@ -38,6 +40,8 @@ const CARD_STEP = 380;
 export class HomeComponent implements OnInit {
   private programaService = inject(ProgramaService);
   private docenteService = inject(DocenteService);
+  private tipoProgramaService = inject(TipoProgramaService);
+  private alumnoService = inject(AlumnoService);
   private edicionService = inject(EdicionService);
   private router = inject(Router);
   private snackBar = inject(MatSnackBar);
@@ -49,6 +53,8 @@ export class HomeComponent implements OnInit {
 
   totalProgramas = signal(0);
   totalDocentes = signal(0);
+  totalTipos = signal(0);
+  totalAlumnos = signal(0);
 
   edicionesActivas = signal<ProgramaVersionEdicion[]>([]);
 
@@ -80,6 +86,12 @@ export class HomeComponent implements OnInit {
     });
     this.docenteService.getAll().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (data) => this.totalDocentes.set(data.length),
+    });
+    this.tipoProgramaService.getAll().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (data) => this.totalTipos.set(data.length),
+    });
+    this.alumnoService.getAll().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (data) => this.totalAlumnos.set(data.length),
     });
   }
 

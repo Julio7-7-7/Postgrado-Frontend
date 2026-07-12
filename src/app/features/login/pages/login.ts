@@ -29,6 +29,7 @@ export class LoginComponent implements OnInit {
 
   step = signal<'credentials' | 'roles'>('credentials');
   userRoles = signal<RolInfo[]>([]);
+  loginUserId = signal<number>(0);
   email = '';
   password = '';
   loading = false;
@@ -43,7 +44,7 @@ export class LoginComponent implements OnInit {
         this.router.navigate(['/alumnos', 'inscribir', this.inscribirId], { replaceUrl: true });
         return;
       }
-      this.redirectAfterLogin(user?.rol || '');
+      this.redirectAfterLogin(user?.rol || '', user?.id_profile);
       return;
     }
   }
@@ -59,6 +60,7 @@ export class LoginComponent implements OnInit {
       next: (resp) => {
         this.loading = false;
         this.userRoles.set(resp.roles);
+        this.loginUserId.set(resp.id_usuario);
 
         if (this.inscribirId) {
           const rolAlumno = resp.roles.find(r => r.nombre === 'alumno');
@@ -83,7 +85,7 @@ export class LoginComponent implements OnInit {
 
   seleccionarRol(id_rol: number): void {
     this.loading = true;
-    this.auth.seleccionarRol(id_rol).subscribe({
+    this.auth.seleccionarRol(this.loginUserId(), id_rol).subscribe({
       next: (resp) => {
         this.auth.guardarSesion(resp);
         this.loading = false;
@@ -91,7 +93,7 @@ export class LoginComponent implements OnInit {
         if (this.inscribirId && resp.user.rol === 'alumno') {
           this.router.navigate(['/alumnos', 'inscribir', this.inscribirId], { replaceUrl: true });
         } else {
-          this.redirectAfterLogin(resp.user.rol);
+          this.redirectAfterLogin(resp.user.rol, resp.user.id_profile);
         }
       },
       error: () => {
@@ -145,9 +147,11 @@ export class LoginComponent implements OnInit {
     return colors[nombre] || '#4338ca';
   }
 
-  private redirectAfterLogin(rol: string): void {
+  private redirectAfterLogin(rol: string, id_profile?: number | null): void {
     if (rol === 'alumno') {
       this.router.navigate(['/']);
+    } else if (rol === 'docente' && id_profile) {
+      this.router.navigate(['/docentes', id_profile]);
     } else {
       this.router.navigate(['/dashboard']);
     }

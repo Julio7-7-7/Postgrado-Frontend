@@ -74,9 +74,9 @@ export class AuthService {
     });
   }
 
-  seleccionarRol(id_rol: number) {
+  seleccionarRol(id_usuario: number, id_rol: number) {
     return this.http.post<TokenResponse>(`${this.apiUrl}/auth/seleccionar-rol`, {
-      id_rol
+      id_usuario, id_rol
     });
   }
 
