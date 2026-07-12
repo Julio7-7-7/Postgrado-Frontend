@@ -60,6 +60,14 @@ export class LoginComponent implements OnInit {
         this.loading = false;
         this.userRoles.set(resp.roles);
 
+        if (this.inscribirId) {
+          const rolAlumno = resp.roles.find(r => r.nombre === 'alumno');
+          if (rolAlumno) {
+            this.seleccionarRol(rolAlumno.id_rol);
+            return;
+          }
+        }
+
         if (resp.roles.length === 1) {
           this.seleccionarRol(resp.roles[0].id_rol);
         } else {
@@ -139,7 +147,7 @@ export class LoginComponent implements OnInit {
 
   private redirectAfterLogin(rol: string): void {
     if (rol === 'alumno') {
-      this.router.navigate(['/alumnos']);
+      this.router.navigate(['/']);
     } else {
       this.router.navigate(['/dashboard']);
     }
