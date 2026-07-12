@@ -97,30 +97,30 @@ Backend: github.com/Julio7-7-7/PostgradoBackend
 - Refinar contraste y diferenciación visual general
 - Subida de documentos (requisitos) por parte del alumno + validación por admin (control_documentacion)
 
-## Sesión 2026-07-09 — Implementación de Auth + RBAC + Admin panel
+## Sesión 2026-07-10 — Implementación de Auth + RBAC + Admin panel (pre-migración)
 
-### Backend construido
-- `dependencies.py`: `create_access_token()`, `get_current_user()`, `require_permiso(codigo)`
-- `schemas/auth.py`: LoginRequest, RegisterRequest, TokenResponse, UserResponse, MeResponse
-- `routers/auth.py`: POST /auth/login, POST /auth/register, GET /auth/me, GET /auth/roles
-- `schemas/admin.py`: RolCreate/Update/Response, UserAdminResponse/Create/ChangeRol, PermisoResponse
+### Backend construido (pre-migración)
+- `dependencies.py`: `create_access_token()`, `get_current_user()`, `require_permiso(codigo)`, `_obtener_roles_usuario()`
+- `schemas/auth.py`: LoginRequest, SelectRolRequest, LoginStep1Response, RolInfo, UserResponse, MeResponse
+- `routers/auth.py`: POST /auth/login (2 pasos), POST /auth/seleccionar-rol, GET /auth/me, GET /auth/roles
+- `schemas/admin.py`: RolCreate/Update/Response, UserAdminResponse/Create/UpdateRoles, PermisoResponse
 - `routers/roles.py`: GET/POST/PUT/DELETE /roles/ (CRUD completo con permisos asignados)
 - `routers/permisos.py`: GET /permisos/ (catálogo de 47 permisos)
-- `routers/usuarios.py`: GET /usuarios/, POST, PUT /rol, PUT /activo
+- `routers/usuarios.py`: GET /usuarios/, POST, PUT /roles, PUT /activo
 - `seed.py`: 7 roles, 47 permisos, 117 asignaciones, 3 cuentas admin
 - `require_permiso` aplicado a los 17 routers existentes
 - Fix: bcrypt downgraded 4.1.3→4.0.1 por incompatibilidad con passlib
 
-### Frontend construido
-- `core/services/auth.service.ts`: login, logout, token, userSignal, hasPermiso
+### Frontend construido (pre-migración)
+- `core/services/auth.service.ts`: login (2 pasos), logout, token, userSignal, hasPermiso, seleccionarRol
 - `core/interceptors/auth.interceptor.ts`: JWT injection + auto-logout en 401
 - `core/guards/auth.guard.ts`: authGuard() + permisoGuard(codigo)
-- `features/login/`: LoginComponent con selector de rol, email, password, spinner, errores
-- `features/admin/`: AdminComponent (tabs), RolesList, RolForm (checkboxes agrupados), UsuariosList, UsuarioForm
+- `features/login/`: LoginComponent con 2 pasos (credentials → selección de rol), auto-selección alumno
+- `features/admin/`: AdminComponent (tabs), RolesList, RolForm (checkboxes agrupados), UsuariosList (columna roles), UsuarioForm (checkboxes roles), RolesChangeDialog
 - `navbar`: condicional @if(isLogged()), email+rol en menú, logout, navItems filtrados por permiso
-- `routes`: login pública, todas las rutas protegidas con guards, /admin con permisoGuard
+- `routes`: login pública, todas las rutas protegidas con guards, /admin con authGuard
 
-### Commits backend (5)
+### Commits backend (5) (pre-migración)
 ```
 41d254b feat: add auth system (JWT dependencies, schemas, login/register/me/roles endpoints)
 3c74eaf feat: add admin panel schemas and CRUD routers (roles, permisos, usuarios)
@@ -129,7 +129,7 @@ a325479 feat: protect all backend routers with require_permiso dependency
 6976367 fix: downgrade bcrypt to 4.0.1 for passlib compatibility
 ```
 
-### Commits frontend (5)
+### Commits frontend (5) (pre-migración)
 ```
 cda6943 feat: add auth service, HTTP interceptor, route guards, and protect all routes
 80cd104 feat: add login page with role selector
@@ -138,17 +138,17 @@ cda6943 feat: add auth service, HTTP interceptor, route guards, and protect all 
 c5953ec docs: update AGENTS.md with auth/RBAC session progress
 ```
 
-## Sesión 2026-07-09 — Diseño de Auth + RBAC + Administrativos
+## Sesión 2026-07-10 — Diseño de Auth + RBAC + Administrativos (pre-migración)
 
-### Resumen de decisiones
+### Resumen de decisiones (original — 1 usuario = 1 rol)
 
-**Login:** selección de rol (Administrativo | Docente | Alumno) → email + password → JWT
+**Login:** 2 pasos — email+password → selección de rol → JWT
 
 **RBAC con tabla roles gestionable desde panel:**
 - `roles` tabla (con CRUD para admin informático)
 - `permisos` tabla (catálogo de acciones: `programas.crear`, `pagos.registrar`, etc.)
 - `roles_permisos` (PK compuesta) — asigna permisos a roles
-- `usuarios.id_rol` FK → `roles` — cambiar el rol cambia permisos automáticamente
+- `usuario_roles` (PK compuesta: id_usuario + id_rol, rol_activo) — un usuario puede tener múltiples roles
 
 **Administrativos:** una sola tabla, NO una por cargo
 - `administrativos` (ci, nombre, apellido, cargo, correo, celular, id_usuario FK)
@@ -156,11 +156,11 @@ c5953ec docs: update AGENTS.md with auth/RBAC session progress
 - La diferencia real entre legal/contable/director/pasante está en los permisos vía rol
 
 **Nuevas tablas:**
-- `roles`, `permisos`, `roles_permisos`, `usuarios`, `administrativos`
+- `roles`, `permisos`, `roles_permisos`, `usuarios`, `usuario_roles`, `administrativos`
 
 **Modificar:**
 - `alumnos` + `docentes`: agregar `id_usuario` FK nullable, quitar unique de `correo`
-- Unique en `usuarios`: `(email, id_rol)` — misma persona puede tener dos cuentas con mismo email y distinto rol
+- Unique en `usuarios`: `email` (un solo usuario por email)
 
 **Frontend:** validación de permisos también (route guards + menú dinámico). No confiar solo en backend.
 
@@ -168,7 +168,7 @@ c5953ec docs: update AGENTS.md with auth/RBAC session progress
 
 ### Dudas resueltas
 - Login con **correo+contraseña** (no CI/pasaporte)
-- Admin que también es estudiante → **misma cuenta con rol extra** (o sea dos registros en `usuarios`: mismo email, distinto `id_rol`)
+- Admin que también es estudiante → **misma cuenta con múltiples roles** (tabla `usuario_roles`)
 - Soft delete **queda pendiente de definir cuándo se implementa**
 
 ### Roadmap completo — Auth + RBAC + Alumnos
@@ -185,49 +185,53 @@ c5953ec docs: update AGENTS.md with auth/RBAC session progress
 
 **Fase 2 — Auth backend** ✅
 9. ✅ Modelos + schemas de auth
-10. ✅ `POST /auth/register` — crea usuario + perfil según rol
-11. ✅ `POST /auth/login` — JWT con claims (id_usuario, id_rol, id_profile, email, permisos[])
+10. ✅ Login en 2 pasos — email+password → selección de rol → JWT
+11. ✅ JWT con claims (id_usuario, id_rol, id_profile, email, permisos[])
 12. ✅ `GET /auth/me` — perfil del usuario logueado
 13. ✅ Dependencias: `get_current_user()` + `require_permiso(codigo)`
+14. ✅ Tabla intermedia `usuario_roles` para múltiples roles por usuario
 
 **Backend — Permisos en routers** ✅
 - ✅ `require_permiso` aplicado a los 17 routers del sistema
 - ✅ Sin token → 401, sin permiso → 403, con permiso → 200
 
 **Fase 3 — Frontend auth** ✅
-14. ✅ Página de login con selector de rol, email, password
-15. ✅ AuthService (login, logout, token, userSignal, hasPermiso)
+14. ✅ Página de login con 2 pasos (credentials → selección de rol)
+15. ✅ AuthService (login 2 pasos, logout, token, userSignal, hasPermiso, seleccionarRol)
 16. ✅ HTTP interceptor (adjunta JWT, logout automático en 401)
 17. ✅ Route guards por permisos (authGuard + permisoGuard)
 18. ✅ Navbar dinámico según permisos del usuario
+19. ✅ Redirección por rol: admin→/dashboard, alumno→/ (oferta)
 
 **Fase 4 — Panel admin informático** ✅
 19. ✅ Feature roles: listar, crear, editar con checkboxes de permisos
-20. ✅ Feature usuarios: listar, crear, cambiar rol, activar/desactivar
+20. ✅ Feature usuarios: listar, crear, asignar múltiples roles, activar/desactivar
 21. ✅ Feature permisos: GET /permisos (catálogo para checkboxes)
-22. ⬜ Matriz visual rol × permiso (opcional, postergable)
+22. ✅ Diálogos Material: ConfirmDialog, RolChangeDialog, RolesChangeDialog
+23. ⬜ Matriz visual rol × permiso (opcional, postergable)
 
 **Fase 5 — Portal estudiante** ✅
-23. ✅ Registro e inscripción por auto-inscripción (POST /auto-inscribir)
-24. ✅ Vista de perfil alumno con edición (GET/PATCH /mi-perfil)
-25. ✅ Vista de inscripciones (GET /mis-inscripciones)
-26. ✅ Oferta académica visible desde navbar del estudiante
-27. ✅ Navbar condicional: admin ve menú completo, alumno solo Perfil/Inscripciones/Oferta
-28. ✅ Rediseño login con paso de selección de rol (Administrativo/Estudiante/Docente)
+24. ✅ Registro e inscripción por auto-inscripción (POST /auto-inscribir)
+25. ✅ Vista de perfil alumno con edición (GET/PATCH /mi-perfil)
+26. ✅ Vista de inscripciones (GET /mis-inscripciones)
+27. ✅ Oferta académica visible desde navbar del estudiante
+28. ✅ Navbar condicional: admin ve menú completo, alumno solo Perfil/Inscripciones/Oferta
 29. ✅ Landing pública (/) con hero + carrusel + pilares
 30. ✅ Public navbar con botón "Iniciar Sesión"
+31. ✅ Login 2 pasos: credenciales → selección de rol → redirección por rol
+32. ✅ Auto-selección de rol "alumno" al inscribirse desde landing
 
-## Sesión 2026-07-09 — Fix navegación estudiante + Oferta en navbar
-- Bug: ruta `/alumnos/oferta` no existía → tab roto
-- Bug: alumno no tenía permiso `ediciones.ver` → error 403 al cargar oferta/inscribir
-- Fix: agregada ruta `oferta` a `alumno.routes.ts`
-- Fix: agregado `ediciones.ver` al rol alumno en `seed.py`
-- Fix: `oferta.component.ts` usa `getActivas()` (endpoint público) en vez de `getAll(undefined, true)`
-- Refactor: eliminados tabs del portal alumno (era redundante con navbar)
+## Sesión 2026-07-10 — Fix navegación estudiante + Oferta en navbar (pre-migración)
+- Bug: ruta `/alumnos/oferta` no existía → tab roto (pre-migración)
+- Bug: alumno no tenía permiso `ediciones.ver` → error 403 al cargar oferta/inscribir (pre-migración)
+- Fix: agregada ruta `oferta` a `alumno.routes.ts` (pre-migración)
+- Fix: agregado `ediciones.ver` al rol alumno en `seed.py` (pre-migración)
+- Fix: `oferta.component.ts` usa `getActivas()` (endpoint público) en vez de `getAll(undefined, true)` (pre-migración)
+- Refactor: eliminados tabs del portal alumno (era redundante con navbar) (pre-migración)
 - Refactor: navbar de alumno ahora muestra: Mi Perfil, Mis Inscripciones, Oferta Académica
+## Sesión 2026-07-10 — Fix bugs de navegación + permisos (v2) (pre-migración)
 
-## Sesión 2026-07-09 — Fix bugs de navegación + permisos (v2)
-### Bugs encontrados y arreglados:
+### Bugs encontrados y arreglados (pre-migración):
 
 1. **Race condition en `login.ts`**: `queryParams.subscribe` es asíncrono, `inscribirId` se leía después de que `getRoles()` ya había procesado la respuesta. Fix: usar `route.snapshot.queryParams` (síncrono).
 
@@ -241,9 +245,9 @@ c5953ec docs: update AGENTS.md with auth/RBAC session progress
 - ✅ Backend: correr `python seed.py` para asignar `ediciones.ver` al rol alumno
 - ✅ Frontend: login lee query params sincrónicamente, roleMap se construye con UI_KEY_TO_ROLE, dashboard guard usa profile_type
 
-## Sesión 2026-07-09 — Seed modalidad, fix navegación + duplicados, cleanup
+## Sesión 2026-07-10 — Seed modalidad, fix navegación + duplicados, cleanup (pre-migración)
 
-### Seed de modalidad académica
+### Seed de modalidad académica (pre-migración)
 - Agregada `ModalidadAcademica` "Educación Continua" al seed con 3 requisitos: Fotocopia de Carnet, Boleta de GRL, Avance Académico de la UAGRM
 - Fix: `get_or_create` no servía para usuarios por password_hash cambiante → creado `get_or_create_usuario()` que filtra solo por email+id_rol
 - Fix: seed idempotente para modalidad/requisitos (busca por nombre único en vez de `get_or_create` genérico)
@@ -273,9 +277,9 @@ c5953ec docs: update AGENTS.md with auth/RBAC session progress
 - `Postgrado-Frontend/src/app/features/alumno/routes/alumno.routes.ts` — ruta oferta eliminada
 - `Postgrado-Frontend/src/app/features/alumno/pages/oferta/` — carpeta eliminada
 
-## Sesión 2026-07-09 — Refactor panel admin (UI consistente + diálogos Material)
+## Sesión 2026-07-10 — Refactor panel admin (UI consistente + diálogos Material) (pre-migración)
 
-### Fix 1 — Route guard doble-lock
+### Fix 1 — Route guard doble-lock (pre-migración)
 - `app.routes.ts`: cambiado `/admin` de `permisoGuard('roles.gestionar')` a `authGuard()`. El permiso fino se chequea en las rutas hijas. Esto permitía que usuarios con solo `usuarios.gestionar` (sin `roles.gestionar`) nunca accedieran a la pestaña Usuarios.
 
 ### Fix 2 — window.prompt() → Material dialog para cambiar rol
@@ -319,7 +323,7 @@ c5953ec docs: update AGENTS.md with auth/RBAC session progress
 - Subida de documentos por alumno + validación por admin
 - **Perfeccionar rol adm_informatico**: el usuario quiere que sea su perfil de testing universal (admin + docente + alumno sin cambiar de cuenta). Se analizó que `_obtener_profile_info` en `dependencies.py:84` busca en orden alumno → docente → administrativo, pero como el seed crea 3 usuarios distintos con el mismo email (cada uno con distinto `id_usuario`), el usuario admin no tiene `alumno` asociado via FK. Solución propuesta: modificar `_obtener_profile_info` para que para `adm_informatico` busque también alumno por email. Pendiente de implementar.
 
-## Sesión 2026-07-10 — Análisis de permisos + ER diagram
+## Sesión 2026-07-10 — Análisis de permisos + ER diagram (pre-migración)
 
 ### Diagnóstico
 - **Navbar docentes no cargaba**: no hay bugs en el código. Análisis completo de la cadena navbar → routes → guards → componente → service → backend no encontró inconsistencias. Causa más probable: **token JWT desactualizado** (emitido antes de agregar ciertos permisos al rol). Fix: cerrar sesión y volver a loguearse, o correr `python seed.py` y重新 loguear.
@@ -330,8 +334,11 @@ c5953ec docs: update AGENTS.md with auth/RBAC session progress
 ROLES (id_rol PK, nombre UQ, descripcion)
   │ 1
   │ N
-USUARIOS (id_usuario PK, email, password_hash, id_rol FK→roles, activo)
-  │ UniqueConstraint: (email, id_rol)
+USUARIO_ROLES (id_usuario FK→usuarios + id_rol FK→roles, PK compuesta, rol_activo)
+  │
+  │ N
+  │ 1
+USUARIOS (id_usuario PK, email UQ, password_hash, activo)
   │
   ├──1:1──→ ALUMNOS (id_alumno PK, ci UQ, nombre, apellido, ..., id_usuario FK→usuarios)
   ├──1:1──→ DOCENTES (id_docente PK, ci UQ, nombre, apellido, ..., id_usuario FK→usuarios)
@@ -344,7 +351,7 @@ ROLES_PERMISOS (PK compuesta: id_rol FK→roles + id_permiso FK→permisos)
 ```
 
 ### Cadena de resolución de permisos
-`usuario.id_rol` → `roles.id_rol` → `roles_permisos WHERE id_rol=X` → `permisos.id_permiso`
+`usuario_roles WHERE rol_activo=true` → `roles.id_rol` → `roles_permisos WHERE id_rol=X` → `permisos.id_permiso`
 
 El backend resuelve esto en `_obtener_permisos()` (`dependencies.py:74`) al momento del login y mete los permisos en el JWT. El frontend lee `user().permisos` del token, no vuelve a pegarle a la BD.
 
@@ -355,3 +362,51 @@ El backend resuelve esto en `_obtener_permisos()` (`dependencies.py:74`) al mome
 - `Postgrado-Frontend/src/app/core/services/auth.service.ts` — AuthService con hasPermiso()
 - `Postgrado-Frontend/src/app/shared/components/navbar/navbar.ts` — navItems filtrados por permiso
 - `Postgrado-Frontend/src/app/core/config/app.routes.ts` — guards por permiso
+
+## Sesión 2026-07-10 — Migración a roles múltiples (1 usuario = N roles)
+
+### Cambio de modelo
+- **Antes**: 1 usuario = 1 rol (`usuarios.id_rol` FK directa, unique `(email, id_rol)`)
+- **Ahora**: 1 usuario = N roles (tabla intermedia `usuario_roles` con `rol_activo`)
+- Se creó modelo `UsuarioRol` (PK compuesta: `id_usuario` + `id_rol`, campo `rol_activo`)
+- Se eliminó `id_rol` de tabla `usuarios`, se eliminó constraint `uq_email_rol`
+- Se agregó unique constraint `uq_email` en `usuarios` (un solo usuario por email)
+- Se fusionaron 3 usuarios duplicados en 1 solo
+
+### Backend modificado
+- **models/usuario_rol.py**: nueva tabla intermedia
+- **models/usuario.py**: eliminado `id_rol`, agregado `usuario_roles` relationship, propiedades `roles`, `rol_activo`, `id_rol_activo`
+- **models/rol.py**: eliminado `usuarios`, agregado `usuario_roles`
+- **dependencies.py**: `_obtener_permisos()` recibe `id_rol` del JWT, nuevo `_obtener_roles_usuario()`, JWT incluye `id_usuario` + `id_rol`
+- **schemas/auth.py**: nuevo `LoginRequest` (sin `id_rol`), `SelectRolRequest`, `LoginStep1Response`, `RolInfo`, `UserResponse` con `roles[]`
+- **schemas/admin.py**: `UserAdminResponse` con `roles[]` + `id_roles[]`, `UserAdminCreate` con `roles[]`, nuevo `UserUpdateRoles`
+- **routers/auth.py**: login en 2 pasos — `POST /auth/login` retorna roles, `POST /auth/seleccionar-rol` retorna JWT; eliminado `POST /auth/register`
+- **routers/usuarios.py**: `PUT /{id}/roles` reemplaza `PUT /{id}/rol`, crear usuario con `roles[]`
+- **seed.py**: actualizado para usar `UsuarioRol`
+
+### Frontend modificado
+- **auth.service.ts**: `login()` solo email+pass, `seleccionarRol(id_rol)`, tipo `RolInfo`
+- **login.ts/html**: flujo de 2 pasos (credentials → selección de rol), auto-selección de rol "alumno" cuando `inscribirId` está presente
+- **admin.models.ts**: interfaces con `roles[]`
+- **admin.service.ts**: `updateUserRoles()`
+- **usuarios-list.ts/html**: columna roles + gestión con `RolesChangeDialog`
+- **usuario-form.ts**: checkboxes múltiples para roles
+- **admin-dialogs.ts**: nuevo `RolesChangeDialog`
+- **navbar.ts**: usa `rol` en vez de `profile_type` para navItems
+- **app.routes.ts**: `dashboardGuard` bloquea alumnos de `/dashboard`, redirección por rol
+
+### Comportamiento de redirección post-login
+| Rol seleccionado | Redirección |
+|---|---|
+| admin roles | `/dashboard` (panel admin) |
+| docente | `/dashboard` |
+| alumno | `/` (página pública con oferta académica) |
+| alumno + `inscribirId` | `/alumnos/inscribir/:id` (flujo de inscripción) |
+
+### Pendientes
+- Bug #34: Navbar admin link "Alumnos" redirige al portal estudiante — falta vista de gestión de alumnos para admin
+- Módulo pagos: modelo, endpoints y front
+- Módulo notas: modelo, endpoints y front
+- Endpoint dashboard: estadísticas del admin
+- Filtrado de alumnos por período: endpoint `GET /alumnos/por-periodo/{id_periodo}`
+- Subida de documentos por alumno + validación por admin
