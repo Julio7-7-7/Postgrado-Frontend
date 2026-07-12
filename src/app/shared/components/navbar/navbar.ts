@@ -34,6 +34,7 @@ export class NavbarComponent {
 
   user = computed(() => this.auth.user());
   isLogged = computed(() => this.auth.isLogged());
+  hasMultipleRoles = computed(() => this.auth.roles().length > 1);
 
   allNavItems: NavItem[] = [
     { path: '/dashboard', label: 'Inicio', icon: 'home', exact: true, feature: 'home', permiso: 'programas.ver' },
@@ -53,7 +54,7 @@ export class NavbarComponent {
 
   navItems = computed(() => {
     const user = this.auth.user();
-    if (user?.profile_type === 'alumno') {
+    if (user?.rol === 'alumno') {
       return this.studentItems.filter(item => this.auth.hasPermiso(item.permiso));
     }
     return this.allNavItems.filter(item => this.auth.hasPermiso(item.permiso));

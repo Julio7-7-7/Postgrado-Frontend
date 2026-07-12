@@ -8,21 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { AuthService } from '../../../core/services/auth.service';
-
-interface RoleOption {
-  key: string;
-  label: string;
-  icon: string;
-  description: string;
-  color: string;
-}
-
-const UI_KEY_TO_ROLE: Record<string, string> = {
-  administrativo: 'adm_informatico',
-  docente: 'docente',
-  alumno: 'alumno',
-};
+import { AuthService, RolInfo } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -41,83 +27,25 @@ export class LoginComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private snackBar = inject(MatSnackBar);
 
-  step = signal<'roles' | 'form'>('roles');
-  selectedRole = signal<string | null>(null);
+  step = signal<'credentials' | 'roles'>('credentials');
+  userRoles = signal<RolInfo[]>([]);
   email = '';
   password = '';
   loading = false;
   inscribirId: number | null = null;
-  roleLoadError = false;
-
-  roles: RoleOption[] = [
-    {
-      key: 'administrativo',
-      label: 'Administrativo',
-      icon: 'admin_panel_settings',
-      description: 'Personal administrativo y directivo',
-      color: '#1e3a8a',
-    },
-    {
-      key: 'alumno',
-      label: 'Estudiante',
-      icon: 'school',
-      description: 'Alumnos de postgrado',
-      color: '#0891b2',
-    },
-    {
-      key: 'docente',
-      label: 'Docente',
-      icon: 'badge',
-      description: 'Planta docente',
-      color: '#0d9488',
-    },
-  ];
-
-  roleMap: Record<string, number> = { administrativo: 1, docente: 6, alumno: 7 };
 
   ngOnInit(): void {
     this.inscribirId = Number(this.route.snapshot.queryParams['inscribir']) || null;
 
     if (this.auth.isLogged()) {
-      if (this.inscribirId && this.auth.user()?.profile_type === 'alumno') {
+      const user = this.auth.user();
+      if (this.inscribirId && user?.rol === 'alumno') {
         this.router.navigate(['/alumnos', 'inscribir', this.inscribirId], { replaceUrl: true });
         return;
       }
-      this.redirectAfterLogin();
+      this.redirectAfterLogin(user?.rol || '');
       return;
     }
-
-    this.auth.getRoles().subscribe({
-      next: (roles) => {
-        const map: Record<string, number> = {};
-        for (const [uiKey, roleName] of Object.entries(UI_KEY_TO_ROLE)) {
-          const found = roles.find(r => r.nombre === roleName);
-          if (found) map[uiKey] = found.id_rol;
-        }
-        if (map['administrativo'] && map['docente'] && map['alumno']) {
-          this.roleMap = map;
-        }
-        if (this.inscribirId) {
-          this.selectRole('alumno');
-        }
-      },
-      error: () => {
-        this.roleLoadError = true;
-        if (this.inscribirId) {
-          this.selectRole('alumno');
-        }
-      },
-    });
-  }
-
-  selectRole(key: string): void {
-    this.selectedRole.set(key);
-    this.step.set('form');
-  }
-
-  volver(): void {
-    this.selectedRole.set(null);
-    this.step.set('roles');
   }
 
   login(): void {
@@ -126,25 +54,16 @@ export class LoginComponent implements OnInit {
       return;
     }
 
-    const roleKey = this.selectedRole();
-    if (!roleKey) return;
-
-    const idRol = this.roleMap[roleKey];
-    if (!idRol) {
-      this.snackBar.open('Error de configuración: rol no mapeado', 'Cerrar', { duration: 3000 });
-      return;
-    }
-
     this.loading = true;
-    this.auth.login(this.email, this.password, idRol).subscribe({
+    this.auth.login(this.email, this.password).subscribe({
       next: (resp) => {
-        this.auth.guardarSesion(resp);
         this.loading = false;
+        this.userRoles.set(resp.roles);
 
-        if (this.inscribirId && roleKey === 'alumno') {
-          this.router.navigate(['/alumnos', 'inscribir', this.inscribirId], { replaceUrl: true });
+        if (resp.roles.length === 1) {
+          this.seleccionarRol(resp.roles[0].id_rol);
         } else {
-          this.redirectAfterLogin();
+          this.step.set('roles');
         }
       },
       error: () => {
@@ -154,9 +73,72 @@ export class LoginComponent implements OnInit {
     });
   }
 
-  private redirectAfterLogin(): void {
-    const user = this.auth.user();
-    if (user?.profile_type === 'alumno') {
+  seleccionarRol(id_rol: number): void {
+    this.loading = true;
+    this.auth.seleccionarRol(id_rol).subscribe({
+      next: (resp) => {
+        this.auth.guardarSesion(resp);
+        this.loading = false;
+
+        if (this.inscribirId && resp.user.rol === 'alumno') {
+          this.router.navigate(['/alumnos', 'inscribir', this.inscribirId], { replaceUrl: true });
+        } else {
+          this.redirectAfterLogin(resp.user.rol);
+        }
+      },
+      error: () => {
+        this.loading = false;
+        this.snackBar.open('Error al seleccionar rol', 'Cerrar', { duration: 4000 });
+      },
+    });
+  }
+
+  volver(): void {
+    this.step.set('credentials');
+    this.userRoles.set([]);
+  }
+
+  getRolIcon(nombre: string): string {
+    const icons: Record<string, string> = {
+      'adm_informatico': 'admin_panel_settings',
+      'adm_legal': 'gavel',
+      'adm_contable': 'account_balance',
+      'adm_director': 'business',
+      'adm_pasante': 'support_agent',
+      'docente': 'badge',
+      'alumno': 'school',
+    };
+    return icons[nombre] || 'person';
+  }
+
+  getRolLabel(nombre: string): string {
+    const labels: Record<string, string> = {
+      'adm_informatico': 'Administrador',
+      'adm_legal': 'Adm. Legal',
+      'adm_contable': 'Adm. Contable',
+      'adm_director': 'Director',
+      'adm_pasante': 'Pasante',
+      'docente': 'Docente',
+      'alumno': 'Estudiante',
+    };
+    return labels[nombre] || nombre;
+  }
+
+  getRolColor(nombre: string): string {
+    const colors: Record<string, string> = {
+      'adm_informatico': '#1e3a8a',
+      'adm_legal': '#7c3aed',
+      'adm_contable': '#d97706',
+      'adm_director': '#0d9488',
+      'adm_pasante': '#6b7280',
+      'docente': '#0d9488',
+      'alumno': '#0891b2',
+    };
+    return colors[nombre] || '#4338ca';
+  }
+
+  private redirectAfterLogin(rol: string): void {
+    if (rol === 'alumno') {
       this.router.navigate(['/alumnos']);
     } else {
       this.router.navigate(['/dashboard']);

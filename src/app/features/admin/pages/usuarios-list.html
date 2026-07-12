@@ -29,10 +29,13 @@
       </td>
     </ng-container>
 
-    <ng-container matColumnDef="rol">
-      <th mat-header-cell *matHeaderCellDef>Rol</th>
+    <ng-container matColumnDef="roles">
+      <th mat-header-cell *matHeaderCellDef>Roles</th>
       <td mat-cell *matCellDef="let u">
-        <span class="estado-pill activo">{{ u.rol }}</span>
+        @for (rol of u.roles; track rol; let last = $last) {
+          <span class="estado-pill activo">{{ rol }}</span>
+          @if (!last) { <br> }
+        }
       </td>
     </ng-container>
 
@@ -48,7 +51,7 @@
     <ng-container matColumnDef="acciones">
       <th mat-header-cell *matHeaderCellDef></th>
       <td mat-cell *matCellDef="let u">
-        <button mat-icon-button matTooltip="Cambiar rol" (click)="cambiarRol(u)">
+        <button mat-icon-button matTooltip="Gestionar roles" (click)="cambiarRoles(u)">
           <mat-icon>swap_horiz</mat-icon>
         </button>
         <button mat-icon-button

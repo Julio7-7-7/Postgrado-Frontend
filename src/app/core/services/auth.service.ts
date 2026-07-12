@@ -20,15 +20,23 @@ export interface UserInfo {
   email: string;
   activo: boolean;
   rol: string;
+  id_rol: number;
   id_profile: number | null;
   profile_type: string | null;
   permisos: PermisoInfo[];
+  roles: RolInfo[];
 }
 
-export interface LoginResponse {
+export interface TokenResponse {
   access_token: string;
   token_type: string;
   user: UserInfo;
+}
+
+export interface LoginStep1Response {
+  id_usuario: number;
+  email: string;
+  roles: RolInfo[];
 }
 
 @Injectable({ providedIn: 'root' })
@@ -41,6 +49,7 @@ export class AuthService {
   readonly token = signal<string | null>(null);
   readonly isLogged = computed(() => this.user() !== null);
   readonly permisos = computed(() => this.user()?.permisos ?? []);
+  readonly roles = computed(() => this.user()?.roles ?? []);
 
   constructor() {
     const saved = localStorage.getItem('auth_user');
@@ -59,13 +68,19 @@ export class AuthService {
     return codigos.some(c => this.hasPermiso(c));
   }
 
-  login(email: string, password: string, id_rol: number) {
-    return this.http.post<LoginResponse>(`${this.apiUrl}/auth/login`, {
-      email, password, id_rol
+  login(email: string, password: string) {
+    return this.http.post<LoginStep1Response>(`${this.apiUrl}/auth/login`, {
+      email, password
     });
   }
 
-  guardarSesion(resp: LoginResponse) {
+  seleccionarRol(id_rol: number) {
+    return this.http.post<TokenResponse>(`${this.apiUrl}/auth/seleccionar-rol`, {
+      id_rol
+    });
+  }
+
+  guardarSesion(resp: TokenResponse) {
     localStorage.setItem('auth_token', resp.access_token);
     localStorage.setItem('auth_user', JSON.stringify(resp.user));
     this.token.set(resp.access_token);

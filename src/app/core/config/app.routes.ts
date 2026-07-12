@@ -12,7 +12,7 @@ export function dashboardGuard(): CanActivateFn {
       router.navigate(['/login']);
       return false;
     }
-    if (auth.user()?.profile_type === 'alumno') {
+    if (auth.user()?.rol === 'alumno') {
       router.navigate(['/alumnos']);
       return false;
     }

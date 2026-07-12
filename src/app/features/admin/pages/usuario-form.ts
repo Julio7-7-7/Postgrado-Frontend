@@ -7,6 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { AdminService } from '../services/admin.service';
 import { RolResponse, UserAdminCreate } from '../models/admin.models';
@@ -17,7 +18,7 @@ import { RolResponse, UserAdminCreate } from '../models/admin.models';
   imports: [
     CommonModule, FormsModule,
     MatDialogModule, MatButtonModule, MatFormFieldModule,
-    MatInputModule, MatSelectModule, MatSnackBarModule,
+    MatInputModule, MatSelectModule, MatCheckboxModule, MatSnackBarModule,
   ],
   template: `
     <h2 mat-dialog-title>Nuevo Usuario</h2>
@@ -33,14 +34,14 @@ import { RolResponse, UserAdminCreate } from '../models/admin.models';
         <input matInput [(ngModel)]="password" type="password" required minlength="6">
       </mat-form-field>
 
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Rol</mat-label>
-        <mat-select [(ngModel)]="idRol" required>
-          @for (r of roles(); track r.id_rol) {
-            <mat-option [value]="r.id_rol">{{ r.nombre }}</mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
+      <label class="roles-label">Roles</label>
+      <div class="roles-checkboxes">
+        @for (r of roles(); track r.id_rol) {
+          <mat-checkbox [(ngModel)]="rolesSeleccionados[r.id_rol]">
+            {{ r.nombre }}
+          </mat-checkbox>
+        }
+      </div>
 
       <div class="row">
         <mat-form-field appearance="outline" class="half">
@@ -78,6 +79,8 @@ import { RolResponse, UserAdminCreate } from '../models/admin.models';
     .full-width { width: 100%; margin-bottom: 12px; }
     .row { display: flex; gap: 12px; margin-bottom: 12px; }
     .half { flex: 1; }
+    .roles-label { font-weight: 500; margin-bottom: 8px; display: block; }
+    .roles-checkboxes { display: flex; flex-direction: column; gap: 4px; margin-bottom: 16px; }
   `],
 })
 export class UsuarioFormComponent implements OnInit {
@@ -88,10 +91,10 @@ export class UsuarioFormComponent implements OnInit {
 
   roles = signal<RolResponse[]>([]);
   guardando = signal(false);
+  rolesSeleccionados: Record<number, boolean> = {};
 
   email = '';
   password = '';
-  idRol: number | null = null;
   nombre = '';
   apellido = '';
   ci = '';
@@ -99,23 +102,36 @@ export class UsuarioFormComponent implements OnInit {
 
   ngOnInit(): void {
     this.service.getAllRoles().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: data => this.roles.set(data),
+      next: data => {
+        this.roles.set(data);
+        for (const r of data) {
+          this.rolesSeleccionados[r.id_rol] = false;
+        }
+      },
       error: () => this.snackbar.open('Error al cargar roles', 'Cerrar', { duration: 3000 }),
     });
   }
 
   puedeGuardar(): boolean {
-    return !!(this.email && this.password.length >= 6 && this.idRol && this.nombre && this.apellido && this.ci);
+    const rolesSeleccionados = Object.entries(this.rolesSeleccionados)
+      .filter(([_, seleccionado]) => seleccionado)
+      .map(([id]) => Number(id));
+    return !!(this.email && this.password.length >= 6 && rolesSeleccionados.length > 0
+      && this.nombre && this.apellido && this.ci);
   }
 
   guardar(): void {
     if (!this.puedeGuardar()) return;
     this.guardando.set(true);
 
+    const rolesSeleccionados = Object.entries(this.rolesSeleccionados)
+      .filter(([_, seleccionado]) => seleccionado)
+      .map(([id]) => Number(id));
+
     const data: UserAdminCreate = {
       email: this.email,
       password: this.password,
-      id_rol: this.idRol!,
+      roles: rolesSeleccionados,
       nombre: this.nombre,
       apellido: this.apellido,
       ci: this.ci,

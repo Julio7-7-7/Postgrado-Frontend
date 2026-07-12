@@ -317,3 +317,41 @@ c5953ec docs: update AGENTS.md with auth/RBAC session progress
 - Edición de usuario (backend + frontend) — no hay endpoint PATCH para editar datos de usuario existente
 - Matriz visual rol × permiso (opcional)
 - Subida de documentos por alumno + validación por admin
+- **Perfeccionar rol adm_informatico**: el usuario quiere que sea su perfil de testing universal (admin + docente + alumno sin cambiar de cuenta). Se analizó que `_obtener_profile_info` en `dependencies.py:84` busca en orden alumno → docente → administrativo, pero como el seed crea 3 usuarios distintos con el mismo email (cada uno con distinto `id_usuario`), el usuario admin no tiene `alumno` asociado via FK. Solución propuesta: modificar `_obtener_profile_info` para que para `adm_informatico` busque también alumno por email. Pendiente de implementar.
+
+## Sesión 2026-07-10 — Análisis de permisos + ER diagram
+
+### Diagnóstico
+- **Navbar docentes no cargaba**: no hay bugs en el código. Análisis completo de la cadena navbar → routes → guards → componente → service → backend no encontró inconsistencias. Causa más probable: **token JWT desactualizado** (emitido antes de agregar ciertos permisos al rol). Fix: cerrar sesión y volver a loguearse, o correr `python seed.py` y重新 loguear.
+- **adm_informatico ya tiene los 47 permisos** del sistema (todos los de la lista `permisos` en `seed.py:43-69`). El navbar filtra por permisos, así que debería mostrar todo. Si algo no carga, es tema de token stale.
+
+### Diagrama ER — Auth + RBAC + Personas
+```
+ROLES (id_rol PK, nombre UQ, descripcion)
+  │ 1
+  │ N
+USUARIOS (id_usuario PK, email, password_hash, id_rol FK→roles, activo)
+  │ UniqueConstraint: (email, id_rol)
+  │
+  ├──1:1──→ ALUMNOS (id_alumno PK, ci UQ, nombre, apellido, ..., id_usuario FK→usuarios)
+  ├──1:1──→ DOCENTES (id_docente PK, ci UQ, nombre, apellido, ..., id_usuario FK→usuarios)
+  └──1:1──→ ADMINISTRATIVOS (id_administrativo PK, ci UQ, nombre, apellido, cargo, ..., id_usuario FK→usuarios)
+
+ROLES_PERMISOS (PK compuesta: id_rol FK→roles + id_permiso FK→permisos)
+  │
+  ├──→ ROLES
+  └──→ PERMISOS (id_permiso PK, codigo UQ, descripcion)
+```
+
+### Cadena de resolución de permisos
+`usuario.id_rol` → `roles.id_rol` → `roles_permisos WHERE id_rol=X` → `permisos.id_permiso`
+
+El backend resuelve esto en `_obtener_permisos()` (`dependencies.py:74`) al momento del login y mete los permisos en el JWT. El frontend lee `user().permisos` del token, no vuelve a pegarle a la BD.
+
+### Archivos clave referenciados
+- `PostgradoBackend/dependencies.py` — `_obtener_profile_info()` línea 84, `_obtener_permisos()` línea 74
+- `PostgradoBackend/seed.py` — roles, permisos, asignaciones, seed de usuario admin
+- `PostgradoBackend/routers/auth.py` — login, register, /me
+- `Postgrado-Frontend/src/app/core/services/auth.service.ts` — AuthService con hasPermiso()
+- `Postgrado-Frontend/src/app/shared/components/navbar/navbar.ts` — navItems filtrados por permiso
+- `Postgrado-Frontend/src/app/core/config/app.routes.ts` — guards por permiso
