@@ -32,12 +32,17 @@
           <button mat-raised-button color="primary" type="submit" class="full-width"
                   [disabled]="loading">
             @if (loading) {
-              <mat-icon>hourglass_top</mat-icon> Ingresando...
+              <ng-container><mat-icon>hourglass_top</mat-icon> Ingresando...</ng-container>
             } @else {
-              <mat-icon>login</mat-icon> Continuar
+              <ng-container><mat-icon>login</mat-icon> Continuar</ng-container>
             }
           </button>
         </form>
+
+        <div class="login-link">
+          <p>¿No tenés una cuenta?</p>
+          <button mat-button color="primary" (click)="goToRegister()">Crear cuenta</button>
+        </div>
       </div>
     }
 

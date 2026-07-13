@@ -76,9 +76,10 @@ export class LoginComponent implements OnInit {
           this.step.set('roles');
         }
       },
-      error: () => {
+      error: (err) => {
         this.loading = false;
-        this.snackBar.open('Credenciales inválidas', 'Cerrar', { duration: 4000 });
+        const msg = err.error?.detail || 'Credenciales inválidas';
+        this.snackBar.open(msg, 'Cerrar', { duration: 6000 });
       },
     });
   }
@@ -154,6 +155,14 @@ export class LoginComponent implements OnInit {
       this.router.navigate(['/docentes', id_profile]);
     } else {
       this.router.navigate(['/dashboard']);
+    }
+  }
+
+  goToRegister(): void {
+    if (this.inscribirId) {
+      this.router.navigate(['/registro'], { queryParams: { inscribir: this.inscribirId } });
+    } else {
+      this.router.navigate(['/registro']);
     }
   }
 }
