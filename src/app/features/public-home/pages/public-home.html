@@ -16,6 +16,19 @@
     </div>
   </section>
 
+  @if (perfilIncompleto()) {
+    <section class="onboarding-banner">
+      <mat-icon>info</mat-icon>
+      <div class="onboarding-text">
+        <strong>Completá tu perfil</strong>
+        <span>Para inscribirte en programas necesitamos tus datos personales.</span>
+      </div>
+      <a mat-raised-button color="primary" routerLink="/alumnos/perfil">
+        <mat-icon>edit</mat-icon> Completar
+      </a>
+    </section>
+  }
+
   <!-- CARRUSEL OFERTA ACADÉMICA -->
   <section class="carrusel-section">
     <div class="section-header">

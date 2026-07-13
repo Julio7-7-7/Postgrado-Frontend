@@ -44,6 +44,12 @@
           <mat-icon>badge</mat-icon>
           <span>{{ user()?.rol }}</span>
         </button>
+        @if (profileRoute()) {
+          <button mat-menu-item [routerLink]="profileRoute()">
+            <mat-icon>person</mat-icon>
+            <span>Mi Perfil</span>
+          </button>
+        }
         <mat-divider></mat-divider>
         <button mat-menu-item (click)="logout()">
           <mat-icon>logout</mat-icon>

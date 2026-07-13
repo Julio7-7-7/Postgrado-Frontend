@@ -96,6 +96,11 @@ Backend: github.com/Julio7-7-7/PostgradoBackend
 - Posibles bugs de agenda/conflictos de horario docente
 - Refinar contraste y diferenciación visual general
 - Subida de documentos (requisitos) por parte del alumno + validación por admin (control_documentacion)
+- Módulo pagos: modelo, endpoints y front
+- Módulo notas: modelo, endpoints y front
+- Endpoint dashboard: estadísticas del admin
+- Filtrado de alumnos por período: endpoint `GET /alumnos/por-periodo/{id_periodo}`
+- Matriz visual rol × permiso (opcional)
 
 ## Sesión 2026-07-10 — Implementación de Auth + RBAC + Admin panel (pre-migración)
 
@@ -441,3 +446,255 @@ El backend resuelve esto en `_obtener_permisos()` (`dependencies.py:74`) al mome
 - `home.ts` — inyecta `TipoProgramaService` + `AlumnoService`, carga stats
 - `home.html` — stats reales, link Alumnos → `/alumnos`
 - `alumno.service.ts` — nuevo método `getAll()`
+
+## Sesión 2026-07-13 — Usuarios, Auth pública, seguridad y paginación
+
+### Decisiones clave
+- **Cada cuenta tiene `alumno` como rol base** — incluso docentes y admins también pueden ser alumnos (multi-perfil). Admin crear cuentas también les asigna alumno.
+- **Flujo de registro público**: email + CI + password (mínimo) → crea `Usuario` + `UsuarioRol(alumno)` + `Alumno(nombre="Pendiente", apellido="Pendiente")` → el estudiante completa su perfil después desde `/alumnos/perfil`.
+- **Admin crea usuarios**: Para docente y admin, el panel admin crea la cuenta con los roles que correspondan.
+- **Profile edit con `exclude_unset=True`**: El backend usa este modo para no sobreescribir campos no enviados.
+- **`fecha_nacimiento` validator**: El frontend envía ISO datetime, el backend trimea a date-only.
+
+### Backend — Auth pública + seguridad (2026-07-13)
+- `POST /auth/registro` — auto-inscripción pública, honeypot anti-bot, crea `Usuario` + `UsuarioRol(alumno)` + `Alumno` (nombre/apellido = "Pendiente")
+- `PATCH /auth/cambiar-password` — requiere contraseña actual, nueva contraseña mín 6 chars
+- **Rate limiter** (`rate_limiter.py`): diccionario en memoria, 5 intentos / 15 min por IP, solo aplica a `/auth/login`
+- **Honeypot**: campo oculto en formulario registro, backend rechaza si viene lleno
+- Fix: `bcrypt` downgrade 4.1.3→4.0.1 por incompatibilidad con passlib
+
+### Backend — Usuarios admin (2026-07-13)
+- `GET /usuarios` ahora retorna `PaginatedUsersResponse` con `items`, `total`, `page`, `per_page`, `pages`
+- `PATCH /usuarios/{id}` — editar datos de usuario (email, CI, nombre, password)
+- `_perfiles_info()` retorna todos los perfiles (no solo el primero)
+- `crear_usuario` crea en transacción única + siempre agrega `UsuarioRol(alumno)`
+- `actualizar_roles_usuario` con transacción + auto-protección (no desactivarse a sí mismo) + protección último admin
+- `toggle_activo` con auto-protección + protección último admin
+
+### Backend — Alumnos (2026-07-13)
+- `PATCH /alumnos/mi-perfil` con `exclude_unset=True` para no sobreescribir campos
+- `AlumnoUpdate.fecha_nacimiento` validator trimea ISO datetime a date-only
+
+### Frontend — Registro (2026-07-13)
+- Componente `register.ts` — formulario simplificado 3 campos (email, CI, password) + honeypot oculto
+- `auth.service.ts` — nuevo método `register()` con `RegistroRequest` (incluye `honeypot`)
+- Login: enlace "Crear cuenta" + `goToRegister()` preservando `inscribirId`
+- Ruta `/registro` agregada
+
+### Frontend — Perfil (2026-07-13)
+- Diseño GitHub-style: avatar header con iniciales, datos personales (ver/editar), cambio de contraseña (ver/editar con validación de contraseña actual)
+- `perfil.css` rediseñado completamente
+- Corregido import path de AuthService (4 niveles, no 3)
+
+### Frontend — Admin usuarios (2026-07-13)
+- `admin.models.ts` — `ProfileInfo`, `UserAdminUpdate`, `PaginatedUsersResponse`
+- `admin.service.ts` — `updateUser(id, data)` para PATCH
+- `admin-dialogs.ts` — nuevo `UsuarioEditDialog` (editar email, password, CI, nombre, etc.)
+- `usuarios-list` — tabla con perfiles expandidos, botón editar, paginación funcional (prev/next, page numbers, info)
+
+### Frontend — Otros fixes (2026-07-13)
+- Login muestra error de rate limit del backend en vez de "Credenciales inválidas"
+- `NG8113` (unused imports) suprimido en `tsconfig.app.json`
+- Navbar: "Mi Perfil" removido del nav, ahora está en el dropdown del icono `account_circle`
+- Carrusel: redirect inteligente a `/alumnos/inscripciones` si ya estás inscrito en una edición
+- Carrusel: bloqueo de inscripción si perfil incompleto (nombre/apellido = "Pendiente") con snackbar + redirect a perfil
+- Onboarding: banner amarillo en home para alumnos con perfil incompleto ("Completá tu perfil para inscribirte")
+- Perfil: removida validación de largo de contraseña (el backend ya valida)
+
+### Backend — Roles protecciones (2026-07-13)
+- `PUT /roles/{id}`: no se puede quitar `roles.gestionar` de un rol que tiene usuarios asignados
+- `PUT /roles/{id}`: no se puede quitar `roles.gestionar` del propio rol activo del usuario logueado
+- `POST /roles/asignaciones/batch`: ahora reporta errores (IDs inválidos) en vez de skipear silenciosamente
+
+### Archivos tocados
+**Backend:**
+- `routers/auth.py` — registro, cambiar-password, rate limiting en login
+- `routers/usuarios.py` — paginación, PATCH editar, transacciones, auto-protección
+- `schemas/auth.py` — `RegistroRequest`, `CambiarPasswordRequest`
+- `schemas/admin.py` — `ProfileInfo`, `UserAdminUpdate`, `PaginatedUsersResponse`
+- `schemas/alumno.py` — `fecha_nacimiento` validator
+- `rate_limiter.py` — nuevo: rate limiter en memoria
+
+**Frontend:**
+- `core/services/auth.service.ts` — `register()`, `cambiarPassword()`, `RegistroRequest`
+- `features/login/pages/register.ts/html/css` — nuevo componente registro
+- `features/login/pages/login.ts` — `goToRegister()`, error de rate limit
+- `features/alumno/pages/perfil/perfil.ts/html/css` — rediseño completo GitHub-style
+- `features/admin/models/admin.models.ts` — `ProfileInfo`, `UserAdminUpdate`, `PaginatedUsersResponse`
+- `features/admin/services/admin.service.ts` — `updateUser()`, `getAllUsers()` paginado
+- `features/admin/pages/admin-dialogs.ts` — `UsuarioEditDialog`
+- `features/admin/pages/usuarios-list.ts/html/css` — perfiles, paginación, edit button
+- `features/public-home/pages/public-home.ts/html/css` — onboarding banner, redirect inscripción duplicada, redirect perfil incompleto
+- `shared/components/navbar/navbar.ts/html` — "Mi Perfil" en dropdown de usuario
+- `core/config/app.routes.ts` — ruta `/registro`
+- `tsconfig.app.json` — suppress NG813
+
+**Backend (roles):**
+- `routers/roles.py` — protecciones en `actualizar_rol` (no quitar `roles.gestionar` de rol con usuarios ni del rol propio), batch endpoint reporta errores
+
+### Pulido visual — Roles + Usuarios (2026-07-13)
+
+**roles-list.ts/html/css:**
+- Quitado botón eliminar (no se borran roles)
+- Quitado badge "Seed" (roles son fijos pero gestionables)
+- Solo queda botón editar
+
+**rol-form.ts:**
+- Header con icono degradado + subtítulo
+- Secciones en cards (`#f8fafc` con borde sutil)
+- Barra de progreso de permisos seleccionados
+- Accordion custom (sin `mat-expansion-panel`) con chevron animado
+- Checkbox indeterminado para grupos con permisos parciales
+- Badge con conteo de permisos totales
+- Botones con iconos + spinner inline
+
+**usuario-form.ts:**
+- Header con icono degradado cyan + subtítulo
+- Secciones cards: Credenciales, Roles, Datos personales
+- Roles en lista vertical tipo chips (checkbox + nombre + descripción en una línea)
+- Badge con conteo de roles seleccionados
+- Botones con iconos + spinner inline
+- Diálogo ancho: 520px
+
+**styles.css:**
+- Agregado `.status-dot` / `.status-dot.active` global (8px red/green dot)
+
+### Archivos tocados
+- `features/admin/pages/roles-list.ts/html/css` — removidos botón eliminar y badge seed
+- `features/admin/pages/rol-form.ts` — rediseño completo con sections cards
+- `features/admin/pages/usuario-form.ts` — rediseño completo con role chips list
+- `features/admin/pages/usuarios-list.ts` — diálogo ancho 520px
+- `styles.css` — status-dot global
+
+### Pendientes
+- Bug #34: Navbar admin tiene link "Alumnos" que redirige al portal estudiante — no hay gestión de alumnos para admin
+- Subida de documentos (requisitos) por parte del alumno + validación por admin
+- Módulo pagos
+- Módulo notas
+- Endpoint dashboard: estadísticas del admin
+- Filtrado de alumnos por período
+- Refinar contraste y diferenciación visual
+
+### Decisiones de diseño — Documentación y descuentos (2026-07-13)
+
+**RBAC flexible:** Se mantiene. Los 4 roles (director, docente, alumno, administrativo) son la base, pero el sistema permite crear roles nuevos. "Administrativo" es el actor global, con sub-flexibilidad via permisos.
+
+**Sin `programa_usuario`:** Cada rol administrativo tiene acceso a TODOS los programas. Son pocos (~7 al año, 4 administrativos), no justifica scope por programa.
+
+**Nueva tabla `modalidad_tipo_descuento`:** Junction table (M:N) que define qué descuentos aplican a qué modalidades. Ejemplo: "Beca 50%" solo para "Educación Continua".
+
+**`requisitos.id_modalidad_academica` nullable:** Permite documentos genéricos (para descuentos) que no pertenecen a ninguna modalidad específica. Los requisitos de modalidad tienen FK, los de descuento tienen FK = NULL.
+
+**Flujo de `control_documentacion`:**
+1. Alumno elige modalidad → se generan registros por cada requisito de esa modalidad
+2. Alumno elige descuento → se verifica en `modalidad_tipo_descuento` si aplica para esa modalidad
+3. Si aplica → se genera un `control_documentacion` extra (obligatorio=true)
+4. Admin va checkeando cada registro: pendiente → entregado → aprobado/rechazado
+
+**Próximo módulo:** Gestión de documentación (admin revisa postulantes de una edición y checkea documentos)
+
+### Módulos completados
+- ✅ **usuarios** — CRUD, auth pública, rate limiting, honeypot, paginación, cambio contraseña, onboarding, formulario rediseñado
+- ✅ **roles** — CRUD con permisos, protecciones RBAC, batch endpoint, formulario rediseñado
+
+## Sesión 2026-07-13 — Documentación, Modalidades y Descuentos (Junction Tables)
+
+### Decisiones de diseño
+- **RBAC flexible (confirmado):** Se mantiene dynamic roles. "Administrativo" es el actor global con sub-flexibilidad via permisos.
+- **Sin `programa_usuario` (confirmado):** Cada rol administrativo tiene acceso a TODOS los programas (~7/año, 4 admins).
+- **Junction tables M:N:**
+  - `modalidad_tipo_descuento` — define qué descuentos aplican a qué modalidades (ej: Beca 50% solo para Educación Continua)
+  - `tipo_descuento_requisito` — define qué documentos requiere cada descuento (ej: Beca 50% requiere "Media Beca UAGRM")
+- **`requisitos.id_modalidad_academica` nullable:** Documentos para descuentos tienen FK = NULL.
+- **Flujo de control_documentacion:**
+  1. Alumno elige modalidad → se generan control_documentacion por cada requisito de esa modalidad
+  2. Alumno elige descuento → backend verifica en `modalidad_tipo_descuento` si aplica para esa modalidad
+  3. Si aplica → se genera un `control_documentacion` extra (obligatorio=true) con los requisitos del descuento
+
+### Backend — Junction Tables (2026-07-13)
+- **Nuevos modelos:** `models/modalidad_tipo_descuento.py`, `models/tipo_descuento_requisito.py`
+- **Migración:** `migrate_junction_tables.py` — crea tablas, migra datos existentes, elimina columnas obsoletas
+- **Modelos modificados:**
+  - `requisito.py`: FK `id_modalidad_academica` ahora nullable, relationship `tipos_descuento` via secondary
+  - `tipo_descuento.py`: eliminados `id_requisito_extra` y `requiere_documento`, agregadas relationships `modalidades` y `requisitos` via secondary
+  - `modalidad_academica.py`: agregada relationship `tipos_descuento` via secondary
+  - `detalle_programa_alumno.py`: eliminada relationship duplicada `control_documentacion`
+- **Schemas modificados:**
+  - `requisito.py`: `id_modalidad_academica` optional en Create/Update, Response incluye `modalidad_academica` nullable
+  - `tipo_descuento.py`: eliminados `requiere_documento`/`id_requisito_extra`, agregados `modalidades: list[int]` y `requisitos: list[int]`
+- **Routers modificados:**
+  - `tipo_descuento.py`: reescrito con `_sincronizar()` para junction tables, `_cargar_con_relations()` con joinedload
+  - `detalle_programa_alumno.py`: agregada `generar_control_descuento()` — verifica `ModalidadTipoDescuento`, genera docs extra
+  - `programa_version_edicion.py`: agregado `GET /{id}/postulantes` — retorna alumnos con control_documentacion y contadores
+
+### Backend — Seed (2026-07-13)
+- Agregada modalidad "Profesionales"
+- Agregado requisito "Media Beca UAGRM" (FK nullable, para descuentos)
+- Agregados tipos de descuento: "Beca 50%" (solo Educación Continua) y "Descuento 10% Pago al Contado" (ambas modalidades)
+- Datos junction: Beca 50% requiere "Media Beca UAGRM"
+- Agregados permisos: `modalidades_academicas.crear`, `requisitos.eliminar`, `tipos_descuento.eliminar`
+
+### Frontend — Documentación (2026-07-13)
+- **`documentacion.ts`:** Componente para que el admin académico revise postulantes por edición
+  - Selector de edición con nombre de programa
+  - Lista expandible de postulantes con avatar, CI, correo, barra de progreso mini
+  - Panel expandido con documentos: estados visuales (pendiente/entregado/aceptado/rechazado)
+  - Acciones: marcar entregado, aprobar, rechazar con prompt de observaciones
+- **`admin.models.ts`:** Interfaces `PostulanteResponse`, `ControlDocumentacionResponse/Update`, `ProgramaVersionEdicionResponse`
+- **`admin.service.ts`:** Métodos `getEdiciones()`, `getPostulantesPorEdicion()`, `updateControlDocumentacion()`
+
+### Frontend — Modalidades Académicas (2026-07-13)
+- **`modalidad-list.ts`:** Lista de modalidades con icono, nombre, descripción, estado
+- **`modalidad-form.ts`:** Formulario dialog con:
+  - Campos: nombre, descripción, requiere_titulo, uso_unico, estado
+  - Sección de requisitos documentales: agregar, eliminar, toggle obligatorio
+  - CRUD completo vía service
+
+### Frontend — Tipos de Descuento (2026-07-13)
+- **`tipo-descuento-list.ts`:** Lista con nombre, badge porcentaje, tags de modalidades y requisitos
+- **`tipo-descuento-form.ts`:** Formulario dialog con:
+  - Campos: nombre, porcentaje, descripción, estado
+  - Multi-select de modalidades (checkbox chips) — dónde aplica
+  - Multi-select de requisitos (checkbox chips) — documentos que requiere
+  - Chips muestran hint de modalidad o "Global" para requisitos sin FK
+
+### Frontend — Admin Panel Updates (2026-07-13)
+- **`admin.ts`:** Agregadas pestañas Modalidades, Descuentos, Documentación
+- **`admin.routes.ts`:** Nuevas rutas `/admin/modalidades`, `/admin/descuentos`, `/admin/documentacion`
+- **`admin.service.ts`:** Métodos CRUD para modalidades, requisitos, tipos de descuento
+
+### Archivos tocados
+**Backend:**
+- `models/modalidad_tipo_descuento.py` — nuevo
+- `models/tipo_descuento_requisito.py` — nuevo
+- `models/__init__.py` — imports de nuevos modelos
+- `models/detalle_programa_alumno.py` — eliminada relationship duplicada
+- `models/modalidad_academica.py` — relationship tipos_descuento
+- `models/requisito.py` — FK nullable, relationship tipos_descuento
+- `models/tipo_descuento.py` — eliminados campos obsoletos, relationships via secondary
+- `schemas/requisito.py` — FK optional, Response con modalidad_academica
+- `schemas/tipo_descuento.py` — modalidades[] y requisitos[]
+- `routers/tipo_descuento.py` — CRUD con junction tables
+- `routers/detalle_programa_alumno.py` — generar_control_descuento()
+- `routers/programa_version_edicion.py` — endpoint postulantes
+- `seed.py` — datos junction, permisos faltantes
+- `migrate_junction_tables.py` — script de migración
+
+**Frontend:**
+- `features/admin/pages/documentacion.ts` — nuevo componente
+- `features/admin/pages/modalidad-list.ts` — nuevo componente
+- `features/admin/pages/modalidad-form.ts` — nuevo componente
+- `features/admin/pages/tipo-descuento-list.ts` — nuevo componente
+- `features/admin/pages/tipo-descuento-form.ts` — nuevo componente
+- `features/admin/models/admin.models.ts` — interfaces actualizadas
+- `features/admin/services/admin.service.ts` — métodos CRUD agregados
+- `features/admin/pages/admin.ts` — tabs actualizadas
+- `features/admin/routes/admin.routes.ts` — rutas agregadas
+
+### Pendientes
+- Bug #34: Navbar admin tiene link "Alumnos" que redirige al portal estudiante — no hay gestión de alumnos para admin
+- Módulo pagos: modelo, endpoints y front
+- Módulo notas: modelo, endpoints y front
+- Endpoint dashboard: estadísticas del admin
+- Filtrado de alumnos por período
+- Refinar contraste y diferenciación visual

@@ -12,6 +12,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { AlumnoService } from '../../services/alumno.service';
+import { AuthService } from '../../../../core/services/auth.service';
 import { Alumno, AlumnoUpdate, GeneroAlumno } from '../../models/alumno.model';
 
 @Component({
@@ -28,6 +29,7 @@ import { Alumno, AlumnoUpdate, GeneroAlumno } from '../../models/alumno.model';
 })
 export class PerfilComponent implements OnInit {
   private alumnoService = inject(AlumnoService);
+  private authService = inject(AuthService);
   private snackBar = inject(MatSnackBar);
 
   alumno = signal<Alumno | null>(null);
@@ -36,8 +38,15 @@ export class PerfilComponent implements OnInit {
   guardando = signal(false);
 
   editData: AlumnoUpdate = {};
-
   generos: GeneroAlumno[] = ['masculino', 'femenino', 'otro'];
+
+  editandoPassword = signal(false);
+  guardandoPassword = signal(false);
+  passwordActual = '';
+  passwordNuevo = '';
+  passwordConfirmar = '';
+  showPasswordActual = false;
+  showPasswordNuevo = false;
 
   ngOnInit(): void {
     this.cargarPerfil();
@@ -86,13 +95,67 @@ export class PerfilComponent implements OnInit {
         this.alumno.set(data);
         this.editando.set(false);
         this.guardando.set(false);
-        this.snackBar.open('Perfil actualizado correctamente', 'Cerrar', { duration: 3000 });
+        this.snackBar.open('Perfil actualizado', 'Cerrar', { duration: 3000 });
       },
       error: (err) => {
         this.guardando.set(false);
-        const msg = err.error?.detail || 'Error al actualizar perfil';
+        let msg = 'Error al actualizar perfil';
+        if (err.error?.detail) {
+          msg = Array.isArray(err.error.detail)
+            ? err.error.detail.map((e: any) => e.msg).join(', ')
+            : err.error.detail;
+        }
         this.snackBar.open(msg, 'Cerrar', { duration: 4000 });
       },
     });
+  }
+
+  iniciarCambioPassword(): void {
+    this.passwordActual = '';
+    this.passwordNuevo = '';
+    this.passwordConfirmar = '';
+    this.editandoPassword.set(true);
+  }
+
+  cancelarCambioPassword(): void {
+    this.editandoPassword.set(false);
+  }
+
+  guardarPassword(): void {
+    if (!this.passwordActual || !this.passwordNuevo || !this.passwordConfirmar) {
+      this.snackBar.open('Completá todos los campos', 'Cerrar', { duration: 3000 });
+      return;
+    }
+    if (this.passwordNuevo !== this.passwordConfirmar) {
+      this.snackBar.open('Las contraseñas no coinciden', 'Cerrar', { duration: 3000 });
+      return;
+    }
+
+    this.guardandoPassword.set(true);
+    this.authService.cambiarPassword(this.passwordActual, this.passwordNuevo).subscribe({
+      next: () => {
+        this.editandoPassword.set(false);
+        this.guardandoPassword.set(false);
+        this.passwordActual = '';
+        this.passwordNuevo = '';
+        this.passwordConfirmar = '';
+        this.snackBar.open('Contraseña actualizada', 'Cerrar', { duration: 3000 });
+      },
+      error: (err) => {
+        this.guardandoPassword.set(false);
+        const msg = err.error?.detail || 'Error al cambiar contraseña';
+        this.snackBar.open(msg, 'Cerrar', { duration: 4000 });
+      },
+    });
+  }
+
+  getUserInitial(): string {
+    const a = this.alumno();
+    if (!a) return '?';
+    return (a.nombre?.[0] || '?').toUpperCase();
+  }
+
+  getUserEmail(): string {
+    return this.authService.user()?.email || '';
   }
 }

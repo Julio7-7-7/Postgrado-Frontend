@@ -39,6 +39,13 @@ export interface LoginStep1Response {
   roles: RolInfo[];
 }
 
+export interface RegistroRequest {
+  email: string;
+  password: string;
+  ci: string;
+  honeypot?: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private http = inject(HttpClient);
@@ -71,6 +78,17 @@ export class AuthService {
   login(email: string, password: string) {
     return this.http.post<LoginStep1Response>(`${this.apiUrl}/auth/login`, {
       email, password
+    });
+  }
+
+  register(data: RegistroRequest) {
+    return this.http.post<TokenResponse>(`${this.apiUrl}/auth/registro`, data);
+  }
+
+  cambiarPassword(passwordActual: string, passwordNuevo: string) {
+    return this.http.patch<{ detail: string }>(`${this.apiUrl}/auth/cambiar-password`, {
+      password_actual: passwordActual,
+      password_nuevo: passwordNuevo,
     });
   }
 

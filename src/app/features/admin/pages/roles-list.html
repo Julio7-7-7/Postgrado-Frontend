@@ -1,0 +1,57 @@
+<div class="toolbar-row">
+  <div class="toolbar-left">
+    <h3>Roles del Sistema</h3>
+    <span class="toolbar-count">{{ roles().length }} roles</span>
+  </div>
+  <button mat-raised-button color="primary" class="btn-nuevo" (click)="abrirFormulario()">
+    <mat-icon>add</mat-icon> Nuevo Rol
+  </button>
+</div>
+
+@if (isLoading()) {
+  <div class="loading-container">
+    <mat-spinner diameter="36"></mat-spinner>
+    <span>Cargando roles...</span>
+  </div>
+} @else if (error()) {
+  <div class="error-container">
+    <mat-icon>error_outline</mat-icon>
+    <p>{{ error() }}</p>
+    <button mat-stroked-button (click)="cargarDatos()">Reintentar</button>
+  </div>
+} @else {
+  <div class="roles-grid">
+    @for (r of roles(); track r.id_rol) {
+      <div class="rol-card">
+        <div class="rol-header">
+          <div class="rol-icon">
+            <mat-icon>shield</mat-icon>
+          </div>
+          <div class="rol-info">
+            <h4>{{ r.nombre }}</h4>
+            @if (r.descripcion) {
+              <p>{{ r.descripcion }}</p>
+            }
+          </div>
+          <button mat-icon-button matTooltip="Editar" (click)="abrirFormulario(r)">
+            <mat-icon>edit</mat-icon>
+          </button>
+        </div>
+        <div class="rol-footer">
+          <span class="permiso-count">
+            <mat-icon>vpn_key</mat-icon>
+            {{ r.permisos.length }} permisos
+          </span>
+        </div>
+      </div>
+    }
+  </div>
+
+  @if (roles().length === 0) {
+    <div class="empty-state">
+      <mat-icon>admin_panel_settings</mat-icon>
+      <h4>No hay roles registrados</h4>
+      <p>Creá el primer rol del sistema</p>
+    </div>
+  }
+}

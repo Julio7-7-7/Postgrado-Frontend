@@ -1,77 +1,111 @@
 <div class="toolbar-row">
-  <h3>Usuarios</h3>
+  <div class="toolbar-left">
+    <h3>Usuarios</h3>
+    <span class="toolbar-count">{{ total() }} usuarios</span>
+  </div>
   <button mat-raised-button color="primary" class="btn-nuevo" (click)="abrirFormulario()">
-    <mat-icon>add</mat-icon> Nuevo Usuario
+    <mat-icon>person_add</mat-icon> Nuevo Usuario
   </button>
 </div>
 
 @if (isLoading()) {
-  <div class="loading-container"><mat-spinner diameter="40"></mat-spinner></div>
+  <div class="loading-container">
+    <mat-spinner diameter="36"></mat-spinner>
+    <span>Cargando usuarios...</span>
+  </div>
 } @else if (error()) {
   <div class="error-container">
+    <mat-icon>error_outline</mat-icon>
     <p>{{ error() }}</p>
-    <button mat-raised-button (click)="cargarDatos()">Reintentar</button>
+    <button mat-stroked-button (click)="cargarDatos()">Reintentar</button>
   </div>
 } @else {
-  <table mat-table [dataSource]="usuarios()" class="fich-table mat-elevation-z2">
-    <ng-container matColumnDef="email">
-      <th mat-header-cell *matHeaderCellDef>Email</th>
-      <td mat-cell *matCellDef="let u">{{ u.email }}</td>
-    </ng-container>
+  <div class="table-wrapper mat-elevation-z1">
+    <table mat-table [dataSource]="usuarios()" class="fich-table">
+      <ng-container matColumnDef="email">
+        <th mat-header-cell *matHeaderCellDef>Usuario</th>
+        <td mat-cell *matCellDef="let u">
+          <div class="cell-email">{{ u.email }}</div>
+        </td>
+      </ng-container>
 
-    <ng-container matColumnDef="profile">
-      <th mat-header-cell *matHeaderCellDef>Perfil</th>
-      <td mat-cell *matCellDef="let u">
-        {{ u.profile_nombre || '-' }}
-        @if (u.profile_type) {
-          <br><span class="profile-type">{{ u.profile_type }}</span>
-        }
-      </td>
-    </ng-container>
+      <ng-container matColumnDef="profile">
+        <th mat-header-cell *matHeaderCellDef>Nombre</th>
+        <td mat-cell *matCellDef="let u">
+          @if (u.perfiles.length === 0) {
+            <span class="cell-muted">Sin perfil</span>
+          } @else {
+            @for (p of u.perfiles; track p.id; let last = $last) {
+              <span class="cell-name">{{ p.nombre }}</span>
+              @if (!last) { <span class="cell-separator">/</span> }
+            }
+          }
+        </td>
+      </ng-container>
 
-    <ng-container matColumnDef="roles">
-      <th mat-header-cell *matHeaderCellDef>Roles</th>
-      <td mat-cell *matCellDef="let u">
-        @for (rol of u.roles; track rol; let last = $last) {
-          <span class="estado-pill activo">{{ rol }}</span>
-          @if (!last) { <br> }
-        }
-      </td>
-    </ng-container>
+      <ng-container matColumnDef="roles">
+        <th mat-header-cell *matHeaderCellDef>Roles</th>
+        <td mat-cell *matCellDef="let u">
+          <div class="roles-chips">
+            @for (rol of u.roles; track rol) {
+              <span class="role-chip">{{ rol }}</span>
+            }
+          </div>
+        </td>
+      </ng-container>
 
-    <ng-container matColumnDef="activo">
-      <th mat-header-cell *matHeaderCellDef>Estado</th>
-      <td mat-cell *matCellDef="let u">
-        <span class="estado-pill" [class.activo]="u.activo" [class.inactivo]="!u.activo">
+      <ng-container matColumnDef="activo">
+        <th mat-header-cell *matHeaderCellDef>Estado</th>
+        <td mat-cell *matCellDef="let u">
+          <span class="status-dot" [class.active]="u.activo"></span>
           {{ u.activo ? 'Activo' : 'Inactivo' }}
-        </span>
-      </td>
-    </ng-container>
+        </td>
+      </ng-container>
 
-    <ng-container matColumnDef="acciones">
-      <th mat-header-cell *matHeaderCellDef></th>
-      <td mat-cell *matCellDef="let u">
-        <button mat-icon-button matTooltip="Gestionar roles" (click)="cambiarRoles(u)">
-          <mat-icon>swap_horiz</mat-icon>
-        </button>
-        <button mat-icon-button
-                [matTooltip]="u.activo ? 'Desactivar usuario' : 'Activar usuario'"
-                (click)="toggleActivo(u)">
-          <mat-icon [style.color]="u.activo ? 'var(--fich-est-warning)' : 'var(--fich-est-activo)'">
-            {{ u.activo ? 'block' : 'check_circle' }}
-          </mat-icon>
-        </button>
-      </td>
-    </ng-container>
+      <ng-container matColumnDef="acciones">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let u">
+          <div class="action-btns">
+            <button mat-icon-button matTooltip="Editar" (click)="editarUsuario(u)">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button matTooltip="Roles" (click)="cambiarRoles(u)">
+              <mat-icon>shield</mat-icon>
+            </button>
+            <button mat-icon-button
+                    [matTooltip]="u.activo ? 'Desactivar' : 'Activar'"
+                    (click)="toggleActivo(u)">
+              <mat-icon>{{ u.activo ? 'block' : 'check_circle' }}</mat-icon>
+            </button>
+          </div>
+        </td>
+      </ng-container>
 
-    <tr mat-header-row *matHeaderRowDef="columnas"></tr>
-    <tr mat-row *matRowDef="let row; columns: columnas;"></tr>
-  </table>
+      <tr mat-header-row *matHeaderRowDef="columnas"></tr>
+      <tr mat-row *matRowDef="let row; columns: columnas;"></tr>
+    </table>
+  </div>
 
   @if (usuarios().length === 0) {
     <div class="empty-state">
       <mat-icon>people</mat-icon>
-      <p>No hay usuarios registrados</p>
+      <h4>No hay usuarios registrados</h4>
+      <p>Creá el primer usuario del sistema</p>
+    </div>
+  } @else {
+    <div class="pagination-bar">
+      <span class="page-info">{{ (page()-1) * perPage + 1 }}–{{ rangeEnd() }} de {{ total() }}</span>
+      <div class="page-controls">
+        <button mat-icon-button [disabled]="page() <= 1" (click)="paginaAnterior()">
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+        @for (p of pageNumbers(); track p) {
+          <button mat-icon-button [class.active]="p === page()" (click)="irAPagina(p)">{{ p }}</button>
+        }
+        <button mat-icon-button [disabled]="page() >= totalPages()" (click)="paginaSiguiente()">
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      </div>
     </div>
   }
 }
