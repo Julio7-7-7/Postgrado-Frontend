@@ -36,6 +36,14 @@ export class NavbarComponent {
   isLogged = computed(() => this.auth.isLogged());
   hasMultipleRoles = computed(() => this.auth.roles().length > 1);
 
+  profileRoute = computed(() => {
+    const user = this.auth.user();
+    if (!user) return null;
+    if (user.rol === 'alumno') return '/alumnos/perfil';
+    if (user.rol === 'docente') return '/docentes';
+    return null;
+  });
+
   allNavItems: NavItem[] = [
     { path: '/dashboard', label: 'Inicio', icon: 'home', exact: true, feature: 'home', permiso: 'programas.ver' },
     { path: '/programas', label: 'Programas', icon: 'school', feature: 'programas', permiso: 'programas.ver' },
@@ -53,7 +61,6 @@ export class NavbarComponent {
   ];
 
   studentItems: NavItem[] = [
-    { path: '/alumnos/perfil', label: 'Mi Perfil', icon: 'badge', exact: true, feature: 'alumno', permiso: 'dashboard.ver' },
     { path: '/alumnos/inscripciones', label: 'Mis Inscripciones', icon: 'assignment_ind', feature: 'alumno', permiso: 'dashboard.ver' },
     { path: '/', label: 'Oferta Académica', icon: 'school', exact: true, feature: 'alumno', permiso: 'dashboard.ver' },
   ];

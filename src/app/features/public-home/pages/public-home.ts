@@ -1,6 +1,6 @@
 import { Component, OnInit, AfterViewInit, inject, signal, DestroyRef, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
@@ -8,6 +8,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { EdicionService } from '../../edicion/services/edicion.service';
+import { DetalleProgramaAlumnoService } from '../../alumno/services/detalle-programa-alumno.service';
+import { AlumnoService } from '../../alumno/services/alumno.service';
 import { ProgramaVersionEdicion } from '../../edicion/models/edicion.model';
 import { environment } from '../../../../environments/environment';
 
@@ -22,7 +24,7 @@ interface Pilar {
   selector: 'app-public-home',
   standalone: true,
   imports: [
-    CommonModule,
+    CommonModule, RouterModule,
     MatButtonModule, MatIconModule, MatCardModule, MatSnackBarModule,
   ],
   templateUrl: './public-home.html',
@@ -30,6 +32,8 @@ interface Pilar {
 })
 export class PublicHomeComponent implements OnInit, AfterViewInit {
   private edicionService = inject(EdicionService);
+  private detalleService = inject(DetalleProgramaAlumnoService);
+  private alumnoService = inject(AlumnoService);
   private snackBar = inject(MatSnackBar);
   private router = inject(Router);
   private auth = inject(AuthService);
@@ -39,6 +43,7 @@ export class PublicHomeComponent implements OnInit, AfterViewInit {
 
   ediciones = signal<ProgramaVersionEdicion[]>([]);
   cargando = signal(true);
+  perfilIncompleto = signal(false);
 
   apiUrl = environment.apiUrl;
 
@@ -83,6 +88,16 @@ export class PublicHomeComponent implements OnInit, AfterViewInit {
         this.snackBar.open('Error al cargar oferta académica', 'Cerrar', { duration: 4000 });
       },
     });
+
+    if (this.auth.isLogged() && this.auth.user()?.rol === 'alumno') {
+      this.alumnoService.getMiPerfil().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+        next: (alumno) => {
+          if (alumno.nombre === 'Pendiente' || alumno.apellido === 'Pendiente') {
+            this.perfilIncompleto.set(true);
+          }
+        },
+      });
+    }
   }
 
   ngAfterViewInit(): void {
@@ -125,7 +140,35 @@ export class PublicHomeComponent implements OnInit, AfterViewInit {
 
   inscribirse(edicion: ProgramaVersionEdicion): void {
     if (this.auth.isLogged()) {
-      this.router.navigate(['/alumnos', 'inscribir', edicion.id_programa_version_edicion]);
+      this.alumnoService.getMiPerfil().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+        next: (alumno) => {
+          if (alumno.nombre === 'Pendiente' || alumno.apellido === 'Pendiente') {
+            this.perfilIncompleto.set(true);
+            this.snackBar.open('Completá tu perfil antes de inscribirte', 'Ir a perfil', { duration: 6000 })
+              .onAction().subscribe(() => this.router.navigate(['/alumnos/perfil']));
+            return;
+          }
+
+          this.detalleService.getMisInscripciones().subscribe({
+            next: (inscripciones) => {
+              const yaInscripto = inscripciones.some(
+                i => i.id_programa_version_edicion === edicion.id_programa_version_edicion
+              );
+              if (yaInscripto) {
+                this.router.navigate(['/alumnos/inscripciones']);
+              } else {
+                this.router.navigate(['/alumnos', 'inscribir', edicion.id_programa_version_edicion]);
+              }
+            },
+            error: () => {
+              this.router.navigate(['/alumnos', 'inscribir', edicion.id_programa_version_edicion]);
+            },
+          });
+        },
+        error: () => {
+          this.snackBar.open('Error al verificar perfil', 'Cerrar', { duration: 3000 });
+        },
+      });
     } else {
       this.router.navigate(['/login'], {
         queryParams: { inscribir: edicion.id_programa_version_edicion },
