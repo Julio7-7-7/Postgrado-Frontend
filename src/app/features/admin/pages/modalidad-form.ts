@@ -55,7 +55,6 @@ import { ModalidadAcademicaResponse, RequisitoResponse } from '../models/admin.m
 
         <div class="checkbox-row">
           <mat-checkbox formControlName="requiere_titulo">Requiere título habilitante</mat-checkbox>
-          <mat-checkbox formControlName="uso_unico">Uso único (solo una inscripción por alumno)</mat-checkbox>
         </div>
 
         @if (data) {
@@ -231,7 +230,6 @@ export class ModalidadFormComponent implements OnInit {
       nombre_modalidad: [this.data?.nombre_modalidad ?? '', Validators.required],
       descripcion: [this.data?.descripcion ?? ''],
       requiere_titulo: [this.data?.requiere_titulo ?? false],
-      uso_unico: [this.data?.uso_unico ?? false],
       estado: [this.data?.estado ?? 'activo'],
     });
 

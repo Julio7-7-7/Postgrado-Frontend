@@ -20,7 +20,7 @@
             placeholder="Ej: Maestría en Tecnologías de la Información"
           >
           <mat-icon matPrefix>school</mat-icon>
-          
+
           @if (form.get('nombre')?.hasError('required')) {
             <mat-error>El nombre es obligatorio</mat-error>
           }
@@ -30,7 +30,7 @@
         </mat-form-field>
 
         <div class="form-row">
-          
+
           <mat-form-field appearance="outline">
             <mat-label>Estado del Registro</mat-label>
             <mat-select formControlName="estado">
@@ -58,7 +58,6 @@
             <mat-label>Duración Mínima (meses)</mat-label>
             <input
               matInput
-
               type="number"
               formControlName="duracion_minima_meses"
               placeholder="Opcional"
@@ -70,6 +69,31 @@
             }
           </mat-form-field>
 
+        </div>
+
+        <div class="section-divider"></div>
+
+        <div class="section-header">
+          <mat-icon>school</mat-icon>
+          <span>Modalidades permitidas</span>
+        </div>
+        <p class="section-hint">Qué modalidades de admisión puede usar este tipo de programa</p>
+
+        <div class="chips-container">
+          @for (mod of modalidades(); track mod.id_modalidad_academica) {
+            <div class="chip-option"
+                 [class.selected]="selectedModalidades().has(mod.id_modalidad_academica)"
+                 (click)="toggleModalidad(mod.id_modalidad_academica)">
+              <mat-icon>{{ selectedModalidades().has(mod.id_modalidad_academica) ? 'check_box' : 'check_box_outline_blank' }}</mat-icon>
+              <span>{{ mod.nombre_modalidad }}</span>
+              @if (mod.requiere_titulo) {
+                <span class="chip-badge">Requiere título</span>
+              }
+            </div>
+          }
+          @if (modalidades().length === 0) {
+            <p class="empty-hint">No hay modalidades activas disponibles</p>
+          }
         </div>
 
         <div class="form-actions">

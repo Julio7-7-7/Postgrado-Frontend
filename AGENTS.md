@@ -101,6 +101,7 @@ Backend: github.com/Julio7-7-7/PostgradoBackend
 - Endpoint dashboard: estadísticas del admin
 - Filtrado de alumnos por período: endpoint `GET /alumnos/por-periodo/{id_periodo}`
 - Matriz visual rol × permiso (opcional)
+- Acoplamiento de estudiantes entre ediciones: campo `modulo_inicio` en `DetalleProgramaAlumno`
 
 ## Sesión 2026-07-10 — Implementación de Auth + RBAC + Admin panel (pre-migración)
 
@@ -698,3 +699,99 @@ El backend resuelve esto en `_obtener_permisos()` (`dependencies.py:74`) al mome
 - Endpoint dashboard: estadísticas del admin
 - Filtrado de alumnos por período
 - Refinar contraste y diferenciación visual
+
+## Sesión 2026-07-14 — Mover uso_unico, enum estados y validación descuento
+
+### Decisiones de diseño
+- **`uso_unico` movido de `ModalidadAcademica` → `TipoDescuento`**: Educación continua no es uso único (se puede hacer para varias carreras). La beca 50% sí es uso único (el alumno la "reserva" para usarla cuando quiera, ej: maestría).
+- **Enum de estados actualizado**: eliminado `convalidando`, agregado `observado` (en vez de `rechazado` para que el alumno pueda corregir).
+- **Validación de uso único en descuento**: si `tipo_descuento.uso_unico=true`, se verifica que el alumno no lo haya usado antes (excluyendo estados `postulante` y `observado`).
+
+### Backend — Migración
+- `b1c2d3e4f5a6` — une los 2 heads anteriores, crea columna `uso_unico` en `tipos_descuento`, migra datos (Beca 50% = true), elimina `uso_unico` de `modalidades_academicas`.
+- Para aplicar: `./venv/bin/alembic upgrade head && python seed.py`
+
+### Backend — Archivos modificados
+- `models/modalidad_academica.py` — eliminado `uso_unico`
+- `models/tipo_descuento.py` — agregado `uso_unico` + import `Boolean`
+- `schemas/modalidad_academica.py` — eliminado `uso_unico` de Base y Update
+- `schemas/tipo_descuento.py` — agregado `uso_unico` a Base y Update
+- `schemas/detalle_programa_alumno.py` — enum: eliminado `convalidando`, agregado `observado`
+- `routers/detalle_programa_alumno.py` — validación de uso único en `crear` y `auto_insribir` (excluyendo postulante/observado)
+- `seed.py` — Beca 50% con `uso_unico=True`
+- `migrations/versions/b1c2d3e4f5a6_mover_uso_unico_de_modalidad_a_descuento.py` — nueva migración
+
+### Frontend — Archivos modificados
+- `features/admin/pages/modalidad-form.ts` — quitado checkbox `uso_unico` del template y form
+- `features/admin/pages/modalidad-list.ts` — quitado badge "Uso único"/"Uso libre"
+- `features/admin/pages/tipo-descuento-form.ts` — agregado checkbox `uso_unico` en template, form y styles
+- `features/admin/models/admin.models.ts` — `uso_unico` removido de `ModalidadAcademicaResponse`, agregado a `TipoDescuentoResponse`
+
+### Pendientes (actualizados)
+- **Restricción modalidad × tipo de programa**: Educación continua solo para diplomados. Maestrías solo permiten "Profesionales". Validación en router (5 líneas), sin tablas nuevas.
+- **Acoplamiento de estudiantes entre ediciones**: Campo `modulo_inicio` en `DetalleProgramaAlumno` (default=1). Permite que un estudiante empiece desde un módulo intermedio de una edición.
+- Bug #34: Navbar admin link "Alumnos" redirige al portal estudiante — falta gestión de alumnos para admin
+- Subida de documentos (requisitos) por parte del alumno + validación por admin
+- Módulo pagos: modelo, endpoints y front
+- Módulo notas: modelo, endpoints y front
+- Endpoint dashboard: estadísticas del admin
+- Filtrado de alumnos por período
+- Refinar contraste y diferenciación visual
+
+## Próximos pasos acordados (pendientes de implementar)
+
+### 1. Restricción modalidad × tipo de programa
+- Implementada via junction table `modalidad_tipo_programa` (M:N).
+- Backend valida en `auto_insribir` y `crear` que la modalidad elegida esté vinculada al tipo de programa.
+- Frontend: formulario de tipo de programa permite seleccionar modalidades permitidas.
+- **Completado.**
+
+### 2. Acoplamiento de estudiantes entre ediciones
+- Agregar campo `modulo_inicio` (Integer, default=1) a `DetalleProgramaAlumno`
+- Migración para la columna nueva
+- Schema: agregar campo a Create/Update/Response
+- Router: permitir enviar `modulo_inicio` al inscribirse
+- Frontend: campo opcional en formulario de inscripción (admin puede indicar desde qué módulo empieza el alumno)
+
+## Sesión 2026-07-14 — Junction tables: modalidad_tipo_programa
+
+### Decisiones de diseño
+- **Junction table `modalidad_tipo_programa`** (PK compuesta: `id_modalidad_academica` + `id_tipo_programa`, cascade delete): define qué modalidades aplican a qué tipo de programa.
+- **Validación en backend**: en `auto_insribir` y `crear` del router `detalle_programa_alumno.py`, se verifica que la modalidad elegida esté vinculada al tipo de programa vía la junction table.
+- **Seed**: Diplomado ↔ Educación Continua + Profesionales; Maestría ↔ Profesionales; Curso ↔ Profesionales.
+
+### Backend — Archivos creados
+- `models/modalidad_tipo_programa.py` — nuevo modelo con PK compuesta + cascade
+- `migrations/versions/c2d3e4f5a6b7_crear_modalidad_tipo_programa.py` — crea la tabla
+
+### Backend — Archivos modificados
+- `models/__init__.py` — import de `ModalidadTipoPrograma`
+- `models/tipo_programa.py` — relationship `modalidades` via secondary
+- `models/modalidad_academica.py` — relationship `tipos_programa` via secondary
+- `schemas/tipo_programa.py` — `modalidades: list[int]` en Create/Update, `modalidades: list[ModalidadAcademicaResponse]` en Response
+- `routers/tipo_programa.py` — CRUD reescrito con `_sincronizar()` para junction tables, `joinedload` para eager loading
+- `routers/detalle_programa_alumno.py` — función `validar_modalidad_programa()` llamada en `crear` y `auto_insribir`
+- `seed.py` — crea TiposPrograma + junctions
+
+### Migración aplicada
+- Tabla `modalidad_tipo_programa` creada manualmente (la cadena de migraciones tenía un huérfano `a1b2c3d4e5f6`).
+- Migración `b1c2d3e4f5a6` (uso_unico) ejecutada manualmente (stamp no ejecuta upgrade).
+- Alembic stamp en HEAD: `c2d3e4f5a6b7`.
+
+### Frontend — Feature module existente actualizado (NO se crearon componentes nuevos en admin)
+- **Decisión**: no duplicar CRUD en admin panel. Se actualizó el feature module `/tipos-programa` existente.
+- `models/tipo-programa.model.ts` — `TipoPrograma` incluye `modalidades: ModalidadResumen[]`, `TipoProgramaCreate` incluye `modalidades: number[]`
+- `services/tipo-programa.service.ts` — nuevo método `getModalidades()` importando `ModalidadAcademicaResponse` de admin.models
+- `pages/tipo-programa-form/tipo-programa-form.ts` — carga modalidades, `selectedModalidades` signal, `toggleModalidad()`, envía `modalidades: number[]` en payload
+- `pages/tipo-programa-form/tipo-programa-form.html` — sección "Modalidades permitidas" con checkbox chips
+- `pages/tipo-programa-form/tipo-programa-form.css` — estilos para chips, section-divider, section-header
+- `pages/tipo-programa-list/tipo-programa-list.ts` — columna `modalidades` agregada a `columnas[]`
+- `pages/tipo-programa-list/tipo-programa-list.html` — columna `modalidades` con chips de color
+- `pages/tipo-programa-list/tipo-programa-list.css` — estilos `.modalidades-chips`, `.mod-chip`, `.no-mods`
+
+### Frontend — Admin panel limpiado
+- Eliminados `admin/pages/tipo-programa-list.ts` y `admin/pages/tipo-programa-form.ts`
+- Eliminada pestaña "Tipos de Programa" de `admin/pages/admin.ts`
+- Eliminada ruta `tipos-programa` de `admin/routes/admin.routes.ts`
+- Eliminados métodos `getTiposPrograma`, `createTipoPrograma`, `updateTipoPrograma` de `admin/services/admin.service.ts`
+- Eliminado import `TipoProgramaResponse` de `admin.service.ts` (se mantiene en `admin.models.ts` para `ProgramaResponse`)

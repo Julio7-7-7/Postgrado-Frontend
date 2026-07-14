@@ -117,7 +117,6 @@ export interface ModalidadAcademicaResponse {
   nombre_modalidad: string;
   descripcion: string | null;
   requiere_titulo: boolean;
-  uso_unico: boolean;
   estado: string;
   created_at: string;
   updated_at: string;
@@ -140,6 +139,7 @@ export interface TipoDescuentoResponse {
   nombre: string;
   porcentaje: number;
   descripcion: string | null;
+  uso_unico: boolean;
   estado: string;
   modalidades: ModalidadAcademicaResponse[];
   requisitos: RequisitoResponse[];
@@ -191,8 +191,13 @@ export interface PostulanteResponse {
 
 export interface TipoProgramaResponse {
   id_tipo_programa: number;
-  nombre_tipo_programa: string;
+  nombre: string;
   estado: string;
+  cupo_minimo: number | null;
+  duracion_minima_meses: number | null;
+  modalidades: ModalidadAcademicaResponse[];
+  created_at: string;
+  updated_at: string;
 }
 
 export interface ProgramaResponse {

@@ -60,7 +60,6 @@ import { ModalidadFormComponent } from './modalidad-form';
                   <div class="entity-meta">
                     @if (m.descripcion) { {{ m.descripcion }} · }
                     {{ m.requiere_titulo ? 'Requiere título' : 'Sin título' }}
-                    · {{ m.uso_unico ? 'Uso único' : 'Uso libre' }}
                   </div>
                 </div>
               </div>
