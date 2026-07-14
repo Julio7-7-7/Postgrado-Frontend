@@ -64,7 +64,7 @@ export class TipoProgramaListComponent implements OnInit {
   listaActivos = computed(() => this.filtrarYOrdenar('activo'));
   listaInactivos = computed(() => this.filtrarYOrdenar('inactivo'));
 
-  columnas: string[] = ['id', 'nombre', 'cupo', 'duracion', 'estado', 'acciones'];
+  columnas: string[] = ['id', 'nombre', 'modalidades', 'cupo', 'duracion', 'estado', 'acciones'];
 
   ngOnInit(): void {
     this.cargarDatos();

@@ -136,6 +136,22 @@
       <td mat-cell *matCellDef="let element" class="name-cell"> {{ element.nombre }} </td>
     </ng-container>
 
+    <!-- Modalidades -->
+    <ng-container matColumnDef="modalidades">
+      <th mat-header-cell *matHeaderCellDef> Modalidades </th>
+      <td mat-cell *matCellDef="let element">
+        @if (element.modalidades && element.modalidades.length > 0) {
+          <div class="modalidades-chips">
+            @for (mod of element.modalidades; track mod.id_modalidad_academica) {
+              <span class="mod-chip">{{ mod.nombre_modalidad }}</span>
+            }
+          </div>
+        } @else {
+          <span class="no-mods">Sin asignar</span>
+        }
+      </td>
+    </ng-container>
+
     <!-- Cupo -->
     <ng-container matColumnDef="cupo">
       <th mat-header-cell *matHeaderCellDef> Cupo Mín. </th>

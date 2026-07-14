@@ -82,6 +82,10 @@ import {
           </mat-form-field>
         </div>
 
+        <div class="checkbox-row">
+          <mat-checkbox formControlName="uso_unico">Uso único (el alumno puede usarlo solo una vez en su vida)</mat-checkbox>
+        </div>
+
         <div class="section-divider"></div>
 
         <div class="section-header">
@@ -163,6 +167,12 @@ import {
     .full-width { width: 100%; }
     .half { width: 48%; }
     .field-row { display: flex; gap: 12px; }
+
+    .checkbox-row {
+      display: flex;
+      gap: 24px;
+      margin-bottom: 16px;
+    }
 
     .section-divider {
       height: 1px;
@@ -263,6 +273,7 @@ export class TipoDescuentoFormComponent implements OnInit {
       nombre: [this.data?.nombre ?? '', Validators.required],
       porcentaje: [this.data?.porcentaje ?? 50, [Validators.required, Validators.min(1), Validators.max(100)]],
       descripcion: [this.data?.descripcion ?? ''],
+      uso_unico: [this.data?.uso_unico ?? false],
       estado: [this.data?.estado ?? 'activo'],
     });
 

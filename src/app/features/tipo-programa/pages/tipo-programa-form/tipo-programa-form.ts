@@ -15,6 +15,7 @@ import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 
 import { TipoProgramaService } from '../../services/tipo-programa.service';
 import { TipoProgramaCreate } from '../../models/tipo-programa.model';
+import { ModalidadAcademicaResponse } from '../../../admin/models/admin.models';
 
 @Component({
   selector: 'app-tipo-programa-form',
@@ -48,6 +49,9 @@ export class TipoProgramaFormComponent implements OnInit {
   loading = signal(false);
   cargandoDatos = signal(false);
 
+  modalidades = signal<ModalidadAcademicaResponse[]>([]);
+  selectedModalidades = signal<Set<number>>(new Set());
+
   constructor() {
     this.form = this.fb.group({
       nombre: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
@@ -58,6 +62,7 @@ export class TipoProgramaFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.cargarModalidades();
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.idEditando = +id;
@@ -65,11 +70,19 @@ export class TipoProgramaFormComponent implements OnInit {
     }
   }
 
+  private cargarModalidades(): void {
+    this.service.getModalidades().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: data => this.modalidades.set(data.filter(m => m.estado === 'activo')),
+    });
+  }
+
   private cargarDatosParaEditar(id: number) {
     this.cargandoDatos.set(true);
     this.service.getById(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (data) => {
         this.form.patchValue(data);
+        const ids = new Set(data.modalidades.map(m => m.id_modalidad_academica));
+        this.selectedModalidades.set(ids);
         this.cargandoDatos.set(false);
       },
       error: () => {
@@ -80,11 +93,23 @@ export class TipoProgramaFormComponent implements OnInit {
     });
   }
 
+  toggleModalidad(id: number): void {
+    this.selectedModalidades.update(s => {
+      const next = new Set(s);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
   guardar() {
     if (this.form.invalid) return;
 
     this.loading.set(true);
-    const datos = this.form.value as TipoProgramaCreate;
+    const datos: TipoProgramaCreate = {
+      ...this.form.value,
+      modalidades: Array.from(this.selectedModalidades()),
+    };
 
     const peticion = this.idEditando
       ? this.service.update(this.idEditando, datos)

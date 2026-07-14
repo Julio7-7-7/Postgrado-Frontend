@@ -204,7 +204,11 @@ tr.mat-mdc-row:hover {
 }
 
 .loading-container, .empty-state {
-  padding: 40px 20px; 
+  padding: 40px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
 }
 
 .empty-state mat-icon {
@@ -212,6 +216,29 @@ tr.mat-mdc-row:hover {
   width: 40px;
   height: 40px;
   opacity: 0.3;
+}
+
+.modalidades-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.mod-chip {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
+  background: #eef2ff;
+  color: #4338ca;
+  font-size: 0.72rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.no-mods {
+  color: #94a3b8;
+  font-size: 0.82rem;
+  font-style: italic;
 }
 
 @media (max-width: 960px) {
