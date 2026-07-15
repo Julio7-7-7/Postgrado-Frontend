@@ -8,7 +8,6 @@ import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatTabsModule } from '@angular/material/tabs';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -31,7 +30,6 @@ import { Docente } from '../../models/docente.model';
     MatButtonModule,
     MatIconModule,
     MatTooltipModule,
-    MatTabsModule,
     MatFormFieldModule,
     MatInputModule,
     MatProgressSpinnerModule,
@@ -54,6 +52,7 @@ export class DocenteListComponent implements OnInit {
   isLoading = signal(true);
   error = signal<string | null>(null);
   criterioOrden = signal<'id' | 'nombre' | 'estado'>('id');
+  showInactivos = signal(false);
 
   listaActivos = computed(() => this.filtrarYOrdenar('activo'));
   listaInactivos = computed(() => this.filtrarYOrdenar('inactivo'));

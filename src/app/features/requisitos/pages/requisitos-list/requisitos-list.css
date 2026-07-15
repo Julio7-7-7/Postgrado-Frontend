@@ -24,32 +24,6 @@
 .search-bar { margin-bottom: 16px; }
 .search-field { width: 100%; }
 
-.requisitos-tabs { margin-top: 8px; }
-
-.tab-icon {
-  margin-right: 6px;
-  font-size: 18px;
-  width: 18px;
-  height: 18px;
-}
-
-.tab-badge {
-  margin-left: 8px;
-  padding: 1px 8px;
-  border-radius: 12px;
-  font-size: 0.72rem;
-  font-weight: 600;
-  background: #e0e7ff;
-  color: #3730a3;
-}
-
-.tab-badge.secondary {
-  background: #f1f5f9;
-  color: #64748b;
-}
-
-.table-content { padding: 16px 0; }
-
 .entity-table {
   display: flex;
   flex-direction: column;

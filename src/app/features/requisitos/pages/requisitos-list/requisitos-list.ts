@@ -6,7 +6,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatTabsModule } from '@angular/material/tabs';
 import { MatSlideToggleModule, MatSlideToggleChange } from '@angular/material/slide-toggle';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -24,7 +23,7 @@ import { RequisitosFormComponent } from '../requisitos-form/requisitos-form';
   imports: [
     CommonModule, FormsModule, RouterModule,
     MatButtonModule, MatIconModule, MatTooltipModule,
-    MatTabsModule, MatSlideToggleModule,
+    MatSlideToggleModule,
     MatFormFieldModule, MatInputModule,
     MatProgressSpinnerModule, MatSnackBarModule, MatDialogModule,
   ],
@@ -41,6 +40,7 @@ export class RequisitosListComponent implements OnInit {
   terminoBusqueda = signal('');
   isLoading = signal(true);
   error = signal<string | null>(null);
+  showInactivos = signal(false);
 
   listaActivos = computed(() => this.filtrar('activo'));
   listaInactivos = computed(() => this.filtrar('inactivo'));

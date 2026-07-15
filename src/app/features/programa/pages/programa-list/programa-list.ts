@@ -6,7 +6,6 @@ import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatTabsModule } from '@angular/material/tabs';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -27,7 +26,6 @@ import { environment } from '../../../../../environments/environment';
     MatButtonModule,
     MatIconModule,
     MatTooltipModule,
-    MatTabsModule,
     MatFormFieldModule,
     MatInputModule,
     MatProgressSpinnerModule,
@@ -50,6 +48,7 @@ export class ProgramaListComponent implements OnInit {
   terminoBusqueda = signal('');
   isLoading = signal(true);
   error = signal<string | null>(null);
+  showInactivos = signal(false);
 
   listaActivos = computed(() =>
     this.listaTotal()
