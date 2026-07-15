@@ -3,7 +3,7 @@ import { Observable } from 'rxjs';
 import { ApiService } from '../../../core/services/api.service';
 import { TipoDescuentoResponse, TipoDescuentoCreate, TipoDescuentoUpdate } from '../models/tipo-descuento.model';
 import { ModalidadAcademicaResponse } from '../../modalidad/models/modalidad.model';
-import { RequisitoResponse } from '../../modalidad/models/modalidad.model';
+import { RequisitoResponse } from '../../requisitos/models/requisito.model';
 
 @Injectable({ providedIn: 'root' })
 export class TipoDescuentoService extends ApiService {

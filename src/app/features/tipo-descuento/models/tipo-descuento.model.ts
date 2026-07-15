@@ -1,4 +1,5 @@
-import { ModalidadAcademicaResponse, RequisitoResponse } from '../../modalidad/models/modalidad.model';
+import { ModalidadAcademicaResponse } from '../../modalidad/models/modalidad.model';
+import { RequisitoResponse } from '../../requisitos/models/requisito.model';
 
 export interface TipoDescuentoResponse {
   id_tipo_descuento: number;

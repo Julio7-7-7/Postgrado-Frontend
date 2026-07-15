@@ -14,7 +14,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TipoDescuentoService } from '../../services/tipo-descuento.service';
 import { TipoDescuentoResponse } from '../../models/tipo-descuento.model';
-import { ModalidadAcademicaResponse, RequisitoResponse } from '../../../modalidad/models/modalidad.model';
+import { ModalidadAcademicaResponse } from '../../../modalidad/models/modalidad.model';
+import { RequisitoResponse } from '../../../requisitos/models/requisito.model';
 
 @Component({
   selector: 'app-tipo-descuento-form',

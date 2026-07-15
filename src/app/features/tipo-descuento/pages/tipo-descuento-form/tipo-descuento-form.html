@@ -84,11 +84,6 @@
              (click)="toggleRequisito(req.id_requisito)">
           <mat-icon>{{ selectedRequisitos().has(req.id_requisito) ? 'check_box' : 'check_box_outline_blank' }}</mat-icon>
           <span>{{ req.nombre }}</span>
-          @if (req.modalidad_academica) {
-            <span class="chip-hint">{{ req.modalidad_academica.nombre_modalidad }}</span>
-          } @else {
-            <span class="chip-hint global">Global</span>
-          }
         </div>
       }
     </div>
