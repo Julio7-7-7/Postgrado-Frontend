@@ -103,6 +103,7 @@ Backend: github.com/Julio7-7-7/PostgradoBackend
 - Módulo pagos: modelo, endpoints y front
 - Módulo notas: modelo, endpoints y front
 - Endpoint dashboard: estadísticas del admin
+- Resubiendo cambios en agents
 - Filtrado de alumnos por período: endpoint `GET /alumnos/por-periodo/{id_periodo}`
 - Matriz visual rol × permiso (opcional)
 - Acoplamiento de estudiantes entre ediciones: campo `modulo_inicio` en `DetalleProgramaAlumno`
