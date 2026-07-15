@@ -43,6 +43,12 @@ export const routes: Routes = [
       .then(m => m.REQUISITOS_ROUTES),
   },
   {
+    path: 'modalidades',
+    loadChildren: () =>
+      import('../../features/modalidad/routes/modalidad.routes')
+      .then(m => m.MODALIDAD_ROUTES),
+  },
+  {
     path: 'dashboard',
     loadComponent: () =>
       import('../../features/home/pages/home').then(m => m.HomeComponent),

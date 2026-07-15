@@ -27,10 +27,10 @@
     </div>
   } @else {
     <div class="entity-table">
-      @for (m of modalidades(); track m.id_modalidad_academica) {
+      @for (m of activas; track m.id_modalidad_academica) {
         <div class="entity-row">
           <div class="entity-main">
-            <div class="entity-icon" [class.active]="m.estado === 'activo'">
+            <div class="entity-icon active">
               <mat-icon>{{ m.requiere_titulo ? 'school' : 'pending_actions' }}</mat-icon>
             </div>
             <div class="entity-info">
@@ -43,14 +43,55 @@
             </div>
           </div>
           <div class="entity-actions">
-            <span class="status-pill" [class.active]="m.estado === 'activo'">
-              {{ m.estado }}
-            </span>
+            <mat-slide-toggle
+              [checked]="m.estado === 'activo'"
+              (change)="toggleEstado($event, m)"
+              color="primary"
+              matTooltip="Desactivar modalidad">
+            </mat-slide-toggle>
             <button mat-icon-button matTooltip="Editar" (click)="abrirFormulario(m)">
               <mat-icon>edit</mat-icon>
             </button>
           </div>
         </div>
+      }
+
+      @if (inactivas.length > 0) {
+        <div class="inactivos-toggle" (click)="showInactivos.set(!showInactivos())">
+          <mat-icon class="toggle-chevron" [class.open]="showInactivos()">expand_more</mat-icon>
+          <span>Inactivos ({{ inactivas.length }})</span>
+        </div>
+
+        @if (showInactivos()) {
+          @for (m of inactivas; track m.id_modalidad_academica) {
+            <div class="entity-row inactive">
+              <div class="entity-main">
+                <div class="entity-icon">
+                  <mat-icon>{{ m.requiere_titulo ? 'school' : 'pending_actions' }}</mat-icon>
+                </div>
+                <div class="entity-info">
+                  <div class="entity-name">{{ m.nombre_modalidad }}</div>
+                  <div class="entity-meta">
+                    @if (m.descripcion) { {{ m.descripcion }} · }
+                    {{ m.requiere_titulo ? 'Requiere título' : 'Sin título' }}
+                    @if (m.requisitos.length) { · {{ m.requisitos.length }} requisitos }
+                  </div>
+                </div>
+              </div>
+              <div class="entity-actions">
+                <mat-slide-toggle
+                  [checked]="m.estado === 'activo'"
+                  (change)="toggleEstado($event, m)"
+                  color="primary"
+                  matTooltip="Reactivar modalidad">
+                </mat-slide-toggle>
+                <button mat-icon-button matTooltip="Editar" (click)="abrirFormulario(m)">
+                  <mat-icon>edit</mat-icon>
+                </button>
+              </div>
+            </div>
+          }
+        }
       }
     </div>
   }

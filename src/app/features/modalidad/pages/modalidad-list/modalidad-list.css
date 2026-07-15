@@ -40,6 +40,12 @@
 
 .entity-row:hover { border-color: #c7d2fe; }
 
+.entity-row.inactive {
+  opacity: 0.65;
+}
+
+.entity-row.inactive:hover { opacity: 1; }
+
 .entity-main {
   display: flex;
   align-items: center;
@@ -71,19 +77,41 @@
 .entity-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 2px;
   flex-shrink: 0;
 }
 
-.status-pill {
-  font-size: 0.72rem;
-  font-weight: 600;
-  padding: 3px 10px;
-  border-radius: 20px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  background: #fee2e2;
-  color: #991b1b;
+.inactivos-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 18px;
+  margin-top: 4px;
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 10px;
+  color: #64748b;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.15s;
 }
 
-.status-pill.active { background: #d1fae5; color: #065f46; }
+.inactivos-toggle:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+  color: #334155;
+}
+
+.toggle-chevron {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  transition: transform 0.2s;
+}
+
+.toggle-chevron.open {
+  transform: rotate(180deg);
+}

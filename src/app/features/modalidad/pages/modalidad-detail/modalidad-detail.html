@@ -1,0 +1,72 @@
+<div class="detail-page">
+  @if (cargando()) {
+    <div class="loading">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>Cargando modalidad...</p>
+    </div>
+  } @else {
+    @if (modalidad(); as m) {
+      <div class="detail-card">
+        <div class="card-header">
+          <button mat-icon-button class="back-btn" (click)="volver()">
+            <mat-icon>arrow_back</mat-icon>
+          </button>
+          <span class="header-label">Detalle de modalidad</span>
+        </div>
+
+        <div class="card-body">
+          <div class="title-row">
+            <div class="mod-icon" [class.active]="m.estado === 'activo'">
+              <mat-icon>{{ m.requiere_titulo ? 'school' : 'pending_actions' }}</mat-icon>
+            </div>
+            <div>
+              <h1 class="mod-title">{{ m.nombre_modalidad }}</h1>
+              <div class="mod-badges">
+                <span class="badge" [class.active]="m.estado === 'activo'">{{ m.estado }}</span>
+                <span class="badge">{{ m.requiere_titulo ? 'Requiere título' : 'Sin título' }}</span>
+              </div>
+            </div>
+          </div>
+
+          @if (m.descripcion) {
+            <p class="mod-desc">{{ m.descripcion }}</p>
+          }
+
+          @if (m.requisitos.length > 0) {
+            <div class="section">
+              <h3><mat-icon>description</mat-icon> Requisitos documentales</h3>
+              <div class="requisitos-list">
+                @for (r of m.requisitos; track r.id_requisito) {
+                  <a [routerLink]="['/requisitos', r.id_requisito]" class="requisito-item" target="_blank">
+                    <mat-icon>insert_drive_file</mat-icon>
+                    <div class="req-info">
+                      <span class="req-name">{{ r.nombre }}</span>
+                      @if (r.descripcion) {
+                        <span class="req-desc">{{ r.descripcion }}</span>
+                      }
+                    </div>
+                    <mat-icon class="req-arrow">open_in_new</mat-icon>
+                  </a>
+                }
+              </div>
+            </div>
+          } @else {
+            <div class="section">
+              <h3><mat-icon>description</mat-icon> Requisitos documentales</h3>
+              <p class="no-data">Esta modalidad no tiene requisitos asignados.</p>
+            </div>
+          }
+        </div>
+      </div>
+    } @else {
+      <div class="empty">
+        <mat-icon>help_outline</mat-icon>
+        <h2>Modalidad no encontrada</h2>
+        <p>La modalidad que buscás no existe o fue removida.</p>
+        <button mat-raised-button color="primary" (click)="volver()">
+          <mat-icon>arrow_back</mat-icon> Volver al inicio
+        </button>
+      </div>
+    }
+  }
+</div>

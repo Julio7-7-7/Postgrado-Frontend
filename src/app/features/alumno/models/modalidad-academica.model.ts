@@ -11,7 +11,6 @@ export interface ModalidadAcademica {
   nombre_modalidad: string;
   descripcion: string | null;
   requiere_titulo: boolean;
-  uso_unico: boolean;
   estado: 'activo' | 'inactivo';
   requisitos: RequisitoResumen[];
   created_at: string;
