@@ -7,7 +7,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
@@ -22,7 +21,7 @@ import { RequisitoResponse } from '../../../requisitos/models/requisito.model';
   imports: [
     CommonModule, ReactiveFormsModule,
     MatDialogModule, MatButtonModule, MatIconModule,
-    MatFormFieldModule, MatInputModule, MatCheckboxModule,
+    MatFormFieldModule, MatInputModule,
     MatSelectModule, MatProgressSpinnerModule, MatSnackBarModule,
   ],
   templateUrl: './modalidad-form.html',
@@ -48,7 +47,6 @@ export class ModalidadFormComponent implements OnInit {
     this.form = this.fb.group({
       nombre_modalidad: [this.data?.nombre_modalidad ?? '', Validators.required],
       descripcion: [this.data?.descripcion ?? ''],
-      requiere_titulo: [this.data?.requiere_titulo ?? false],
       estado: [this.data?.estado ?? 'activo'],
       requisitos: [requisitosIds],
     });

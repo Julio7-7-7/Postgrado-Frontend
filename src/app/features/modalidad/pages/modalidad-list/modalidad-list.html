@@ -31,14 +31,13 @@
         <div class="entity-row">
           <div class="entity-main">
             <div class="entity-icon active">
-              <mat-icon>{{ m.requiere_titulo ? 'school' : 'pending_actions' }}</mat-icon>
+              <mat-icon>school</mat-icon>
             </div>
             <div class="entity-info">
               <div class="entity-name">{{ m.nombre_modalidad }}</div>
               <div class="entity-meta">
                 @if (m.descripcion) { {{ m.descripcion }} · }
-                {{ m.requiere_titulo ? 'Requiere título' : 'Sin título' }}
-                @if (m.requisitos.length) { · {{ m.requisitos.length }} requisitos }
+                @if (m.requisitos.length) { {{ m.requisitos.length }} requisitos }
               </div>
             </div>
           </div>
@@ -67,14 +66,13 @@
             <div class="entity-row inactive">
               <div class="entity-main">
                 <div class="entity-icon">
-                  <mat-icon>{{ m.requiere_titulo ? 'school' : 'pending_actions' }}</mat-icon>
+                  <mat-icon>school</mat-icon>
                 </div>
                 <div class="entity-info">
                   <div class="entity-name">{{ m.nombre_modalidad }}</div>
                   <div class="entity-meta">
                     @if (m.descripcion) { {{ m.descripcion }} · }
-                    {{ m.requiere_titulo ? 'Requiere título' : 'Sin título' }}
-                    @if (m.requisitos.length) { · {{ m.requisitos.length }} requisitos }
+                    @if (m.requisitos.length) { {{ m.requisitos.length }} requisitos }
                   </div>
                 </div>
               </div>

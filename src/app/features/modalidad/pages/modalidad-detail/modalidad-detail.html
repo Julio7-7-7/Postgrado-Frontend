@@ -17,13 +17,12 @@
         <div class="card-body">
           <div class="title-row">
             <div class="mod-icon" [class.active]="m.estado === 'activo'">
-              <mat-icon>{{ m.requiere_titulo ? 'school' : 'pending_actions' }}</mat-icon>
+              <mat-icon>school</mat-icon>
             </div>
             <div>
               <h1 class="mod-title">{{ m.nombre_modalidad }}</h1>
               <div class="mod-badges">
                 <span class="badge" [class.active]="m.estado === 'activo'">{{ m.estado }}</span>
-                <span class="badge">{{ m.requiere_titulo ? 'Requiere título' : 'Sin título' }}</span>
               </div>
             </div>
           </div>

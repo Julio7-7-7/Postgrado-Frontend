@@ -86,9 +86,6 @@
                  (click)="toggleModalidad(mod.id_modalidad_academica)">
               <mat-icon>{{ selectedModalidades().has(mod.id_modalidad_academica) ? 'check_box' : 'check_box_outline_blank' }}</mat-icon>
               <span>{{ mod.nombre_modalidad }}</span>
-              @if (mod.requiere_titulo) {
-                <span class="chip-badge">Requiere título</span>
-              }
             </div>
           }
           @if (modalidades().length === 0) {
