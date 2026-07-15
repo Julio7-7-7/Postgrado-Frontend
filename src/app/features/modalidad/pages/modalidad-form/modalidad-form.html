@@ -45,37 +45,19 @@
 
     <div class="section-divider"></div>
 
-    <div class="section-header">
-      <h3>Requisitos documentales</h3>
-      <button mat-stroked-button type="button" (click)="agregarRequisito()">
-        <mat-icon>add</mat-icon> Agregar
-      </button>
-    </div>
-
-    @if (requisitos().length === 0) {
-      <div class="no-requisitos">Sin requisitos definidos</div>
-    }
-
-    @for (r of requisitos(); track r.id_requisito) {
-      <div class="requisito-row">
-        <div class="requisito-info">
-          <span class="requisito-nombre">{{ r.nombre }}</span>
-          @if (r.descripcion) {
-            <span class="requisito-desc">{{ r.descripcion }}</span>
+    <div class="field">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Requisitos documentales</mat-label>
+        <mat-select formControlName="requisitos" multiple>
+          @for (r of requisitosAll(); track r.id_requisito) {
+            <mat-option [value]="r.id_requisito">
+              {{ r.nombre }}
+            </mat-option>
           }
-        </div>
-        <div class="requisito-actions">
-          <mat-checkbox
-            [checked]="r.obligatorio"
-            (change)="toggleObligatorio(r, $event.checked)"
-            color="primary">
-          </mat-checkbox>
-          <button mat-icon-button color="warn" (click)="eliminarRequisito(r)" matTooltip="Eliminar">
-            <mat-icon>delete</mat-icon>
-          </button>
-        </div>
-      </div>
-    }
+        </mat-select>
+        <mat-hint>Documentos que debe presentar el postulante</mat-hint>
+      </mat-form-field>
+    </div>
   </form>
 </mat-dialog-content>
 

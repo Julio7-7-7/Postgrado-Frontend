@@ -38,6 +38,7 @@
               <div class="entity-meta">
                 @if (m.descripcion) { {{ m.descripcion }} · }
                 {{ m.requiere_titulo ? 'Requiere título' : 'Sin título' }}
+                @if (m.requisitos.length) { · {{ m.requisitos.length }} requisitos }
               </div>
             </div>
           </div>
