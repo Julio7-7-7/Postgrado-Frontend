@@ -1,0 +1,56 @@
+<div class="page-container">
+  <div class="header-section">
+    <div>
+      <h1>Modalidades Académicas</h1>
+      <p class="subtitle">Gestioná las modalidades de admisión y sus requisitos documentales</p>
+    </div>
+    <button mat-flat-button color="primary" (click)="abrirFormulario()">
+      <mat-icon>add</mat-icon> Nueva Modalidad
+    </button>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading-state">
+      <mat-spinner diameter="36"></mat-spinner>
+    </div>
+  } @else if (error()) {
+    <div class="empty-state">
+      <mat-icon>error_outline</mat-icon>
+      <p>{{ error() }}</p>
+      <button mat-stroked-button (click)="cargar()">Reintentar</button>
+    </div>
+  } @else if (modalidades().length === 0) {
+    <div class="empty-state">
+      <mat-icon>school</mat-icon>
+      <p>No hay modalidades creadas</p>
+      <button mat-flat-button color="primary" (click)="abrirFormulario()">Crear primera modalidad</button>
+    </div>
+  } @else {
+    <div class="entity-table">
+      @for (m of modalidades(); track m.id_modalidad_academica) {
+        <div class="entity-row">
+          <div class="entity-main">
+            <div class="entity-icon" [class.active]="m.estado === 'activo'">
+              <mat-icon>{{ m.requiere_titulo ? 'school' : 'pending_actions' }}</mat-icon>
+            </div>
+            <div class="entity-info">
+              <div class="entity-name">{{ m.nombre_modalidad }}</div>
+              <div class="entity-meta">
+                @if (m.descripcion) { {{ m.descripcion }} · }
+                {{ m.requiere_titulo ? 'Requiere título' : 'Sin título' }}
+              </div>
+            </div>
+          </div>
+          <div class="entity-actions">
+            <span class="status-pill" [class.active]="m.estado === 'activo'">
+              {{ m.estado }}
+            </span>
+            <button mat-icon-button matTooltip="Editar" (click)="abrirFormulario(m)">
+              <mat-icon>edit</mat-icon>
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

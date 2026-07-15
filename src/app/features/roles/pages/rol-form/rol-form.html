@@ -1,0 +1,93 @@
+<div class="dialog-header">
+  <div class="header-icon">
+    <mat-icon>{{ esEdicion() ? 'edit' : 'add_circle' }}</mat-icon>
+  </div>
+  <div>
+    <h2 mat-dialog-title>{{ esEdicion() ? 'Editar Rol' : 'Nuevo Rol' }}</h2>
+    <p class="header-sub">{{ esEdicion() ? 'Modificá nombre, descripción y permisos' : 'Definí un nuevo rol con sus permisos' }}</p>
+  </div>
+</div>
+
+<mat-dialog-content>
+  <div class="section-card">
+    <div class="section-label">
+      <mat-icon>info</mat-icon>
+      Información básica
+    </div>
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Nombre del rol</mat-label>
+      <input matInput [(ngModel)]="nombre" placeholder="Ej: adm_legal" required>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width no-margin">
+      <mat-label>Descripción</mat-label>
+      <textarea matInput [(ngModel)]="descripcion" rows="2" placeholder="Qué hace este rol..."></textarea>
+    </mat-form-field>
+  </div>
+
+  <div class="section-card">
+    <div class="section-label">
+      <mat-icon>vpn_key</mat-icon>
+      Permisos
+      <span class="permisos-badge">{{ selectedIds().size }} / {{ totalPermisos() }}</span>
+    </div>
+
+    <div class="permisos-progress">
+      <div class="progress-bar" [style.width.%]="porcentajePermisos()"></div>
+    </div>
+
+    @if (isLoadingPermisos()) {
+      <div class="loading-permisos">
+        <mat-spinner diameter="20"></mat-spinner>
+        <span>Cargando permisos...</span>
+      </div>
+    } @else {
+      @for (group of grupos(); track group.prefix; let i = $index) {
+        <div class="permiso-group" [class.expanded]="panelAbierto() === group.prefix">
+          <div class="group-header" (click)="togglePanel(group.prefix)">
+            <mat-checkbox [checked]="grupoCompleto(group)"
+                          [indeterminate]="grupoParcial(group) && !grupoCompleto(group)"
+                          (change)="toggleGrupo(group, $event.checked)"
+                          (click)="$event.stopPropagation()">
+              <span class="group-label">{{ group.label }}</span>
+            </mat-checkbox>
+            <div class="group-meta">
+              <span class="group-count">{{ permisosSeleccionadosGrupo(group) }}/{{ group.permisos.length }}</span>
+              <mat-icon class="expand-icon" [class.rotated]="panelAbierto() === group.prefix">expand_more</mat-icon>
+            </div>
+          </div>
+          @if (panelAbierto() === group.prefix) {
+            <div class="group-body">
+              @for (permiso of group.permisos; track permiso.id_permiso) {
+                <label class="permiso-item" [class.checked]="selectedIds().has(permiso.id_permiso)">
+                  <mat-checkbox [checked]="selectedIds().has(permiso.id_permiso)"
+                                (change)="togglePermiso(permiso.id_permiso, $event.checked)">
+                    <span class="permiso-codigo">{{ permiso.codigo }}</span>
+                    @if (permiso.descripcion) {
+                      <span class="permiso-desc">{{ permiso.descripcion }}</span>
+                    }
+                  </mat-checkbox>
+                </label>
+              }
+            </div>
+          }
+        </div>
+      }
+    }
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close class="btn-cancel">Cancelar</button>
+  <button mat-raised-button color="primary"
+          [disabled]="!nombre.trim() || guardando()"
+          (click)="guardar()">
+    @if (guardando()) {
+      <mat-spinner diameter="16"></mat-spinner> Guardando...
+    } @else {
+      <ng-container>
+        <mat-icon>save</mat-icon> {{ esEdicion() ? 'Actualizar' : 'Crear Rol' }}
+      </ng-container>
+    }
+  </button>
+</mat-dialog-actions>

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from '../../../core/services/api.service';
 import { TipoPrograma, TipoProgramaCreate } from '../models/tipo-programa.model';
-import { ModalidadAcademicaResponse } from '../../admin/models/admin.models';
+import { ModalidadAcademicaResponse } from '../../modalidad/models/modalidad.model';
 
 @Injectable({
   providedIn: 'root'

@@ -795,3 +795,97 @@ El backend resuelve esto en `_obtener_permisos()` (`dependencies.py:74`) al mome
 - Eliminada ruta `tipos-programa` de `admin/routes/admin.routes.ts`
 - Eliminados métodos `getTiposPrograma`, `createTipoPrograma`, `updateTipoPrograma` de `admin/services/admin.service.ts`
 - Eliminado import `TipoProgramaResponse` de `admin.service.ts` (se mantiene en `admin.models.ts` para `ProgramaResponse`)
+
+## Sesión 2026-07-14 — Refactor Frontend: Split del admin feature en features independientes
+
+### Problema
+El feature `admin` era un monolito: un solo `admin.models.ts` (225 líneas, 22 interfaces), un solo `admin.service.ts` (117 líneas, 40+ métodos), un `admin-dialogs.ts` (264 líneas, 3 diálogos), y 12 componentes en `pages/` (8 con templates inline). Todo estaba mezclado sin separación por dominio.
+
+### Solución implementada
+Cada feature ahora es un directorio independiente bajo `src/app/features/`:
+
+**Estructura final:**
+```
+features/
+  admin/                    ← solo el shell (tabs + routes)
+    pages/admin/admin.ts + .html + .css
+    routes/admin.routes.ts
+  roles/
+    models/roles.model.ts
+    services/roles.service.ts
+    pages/roles-list/roles-list.ts + .html + .css
+    pages/rol-form/rol-form.ts + .html + .css
+  usuarios/
+    models/usuarios.model.ts
+    services/usuarios.service.ts
+    pages/usuarios-list/usuarios-list.ts + .html + .css
+    pages/usuario-form/usuario-form.ts + .html + .css
+    dialogs/roles-change-dialog.ts + .html + .css
+    dialogs/usuario-edit-dialog.ts + .html + .css
+  modalidad/
+    models/modalidad.model.ts
+    services/modalidad.service.ts
+    pages/modalidad-list/modalidad-list.ts + .html + .css
+    pages/modalidad-form/modalidad-form.ts + .html + .css
+  tipo-descuento/
+    models/tipo-descuento.model.ts
+    services/tipo-descuento.service.ts
+    pages/tipo-descuento-list/tipo-descuento-list.ts + .html + .css
+    pages/tipo-descuento-form/tipo-descuento-form.ts + .html + .css
+  documentacion/
+    models/documentacion.model.ts
+    services/documentacion.service.ts
+    pages/documentacion/documentacion.ts + .html + .css
+```
+
+### Cambios realizados
+1. **Modelos**: `admin.models.ts` (22 interfaces) → 5 archivos de modelo independientes por feature
+2. **Servicios**: `admin.service.ts` (40+ métodos) → 5 servicios independientes (roles, usuarios, modalidad, tipo-descuento, documentacion)
+3. **Componentes**: todos con `.ts + .html + .css` separados (ninguno con template inline)
+4. **Diálogos**: `admin-dialogs.ts` → `usuarios/dialogs/roles-change-dialog` + `usuarios/dialogs/usuario-edit-dialog`
+5. **ConfirmDialog unificado**: eliminado el duplicado en admin, ahora se usa el shared (`ConfirmDialogComponent` con `{ titulo, mensaje }`)
+6. **Admin shell**: `admin.ts` movido a `pages/admin/admin.ts` con template/estilos separados
+7. **Rutas actualizadas**: `admin.routes.ts` apunta a las nuevas ubicaciones de cada feature
+8. **Imports cruzados**: `tipo-programa.service.ts` y `tipo-programa-form.ts` actualizados para importar de `modalidad/models/modalidad.model` en vez de `admin.models`
+9. **Archivos eliminados**: `admin/pages/` (16 archivos viejos), `admin/services/admin.service.ts`, `admin/models/admin.models.ts`, `admin/pages/admin-dialogs.ts`
+
+### Archivos eliminados
+- `admin/pages/roles-list.ts`, `.html`, `.css`
+- `admin/pages/rol-form.ts`
+- `admin/pages/usuarios-list.ts`, `.html`, `.css`
+- `admin/pages/usuario-form.ts`
+- `admin/pages/modalidad-list.ts`
+- `admin/pages/modalidad-form.ts`
+- `admin/pages/tipo-descuento-list.ts`
+- `admin/pages/tipo-descuento-form.ts`
+- `admin/pages/documentacion.ts`
+- `admin/pages/admin-dialogs.ts`
+- `admin/pages/admin.ts`
+- `admin/services/admin.service.ts`
+- `admin/models/admin.models.ts`
+
+### Archivos creados (43 archivos nuevos)
+- `roles/`: model, service, 2 componentes (ts+html+css cada uno) = 7 archivos
+- `usuarios/`: model, service, 2 componentes (ts+html+css), 2 diálogos (ts+html+css) = 11 archivos
+- `modalidad/`: model, service, 2 componentes (ts+html+css) = 7 archivos
+- `tipo-descuento/`: model, service, 2 componentes (ts+html+css) = 7 archivos
+- `documentacion/`: model, service, 1 componente (ts+html+css) = 4 archivos
+- `admin/`: admin.ts + admin.html + admin.css + admin.routes.ts = 4 archivos (actualizados)
+
+### Archivos modificados (imports actualizados)
+- `admin/routes/admin.routes.ts` — importa AdminComponent de `pages/admin/admin`, lazy loads desde nuevas ubicaciones
+- `tipo-programa/services/tipo-programa.service.ts` — import de `modalidad/models/modalidad.model`
+- `tipo-programa/pages/tipo-programa-form/tipo-programa-form.ts` — import de `modalidad/models/modalidad.model`
+
+### Verificación
+- `npx tsc --noEmit` → 0 errores
+- URLs preservadas: `/admin/roles`, `/admin/usuarios`, `/admin/modalidades`, `/admin/descuentos`, `/admin/documentacion`
+
+### Pendientes
+- Bug #34: Navbar admin link "Alumnos" redirige al portal estudiante — falta gestión de alumnos para admin
+- Subida de documentos por alumno + validación por admin
+- Módulo pagos
+- Módulo notas
+- Endpoint dashboard: estadísticas del admin
+- Filtrado de alumnos por período
+- Refinar contraste y diferenciación visual

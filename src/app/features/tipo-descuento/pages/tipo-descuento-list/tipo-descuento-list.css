@@ -1,0 +1,118 @@
+.page-container { max-width: 1100px; margin: 0 auto; padding: 24px; }
+
+.header-section {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.header-section h1 { margin: 0; font-size: 1.5rem; font-weight: 700; }
+.subtitle { margin: 4px 0 0; color: #94a3b8; font-size: 0.88rem; }
+
+.loading-state, .empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 48px;
+  color: #94a3b8;
+}
+
+.empty-state mat-icon { font-size: 48px; width: 48px; height: 48px; }
+
+.entity-table {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.entity-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 14px 18px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  transition: border-color 0.15s;
+}
+
+.entity-row:hover { border-color: #c7d2fe; }
+
+.entity-main {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  min-width: 0;
+}
+
+.entity-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.entity-icon.discount { background: #fef3c7; color: #b45309; }
+.entity-icon mat-icon { font-size: 20px; width: 20px; height: 20px; }
+
+.entity-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.discount-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 12px;
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.entity-meta { font-size: 0.78rem; color: #94a3b8; }
+
+.entity-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.tag {
+  font-size: 0.7rem;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.tag-modalidad { background: #e0e7ff; color: #3730a3; }
+.tag-requisito { background: #fce7f3; color: #9d174d; }
+
+.entity-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.status-pill {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.status-pill.active { background: #d1fae5; color: #065f46; }
