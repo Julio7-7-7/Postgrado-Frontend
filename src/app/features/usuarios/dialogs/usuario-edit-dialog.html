@@ -1,0 +1,53 @@
+<h2 mat-dialog-title>Editar Usuario</h2>
+<mat-dialog-content>
+  <div class="edit-email">{{ data.usuario.email }}</div>
+
+  <div class="form-section">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Correo electrónico</mat-label>
+      <input matInput type="email" [(ngModel)]="form.email" name="email">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Nueva contraseña</mat-label>
+      <input matInput type="password" [(ngModel)]="form.password" name="password"
+             placeholder="Dejar vacío para no cambiar" autocomplete="new-password">
+    </mat-form-field>
+  </div>
+
+  <div class="form-section">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>CI</mat-label>
+      <input matInput type="text" [(ngModel)]="form.ci" name="ci">
+    </mat-form-field>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="half">
+        <mat-label>Nombre</mat-label>
+        <input matInput type="text" [(ngModel)]="form.nombre" name="nombre">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="half">
+        <mat-label>Apellido</mat-label>
+        <input matInput type="text" [(ngModel)]="form.apellido" name="apellido">
+      </mat-form-field>
+    </div>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Celular</mat-label>
+      <input matInput type="tel" [(ngModel)]="form.celular" name="celular">
+    </mat-form-field>
+  </div>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancelar</button>
+  <button mat-raised-button color="primary" [disabled]="loading" (click)="guardar()">
+    @if (loading) {
+      Guardando...
+    } @else {
+      <ng-container>
+        <mat-icon>save</mat-icon> Guardar
+      </ng-container>
+    }
+  </button>
+</mat-dialog-actions>

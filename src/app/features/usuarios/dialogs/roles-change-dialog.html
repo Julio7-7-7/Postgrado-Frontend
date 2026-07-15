@@ -1,0 +1,23 @@
+<h2 mat-dialog-title>Gestionar Roles</h2>
+<mat-dialog-content>
+  <div class="roles-header">
+    <mat-icon>person</mat-icon>
+    <span>{{ data.email }}</span>
+  </div>
+  <div class="roles-list">
+    @for (rol of data.opciones; track rol.id_rol) {
+      <div class="role-option">
+        <mat-checkbox [(ngModel)]="seleccionados[rol.id_rol]">
+          {{ rol.nombre }}
+        </mat-checkbox>
+        @if (rol.descripcion) {
+          <span class="role-desc">{{ rol.descripcion }}</span>
+        }
+      </div>
+    }
+  </div>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancelar</button>
+  <button mat-raised-button color="primary" [disabled]="!hayCambios()" (click)="confirmar()">Guardar</button>
+</mat-dialog-actions>

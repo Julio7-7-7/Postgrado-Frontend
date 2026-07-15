@@ -1,0 +1,92 @@
+<div class="dialog-header">
+  <div class="header-icon">
+    <mat-icon>person_add</mat-icon>
+  </div>
+  <div>
+    <h2 mat-dialog-title>Nuevo Usuario</h2>
+    <p class="header-sub">Creá una cuenta con sus roles y datos personales</p>
+  </div>
+</div>
+
+<mat-dialog-content>
+  <div class="section-card">
+    <div class="section-label">
+      <mat-icon>email</mat-icon>
+      Credenciales de acceso
+    </div>
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Email</mat-label>
+      <input matInput [(ngModel)]="email" type="email" placeholder="usuario@ejemplo.com" required>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width no-margin">
+      <mat-label>Contraseña</mat-label>
+      <input matInput [(ngModel)]="password" type="password" placeholder="Mínimo 6 caracteres" required minlength="6">
+    </mat-form-field>
+  </div>
+
+  <div class="section-card">
+    <div class="section-label">
+      <mat-icon>shield</mat-icon>
+      Roles del sistema
+      <span class="roles-badge">{{ rolesSeleccionadosCount() }} seleccionados</span>
+    </div>
+
+    <div class="roles-list">
+      @for (r of roles(); track r.id_rol) {
+        <label class="role-chip" [class.selected]="rolesSeleccionados[r.id_rol]">
+          <mat-checkbox [(ngModel)]="rolesSeleccionados[r.id_rol]"></mat-checkbox>
+          <span class="role-name">{{ r.nombre }}</span>
+          @if (r.descripcion) {
+            <span class="role-sep">—</span>
+            <span class="role-desc">{{ r.descripcion }}</span>
+          }
+        </label>
+      }
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-label">
+      <mat-icon>badge</mat-icon>
+      Datos personales
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="half">
+        <mat-label>Nombre</mat-label>
+        <input matInput [(ngModel)]="nombre" required>
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="half">
+        <mat-label>Apellido</mat-label>
+        <input matInput [(ngModel)]="apellido" required>
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="half">
+        <mat-label>CI</mat-label>
+        <input matInput [(ngModel)]="ci" placeholder="Carnet de identidad" required>
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="half">
+        <mat-label>Celular</mat-label>
+        <input matInput [(ngModel)]="celular" placeholder="Opcional">
+      </mat-form-field>
+    </div>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close class="btn-cancel">Cancelar</button>
+  <button mat-raised-button color="primary"
+          [disabled]="!puedeGuardar() || guardando()"
+          (click)="guardar()">
+    @if (guardando()) {
+      <mat-spinner diameter="16"></mat-spinner> Creando...
+    } @else {
+      <ng-container>
+        <mat-icon>person_add</mat-icon> Crear Usuario
+      </ng-container>
+    }
+  </button>
+</mat-dialog-actions>

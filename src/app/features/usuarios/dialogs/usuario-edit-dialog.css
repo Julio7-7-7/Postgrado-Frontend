@@ -1,0 +1,18 @@
+.edit-email {
+  font-size: 0.82rem;
+  color: #94a3b8;
+  margin-bottom: 16px;
+}
+
+.form-section {
+  margin-bottom: 8px;
+}
+
+.full-width { width: 100%; }
+
+.form-row {
+  display: flex;
+  gap: 12px;
+}
+
+.half { flex: 1; }

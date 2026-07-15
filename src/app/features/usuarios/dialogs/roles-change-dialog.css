@@ -1,0 +1,35 @@
+.roles-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.roles-header mat-icon {
+  color: #4f46e5;
+}
+
+.roles-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.role-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  transition: background 0.15s;
+}
+
+.role-option:hover {
+  background: #f8fafc;
+}
+
+.role-desc {
+  font-size: 0.78rem;
+  color: #94a3b8;
+  margin-left: auto;
+}

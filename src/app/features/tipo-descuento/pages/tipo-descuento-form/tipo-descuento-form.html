@@ -1,0 +1,108 @@
+<div class="dialog-header">
+  <div class="header-icon">
+    <mat-icon>{{ data ? 'edit' : 'add' }}</mat-icon>
+  </div>
+  <div>
+    <h2 mat-dialog-title>{{ data ? 'Editar Descuento' : 'Nuevo Descuento' }}</h2>
+    <p class="header-sub">{{ data ? 'Modificá los datos del descuento' : 'Creá un nuevo tipo de descuento o beca' }}</p>
+  </div>
+</div>
+
+<mat-dialog-content>
+  <form [formGroup]="form">
+    <div class="field">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Nombre</mat-label>
+        <input matInput formControlName="nombre" placeholder="Ej: Beca 100% por Excelente Desempeño">
+        @if (form.get('nombre')?.hasError('required')) {
+          <mat-error>El nombre es obligatorio</mat-error>
+        }
+      </mat-form-field>
+    </div>
+
+    <div class="field-row">
+      <mat-form-field appearance="outline" class="half">
+        <mat-label>Porcentaje (%)</mat-label>
+        <input matInput type="number" formControlName="porcentaje" min="1" max="100">
+        @if (form.get('porcentaje')?.hasError('required')) {
+          <mat-error>Obligatorio</mat-error>
+        }
+        @if (form.get('porcentaje')?.hasError('min') || form.get('porcentaje')?.hasError('max')) {
+          <mat-error>Entre 1 y 100</mat-error>
+        }
+      </mat-form-field>
+
+      @if (data) {
+        <mat-form-field appearance="outline" class="half">
+          <mat-label>Estado</mat-label>
+          <mat-select formControlName="estado">
+            <mat-option value="activo">Activo</mat-option>
+            <mat-option value="inactivo">Inactivo</mat-option>
+          </mat-select>
+        </mat-form-field>
+      }
+    </div>
+
+    <div class="field">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Descripción</mat-label>
+        <textarea matInput formControlName="descripcion" rows="2" placeholder="Descripción del descuento..."></textarea>
+      </mat-form-field>
+    </div>
+
+    <div class="checkbox-row">
+      <mat-checkbox formControlName="uso_unico">Uso único (el alumno puede usarlo solo una vez en su vida)</mat-checkbox>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <div class="section-header">
+      <h3>Modalidades donde aplica</h3>
+    </div>
+    <p class="section-hint">Si no seleccionás ninguna, aplica a todas las modalidades</p>
+    <div class="chips-container">
+      @for (mod of modalidades(); track mod.id_modalidad_academica) {
+        <div class="chip-option"
+             [class.selected]="selectedModalidades().has(mod.id_modalidad_academica)"
+             (click)="toggleModalidad(mod.id_modalidad_academica)">
+          <mat-icon>{{ selectedModalidades().has(mod.id_modalidad_academica) ? 'check_box' : 'check_box_outline_blank' }}</mat-icon>
+          <span>{{ mod.nombre_modalidad }}</span>
+        </div>
+      }
+    </div>
+
+    <div class="section-divider"></div>
+
+    <div class="section-header">
+      <h3>Documentos requeridos para este descuento</h3>
+    </div>
+    <p class="section-hint">Estos requisitos se suman a los de la modalidad elegida por el alumno</p>
+    <div class="chips-container">
+      @for (req of requisitosDisponibles(); track req.id_requisito) {
+        <div class="chip-option"
+             [class.selected]="selectedRequisitos().has(req.id_requisito)"
+             (click)="toggleRequisito(req.id_requisito)">
+          <mat-icon>{{ selectedRequisitos().has(req.id_requisito) ? 'check_box' : 'check_box_outline_blank' }}</mat-icon>
+          <span>{{ req.nombre }}</span>
+          @if (req.modalidad_academica) {
+            <span class="chip-hint">{{ req.modalidad_academica.nombre_modalidad }}</span>
+          } @else {
+            <span class="chip-hint global">Global</span>
+          }
+        </div>
+      }
+    </div>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancelar</button>
+  <button mat-flat-button color="primary" (click)="guardar()" [disabled]="form.invalid || isSaving()">
+    @if (isSaving()) {
+      <mat-spinner diameter="18"></mat-spinner>
+    } @else {
+      <mat-icon>save</mat-icon>
+    }
+    {{ data ? 'Guardar cambios' : 'Crear descuento' }}
+  </button>
+</mat-dialog-actions>

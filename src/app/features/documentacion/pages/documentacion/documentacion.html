@@ -1,0 +1,105 @@
+<div class="page-container">
+  <div class="header-section">
+    <div>
+      <h1>Gestionar Documentación</h1>
+      <p class="subtitle">Revisá y aprobá la documentación de los postulantes</p>
+    </div>
+  </div>
+
+  <div class="selector-card">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Seleccionar edición</mat-label>
+      <mat-select (selectionChange)="cargarPostulantes($event.value)">
+        @for (ed of ediciones(); track ed.id_programa_version_edicion) {
+          <mat-option [value]="ed.id_programa_version_edicion">
+            {{ programaNombre(ed) }} — Edición #{{ ed.edicion }} ({{ ed.semestre }}-{{ ed.anio }})
+          </mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading-state">
+      <mat-spinner diameter="40"></mat-spinner>
+      <span>Cargando postulantes...</span>
+    </div>
+  } @else if (edicionSeleccionada()) {
+    @if (postulantes().length === 0) {
+      <div class="empty-state">
+        <mat-icon>people_outline</mat-icon>
+        <p>No hay postulantes en esta edición</p>
+      </div>
+    } @else {
+      <div class="postulantes-list">
+        @for (p of postulantes(); track p.id_detalle_programa_alumno) {
+          <div class="postulante-card" [class.expanded]="expandedId() === p.id_detalle_programa_alumno">
+            <div class="postulante-header" (click)="toggleExpand(p.id_detalle_programa_alumno)">
+              <div class="postulante-info">
+                <div class="avatar">{{ iniciales(p) }}</div>
+                <div>
+                  <div class="postulante-nombre">{{ p.alumno?.nombre }} {{ p.alumno?.apellido }}</div>
+                  <div class="postulante-meta">
+                    CI: {{ p.alumno?.ci || '—' }} · {{ p.alumno?.correo || '—' }}
+                  </div>
+                </div>
+              </div>
+              <div class="postulante-stats">
+                <span class="estado-pill" [class]="'estado-' + p.estado">{{ p.estado }}</span>
+                <span class="docs-count">{{ p.docs_completados }}/{{ p.docs_total }}</span>
+                <div class="progress-mini">
+                  <div class="progress-mini-bar" [style.width.%]="p.docs_total > 0 ? (p.docs_completados / p.docs_total * 100) : 0"></div>
+                </div>
+                <mat-icon class="expand-icon" [class.rotated]="expandedId() === p.id_detalle_programa_alumno">expand_more</mat-icon>
+              </div>
+            </div>
+
+            @if (expandedId() === p.id_detalle_programa_alumno) {
+              <div class="postulante-body">
+                @if (p.control_documentacion.length === 0) {
+                  <div class="no-docs">Sin documentos requeridos</div>
+                }
+                @for (doc of p.control_documentacion; track doc.id_control_documentacion) {
+                  <div class="doc-row" [class.obligatorio]="doc.obligatorio">
+                    <div class="doc-estado">
+                      @switch (doc.estado) {
+                        @case ('pendiente') { <mat-icon class="status-icon pendiente">schedule</mat-icon> }
+                        @case ('entregado') { <mat-icon class="status-icon entregado">upload_file</mat-icon> }
+                        @case ('aceptado') { <mat-icon class="status-icon aceptado">check_circle</mat-icon> }
+                        @case ('rechazado') { <mat-icon class="status-icon rechazado">cancel</mat-icon> }
+                      }
+                    </div>
+                    <div class="doc-info">
+                      <span class="doc-nombre">Requisito #{{ doc.id_requisito }}</span>
+                      @if (doc.observaciones) {
+                        <span class="doc-obs">{{ doc.observaciones }}</span>
+                      }
+                    </div>
+                    <div class="doc-acciones">
+                      @if (doc.estado === 'pendiente' || doc.estado === 'rechazado') {
+                        <button mat-icon-button color="primary" (click)="cambiarEstado(doc, 'entregado')" title="Marcar entregado">
+                          <mat-icon>upload</mat-icon>
+                        </button>
+                      }
+                      @if (doc.estado === 'entregado') {
+                        <button mat-icon-button color="primary" (click)="cambiarEstado(doc, 'aceptado')" title="Aprobar">
+                          <mat-icon>check</mat-icon>
+                        </button>
+                        <button mat-icon-button color="warn" (click)="rechazar(doc)" title="Rechazar">
+                          <mat-icon>close</mat-icon>
+                        </button>
+                      }
+                      @if (doc.estado === 'aceptado') {
+                        <span class="doc-check">✓ Aprobado</span>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+  }
+</div>

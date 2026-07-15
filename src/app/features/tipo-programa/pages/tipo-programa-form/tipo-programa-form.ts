@@ -15,7 +15,7 @@ import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 
 import { TipoProgramaService } from '../../services/tipo-programa.service';
 import { TipoProgramaCreate } from '../../models/tipo-programa.model';
-import { ModalidadAcademicaResponse } from '../../../admin/models/admin.models';
+import { ModalidadAcademicaResponse } from '../../../modalidad/models/modalidad.model';
 
 @Component({
   selector: 'app-tipo-programa-form',
