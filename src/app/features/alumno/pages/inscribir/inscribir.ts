@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, DestroyRef } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -12,6 +12,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { AlumnoService } from '../../services/alumno.service';
 import { EdicionService } from '../../../edicion/services/edicion.service';
@@ -23,6 +24,7 @@ import { ModalidadAcademica } from '../../models/modalidad-academica.model';
 import { TipoDescuento } from '../../models/tipo-descuento.model';
 import { RequisitoResumen } from '../../models/modalidad-academica.model';
 import { ProgramaVersionEdicion } from '../../../edicion/models/edicion.model';
+import { DetalleProgramaAlumno } from '../../models/detalle-programa-alumno.model';
 import { environment } from '../../../../../environments/environment';
 
 @Component({
@@ -32,7 +34,7 @@ import { environment } from '../../../../../environments/environment';
     CommonModule, FormsModule, RouterModule,
     MatCardModule, MatButtonModule, MatIconModule, MatFormFieldModule,
     MatInputModule, MatSelectModule, MatDatepickerModule, MatNativeDateModule,
-    MatDividerModule, MatSnackBarModule,
+    MatDividerModule, MatTooltipModule, MatSnackBarModule,
   ],
   templateUrl: './inscribir.html',
   styleUrl: './inscribir.css',
@@ -53,6 +55,7 @@ export class InscribirComponent implements OnInit {
   alumno = signal<Alumno | null>(null);
   modalidades = signal<ModalidadAcademica[]>([]);
   tiposDescuento = signal<TipoDescuento[]>([]);
+  inscripciones = signal<DetalleProgramaAlumno[]>([]);
   cargando = signal(true);
   guardando = signal(false);
   formTocado = signal(false);
@@ -63,8 +66,31 @@ export class InscribirComponent implements OnInit {
   selectedDescuento = signal<number | null>(null);
   requisitosModalidad = signal<RequisitoResumen[]>([]);
 
-  generos: GeneroAlumno[] = ['masculino', 'femenino', 'otro'];
+  generos: GeneroAlumno[] = ['masculino', 'femenino'];
   apiUrl = environment.apiUrl;
+
+  // Fix 2: descuentos filtrados por modalidad
+  descuentosDisponibles = computed(() => {
+    const modId = this.selectedModalidad();
+    if (!modId) return [];
+    return this.tiposDescuento().filter(d =>
+      d.modalidades.some(m => m.id_modalidad_academica === modId)
+    );
+  });
+
+  // Fix 4: IDs de descuentos que el alumno ya usó (uso_unico + estado no postulante/observado)
+  descuentosUsados = computed(() => {
+    const usados = new Set<number>();
+    for (const insc of this.inscripciones()) {
+      if (
+        insc.id_tipo_descuento != null &&
+        !['postulante', 'observado'].includes(insc.estado)
+      ) {
+        usados.add(insc.id_tipo_descuento);
+      }
+    }
+    return usados;
+  });
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
@@ -77,7 +103,7 @@ export class InscribirComponent implements OnInit {
   }
 
   private _cargarDatos(id: number): void {
-    const total = 4;
+    const total = 5;
     let completados = 0;
     const onComplete = () => {
       if (++completados >= total) this.cargando.set(false);
@@ -123,6 +149,12 @@ export class InscribirComponent implements OnInit {
       next: (desc) => this.tiposDescuento.set(desc.filter(d => d.estado === 'activo')),
       complete: onComplete,
     });
+
+    // Fix 4: cargar inscripciones previas para checkear uso_unico
+    this.detalleService.getMisInscripciones().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (insc) => this.inscripciones.set(insc),
+      complete: onComplete,
+    });
   }
 
   onModalidadChange(idModalidad: number | null): void {
@@ -133,6 +165,30 @@ export class InscribirComponent implements OnInit {
     }
     const mod = this.modalidades().find(m => m.id_modalidad_academica === idModalidad);
     this.requisitosModalidad.set(mod?.requisitos ?? []);
+
+    // Fix 2: si el descuento seleccionado ya no está disponible para esta modalidad, limpiar
+    const descActual = this.selectedDescuento();
+    if (descActual) {
+      const disponible = this.descuentosDisponibles().some(d => d.id_tipo_descuento === descActual);
+      if (!disponible) {
+        this.selectedDescuento.set(null);
+      }
+    }
+  }
+
+  onDescuentoChange(idDescuento: number | null): void {
+    this.selectedDescuento.set(idDescuento);
+  }
+
+  descuentoUsado(desc: TipoDescuento): boolean {
+    return desc.uso_unico && this.descuentosUsados().has(desc.id_tipo_descuento);
+  }
+
+  requisitosDescuento(): RequisitoResumen[] {
+    const id = this.selectedDescuento();
+    if (!id) return [];
+    const desc = this.descuentosDisponibles().find(d => d.id_tipo_descuento === id);
+    return desc?.requisitos ?? [];
   }
 
   inscribir(): void {

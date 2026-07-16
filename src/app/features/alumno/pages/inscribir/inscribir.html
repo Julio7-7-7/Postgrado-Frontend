@@ -106,10 +106,15 @@
             </mat-form-field>
             <mat-form-field appearance="outline">
               <mat-label>Tipo de descuento (opcional)</mat-label>
-              <mat-select [(ngModel)]="selectedDescuento">
+              <mat-select [ngModel]="selectedDescuento()" (ngModelChange)="onDescuentoChange($event)"
+                          [disabled]="!selectedModalidad()">
                 <mat-option [value]="null">Sin descuento</mat-option>
-                @for (d of tiposDescuento(); track d.id_tipo_descuento) {
-                  <mat-option [value]="d.id_tipo_descuento">{{ d.nombre }} ({{ d.porcentaje }}%)</mat-option>
+                @for (d of descuentosDisponibles(); track d.id_tipo_descuento) {
+                  <mat-option [value]="d.id_tipo_descuento"
+                              [disabled]="descuentoUsado(d)"
+                              [matTooltip]="descuentoUsado(d) ? 'Ya utilizaste este beneficio anteriormente' : ''">
+                    {{ d.nombre }} ({{ d.porcentaje }}%){{ d.uso_unico ? ' — Uso único' : '' }}
+                  </mat-option>
                 }
               </mat-select>
             </mat-form-field>
@@ -117,12 +122,34 @@
 
           @if (requisitosModalidad().length > 0) {
             <mat-divider class="section-divider"></mat-divider>
-            <h3><mat-icon>description</mat-icon> Documentación requerida</h3>
+            <h3><mat-icon>description</mat-icon> Documentación requerida por la modalidad</h3>
             <p class="section-hint">Estos son los documentos que deberás presentar según la modalidad elegida:</p>
             <div class="requisitos-list">
               @for (req of requisitosModalidad(); track req.id_requisito) {
                 <div class="requisito-item">
                   <mat-icon class="req-icon">insert_drive_file</mat-icon>
+                  <div class="req-info">
+                    <span class="req-name">{{ req.nombre }}</span>
+                    @if (req.descripcion) {
+                      <span class="req-desc">{{ req.descripcion }}</span>
+                    }
+                  </div>
+                  <a [routerLink]="['/requisitos', req.id_requisito]" class="req-link" target="_blank">
+                    <mat-icon>open_in_new</mat-icon> Acerca de este documento
+                  </a>
+                </div>
+              }
+            </div>
+          }
+
+          @if (requisitosDescuento().length > 0) {
+            <mat-divider class="section-divider"></mat-divider>
+            <h3><mat-icon>request_quote</mat-icon> Documentación extra del descuento</h3>
+            <p class="section-hint">Además de los documentos de la modalidad, necesitás presentar estos para optar al beneficio:</p>
+            <div class="requisitos-list">
+              @for (req of requisitosDescuento(); track req.id_requisito) {
+                <div class="requisito-item descuento-req">
+                  <mat-icon class="req-icon discount-icon">request_quote</mat-icon>
                   <div class="req-info">
                     <span class="req-name">{{ req.nombre }}</span>
                     @if (req.descripcion) {

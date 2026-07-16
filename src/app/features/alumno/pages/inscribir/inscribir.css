@@ -192,9 +192,18 @@ mat-card-actions {
   border: 1px solid #e2e8f0;
 }
 
+.requisito-item.descuento-req {
+  background: #fffbeb;
+  border-color: #fde68a;
+}
+
 .req-icon {
   color: #1e3a8a;
   flex-shrink: 0;
+}
+
+.req-icon.discount-icon {
+  color: #b45309;
 }
 
 .req-info {
