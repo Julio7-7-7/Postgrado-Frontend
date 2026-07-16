@@ -47,21 +47,22 @@
     </div>
     <p class="section-hint">Documentos que debe presentar el postulante</p>
 
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Buscar requisito</mat-label>
-      <mat-chip-grid #chipGrid>
+    @if ((form.get('requisitos')?.value ?? []).length > 0) {
+      <div class="selected-chips">
         @for (id of form.get('requisitos')?.value ?? []; track id) {
-          <mat-chip-row (removed)="removeRequisito(id)">
+          <span class="sel-chip">
             {{ requisitoNombre(id) }}
-            <button matChipRemove>
-              <mat-icon>cancel</mat-icon>
-            </button>
-          </mat-chip-row>
+            <mat-icon (click)="removeRequisito(id)">close</mat-icon>
+          </span>
         }
-      </mat-chip-grid>
+      </div>
+    }
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Agregar requisito</mat-label>
       <input
+        matInput
         placeholder="Escribí para buscar..."
-        [matChipInputFor]="chipGrid"
         [formControl]="requisitoCtrl"
         [matAutocomplete]="auto">
       <mat-autocomplete #auto="matAutocomplete" (optionSelected)="addRequisito($event.option.value)">
@@ -72,7 +73,7 @@
           <mat-option disabled>No hay más requisitos disponibles</mat-option>
         }
       </mat-autocomplete>
-      @if (form.get('requisitos')?.value?.length === 0) {
+      @if ((form.get('requisitos')?.value ?? []).length === 0) {
         <mat-hint>Sin requisitos asignados</mat-hint>
       } @else {
         <mat-hint>{{ form.get('requisitos')?.value?.length }} requisito(s) seleccionado(s)</mat-hint>
