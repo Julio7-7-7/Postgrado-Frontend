@@ -21,6 +21,9 @@
 
 .empty-state mat-icon { font-size: 48px; width: 48px; height: 48px; }
 
+.search-bar { margin-bottom: 16px; }
+.search-field { width: 100%; }
+
 .entity-table {
   display: flex;
   flex-direction: column;
@@ -35,23 +38,47 @@
   background: white;
   border: 1px solid #e2e8f0;
   border-radius: 10px;
-  transition: border-color 0.15s;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
 
-.entity-row:hover { border-color: #c7d2fe; }
-
-.entity-row.inactive {
-  opacity: 0.65;
+.entity-row:hover {
+  border-color: #c7d2fe;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.08);
 }
 
-.entity-row.inactive:hover { opacity: 1; }
+.entity-row.inactive { opacity: 0.6; }
 
 .entity-main {
   display: flex;
   align-items: center;
   gap: 14px;
   min-width: 0;
-  overflow: hidden;
+  flex: 1;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  padding: 4px 0;
+  border-radius: 6px;
+  transition: color 0.12s;
+}
+
+.entity-main:hover { color: #4338ca; }
+.entity-main:hover .entity-name { color: #4338ca; }
+
+.entity-arrow {
+  margin-left: 12px;
+  margin-right: 4px;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: #94a3b8;
+  flex-shrink: 0;
+  transition: color 0.12s, transform 0.15s;
+}
+
+.entity-main:hover .entity-arrow {
+  color: #6366f1;
+  transform: translateX(3px);
 }
 
 .entity-icon {
@@ -72,54 +99,15 @@
 
 .entity-icon mat-icon { font-size: 20px; width: 20px; height: 20px; }
 
-.entity-name { font-weight: 600; font-size: 0.95rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.entity-meta { font-size: 0.78rem; color: #94a3b8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
-.entity-info {
-  min-width: 0;
-  flex: 1;
-  max-width: 65%;
-  padding-right: 16px;
-}
+.entity-name { font-weight: 600; font-size: 0.95rem; transition: color 0.12s; }
+.entity-meta { font-size: 0.78rem; color: #94a3b8; }
 
 .entity-actions {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 4px;
   flex-shrink: 0;
-}
-
-.inactivos-toggle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 10px 18px;
-  margin-top: 4px;
-  background: #f8fafc;
-  border: 1px dashed #cbd5e1;
-  border-radius: 10px;
-  color: #64748b;
-  font-size: 0.85rem;
-  font-weight: 500;
-  cursor: pointer;
-  user-select: none;
-  transition: all 0.15s;
-}
-
-.inactivos-toggle:hover {
-  background: #f1f5f9;
-  border-color: #94a3b8;
-  color: #334155;
-}
-
-.toggle-chevron {
-  font-size: 20px;
-  width: 20px;
-  height: 20px;
-  transition: transform 0.2s;
-}
-
-.toggle-chevron.open {
-  transform: rotate(180deg);
+  margin-left: 8px;
+  position: relative;
+  z-index: 1;
 }

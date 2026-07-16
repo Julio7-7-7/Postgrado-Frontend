@@ -9,7 +9,6 @@ import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatTabsModule } from '@angular/material/tabs';
 import { MatSlideToggleModule, MatSlideToggleChange } from '@angular/material/slide-toggle';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -34,7 +33,6 @@ import { TipoPrograma } from '../../models/tipo-programa.model';
     MatButtonModule,
     MatIconModule,
     MatTooltipModule,
-    MatTabsModule,
     MatSlideToggleModule,
     MatFormFieldModule,
     MatInputModule,
@@ -57,6 +55,7 @@ export class TipoProgramaListComponent implements OnInit {
   terminoBusqueda = signal('');
   isLoading = signal(true);
   error = signal<string | null>(null);
+  showInactivos = signal(false);
 
   criterioOrden = signal<'id' | 'nombre' | 'cupo' | 'duracion'>('id');
 

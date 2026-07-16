@@ -1,7 +1,8 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -20,6 +21,7 @@ import { DetalleProgramaAlumnoService } from '../../services/detalle-programa-al
 import { Alumno, AlumnoUpdate, GeneroAlumno } from '../../models/alumno.model';
 import { ModalidadAcademica } from '../../models/modalidad-academica.model';
 import { TipoDescuento } from '../../models/tipo-descuento.model';
+import { RequisitoResumen } from '../../models/modalidad-academica.model';
 import { ProgramaVersionEdicion } from '../../../edicion/models/edicion.model';
 import { environment } from '../../../../../environments/environment';
 
@@ -44,6 +46,7 @@ export class InscribirComponent implements OnInit {
   private descuentoService = inject(TipoDescuentoService);
   private detalleService = inject(DetalleProgramaAlumnoService);
   private snackBar = inject(MatSnackBar);
+  private destroyRef = inject(DestroyRef);
 
   // state
   edicion = signal<ProgramaVersionEdicion | null>(null);
@@ -58,6 +61,7 @@ export class InscribirComponent implements OnInit {
   editData: AlumnoUpdate = {};
   selectedModalidad = signal<number | null>(null);
   selectedDescuento = signal<number | null>(null);
+  requisitosModalidad = signal<RequisitoResumen[]>([]);
 
   generos: GeneroAlumno[] = ['masculino', 'femenino', 'otro'];
   apiUrl = environment.apiUrl;
@@ -73,15 +77,22 @@ export class InscribirComponent implements OnInit {
   }
 
   private _cargarDatos(id: number): void {
-    this.edicionService.getById(id).subscribe({
+    const total = 4;
+    let completados = 0;
+    const onComplete = () => {
+      if (++completados >= total) this.cargando.set(false);
+    };
+
+    this.edicionService.getById(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (ed) => this.edicion.set(ed),
       error: () => {
-        this.cargando.set(false);
         this.snackBar.open('Error al cargar programa', 'Cerrar', { duration: 4000 });
+        onComplete();
       },
+      complete: onComplete,
     });
 
-    this.alumnoService.getMiPerfil().subscribe({
+    this.alumnoService.getMiPerfil().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (a) => {
         this.alumno.set(a);
         this.editData = {
@@ -96,18 +107,32 @@ export class InscribirComponent implements OnInit {
           direccion: a.direccion,
         };
       },
-      error: () => this.snackBar.open('Error al cargar perfil', 'Cerrar', { duration: 4000 }),
+      error: () => {
+        this.snackBar.open('Error al cargar perfil', 'Cerrar', { duration: 4000 });
+        onComplete();
+      },
+      complete: onComplete,
     });
 
-    this.modalidadService.getAll().subscribe({
+    this.modalidadService.getAll().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (mods) => this.modalidades.set(mods.filter(m => m.estado === 'activo')),
+      complete: onComplete,
     });
 
-    this.descuentoService.getAll().subscribe({
+    this.descuentoService.getAll().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (desc) => this.tiposDescuento.set(desc.filter(d => d.estado === 'activo')),
+      complete: onComplete,
     });
+  }
 
-    this.cargando.set(false);
+  onModalidadChange(idModalidad: number | null): void {
+    this.selectedModalidad.set(idModalidad);
+    if (!idModalidad) {
+      this.requisitosModalidad.set([]);
+      return;
+    }
+    const mod = this.modalidades().find(m => m.id_modalidad_academica === idModalidad);
+    this.requisitosModalidad.set(mod?.requisitos ?? []);
   }
 
   inscribir(): void {

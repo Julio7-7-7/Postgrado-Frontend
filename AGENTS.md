@@ -54,6 +54,7 @@ Backend: github.com/Julio7-7-7/PostgradoBackend
 - `--fich-feature-alumno: #0891b2` / `-light: #ecfeff`
 - `--fich-feature-edicion: #4f46e5` / `-light: #eef2ff`
 - `--fich-feature-modulo: #0d9488` / `-light: #f0fdfa`
+- `--fich-feature-requisitos: #0d9488` / `-light: #f0fdfa`
 
 ## Bugs corregidos
 1. **Timezone date shift** — `new Date("2026-07-01")` en UTC daba día anterior en UTC-4. Fix: `aDate()` helper.
@@ -73,9 +74,9 @@ Backend: github.com/Julio7-7-7/PostgradoBackend
 
 ### Gestión de alumnos — backend model-listo
 - `alumnos` — tabla con campos básicos + estado
-- `modalidades_academicas` — con uso_unico para educación continua
-- `requisitos` — vinculados a modalidad académica
-- `tipos_descuento` — con requiere_documento + id_requisito_extra
+- `modalidades_academicas` — con junction table `modalidad_tipo_programa` para restricción por tipo
+- `requisitos` — M2M con `modalidades_academicas` via `modalidad_requisito`, con `imagen_url`
+- `tipos_descuento` — con `uso_unico`, junction `modalidad_tipo_descuento` y `tipo_descuento_requisito`
 - `control_documentacion` — control de entrega/revisión por requisito
 - `detalle_programa_alumno` — postulación con generación automática de controles, uso_unico, aplicación de descuento
 - Flujo postulante→inscrito automático cuando todos los obligatorios están aceptados
@@ -90,12 +91,15 @@ Backend: github.com/Julio7-7-7/PostgradoBackend
 - `~/Programación/Postgrado-Frontend/` — proyecto Angular
 - `~/Programación/Postgrado-Frontend/src/material-theme.scss` — tema Material + variables
 - `~/Programación/Postgrado-Frontend/src/styles.css` — estilos globales + feature colors
+- `~/Programación/PostgradoBackend/` — proyecto FastAPI
+- `~/Programación/PostgradoBackend/routers/utils.py` — utilidades de upload (base64 → media/)
+- `~/Programación/PostgradoBackend/models/` — modelos SQLAlchemy
 
 ## Pendientes
 - Bug #34: Navbar admin tiene link "Alumnos" (`/alumnos`) que redirige al portal estudiante — no hay vista de gestión de alumnos para admin
 - Posibles bugs de agenda/conflictos de horario docente
 - Refinar contraste y diferenciación visual general
-- Subida de documentos (requisitos) por parte del alumno + validación por admin (control_documentacion)
+- Subida de documentos por parte del alumno (subir archivo al servidor, no solo ver requisitos)
 - Módulo pagos: modelo, endpoints y front
 - Módulo notas: modelo, endpoints y front
 - Endpoint dashboard: estadísticas del admin
@@ -326,7 +330,7 @@ c5953ec docs: update AGENTS.md with auth/RBAC session progress
 - Bug #34: Navbar admin link "Alumnos" redirige al portal estudiante — falta vista de gestión de alumnos para admin
 - Edición de usuario (backend + frontend) — no hay endpoint PATCH para editar datos de usuario existente
 - Matriz visual rol × permiso (opcional)
-- Subida de documentos por alumno + validación por admin
+- Subida de documentos por parte del alumno (subir archivo al servidor, no solo ver requisitos)
 - **Perfeccionar rol adm_informatico**: el usuario quiere que sea su perfil de testing universal (admin + docente + alumno sin cambiar de cuenta). Se analizó que `_obtener_profile_info` en `dependencies.py:84` busca en orden alumno → docente → administrativo, pero como el seed crea 3 usuarios distintos con el mismo email (cada uno con distinto `id_usuario`), el usuario admin no tiene `alumno` asociado via FK. Solución propuesta: modificar `_obtener_profile_info` para que para `adm_informatico` busque también alumno por email. Pendiente de implementar.
 
 ## Sesión 2026-07-10 — Análisis de permisos + ER diagram (pre-migración)
@@ -354,6 +358,11 @@ ROLES_PERMISOS (PK compuesta: id_rol FK→roles + id_permiso FK→permisos)
   │
   ├──→ ROLES
   └──→ PERMISOS (id_permiso PK, codigo UQ, descripcion)
+
+MODALIDAD_REQUISITO (PK compuesta: id_modalidad_academica + id_requisito, cascade delete)
+MODALIDAD_TIPO_DESCUENTO (PK compuesta: id_modalidad_academica + id_tipo_descuento, cascade delete)
+MODALIDAD_TIPO_PROGRAMA (PK compuesta: id_modalidad_academica + id_tipo_programa, cascade delete)
+TIPO_DESCUENTO_REQUISITO (PK compuesta: id_tipo_descuento + id_requisito, cascade delete)
 ```
 
 ### Cadena de resolución de permisos
@@ -582,14 +591,16 @@ El backend resuelve esto en `_obtener_permisos()` (`dependencies.py:74`) al mome
 
 **Sin `programa_usuario`:** Cada rol administrativo tiene acceso a TODOS los programas. Son pocos (~7 al año, 4 administrativos), no justifica scope por programa.
 
-**Nueva tabla `modalidad_tipo_descuento`:** Junction table (M:N) que define qué descuentos aplican a qué modalidades. Ejemplo: "Beca 50%" solo para "Educación Continua".
-
-**`requisitos.id_modalidad_academica` nullable:** Permite documentos genéricos (para descuentos) que no pertenecen a ninguna modalidad específica. Los requisitos de modalidad tienen FK, los de descuento tienen FK = NULL.
+**Junction tables M:N:**
+- `modalidad_tipo_descuento` — define qué descuentos aplican a qué modalidades (ej: Beca 50% solo para Educación Continua)
+- `tipo_descuento_requisito` — define qué documentos requiere cada descuento (ej: Beca 50% requiere "Media Beca UAGRM")
+- `modalidad_requisito` — define qué requisitos documentales aplican a qué modalidades (reemplaza FK directa)
+- `modalidad_tipo_programa` — define qué modalidades aplican a qué tipo de programa (ej: Educación Continua solo para Diplomados)
 
 **Flujo de `control_documentacion`:**
-1. Alumno elige modalidad → se generan registros por cada requisito de esa modalidad
+1. Alumno elige modalidad → se generan registros por cada requisito de esa modalidad (vía `modalidad_requisito`)
 2. Alumno elige descuento → se verifica en `modalidad_tipo_descuento` si aplica para esa modalidad
-3. Si aplica → se genera un `control_documentacion` extra (obligatorio=true)
+3. Si aplica → se genera un `control_documentacion` extra (obligatorio=true) con los requisitos del descuento
 4. Admin va checkeando cada registro: pendiente → entregado → aprobado/rechazado
 
 **Próximo módulo:** Gestión de documentación (admin revisa postulantes de una edición y checkea documentos)
@@ -597,6 +608,10 @@ El backend resuelve esto en `_obtener_permisos()` (`dependencies.py:74`) al mome
 ### Módulos completados
 - ✅ **usuarios** — CRUD, auth pública, rate limiting, honeypot, paginación, cambio contraseña, onboarding, formulario rediseñado
 - ✅ **roles** — CRUD con permisos, protecciones RBAC, batch endpoint, formulario rediseñado
+- ✅ **requisitos** — CRUD con imagen upload, junction table M2M con modalidades, soft delete, detalle público `/requisitos/:id`
+- ✅ **modalidades** — CRUD con junction table `modalidad_tipo_programa`, requisitos M2M via `modalidad_requisito`
+- ✅ **tipos_descuento** — CRUD con junction tables `modalidad_tipo_descuento` y `tipo_descuento_requisito`, `uso_unico`
+- ✅ **documentacion** — revisión de postulantes por edición con estados de documentos
 
 ## Sesión 2026-07-13 — Documentación, Modalidades y Descuentos (Junction Tables)
 
@@ -606,9 +621,11 @@ El backend resuelve esto en `_obtener_permisos()` (`dependencies.py:74`) al mome
 - **Junction tables M:N:**
   - `modalidad_tipo_descuento` — define qué descuentos aplican a qué modalidades (ej: Beca 50% solo para Educación Continua)
   - `tipo_descuento_requisito` — define qué documentos requiere cada descuento (ej: Beca 50% requiere "Media Beca UAGRM")
-- **`requisitos.id_modalidad_academica` nullable:** Documentos para descuentos tienen FK = NULL.
+  - `modalidad_requisito` — define qué requisitos documentales aplican a qué modalidades (reemplaza FK directa)
+  - `modalidad_tipo_programa` — define qué modalidades aplican a qué tipo de programa (ej: Educación Continua solo para Diplomados)
+- **`requisitos` sin FK directa a modalidad**: relación M2M via `modalidad_requisito`. Un requisito puede pertenecer a múltiples modalidades.
 - **Flujo de control_documentacion:**
-  1. Alumno elige modalidad → se generan control_documentacion por cada requisito de esa modalidad
+  1. Alumno elige modalidad → se generan control_documentacion por cada requisito de esa modalidad (vía `modalidad_requisito`)
   2. Alumno elige descuento → backend verifica en `modalidad_tipo_descuento` si aplica para esa modalidad
   3. Si aplica → se genera un `control_documentacion` extra (obligatorio=true) con los requisitos del descuento
 
@@ -836,6 +853,13 @@ features/
     models/documentacion.model.ts
     services/documentacion.service.ts
     pages/documentacion/documentacion.ts + .html + .css
+  requisitos/
+    models/requisito.model.ts
+    services/requisito.service.ts
+    pages/requisitos-list/requisitos-list.ts + .html + .css
+    pages/requisitos-form/requisitos-form.ts + .html + .css
+    pages/requisito-detail/requisito-detail.ts + .html + .css
+    routes/requisitos.routes.ts
 ```
 
 ### Cambios realizados
@@ -889,3 +913,151 @@ features/
 - Endpoint dashboard: estadísticas del admin
 - Filtrado de alumnos por período
 - Refinar contraste y diferenciación visual
+
+## Sesión 2026-07-15 — Requisitos: imagen_url, junction table, detalle público
+
+### Decisiones de diseño
+- **`requisitos` usa junction table `modalidad_requisito`** (M:N) en vez de FK directa. La FK `id_modalidad_academica` se eliminó. Esto permite que un requisito pertenezca a múltiples modalidades.
+- **`imagen_url` en requisitos**: los requisitos pueden tener una imagen descriptiva (foto del documento, ejemplo). Se almacena en `/media/requisitos/` como las demás fotos del sistema.
+- **Ruta pública `/requisitos/:id`**: vista de detalle para alumnos, sin autenticación. Muestra imagen + nombre + descripción del documento.
+- **Checklist de documentos en inscripción**: al seleccionar una modalidad, se muestran los requisitos requeridos con link "Acerca de este documento" que abre el detalle en nueva pestaña.
+
+### Backend — Requisitos + imagen
+- **`models/modalidad_requisito.py`**: junction table con PK compuesta (`id_modalidad_academica` + `id_requisito`) y cascade delete
+- **`models/requisito.py`**: eliminado `id_modalidad_academica` FK, eliminado `obligatorio`, agregado `imagen_url VARCHAR(500) NULL`, agregado `unique=True` en `nombre`, agregado `modalidades` M2M relationship via junction
+- **`models/modalidad_academica.py`**: cambiado `requisitos` relationship a `secondary="modalidad_requisito"`
+- **`models/__init__.py`**: agregado import `ModalidadRequisito`
+- **`schemas/requisito.py`**: eliminados `id_modalidad_academica` y `obligatorio` de Base/Update, agregado `imagen_url` a Base/Update/Response
+- **`schemas/modalidad_academica.py`**: agregado `requisitos: list[int]` en Create/Update, `requisitos: list[RequisitoResponse]` en Response
+- **`routers/requisito.py`**: eliminado DELETE (soft delete con estado), agregado upload de imagen con `guardar_foto_base64()` y `eliminar_foto()` en crear/editar
+- **`routers/modalidad_academica.py`**: agregado `_sincronizar_requisitos()` y `_cargar_con_relations()` con `joinedload`
+- **Migración SQL directa** (cadena Alembic tiene ciclos): crea `modalidad_requisito`, migra datos, deduplica "Avance Académico de la UAGRM", agrega `imagen_url` a `requisitos`
+
+### Frontend — Admin CRUD requisitos con imagen
+- **`requisitos/models/requisito.model.ts`**: agregado `imagen_url: string | null` a todas las interfaces
+- **`requisitos/services/requisito.service.ts`**: agregado `getById(id)` para el detalle público
+- **`requisitos/pages/requisitos-list/`**: lista con Activos/Inactivos tabs, soft delete vía PATCH con `estado: 'inactivo'`
+- **`requisitos/pages/requisitos-form/requisitos-form.ts`**: upload con `FileReader.readAsDataURL()`, signals `imagenPreview` e `imagenBase64`, eliminación de imagen, payload con `imagen_url` (base64 o null)
+- **`requisitos/pages/requisitos-form/requisitos-form.html`**: sección imagen con preview + upload zone + botón eliminar
+- **`requisitos/pages/requisitos-form/requisitos-form.css`**: estilos `.imagen-preview`, `.upload-zone`, `.remove-btn`, `.file-input-hidden`
+
+### Frontend — Detalle público (alumno)
+- **`requisitos/pages/requisito-detail/requisito-detail.ts`**: componente standalone, carga por `id` de route, muestra imagen con `apiUrl` prefix, link "Volver"
+- **`requisitos/pages/requisito-detail/requisito-detail.html`**: card con header, imagen (si existe), título, descripción, estado
+- **`requisitos/pages/requisito-detail/requisito-detail.css`**: diseño limpio, max-width 640px
+- **`requisitos/routes/requisitos.routes.ts`**: agregada ruta `/:id` → `RequisitoDetailComponent`
+- **`app.routes.ts`**: agregada ruta pública `/requisitos` (sin authGuard) que lazy-loads `REQUISITOS_ROUTES`
+
+### Frontend — Checklist documentos en inscripción
+- **`alumno/models/modalidad-academica.model.ts`**: agregado `RequisitoResumen` interface, `ModalidadAcademica.requisitos: RequisitoResumen[]`
+- **`alumno/pages/inscribir/inscribir.ts`**: signal `requisitosModalidad`, método `onModalidadChange(id)` que filtra requisitos de la modalidad seleccionada
+- **`alumno/pages/inscribir/inscribir.html`**: sección "Documentación requerida" debajo del select de modalidad, lista de requisitos con icono, nombre, descripción, link `routerLink="/requisitos/:id"` con `target="_blank"`
+- **`alumno/pages/inscribir/inscribir.css`**: estilos `.requisitos-list`, `.requisito-item`, `.req-link`
+
+### Frontend — Admin panel
+- **`admin/pages/admin/admin.html`**: pestaña "Requisitos" con icono `checklist`
+- **`admin/routes/admin.routes.ts`**: ruta `/admin/requisitos` → `RequisitosListComponent` con `permisoGuard('requisitos.ver')`
+
+### Archivos tocados
+**Backend:**
+- `models/modalidad_requisito.py` — nuevo (junction table)
+- `models/requisito.py` — FK eliminada, `imagen_url` agregada, M2M relationship
+- `models/modalidad_academica.py` — relationship via secondary
+- `models/__init__.py` — import de `ModalidadRequisito`
+- `schemas/requisito.py` — campos eliminados, `imagen_url` agregado
+- `schemas/modalidad_academica.py` — `requisitos` en Create/Update/Response
+- `routers/requisito.py` — upload de imagen, soft delete
+- `routers/modalidad_academica.py` — `_sincronizar_requisitos()`, `joinedload`
+
+**Frontend:**
+- `features/requisitos/models/requisito.model.ts` — `imagen_url` en interfaces
+- `features/requisitos/services/requisito.service.ts` — `getById()` agregado
+- `features/requisitos/pages/requisitos-list/` — lista con tabs
+- `features/requisitos/pages/requisitos-form/requisitos-form.ts/html/css` — upload de imagen
+- `features/requisitos/pages/requisito-detail/requisito-detail.ts/html/css` — detalle público
+- `features/requisitos/routes/requisitos.routes.ts` — ruta `/:id`
+- `features/admin/pages/admin/admin.html` — pestaña Requisitos
+- `features/admin/routes/admin.routes.ts` — ruta `/admin/requisitos`
+- `features/alumno/models/modalidad-academica.model.ts` — `RequisitoResumen`, `requisitos[]`
+- `features/alumno/pages/inscribir/inscribir.ts/html/css` — checklist de documentos
+- `core/config/app.routes.ts` — ruta pública `/requisitos`
+
+### Pendientes
+- Bug #34: Navbar admin link "Alumnos" redirige al portal estudiante — falta gestión de alumnos para admin
+- Subida de documentos por parte del alumno (subir archivo al servidor, no solo ver requisitos)
+- Módulo pagos: modelo, endpoints y front
+- Módulo notas: modelo, endpoints y front
+- Endpoint dashboard: estadísticas del admin
+- Filtrado de alumnos por período
+- Refinar contraste y diferenciación visual
+- Acoplamiento de estudiantes entre ediciones: campo `modulo_inicio` en `DetalleProgramaAlumno`
+
+## Sesión 2026-07-15 — Modalidades: requiere_titulo → requisito, junction tables, list polish
+
+### Decisiones de diseño
+- **`requiere_titulo` eliminado de `ModalidadAcademica`**: "Título de Profesional" ahora es un requisito regular vinculado vía `modalidad_requisito` junction table. Más flexible, consistente con el patrón M2M.
+- **`generar_control_documentacion()` arreglado**: ahora consulta vía `ModalidadRequisito` junction (antes hacía JOIN directo a `requisitos` que ya no tiene FK).
+- **Patrón collapsible inactive global**: todas las listas (requisitos, docente, programa, tipo-programa) ahora usan `showInactivos` signal + sección colapsable con chevron animado, en vez de tabs.
+- **`mat-slide-toggle` más chico**: `zoom: 0.7` global en `styles.css`.
+- **Chips de requisitos seleccionados en modalidad-form**: `mat-select multiple` se mantiene (soporta 20+ items), pero arriba se muestran chips teal con botón de quitar.
+
+### Backend — Cambios (commits previos de esta sesión)
+- `models/modalidad_academica.py`: eliminado `requiere_titulo`, M2M via `secondary="modalidad_requisito"`
+- `schemas/modalidad_academica.py`: eliminado `requiere_titulo` de Base/Update/Response, fix Pydantic forward ref
+- `routers/modalidad_academica.py`: DELETE → `PATCH /{id}/cambiar-estado`, `flush()` en crear, `_sincronizar_requisitos()` + `_cargar_con_relations()`
+- `routers/detalle_programa_alumno.py`: `generar_control_documentacion()` fix — JOINs through `ModalidadRequisito`, `obligatorio=True` default
+- `seed.py`: "Título de Profesional" como requisito, linked to Profesionales modalidad
+- `docs/er-diagram.txt`: diagrama ER en ASCII
+- SQL: `ALTER TABLE modalidades_academicas DROP COLUMN requiere_titulo`
+
+### Frontend — Collapsible inactive (4 listas)
+- `requisitos-list`: patrón collapsible inactive (reemplazó tabs)
+- `docente-list`: combinó Dictando/Disponibles en tabla activa + collapsible inactive (eran 3 tabs, eliminado `#tablaTemplate`)
+- `programa-list`: cards grid + collapsible inactive (reemplazó tabs)
+- `tipo-programa-list`: mat-table + collapsible inactive (reemplazó tabs + `#tablaTemplate`)
+
+### Frontend — Global CSS
+- `styles.css`: `mat-slide-toggle` `zoom: 0.7`, `.inactivos-toggle` / `.toggle-chevron` CSS compartido
+
+### Frontend — Modalidad
+- `modalidad.service.ts`: `getAll()`, `getById()`, `create()`, `update()`, `cambiarEstado()`
+- `modalidad-list`: collapsible inactive, `mat-slide-toggle` para estado, entity-info truncation (`max-width: 65%`, `padding-right: 16px`)
+- `modalidad-detail`: vista pública en `/modalidades/:id` (badges solo muestran estado, sin requiere_titulo)
+- `modalidad.routes.ts`: creado, rutas con `:id`
+- `app.routes.ts`: ruta pública `/modalidades`
+- `modalidad-form`: eliminado checkbox `requiere_titulo`, eliminado `MatCheckboxModule`, chips de requisitos seleccionados arriba del `mat-select`
+- `modalidad.model.ts` (admin): eliminado `requiere_titulo`
+- `modalidad-academica.model.ts` (alumno): eliminados campos muertos `uso_unico` y `requiere_titulo`
+
+### Frontend — Otros
+- `tipo-programa-form`: eliminado chip badge "Requiere título" de opciones de modalidad
+- `inscribir.ts`: fix `cargando.set(false)` con counter, `takeUntilDestroyed` en todas las subs
+
+### Commits esta sesión
+**Backend:**
+```
+e0f1504 feat(requisitos): refactor to M2M via junction table, add created_at
+9a5e62b fix(detalle-programa): query requisitos via junction table in generar_control_documentacion
+8e26704 docs: add ASCII ER diagram of database schema
+d770ac2 refactor(modalidades): remove requiere_titulo, add Título de Profesional as requisito
+```
+
+**Frontend:**
+```
+85a9f5a feat(modalidad): add public detail view, routes, and update list with collapsible inactive
+d35b923 refactor(lists): replace tabs with collapsible inactive pattern
+234b25a style: add smaller slide toggle and global inactivos-toggle
+28b8b75 refactor(modalidades): remove requiere_titulo from all frontend components
+351ddfb style: polish entity-info truncation and global toggle/chevron CSS
+bdab4ed feat(modalidad-form): add selected-requisitos chips above multi-select
+```
+
+### Pendientes
+- Bug #34: Navbar admin link "Alumnos" redirige al portal estudiante — falta gestión de alumnos para admin
+- Subida de documentos por parte del alumno (subir archivo al servidor, no solo ver requisitos)
+- Módulo pagos: modelo, endpoints y front
+- Módulo notas: modelo, endpoints y front
+- Endpoint dashboard: estadísticas del admin
+- Filtrado de alumnos por período
+- Refinar contraste y diferenciación visual
+- Acoplamiento de estudiantes entre ediciones: campo `modulo_inicio` en `DetalleProgramaAlumno`

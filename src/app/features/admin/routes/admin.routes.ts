@@ -26,6 +26,12 @@ export const ADMIN_ROUTES: Routes = [
         canActivate: [permisoGuard('usuarios.gestionar')],
       },
       {
+        path: 'requisitos',
+        loadComponent: () =>
+          import('../../requisitos/pages/requisitos-list/requisitos-list').then(m => m.RequisitosListComponent),
+        canActivate: [permisoGuard('requisitos.ver')],
+      },
+      {
         path: 'modalidades',
         loadComponent: () =>
           import('../../modalidad/pages/modalidad-list/modalidad-list').then(m => m.ModalidadListComponent),

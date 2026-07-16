@@ -95,7 +95,7 @@
           <div class="form-grid">
             <mat-form-field appearance="outline">
               <mat-label>Modalidad académica</mat-label>
-              <mat-select [(ngModel)]="selectedModalidad" required>
+              <mat-select [ngModel]="selectedModalidad()" (ngModelChange)="onModalidadChange($event)" required>
                 @for (m of modalidades(); track m.id_modalidad_academica) {
                   <mat-option [value]="m.id_modalidad_academica">{{ m.nombre_modalidad }}</mat-option>
                 }
@@ -114,6 +114,28 @@
               </mat-select>
             </mat-form-field>
           </div>
+
+          @if (requisitosModalidad().length > 0) {
+            <mat-divider class="section-divider"></mat-divider>
+            <h3><mat-icon>description</mat-icon> Documentación requerida</h3>
+            <p class="section-hint">Estos son los documentos que deberás presentar según la modalidad elegida:</p>
+            <div class="requisitos-list">
+              @for (req of requisitosModalidad(); track req.id_requisito) {
+                <div class="requisito-item">
+                  <mat-icon class="req-icon">insert_drive_file</mat-icon>
+                  <div class="req-info">
+                    <span class="req-name">{{ req.nombre }}</span>
+                    @if (req.descripcion) {
+                      <span class="req-desc">{{ req.descripcion }}</span>
+                    }
+                  </div>
+                  <a [routerLink]="['/requisitos', req.id_requisito]" class="req-link" target="_blank">
+                    <mat-icon>open_in_new</mat-icon> Acerca de este documento
+                  </a>
+                </div>
+              }
+            </div>
+          }
         </mat-card-content>
         <mat-card-actions>
           <button mat-button routerLink="/">

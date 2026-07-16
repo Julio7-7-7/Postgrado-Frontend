@@ -37,6 +37,18 @@ export const routes: Routes = [
       import('../../features/login/pages/register').then(m => m.RegisterComponent),
   },
   {
+    path: 'requisitos',
+    loadChildren: () =>
+      import('../../features/requisitos/routes/requisitos.routes')
+      .then(m => m.REQUISITOS_ROUTES),
+  },
+  {
+    path: 'modalidades',
+    loadChildren: () =>
+      import('../../features/modalidad/routes/modalidad.routes')
+      .then(m => m.MODALIDAD_ROUTES),
+  },
+  {
     path: 'dashboard',
     loadComponent: () =>
       import('../../features/home/pages/home').then(m => m.HomeComponent),

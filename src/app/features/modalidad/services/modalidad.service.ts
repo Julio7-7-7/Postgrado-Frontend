@@ -1,15 +1,16 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from '../../../core/services/api.service';
-import {
-  ModalidadAcademicaResponse, ModalidadAcademicaCreate, ModalidadAcademicaUpdate,
-  RequisitoResponse, RequisitoCreate, RequisitoUpdate,
-} from '../models/modalidad.model';
+import { ModalidadAcademicaResponse, ModalidadAcademicaCreate, ModalidadAcademicaUpdate } from '../models/modalidad.model';
 
 @Injectable({ providedIn: 'root' })
 export class ModalidadService extends ApiService {
   getAll(): Observable<ModalidadAcademicaResponse[]> {
     return this.http.get<ModalidadAcademicaResponse[]>(`${this.baseUrl}/modalidades-academicas/`);
+  }
+
+  getById(id: number): Observable<ModalidadAcademicaResponse> {
+    return this.http.get<ModalidadAcademicaResponse>(`${this.baseUrl}/modalidades-academicas/${id}`);
   }
 
   create(data: ModalidadAcademicaCreate): Observable<ModalidadAcademicaResponse> {
@@ -20,19 +21,7 @@ export class ModalidadService extends ApiService {
     return this.http.patch<ModalidadAcademicaResponse>(`${this.baseUrl}/modalidades-academicas/${id}`, data);
   }
 
-  getRequisitos(): Observable<RequisitoResponse[]> {
-    return this.http.get<RequisitoResponse[]>(`${this.baseUrl}/requisitos/`);
-  }
-
-  createRequisito(data: RequisitoCreate): Observable<RequisitoResponse> {
-    return this.http.post<RequisitoResponse>(`${this.baseUrl}/requisitos/`, data);
-  }
-
-  updateRequisito(id: number, data: RequisitoUpdate): Observable<RequisitoResponse> {
-    return this.http.patch<RequisitoResponse>(`${this.baseUrl}/requisitos/${id}`, data);
-  }
-
-  deleteRequisito(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/requisitos/${id}`);
+  cambiarEstado(id: number): Observable<ModalidadAcademicaResponse> {
+    return this.http.patch<ModalidadAcademicaResponse>(`${this.baseUrl}/modalidades-academicas/${id}/cambiar-estado`, {});
   }
 }

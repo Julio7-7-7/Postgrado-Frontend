@@ -25,24 +25,31 @@
         <mat-icon>people</mat-icon> Usuarios
       </a>
       <a mat-tab-link
-         [routerLink]="['./modalidades']"
+         [routerLink]="['./requisitos']"
          routerLinkActive
          #rla3="routerLinkActive"
          [active]="rla3.isActive">
+        <mat-icon>checklist</mat-icon> Requisitos
+      </a>
+      <a mat-tab-link
+         [routerLink]="['./modalidades']"
+         routerLinkActive
+         #rla4="routerLinkActive"
+         [active]="rla4.isActive">
         <mat-icon>school</mat-icon> Modalidades
       </a>
       <a mat-tab-link
          [routerLink]="['./descuentos']"
          routerLinkActive
-         #rla4="routerLinkActive"
-         [active]="rla4.isActive">
+         #rla5="routerLinkActive"
+         [active]="rla5.isActive">
         <mat-icon>local_offer</mat-icon> Descuentos
       </a>
       <a mat-tab-link
          [routerLink]="['./documentacion']"
          routerLinkActive
-         #rla5="routerLinkActive"
-         [active]="rla5.isActive">
+         #rla6="routerLinkActive"
+         [active]="rla6.isActive">
         <mat-icon>description</mat-icon> Documentación
       </a>
     </nav>

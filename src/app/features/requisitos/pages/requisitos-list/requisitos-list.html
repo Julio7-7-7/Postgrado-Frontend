@@ -1,0 +1,103 @@
+<div class="page-container">
+  <div class="header-section">
+    <div>
+      <h1>Requisitos Documentales</h1>
+      <p class="subtitle">Catálogo global de documentos requeridos para inscripciones</p>
+    </div>
+    <button mat-flat-button color="primary" (click)="abrirFormulario()">
+      <mat-icon>add</mat-icon> Nuevo Requisito
+    </button>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading-state">
+      <mat-spinner diameter="36"></mat-spinner>
+    </div>
+  } @else if (error()) {
+    <div class="empty-state">
+      <mat-icon>error_outline</mat-icon>
+      <p>{{ error() }}</p>
+      <button mat-stroked-button (click)="cargar()">Reintentar</button>
+    </div>
+  } @else {
+    <div class="search-bar">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Buscar requisito</mat-label>
+        <input matInput placeholder="Nombre del requisito..." [ngModel]="terminoBusqueda()" (ngModelChange)="terminoBusqueda.set($event)">
+        <mat-icon matPrefix>search</mat-icon>
+      </mat-form-field>
+    </div>
+
+    <div class="entity-table">
+      @for (r of listaActivos(); track r.id_requisito) {
+        <div class="entity-row">
+          <a class="entity-main" [routerLink]="['/requisitos', r.id_requisito]">
+            <div class="entity-icon active">
+              <mat-icon>description</mat-icon>
+            </div>
+            <div class="entity-info">
+              <div class="entity-name">{{ r.nombre }}</div>
+              @if (r.descripcion) {
+                <div class="entity-meta">{{ r.descripcion }}</div>
+              }
+            </div>
+            <mat-icon class="entity-arrow">open_in_new</mat-icon>
+          </a>
+          <div class="entity-actions">
+            <mat-slide-toggle
+              [checked]="r.estado === 'activo'"
+              (change)="toggleEstado($event, r)"
+              color="primary"
+              matTooltip="Desactivar requisito">
+            </mat-slide-toggle>
+            <button mat-icon-button matTooltip="Editar" (click)="abrirFormulario(r)">
+              <mat-icon>edit</mat-icon>
+            </button>
+          </div>
+        </div>
+      } @empty {
+        <div class="empty-state">
+          <mat-icon>search_off</mat-icon>
+          <p>No se encontraron requisitos activos</p>
+        </div>
+      }
+
+      @if (listaInactivos().length > 0) {
+        <div class="inactivos-toggle" (click)="showInactivos.set(!showInactivos())">
+          <mat-icon class="toggle-chevron" [class.open]="showInactivos()">expand_more</mat-icon>
+          <span>Inactivos ({{ listaInactivos().length }})</span>
+        </div>
+
+        @if (showInactivos()) {
+          @for (r of listaInactivos(); track r.id_requisito) {
+            <div class="entity-row inactive">
+              <a class="entity-main" [routerLink]="['/requisitos', r.id_requisito]">
+                <div class="entity-icon">
+                  <mat-icon>description</mat-icon>
+                </div>
+                <div class="entity-info">
+                  <div class="entity-name">{{ r.nombre }}</div>
+                  @if (r.descripcion) {
+                    <div class="entity-meta">{{ r.descripcion }}</div>
+                  }
+                </div>
+                <mat-icon class="entity-arrow">open_in_new</mat-icon>
+              </a>
+              <div class="entity-actions">
+                <mat-slide-toggle
+                  [checked]="r.estado === 'activo'"
+                  (change)="toggleEstado($event, r)"
+                  color="primary"
+                  matTooltip="Reactivar requisito">
+                </mat-slide-toggle>
+                <button mat-icon-button matTooltip="Registro archivado" disabled>
+                  <mat-icon>lock_outline</mat-icon>
+                </button>
+              </div>
+            </div>
+          }
+        }
+      }
+    </div>
+  }
+</div>
