@@ -26,4 +26,8 @@ export class TipoDescuentoService extends ApiService {
   getRequisitos(): Observable<RequisitoResponse[]> {
     return this.http.get<RequisitoResponse[]>(`${this.baseUrl}/requisitos/`);
   }
+
+  cambiarEstado(id: number): Observable<TipoDescuentoResponse> {
+    return this.http.patch<TipoDescuentoResponse>(`${this.baseUrl}/tipos-descuento/${id}/cambiar-estado`, {});
+  }
 }

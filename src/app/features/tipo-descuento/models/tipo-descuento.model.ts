@@ -26,6 +26,7 @@ export interface TipoDescuentoUpdate {
   nombre?: string;
   porcentaje?: number;
   descripcion?: string | null;
+  uso_unico?: boolean;
   estado?: string;
   modalidades?: number[];
   requisitos?: number[];
