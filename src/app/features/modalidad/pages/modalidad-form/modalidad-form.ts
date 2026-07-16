@@ -7,7 +7,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ModalidadService } from '../../services/modalidad.service';
@@ -22,7 +23,8 @@ import { RequisitoResponse } from '../../../requisitos/models/requisito.model';
     CommonModule, ReactiveFormsModule,
     MatDialogModule, MatButtonModule, MatIconModule,
     MatFormFieldModule, MatInputModule,
-    MatSelectModule, MatProgressSpinnerModule, MatSnackBarModule,
+    MatChipsModule, MatAutocompleteModule,
+    MatProgressSpinnerModule, MatSnackBarModule,
   ],
   templateUrl: './modalidad-form.html',
   styleUrl: './modalidad-form.css',
@@ -39,7 +41,9 @@ export class ModalidadFormComponent implements OnInit {
 
   form!: FormGroup;
   requisitosAll = signal<RequisitoResponse[]>([]);
+  filteredRequisitos = signal<RequisitoResponse[]>([]);
   isSaving = signal(false);
+  requisitoCtrl = this.fb.control('');
 
   ngOnInit(): void {
     const requisitosIds = this.data?.requisitos?.map(r => r.id_requisito) ?? [];
@@ -51,18 +55,43 @@ export class ModalidadFormComponent implements OnInit {
       requisitos: [requisitosIds],
     });
 
+    this.requisitoCtrl.valueChanges.subscribe(val => {
+      const search = (val ?? '').toLowerCase();
+      const selected = this.form.get('requisitos')?.value ?? [];
+      const filtered = this.requisitosAll().filter(r =>
+        r.nombre.toLowerCase().includes(search) && !selected.includes(r.id_requisito)
+      );
+      this.filteredRequisitos.set(filtered);
+    });
+
     this.cargarRequisitos();
   }
 
-  toggleRequisito(id: number): void {
+  addRequisito(id: number): void {
     const current: number[] = this.form.get('requisitos')?.value ?? [];
-    const next = current.includes(id) ? current.filter(x => x !== id) : [...current, id];
-    this.form.get('requisitos')?.setValue(next);
+    if (!current.includes(id)) {
+      this.form.get('requisitos')?.setValue([...current, id]);
+    }
+    this.requisitoCtrl.setValue('');
+  }
+
+  removeRequisito(id: number): void {
+    const current: number[] = this.form.get('requisitos')?.value ?? [];
+    this.form.get('requisitos')?.setValue(current.filter(x => x !== id));
+    this.requisitoCtrl.setValue('');
+  }
+
+  requisitoNombre(id: number): string {
+    return this.requisitosAll().find(r => r.id_requisito === id)?.nombre ?? '';
   }
 
   cargarRequisitos(): void {
     this.requisitoService.getAll().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: all => this.requisitosAll.set(all.filter(r => r.estado === 'activo')),
+      next: all => {
+        const activos = all.filter(r => r.estado === 'activo');
+        this.requisitosAll.set(activos);
+        this.filteredRequisitos.set(activos);
+      },
     });
   }
 

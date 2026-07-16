@@ -24,12 +24,6 @@ mat-dialog-content { padding: 16px 24px; }
 
 .full-width { width: 100%; }
 
-.checkbox-row {
-  display: flex;
-  gap: 24px;
-  margin-bottom: 16px;
-}
-
 .section-divider {
   height: 1px;
   background: #e2e8f0;
@@ -57,36 +51,6 @@ mat-dialog-content { padding: 16px 24px; }
   font-size: 0.78rem;
   color: #94a3b8;
 }
-
-.selected-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 12px;
-}
-
-.sel-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 8px 4px 10px;
-  background: #f0fdfa;
-  border: 1px solid #99f6e4;
-  border-radius: 16px;
-  font-size: 0.78rem;
-  color: #0f766e;
-  font-weight: 500;
-}
-
-.sel-chip mat-icon {
-  font-size: 14px;
-  width: 14px;
-  height: 14px;
-  cursor: pointer;
-  opacity: 0.6;
-}
-
-.sel-chip mat-icon:hover { opacity: 1; }
 
 mat-dialog-actions {
   padding: 12px 24px 20px;
