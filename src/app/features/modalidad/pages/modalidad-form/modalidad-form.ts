@@ -54,6 +54,12 @@ export class ModalidadFormComponent implements OnInit {
     this.cargarRequisitos();
   }
 
+  toggleRequisito(id: number): void {
+    const current: number[] = this.form.get('requisitos')?.value ?? [];
+    const next = current.includes(id) ? current.filter(x => x !== id) : [...current, id];
+    this.form.get('requisitos')?.setValue(next);
+  }
+
   cargarRequisitos(): void {
     this.requisitoService.getAll().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: all => this.requisitosAll.set(all.filter(r => r.estado === 'activo')),
@@ -64,7 +70,10 @@ export class ModalidadFormComponent implements OnInit {
     if (this.form.invalid) return;
     this.isSaving.set(true);
 
-    const payload = this.form.value;
+    const payload = {
+      ...this.form.value,
+      requisitos: this.form.get('requisitos')?.value ?? [],
+    };
 
     const req = this.data
       ? this.service.update(this.data.id_modalidad_academica, payload)

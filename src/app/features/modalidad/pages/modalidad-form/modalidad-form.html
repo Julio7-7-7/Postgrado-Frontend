@@ -41,6 +41,25 @@
 
     <div class="section-divider"></div>
 
+    <div class="section-header">
+      <mat-icon>description</mat-icon>
+      <span>Requisitos documentales</span>
+    </div>
+    <p class="section-hint">Documentos que debe presentar el postulante</p>
+
+    @if (form.get('requisitos')?.value?.length > 0) {
+      <div class="selected-chips">
+        @for (r of requisitosAll(); track r.id_requisito) {
+          @if (form.get('requisitos')?.value?.includes(r.id_requisito)) {
+            <span class="sel-chip">
+              {{ r.nombre }}
+              <mat-icon (click)="toggleRequisito(r.id_requisito); $event.stopPropagation()">close</mat-icon>
+            </span>
+          }
+        }
+      </div>
+    }
+
     <div class="field">
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Requisitos documentales</mat-label>
