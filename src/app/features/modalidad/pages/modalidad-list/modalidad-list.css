@@ -51,6 +51,7 @@
   align-items: center;
   gap: 14px;
   min-width: 0;
+  overflow: hidden;
 }
 
 .entity-icon {
@@ -71,8 +72,15 @@
 
 .entity-icon mat-icon { font-size: 20px; width: 20px; height: 20px; }
 
-.entity-name { font-weight: 600; font-size: 0.95rem; }
-.entity-meta { font-size: 0.78rem; color: #94a3b8; }
+.entity-name { font-weight: 600; font-size: 0.95rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.entity-meta { font-size: 0.78rem; color: #94a3b8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.entity-info {
+  min-width: 0;
+  flex: 1;
+  max-width: 65%;
+  padding-right: 16px;
+}
 
 .entity-actions {
   display: flex;
