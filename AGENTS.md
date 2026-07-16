@@ -991,3 +991,73 @@ features/
 - Filtrado de alumnos por período
 - Refinar contraste y diferenciación visual
 - Acoplamiento de estudiantes entre ediciones: campo `modulo_inicio` en `DetalleProgramaAlumno`
+
+## Sesión 2026-07-15 — Modalidades: requiere_titulo → requisito, junction tables, list polish
+
+### Decisiones de diseño
+- **`requiere_titulo` eliminado de `ModalidadAcademica`**: "Título de Profesional" ahora es un requisito regular vinculado vía `modalidad_requisito` junction table. Más flexible, consistente con el patrón M2M.
+- **`generar_control_documentacion()` arreglado**: ahora consulta vía `ModalidadRequisito` junction (antes hacía JOIN directo a `requisitos` que ya no tiene FK).
+- **Patrón collapsible inactive global**: todas las listas (requisitos, docente, programa, tipo-programa) ahora usan `showInactivos` signal + sección colapsable con chevron animado, en vez de tabs.
+- **`mat-slide-toggle` más chico**: `zoom: 0.7` global en `styles.css`.
+- **Chips de requisitos seleccionados en modalidad-form**: `mat-select multiple` se mantiene (soporta 20+ items), pero arriba se muestran chips teal con botón de quitar.
+
+### Backend — Cambios (commits previos de esta sesión)
+- `models/modalidad_academica.py`: eliminado `requiere_titulo`, M2M via `secondary="modalidad_requisito"`
+- `schemas/modalidad_academica.py`: eliminado `requiere_titulo` de Base/Update/Response, fix Pydantic forward ref
+- `routers/modalidad_academica.py`: DELETE → `PATCH /{id}/cambiar-estado`, `flush()` en crear, `_sincronizar_requisitos()` + `_cargar_con_relations()`
+- `routers/detalle_programa_alumno.py`: `generar_control_documentacion()` fix — JOINs through `ModalidadRequisito`, `obligatorio=True` default
+- `seed.py`: "Título de Profesional" como requisito, linked to Profesionales modalidad
+- `docs/er-diagram.txt`: diagrama ER en ASCII
+- SQL: `ALTER TABLE modalidades_academicas DROP COLUMN requiere_titulo`
+
+### Frontend — Collapsible inactive (4 listas)
+- `requisitos-list`: patrón collapsible inactive (reemplazó tabs)
+- `docente-list`: combinó Dictando/Disponibles en tabla activa + collapsible inactive (eran 3 tabs, eliminado `#tablaTemplate`)
+- `programa-list`: cards grid + collapsible inactive (reemplazó tabs)
+- `tipo-programa-list`: mat-table + collapsible inactive (reemplazó tabs + `#tablaTemplate`)
+
+### Frontend — Global CSS
+- `styles.css`: `mat-slide-toggle` `zoom: 0.7`, `.inactivos-toggle` / `.toggle-chevron` CSS compartido
+
+### Frontend — Modalidad
+- `modalidad.service.ts`: `getAll()`, `getById()`, `create()`, `update()`, `cambiarEstado()`
+- `modalidad-list`: collapsible inactive, `mat-slide-toggle` para estado, entity-info truncation (`max-width: 65%`, `padding-right: 16px`)
+- `modalidad-detail`: vista pública en `/modalidades/:id` (badges solo muestran estado, sin requiere_titulo)
+- `modalidad.routes.ts`: creado, rutas con `:id`
+- `app.routes.ts`: ruta pública `/modalidades`
+- `modalidad-form`: eliminado checkbox `requiere_titulo`, eliminado `MatCheckboxModule`, chips de requisitos seleccionados arriba del `mat-select`
+- `modalidad.model.ts` (admin): eliminado `requiere_titulo`
+- `modalidad-academica.model.ts` (alumno): eliminados campos muertos `uso_unico` y `requiere_titulo`
+
+### Frontend — Otros
+- `tipo-programa-form`: eliminado chip badge "Requiere título" de opciones de modalidad
+- `inscribir.ts`: fix `cargando.set(false)` con counter, `takeUntilDestroyed` en todas las subs
+
+### Commits esta sesión
+**Backend:**
+```
+e0f1504 feat(requisitos): refactor to M2M via junction table, add created_at
+9a5e62b fix(detalle-programa): query requisitos via junction table in generar_control_documentacion
+8e26704 docs: add ASCII ER diagram of database schema
+d770ac2 refactor(modalidades): remove requiere_titulo, add Título de Profesional as requisito
+```
+
+**Frontend:**
+```
+85a9f5a feat(modalidad): add public detail view, routes, and update list with collapsible inactive
+d35b923 refactor(lists): replace tabs with collapsible inactive pattern
+234b25a style: add smaller slide toggle and global inactivos-toggle
+28b8b75 refactor(modalidades): remove requiere_titulo from all frontend components
+351ddfb style: polish entity-info truncation and global toggle/chevron CSS
+bdab4ed feat(modalidad-form): add selected-requisitos chips above multi-select
+```
+
+### Pendientes
+- Bug #34: Navbar admin link "Alumnos" redirige al portal estudiante — falta gestión de alumnos para admin
+- Subida de documentos por parte del alumno (subir archivo al servidor, no solo ver requisitos)
+- Módulo pagos: modelo, endpoints y front
+- Módulo notas: modelo, endpoints y front
+- Endpoint dashboard: estadísticas del admin
+- Filtrado de alumnos por período
+- Refinar contraste y diferenciación visual
+- Acoplamiento de estudiantes entre ediciones: campo `modulo_inicio` en `DetalleProgramaAlumno`
