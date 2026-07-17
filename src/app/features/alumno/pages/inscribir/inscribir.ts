@@ -13,6 +13,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { AlumnoService } from '../../services/alumno.service';
 import { EdicionService } from '../../../edicion/services/edicion.service';
@@ -34,7 +35,7 @@ import { environment } from '../../../../../environments/environment';
     CommonModule, FormsModule, RouterModule,
     MatCardModule, MatButtonModule, MatIconModule, MatFormFieldModule,
     MatInputModule, MatSelectModule, MatDatepickerModule, MatNativeDateModule,
-    MatDividerModule, MatTooltipModule, MatSnackBarModule,
+    MatDividerModule, MatTooltipModule, MatProgressSpinnerModule, MatSnackBarModule,
   ],
   templateUrl: './inscribir.html',
   styleUrl: './inscribir.css',
@@ -142,11 +143,13 @@ export class InscribirComponent implements OnInit {
 
     this.modalidadService.getAll().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (mods) => this.modalidades.set(mods.filter(m => m.estado === 'activo')),
+      error: () => { this.snackBar.open('Error al cargar modalidades', 'Cerrar', { duration: 4000 }); onComplete(); },
       complete: onComplete,
     });
 
     this.descuentoService.getAll().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (desc) => this.tiposDescuento.set(desc.filter(d => d.estado === 'activo')),
+      error: () => { this.snackBar.open('Error al cargar descuentos', 'Cerrar', { duration: 4000 }); onComplete(); },
       complete: onComplete,
     });
 

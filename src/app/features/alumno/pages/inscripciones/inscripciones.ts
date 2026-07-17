@@ -54,7 +54,7 @@ export class InscripcionesComponent implements OnInit {
       graduado: '#8b5cf6',
       titulado: '#1d4ed8',
       retirado: '#ef4444',
-      convalidando: '#f97316',
+      observado: '#f97316',
     };
     return colors[estado] || '#6b7280';
   }

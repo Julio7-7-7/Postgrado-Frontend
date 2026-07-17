@@ -9,7 +9,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSelectModule } from '@angular/material/select';
-import { MatChipsModule } from '@angular/material/chips';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TipoDescuentoService } from '../../services/tipo-descuento.service';
@@ -24,7 +24,7 @@ import { RequisitoResponse } from '../../../requisitos/models/requisito.model';
     CommonModule, ReactiveFormsModule,
     MatDialogModule, MatButtonModule, MatIconModule,
     MatFormFieldModule, MatInputModule, MatCheckboxModule,
-    MatSelectModule, MatChipsModule,
+    MatSelectModule, MatAutocompleteModule,
     MatProgressSpinnerModule, MatSnackBarModule,
   ],
   templateUrl: './tipo-descuento-form.html',
@@ -40,13 +40,15 @@ export class TipoDescuentoFormComponent implements OnInit {
   data: TipoDescuentoResponse | null = inject(MAT_DIALOG_DATA);
 
   form!: FormGroup;
-  modalidades = signal<ModalidadAcademicaResponse[]>([]);
-  requisitosAll = signal<RequisitoResponse[]>([]);
-  selectedModalidades = signal<Set<number>>(new Set());
-  selectedRequisitos = signal<Set<number>>(new Set());
   isSaving = signal(false);
 
-  requisitosDisponibles = signal<RequisitoResponse[]>([]);
+  modalidadesAll = signal<ModalidadAcademicaResponse[]>([]);
+  filteredModalidades = signal<ModalidadAcademicaResponse[]>([]);
+  modalidadCtrl = this.fb.control('');
+
+  requisitosAll = signal<RequisitoResponse[]>([]);
+  filteredRequisitos = signal<RequisitoResponse[]>([]);
+  requisitoCtrl = this.fb.control('');
 
   ngOnInit(): void {
     this.form = this.fb.group({
@@ -55,46 +57,85 @@ export class TipoDescuentoFormComponent implements OnInit {
       descripcion: [this.data?.descripcion ?? ''],
       uso_unico: [this.data?.uso_unico ?? false],
       estado: [this.data?.estado ?? 'activo'],
+      modalidades: [this.data?.modalidades.map(m => m.id_modalidad_academica) ?? []],
+      requisitos: [this.data?.requisitos.map(r => r.id_requisito) ?? []],
     });
 
+    this.modalidadCtrl.valueChanges.subscribe(val => {
+      const search = (val ?? '').toLowerCase();
+      const selected = this.form.get('modalidades')?.value ?? [];
+      this.filteredModalidades.set(
+        this.modalidadesAll().filter(m =>
+          m.nombre_modalidad.toLowerCase().includes(search) && !selected.includes(m.id_modalidad_academica)
+        )
+      );
+    });
+
+    this.requisitoCtrl.valueChanges.subscribe(val => {
+      const search = (val ?? '').toLowerCase();
+      const selected = this.form.get('requisitos')?.value ?? [];
+      this.filteredRequisitos.set(
+        this.requisitosAll().filter(r =>
+          r.nombre.toLowerCase().includes(search) && !selected.includes(r.id_requisito)
+        )
+      );
+    });
+
+    this.cargarDatos();
+  }
+
+  cargarDatos(): void {
     this.service.getModalidades().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: data => {
-        this.modalidades.set(data);
-        if (this.data) {
-          const ids = new Set(this.data.modalidades.map(m => m.id_modalidad_academica));
-          this.selectedModalidades.set(ids);
-        }
+        this.modalidadesAll.set(data);
+        const selected = this.form.get('modalidades')?.value ?? [];
+        this.filteredModalidades.set(data.filter(m => !selected.includes(m.id_modalidad_academica)));
       },
     });
 
     this.service.getRequisitos().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: data => {
         this.requisitosAll.set(data);
-        this.requisitosDisponibles.set(data);
-        if (this.data) {
-          const ids = new Set(this.data.requisitos.map(r => r.id_requisito));
-          this.selectedRequisitos.set(ids);
-        }
+        const selected = this.form.get('requisitos')?.value ?? [];
+        this.filteredRequisitos.set(data.filter(r => !selected.includes(r.id_requisito)));
       },
     });
   }
 
-  toggleModalidad(id: number): void {
-    this.selectedModalidades.update(s => {
-      const next = new Set(s);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
+  addModalidad(id: number): void {
+    const current: number[] = this.form.get('modalidades')?.value ?? [];
+    if (!current.includes(id)) {
+      this.form.get('modalidades')?.setValue([...current, id]);
+    }
+    this.modalidadCtrl.setValue('');
   }
 
-  toggleRequisito(id: number): void {
-    this.selectedRequisitos.update(s => {
-      const next = new Set(s);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
+  removeModalidad(id: number): void {
+    const current: number[] = this.form.get('modalidades')?.value ?? [];
+    this.form.get('modalidades')?.setValue(current.filter(x => x !== id));
+    this.modalidadCtrl.setValue('');
+  }
+
+  modalidadNombre(id: number): string {
+    return this.modalidadesAll().find(m => m.id_modalidad_academica === id)?.nombre_modalidad ?? '';
+  }
+
+  addRequisito(id: number): void {
+    const current: number[] = this.form.get('requisitos')?.value ?? [];
+    if (!current.includes(id)) {
+      this.form.get('requisitos')?.setValue([...current, id]);
+    }
+    this.requisitoCtrl.setValue('');
+  }
+
+  removeRequisito(id: number): void {
+    const current: number[] = this.form.get('requisitos')?.value ?? [];
+    this.form.get('requisitos')?.setValue(current.filter(x => x !== id));
+    this.requisitoCtrl.setValue('');
+  }
+
+  requisitoNombre(id: number): string {
+    return this.requisitosAll().find(r => r.id_requisito === id)?.nombre ?? '';
   }
 
   guardar(): void {
@@ -103,8 +144,8 @@ export class TipoDescuentoFormComponent implements OnInit {
 
     const payload = {
       ...this.form.value,
-      modalidades: Array.from(this.selectedModalidades()),
-      requisitos: Array.from(this.selectedRequisitos()),
+      modalidades: this.form.get('modalidades')?.value ?? [],
+      requisitos: this.form.get('requisitos')?.value ?? [],
     };
 
     const req = this.data

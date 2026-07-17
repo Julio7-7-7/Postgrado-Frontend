@@ -5,7 +5,7 @@ import type { TipoDescuento } from './tipo-descuento.model';
 
 export type EstadoDetalleAlumno =
   | 'postulante' | 'inscrito' | 'en_curso' | 'finalizado'
-  | 'graduado' | 'titulado' | 'retirado' | 'convalidando';
+  | 'graduado' | 'titulado' | 'retirado' | 'observado';
 
 export interface DetalleProgramaAlumno {
   id_detalle_programa_alumno: number;

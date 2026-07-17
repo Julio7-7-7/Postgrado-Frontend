@@ -5,7 +5,10 @@
   </div>
 
   @if (cargando()) {
-    <div class="loading">Cargando...</div>
+    <div class="loading">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>Cargando información del programa...</p>
+    </div>
   }
 
   @if (!cargando(); as listo) {
@@ -14,165 +17,193 @@
     @if (ed) {
       <mat-card class="programa-card">
         <div class="banner" [style.background]="getBannerColor(ed)">
-          <div class="banner-content">
+          <div class="banner-top">
             <span class="tipo-badge">{{ ed.programa_version.programa.tipo_programa.nombre }}</span>
             <span class="estado-badge">{{ ed.estado }}</span>
           </div>
           @if (ed.gestion) {
-            <div class="edicion-badge">Ed. {{ ed.edicion }} — {{ ed.gestion }}</div>
+            <div class="edicion-badge">Edición {{ ed.edicion }} — {{ ed.gestion }}</div>
           }
         </div>
-        <mat-card-content>
+        <mat-card-content class="programa-body">
           <div class="programa-header">
             @if (ed.programa_version.foto; as foto) {
               <img [src]="apiUrl + foto" class="programa-foto" (error)="$event.target.style.display='none'">
             }
-            <div>
+            <div class="programa-info">
               <h2>{{ ed.programa_version.programa.nombre_programa }}</h2>
-              <p class="version-info">v{{ ed.programa_version.version }}</p>
-              <div class="meta-row">
-                <span><mat-icon>calendar_today</mat-icon> {{ convertirFecha(ed.fecha_inicio) }} — {{ convertirFecha(ed.fecha_fin) }}</span>
-                <span><mat-icon>groups</mat-icon> Cupo: {{ ed.cupo_maximo || 'Ilimitado' }}</span>
-                <span><mat-icon>attach_money</mat-icon> {{ ed.precio ? ('Bs ' + ed.precio) : 'Consultar' }}</span>
+              <p class="version-info">Versión {{ ed.programa_version.version }}</p>
+            </div>
+          </div>
+          <div class="meta-row">
+            <span class="meta-chip"><mat-icon>calendar_today</mat-icon> {{ convertirFecha(ed.fecha_inicio) }} — {{ convertirFecha(ed.fecha_fin) }}</span>
+            <span class="meta-chip"><mat-icon>groups</mat-icon> Cupo: {{ ed.cupo_maximo || 'Ilimitado' }}</span>
+            <span class="meta-chip"><mat-icon>attach_money</mat-icon> {{ ed.precio ? ('Bs ' + ed.precio) : 'Consultar' }}</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <div class="section-card">
+        <div class="section-card-header">
+          <div class="section-icon person-icon"><mat-icon>person</mat-icon></div>
+          <div>
+            <h3>Datos personales</h3>
+            <p class="section-desc">Verificá que tu información sea correcta</p>
+          </div>
+        </div>
+        <div class="form-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>Nombre</mat-label>
+            <input matInput [(ngModel)]="editData.nombre" required>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Apellido</mat-label>
+            <input matInput [(ngModel)]="editData.apellido" required>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>CI</mat-label>
+            <input matInput [(ngModel)]="editData.ci" placeholder="Opcional si tenés pasaporte">
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Pasaporte</mat-label>
+            <input matInput [(ngModel)]="editData.pasaporte" placeholder="Opcional si tenés CI">
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Correo</mat-label>
+            <input matInput [(ngModel)]="editData.correo" required type="email">
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Celular</mat-label>
+            <input matInput [(ngModel)]="editData.celular">
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Fecha de nacimiento</mat-label>
+            <input matInput [matDatepicker]="picker" [(ngModel)]="editData.fecha_nacimiento">
+            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Género</mat-label>
+            <mat-select [(ngModel)]="editData.genero">
+              <mat-option [value]="null">Sin especificar</mat-option>
+              @for (g of generos; track g) {
+                <mat-option [value]="g">{{ g }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Dirección</mat-label>
+            <input matInput [(ngModel)]="editData.direccion">
+          </mat-form-field>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-card-header">
+          <div class="section-icon school-icon"><mat-icon>school</mat-icon></div>
+          <div>
+            <h3>Opciones de inscripción</h3>
+            <p class="section-desc">Elegí la modalidad y si aplicás a algún descuento</p>
+          </div>
+        </div>
+        <div class="form-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>Modalidad académica</mat-label>
+            <mat-select [ngModel]="selectedModalidad()" (ngModelChange)="onModalidadChange($event)" required>
+              @for (m of modalidades(); track m.id_modalidad_academica) {
+                <mat-option [value]="m.id_modalidad_academica">{{ m.nombre_modalidad }}</mat-option>
+              }
+            </mat-select>
+            @if (formTocado() && !selectedModalidad()) {
+              <mat-error>Seleccioná una modalidad</mat-error>
+            }
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Tipo de descuento (opcional)</mat-label>
+            <mat-select [ngModel]="selectedDescuento()" (ngModelChange)="onDescuentoChange($event)"
+                        [disabled]="!selectedModalidad()">
+              <mat-option [value]="null">Sin descuento</mat-option>
+              @for (d of descuentosDisponibles(); track d.id_tipo_descuento) {
+                <mat-option [value]="d.id_tipo_descuento"
+                            [disabled]="descuentoUsado(d)"
+                            [matTooltip]="descuentoUsado(d) ? 'Ya utilizaste este beneficio anteriormente' : ''">
+                  {{ d.nombre }} ({{ d.porcentaje }}%){{ d.uso_unico ? ' — Uso único' : '' }}
+                </mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+
+      @if (requisitosModalidad().length > 0) {
+        <div class="section-card">
+          <div class="section-card-header">
+            <div class="section-icon docs-icon"><mat-icon>description</mat-icon></div>
+            <div>
+              <h3>Documentación requerida</h3>
+              <p class="section-desc">Documentos que deberás presentar según la modalidad elegida</p>
+            </div>
+          </div>
+          <div class="requisitos-list">
+            @for (req of requisitosModalidad(); track req.id_requisito) {
+              <div class="requisito-item">
+                <mat-icon class="req-icon">insert_drive_file</mat-icon>
+                <div class="req-info">
+                  <span class="req-name">{{ req.nombre }}</span>
+                  @if (req.descripcion) {
+                    <span class="req-desc">{{ req.descripcion }}</span>
+                  }
+                </div>
+                <a [routerLink]="['/requisitos', req.id_requisito]" class="req-link" target="_blank">
+                  <mat-icon>open_in_new</mat-icon> Acerca de este documento
+                </a>
               </div>
+            }
+          </div>
+        </div>
+      }
+
+      @if (requisitosDescuento().length > 0) {
+        <div class="section-card discount-section">
+          <div class="section-card-header">
+            <div class="section-icon discount-icon"><mat-icon>request_quote</mat-icon></div>
+            <div>
+              <h3>Documentación extra del descuento</h3>
+              <p class="section-desc">Además de los documentos de la modalidad, necesitás presentar estos para optar al beneficio</p>
             </div>
           </div>
-        </mat-card-content>
-      </mat-card>
-
-      <mat-card class="form-card">
-        <mat-card-content>
-          <h3><mat-icon>person</mat-icon> Tus datos personales</h3>
-          <div class="form-grid">
-            <mat-form-field appearance="outline">
-              <mat-label>Nombre</mat-label>
-              <input matInput [(ngModel)]="editData.nombre" required>
-            </mat-form-field>
-            <mat-form-field appearance="outline">
-              <mat-label>Apellido</mat-label>
-              <input matInput [(ngModel)]="editData.apellido" required>
-            </mat-form-field>
-            <mat-form-field appearance="outline">
-              <mat-label>CI</mat-label>
-              <input matInput [(ngModel)]="editData.ci" placeholder="Opcional si tenés pasaporte">
-            </mat-form-field>
-            <mat-form-field appearance="outline">
-              <mat-label>Pasaporte</mat-label>
-              <input matInput [(ngModel)]="editData.pasaporte" placeholder="Opcional si tenés CI">
-            </mat-form-field>
-            <mat-form-field appearance="outline">
-              <mat-label>Correo</mat-label>
-              <input matInput [(ngModel)]="editData.correo" required type="email">
-            </mat-form-field>
-            <mat-form-field appearance="outline">
-              <mat-label>Celular</mat-label>
-              <input matInput [(ngModel)]="editData.celular">
-            </mat-form-field>
-            <mat-form-field appearance="outline">
-              <mat-label>Fecha de nacimiento</mat-label>
-              <input matInput [matDatepicker]="picker" [(ngModel)]="editData.fecha_nacimiento">
-              <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-              <mat-datepicker #picker></mat-datepicker>
-            </mat-form-field>
-            <mat-form-field appearance="outline">
-              <mat-label>Género</mat-label>
-              <mat-select [(ngModel)]="editData.genero">
-                <mat-option [value]="null">Sin especificar</mat-option>
-                @for (g of generos; track g) {
-                  <mat-option [value]="g">{{ g }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Dirección</mat-label>
-              <input matInput [(ngModel)]="editData.direccion">
-            </mat-form-field>
-          </div>
-
-          <mat-divider class="section-divider"></mat-divider>
-
-          <h3><mat-icon>school</mat-icon> Opciones de inscripción</h3>
-          <div class="form-grid">
-            <mat-form-field appearance="outline">
-              <mat-label>Modalidad académica</mat-label>
-              <mat-select [ngModel]="selectedModalidad()" (ngModelChange)="onModalidadChange($event)" required>
-                @for (m of modalidades(); track m.id_modalidad_academica) {
-                  <mat-option [value]="m.id_modalidad_academica">{{ m.nombre_modalidad }}</mat-option>
-                }
-              </mat-select>
-              @if (formTocado() && !selectedModalidad()) {
-                <mat-error>Seleccioná una modalidad</mat-error>
-              }
-            </mat-form-field>
-            <mat-form-field appearance="outline">
-              <mat-label>Tipo de descuento (opcional)</mat-label>
-              <mat-select [ngModel]="selectedDescuento()" (ngModelChange)="onDescuentoChange($event)"
-                          [disabled]="!selectedModalidad()">
-                <mat-option [value]="null">Sin descuento</mat-option>
-                @for (d of descuentosDisponibles(); track d.id_tipo_descuento) {
-                  <mat-option [value]="d.id_tipo_descuento"
-                              [disabled]="descuentoUsado(d)"
-                              [matTooltip]="descuentoUsado(d) ? 'Ya utilizaste este beneficio anteriormente' : ''">
-                    {{ d.nombre }} ({{ d.porcentaje }}%){{ d.uso_unico ? ' — Uso único' : '' }}
-                  </mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
-          </div>
-
-          @if (requisitosModalidad().length > 0) {
-            <mat-divider class="section-divider"></mat-divider>
-            <h3><mat-icon>description</mat-icon> Documentación requerida por la modalidad</h3>
-            <p class="section-hint">Estos son los documentos que deberás presentar según la modalidad elegida:</p>
-            <div class="requisitos-list">
-              @for (req of requisitosModalidad(); track req.id_requisito) {
-                <div class="requisito-item">
-                  <mat-icon class="req-icon">insert_drive_file</mat-icon>
-                  <div class="req-info">
-                    <span class="req-name">{{ req.nombre }}</span>
-                    @if (req.descripcion) {
-                      <span class="req-desc">{{ req.descripcion }}</span>
-                    }
-                  </div>
-                  <a [routerLink]="['/requisitos', req.id_requisito]" class="req-link" target="_blank">
-                    <mat-icon>open_in_new</mat-icon> Acerca de este documento
-                  </a>
+          <div class="requisitos-list">
+            @for (req of requisitosDescuento(); track req.id_requisito) {
+              <div class="requisito-item discount-req">
+                <mat-icon class="req-icon discount-icon">request_quote</mat-icon>
+                <div class="req-info">
+                  <span class="req-name">{{ req.nombre }}</span>
+                  @if (req.descripcion) {
+                    <span class="req-desc">{{ req.descripcion }}</span>
+                  }
                 </div>
-              }
-            </div>
-          }
+                <a [routerLink]="['/requisitos', req.id_requisito]" class="req-link" target="_blank">
+                  <mat-icon>open_in_new</mat-icon> Acerca de este documento
+                </a>
+              </div>
+            }
+          </div>
+        </div>
+      }
 
-          @if (requisitosDescuento().length > 0) {
-            <mat-divider class="section-divider"></mat-divider>
-            <h3><mat-icon>request_quote</mat-icon> Documentación extra del descuento</h3>
-            <p class="section-hint">Además de los documentos de la modalidad, necesitás presentar estos para optar al beneficio:</p>
-            <div class="requisitos-list">
-              @for (req of requisitosDescuento(); track req.id_requisito) {
-                <div class="requisito-item descuento-req">
-                  <mat-icon class="req-icon discount-icon">request_quote</mat-icon>
-                  <div class="req-info">
-                    <span class="req-name">{{ req.nombre }}</span>
-                    @if (req.descripcion) {
-                      <span class="req-desc">{{ req.descripcion }}</span>
-                    }
-                  </div>
-                  <a [routerLink]="['/requisitos', req.id_requisito]" class="req-link" target="_blank">
-                    <mat-icon>open_in_new</mat-icon> Acerca de este documento
-                  </a>
-                </div>
-              }
-            </div>
+      <div class="actions-bar">
+        <button mat-button routerLink="/">
+          <mat-icon>arrow_back</mat-icon> Volver a oferta
+        </button>
+        <button mat-flat-button color="primary" (click)="inscribir()" [disabled]="guardando()" class="submit-btn">
+          @if (guardando()) {
+            <mat-spinner diameter="18"></mat-spinner>
+          } @else {
+            <mat-icon>check</mat-icon>
           }
-        </mat-card-content>
-        <mat-card-actions>
-          <button mat-button routerLink="/">
-            <mat-icon>arrow_back</mat-icon> Volver a oferta
-          </button>
-          <button mat-raised-button color="primary" (click)="inscribir()" [disabled]="guardando()">
-            <mat-icon>check</mat-icon> {{ guardando() ? 'Inscribiendo...' : 'Confirmar inscripción' }}
-          </button>
-        </mat-card-actions>
-      </mat-card>
+          {{ guardando() ? 'Inscribiendo...' : 'Confirmar inscripción' }}
+        </button>
+      </div>
     } @else {
       <div class="empty">
         <mat-icon>error_outline</mat-icon>
