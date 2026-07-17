@@ -13,26 +13,45 @@
   align-items: center;
   gap: 10px;
   font-size: 1.6rem;
-  font-weight: 600;
-  color: #1e3a8a;
+  font-weight: 700;
+  color: var(--fich-text);
   margin: 0;
+}
+
+.page-header h1 mat-icon {
+  color: var(--fich-primary);
 }
 
 .subtitle {
   margin: 4px 0 0;
-  color: #64748b;
+  color: var(--fich-text-muted);
   font-size: 0.95rem;
 }
 
-/* Loading / Empty */
-.loading,
+/* Loading */
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+  color: var(--fich-text-muted);
+  gap: 16px;
+}
+
+.loading p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+/* Empty */
 .empty {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 60px 20px;
-  color: #94a3b8;
+  padding: 80px 20px;
+  color: var(--fich-text-muted);
   gap: 12px;
 }
 
@@ -42,21 +61,20 @@
   height: 48px;
 }
 
-/* Programa banner card */
+/* ─── Program banner card ─── */
 .programa-card {
-  border-radius: 16px;
+  border-radius: var(--fich-radius-md);
   overflow: hidden;
   margin-bottom: 20px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  box-shadow: var(--fich-shadow-sm);
 }
 
 .banner {
   padding: 18px 24px;
   color: white;
-  position: relative;
 }
 
-.banner-content {
+.banner-top {
   display: flex;
   gap: 8px;
   align-items: center;
@@ -64,118 +82,154 @@
 
 .tipo-badge,
 .estado-badge {
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: 0.72rem;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
-  background: rgba(255,255,255,0.2);
+  letter-spacing: 0.05em;
+  background: rgba(255, 255, 255, 0.2);
   padding: 3px 10px;
-  border-radius: 20px;
+  border-radius: var(--fich-radius-full);
 }
 
 .edicion-badge {
-  margin-top: 6px;
+  margin-top: 8px;
   font-size: 0.85rem;
   opacity: 0.9;
+  font-weight: 500;
+}
+
+.programa-body {
+  padding: 20px 24px !important;
 }
 
 .programa-header {
   display: flex;
   gap: 16px;
-  align-items: flex-start;
-  margin-top: 4px;
+  align-items: center;
 }
 
 .programa-foto {
-  width: 72px;
-  height: 72px;
+  width: 64px;
+  height: 64px;
   object-fit: cover;
-  border-radius: 12px;
+  border-radius: var(--fich-radius-sm);
   flex-shrink: 0;
 }
 
-.programa-header h2 {
-  margin: 0 0 2px;
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #1e293b;
+.programa-info h2 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--fich-text);
 }
 
 .version-info {
-  margin: 0;
+  margin: 2px 0 0;
   font-size: 0.8rem;
-  color: #64748b;
+  color: var(--fich-text-muted);
 }
 
 .meta-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 16px;
-  margin-top: 8px;
-  font-size: 0.85rem;
-  color: #475569;
+  gap: 10px;
+  margin-top: 14px;
 }
 
-.meta-row span {
+.meta-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.82rem;
+  color: var(--fich-text-secondary);
+  background: var(--fich-bg-subtle);
+  padding: 5px 12px;
+  border-radius: var(--fich-radius-full);
+  border: 1px solid var(--fich-border-light);
+}
+
+.meta-chip mat-icon {
+  font-size: 15px;
+  width: 15px;
+  height: 15px;
+  color: var(--fich-text-muted);
+}
+
+/* ─── Section cards ─── */
+.section-card {
+  background: var(--fich-bg-card);
+  border: 1px solid var(--fich-border);
+  border-radius: var(--fich-radius-md);
+  padding: 24px;
+  margin-bottom: 16px;
+  box-shadow: var(--fich-shadow-xs);
+}
+
+.section-card-header {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 14px;
+  margin-bottom: 20px;
 }
 
-.meta-row mat-icon {
-  font-size: 16px;
-  width: 16px;
-  height: 16px;
-  color: #64748b;
-}
-
-/* Form card */
-.form-card {
-  border-radius: 16px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-}
-
-.form-card h3 {
+.section-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 1.05rem;
-  font-weight: 600;
-  color: #1e293b;
-  margin: 0 0 16px;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
-.form-card h3 mat-icon {
-  color: #1e3a8a;
+.section-icon mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  color: white;
 }
 
+.person-icon {
+  background: linear-gradient(135deg, #0891b2, #06b6d4);
+}
+
+.school-icon {
+  background: linear-gradient(135deg, #4f46e5, #6366f1);
+}
+
+.docs-icon {
+  background: linear-gradient(135deg, #0d9488, #14b8a6);
+}
+
+.discount-icon {
+  background: linear-gradient(135deg, #b45309, #f59e0b);
+}
+
+.section-card-header h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--fich-text);
+}
+
+.section-desc {
+  margin: 2px 0 0;
+  font-size: 0.82rem;
+  color: var(--fich-text-muted);
+}
+
+/* ─── Form grid ─── */
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap: 4px 16px;
 }
 
 .full-width {
   grid-column: 1 / -1;
 }
 
-.section-divider {
-  margin: 20px 0;
-}
-
-mat-card-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  padding: 12px 24px 20px;
-}
-
-.section-hint {
-  margin: 0 0 12px;
-  font-size: 0.85rem;
-  color: #64748b;
-}
-
+/* ─── Requisitos list ─── */
 .requisitos-list {
   display: flex;
   flex-direction: column;
@@ -187,14 +241,32 @@ mat-card-actions {
   align-items: center;
   gap: 12px;
   padding: 12px 16px;
-  background: #f8fafc;
-  border-radius: 10px;
-  border: 1px solid #e2e8f0;
+  background: var(--fich-bg-subtle);
+  border-radius: var(--fich-radius-sm);
+  border: 1px solid var(--fich-border-light);
+  transition: border-color var(--fich-transition);
+}
+
+.requisito-item:hover {
+  border-color: var(--fich-border);
+}
+
+.requisito-item.descuento-req {
+  background: var(--fich-warning-light);
+  border-color: var(--fich-warning-lighter);
+}
+
+.requisito-item.descuento-req:hover {
+  border-color: var(--fich-warning);
 }
 
 .req-icon {
-  color: #1e3a8a;
+  color: var(--fich-primary);
   flex-shrink: 0;
+}
+
+.req-icon.discount-icon {
+  color: var(--fich-warning);
 }
 
 .req-info {
@@ -206,14 +278,14 @@ mat-card-actions {
 }
 
 .req-name {
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   font-weight: 600;
-  color: #1e293b;
+  color: var(--fich-text);
 }
 
 .req-desc {
-  font-size: 0.8rem;
-  color: #64748b;
+  font-size: 0.78rem;
+  color: var(--fich-text-muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -223,20 +295,45 @@ mat-card-actions {
   display: flex;
   align-items: center;
   gap: 4px;
-  font-size: 0.8rem;
-  font-weight: 500;
-  color: #1e3a8a;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--fich-primary);
   text-decoration: none;
   white-space: nowrap;
-  transition: color 0.15s;
+  padding: 4px 10px;
+  border-radius: var(--fich-radius-full);
+  transition: all var(--fich-transition);
 }
 
 .req-link:hover {
-  color: #4338ca;
+  background: var(--fich-primary-light);
+  color: var(--fich-primary-hover);
 }
 
 .req-link mat-icon {
-  font-size: 16px;
-  width: 16px;
-  height: 16px;
+  font-size: 15px;
+  width: 15px;
+  height: 15px;
+}
+
+/* ─── Actions bar ─── */
+.actions-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+  padding: 16px 0;
+}
+
+.submit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 24px;
+  height: 42px;
+  font-weight: 600;
+}
+
+.submit-btn mat-spinner {
+  display: inline-block;
 }

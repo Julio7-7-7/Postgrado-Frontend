@@ -19,15 +19,9 @@
       <p>{{ error() }}</p>
       <button mat-stroked-button (click)="cargar()">Reintentar</button>
     </div>
-  } @else if (descuentos().length === 0) {
-    <div class="empty-state">
-      <mat-icon>local_offer</mat-icon>
-      <p>No hay tipos de descuento creados</p>
-      <button mat-flat-button color="primary" (click)="abrirFormulario()">Crear primer descuento</button>
-    </div>
   } @else {
     <div class="entity-table">
-      @for (d of descuentos(); track d.id_tipo_descuento) {
+      @for (d of listaActivos(); track d.id_tipo_descuento) {
         <div class="entity-row">
           <div class="entity-main">
             <div class="entity-icon discount">
@@ -37,6 +31,9 @@
               <div class="entity-name">
                 {{ d.nombre }}
                 <span class="discount-badge">{{ d.porcentaje }}%</span>
+                @if (d.uso_unico) {
+                  <span class="tag tag-uso-unico">Uso único</span>
+                }
               </div>
               <div class="entity-meta">
                 @if (d.descripcion) { {{ d.descripcion }} · }
@@ -54,14 +51,74 @@
             </div>
           </div>
           <div class="entity-actions">
-            <span class="status-pill" [class.active]="d.estado === 'activo'">
-              {{ d.estado }}
-            </span>
+            <mat-slide-toggle
+              [checked]="d.estado === 'activo'"
+              (change)="toggleEstado($event, d)"
+              color="primary"
+              matTooltip="Desactivar descuento">
+            </mat-slide-toggle>
             <button mat-icon-button matTooltip="Editar" (click)="abrirFormulario(d)">
               <mat-icon>edit</mat-icon>
             </button>
           </div>
         </div>
+      } @empty {
+        <div class="empty-state">
+          <mat-icon>search_off</mat-icon>
+          <p>No hay descuentos activos</p>
+        </div>
+      }
+
+      @if (listaInactivos().length > 0) {
+        <div class="inactivos-toggle" (click)="showInactivos.set(!showInactivos())">
+          <mat-icon class="toggle-chevron" [class.open]="showInactivos()">expand_more</mat-icon>
+          <span>Inactivos ({{ listaInactivos().length }})</span>
+        </div>
+
+        @if (showInactivos()) {
+          @for (d of listaInactivos(); track d.id_tipo_descuento) {
+            <div class="entity-row inactive">
+              <div class="entity-main">
+                <div class="entity-icon discount">
+                  <mat-icon>local_offer</mat-icon>
+                </div>
+                <div class="entity-info">
+                  <div class="entity-name">
+                    {{ d.nombre }}
+                    <span class="discount-badge">{{ d.porcentaje }}%</span>
+                    @if (d.uso_unico) {
+                      <span class="tag tag-uso-unico">Uso único</span>
+                    }
+                  </div>
+                  <div class="entity-meta">
+                    @if (d.descripcion) { {{ d.descripcion }} · }
+                    {{ d.modalidades.length }} modalidad{{ d.modalidades.length !== 1 ? 'es' : '' }}
+                    · {{ d.requisitos.length }} requisito{{ d.requisitos.length !== 1 ? 's' : '' }}
+                  </div>
+                  <div class="entity-tags">
+                    @for (mod of d.modalidades; track mod.id_modalidad_academica) {
+                      <span class="tag tag-modalidad">{{ mod.nombre_modalidad }}</span>
+                    }
+                    @for (req of d.requisitos; track req.id_requisito) {
+                      <span class="tag tag-requisito">{{ req.nombre }}</span>
+                    }
+                  </div>
+                </div>
+              </div>
+              <div class="entity-actions">
+                <mat-slide-toggle
+                  [checked]="d.estado === 'activo'"
+                  (change)="toggleEstado($event, d)"
+                  color="primary"
+                  matTooltip="Reactivar descuento">
+                </mat-slide-toggle>
+                <button mat-icon-button matTooltip="Registro archivado" disabled>
+                  <mat-icon>lock_outline</mat-icon>
+                </button>
+              </div>
+            </div>
+          }
+        }
       }
     </div>
   }

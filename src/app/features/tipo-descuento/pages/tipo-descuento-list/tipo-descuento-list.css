@@ -35,16 +35,25 @@
   background: white;
   border: 1px solid #e2e8f0;
   border-radius: 10px;
-  transition: border-color 0.15s;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
 
 .entity-row:hover { border-color: #c7d2fe; }
+.entity-row.inactive { opacity: 0.6; }
 
 .entity-main {
   display: flex;
   align-items: flex-start;
   gap: 14px;
   min-width: 0;
+  flex: 1;
+}
+
+.entity-info {
+  min-width: 0;
+  flex: 1;
+  max-width: 65%;
+  padding-right: 16px;
 }
 
 .entity-icon {
@@ -96,6 +105,7 @@
 
 .tag-modalidad { background: #e0e7ff; color: #3730a3; }
 .tag-requisito { background: #fce7f3; color: #9d174d; }
+.tag-uso-unico { background: #fef3c7; color: #b45309; }
 
 .entity-actions {
   display: flex;
@@ -103,16 +113,3 @@
   gap: 8px;
   flex-shrink: 0;
 }
-
-.status-pill {
-  font-size: 0.72rem;
-  font-weight: 600;
-  padding: 3px 10px;
-  border-radius: 20px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  background: #fee2e2;
-  color: #991b1b;
-}
-
-.status-pill.active { background: #d1fae5; color: #065f46; }

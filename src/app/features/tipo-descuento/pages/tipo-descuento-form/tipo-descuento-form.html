@@ -57,36 +57,84 @@
     <div class="section-divider"></div>
 
     <div class="section-header">
-      <h3>Modalidades donde aplica</h3>
+      <mat-icon>school</mat-icon>
+      <span>Modalidades donde aplica</span>
     </div>
     <p class="section-hint">Si no seleccionás ninguna, aplica a todas las modalidades</p>
-    <div class="chips-container">
-      @for (mod of modalidades(); track mod.id_modalidad_academica) {
-        <div class="chip-option"
-             [class.selected]="selectedModalidades().has(mod.id_modalidad_academica)"
-             (click)="toggleModalidad(mod.id_modalidad_academica)">
-          <mat-icon>{{ selectedModalidades().has(mod.id_modalidad_academica) ? 'check_box' : 'check_box_outline_blank' }}</mat-icon>
-          <span>{{ mod.nombre_modalidad }}</span>
-        </div>
+
+    @if ((form.get('modalidades')?.value ?? []).length > 0) {
+      <div class="selected-chips">
+        @for (id of form.get('modalidades')?.value ?? []; track id) {
+          <span class="sel-chip">
+            {{ modalidadNombre(id) }}
+            <mat-icon (click)="removeModalidad(id)">close</mat-icon>
+          </span>
+        }
+      </div>
+    }
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Agregar modalidad</mat-label>
+      <input
+        matInput
+        placeholder="Escribí para buscar..."
+        [formControl]="modalidadCtrl"
+        [matAutocomplete]="autoMod">
+      <mat-autocomplete #autoMod="matAutocomplete" (optionSelected)="addModalidad($event.option.value)">
+        @for (m of filteredModalidades(); track m.id_modalidad_academica) {
+          <mat-option [value]="m.id_modalidad_academica">{{ m.nombre_modalidad }}</mat-option>
+        }
+        @if (filteredModalidades().length === 0) {
+          <mat-option disabled>No hay más modalidades disponibles</mat-option>
+        }
+      </mat-autocomplete>
+      @if ((form.get('modalidades')?.value ?? []).length === 0) {
+        <mat-hint>Sin modalidades — aplica a todas</mat-hint>
+      } @else {
+        <mat-hint>{{ form.get('modalidades')?.value?.length }} modalidad(es) seleccionada(s)</mat-hint>
       }
-    </div>
+    </mat-form-field>
 
     <div class="section-divider"></div>
 
     <div class="section-header">
-      <h3>Documentos requeridos para este descuento</h3>
+      <mat-icon>description</mat-icon>
+      <span>Documentos requeridos</span>
     </div>
-    <p class="section-hint">Estos requisitos se suman a los de la modalidad elegida por el alumno</p>
-    <div class="chips-container">
-      @for (req of requisitosDisponibles(); track req.id_requisito) {
-        <div class="chip-option"
-             [class.selected]="selectedRequisitos().has(req.id_requisito)"
-             (click)="toggleRequisito(req.id_requisito)">
-          <mat-icon>{{ selectedRequisitos().has(req.id_requisito) ? 'check_box' : 'check_box_outline_blank' }}</mat-icon>
-          <span>{{ req.nombre }}</span>
-        </div>
+    <p class="section-hint">Se suman a los requisitos de la modalidad elegida por el alumno</p>
+
+    @if ((form.get('requisitos')?.value ?? []).length > 0) {
+      <div class="selected-chips">
+        @for (id of form.get('requisitos')?.value ?? []; track id) {
+          <span class="sel-chip">
+            {{ requisitoNombre(id) }}
+            <mat-icon (click)="removeRequisito(id)">close</mat-icon>
+          </span>
+        }
+      </div>
+    }
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Agregar requisito</mat-label>
+      <input
+        matInput
+        placeholder="Escribí para buscar..."
+        [formControl]="requisitoCtrl"
+        [matAutocomplete]="autoReq">
+      <mat-autocomplete #autoReq="matAutocomplete" (optionSelected)="addRequisito($event.option.value)">
+        @for (r of filteredRequisitos(); track r.id_requisito) {
+          <mat-option [value]="r.id_requisito">{{ r.nombre }}</mat-option>
+        }
+        @if (filteredRequisitos().length === 0) {
+          <mat-option disabled>No hay más requisitos disponibles</mat-option>
+        }
+      </mat-autocomplete>
+      @if ((form.get('requisitos')?.value ?? []).length === 0) {
+        <mat-hint>Sin requisitos asignados</mat-hint>
+      } @else {
+        <mat-hint>{{ form.get('requisitos')?.value?.length }} requisito(s) seleccionado(s)</mat-hint>
       }
-    </div>
+    </mat-form-field>
   </form>
 </mat-dialog-content>
 
