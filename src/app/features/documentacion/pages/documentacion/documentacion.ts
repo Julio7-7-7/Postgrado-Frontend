@@ -1,48 +1,50 @@
-import { Component, OnInit, signal, inject, DestroyRef } from '@angular/core';
+import { Component, OnInit, signal, computed, inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { DocumentacionService } from '../../services/documentacion.service';
-import {
-  ProgramaVersionEdicionResponse,
-  PostulanteResponse,
-  ControlDocumentacionResponse,
-} from '../../models/documentacion.model';
+import { ProgramaVersionEdicionResponse } from '../../models/documentacion.model';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-documentacion',
   standalone: true,
   imports: [
-    CommonModule, FormsModule,
-    MatIconModule, MatButtonModule, MatFormFieldModule,
-    MatInputModule, MatSelectModule, MatProgressSpinnerModule,
-    MatSnackBarModule,
+    CommonModule,
+    MatIconModule, MatButtonModule, MatProgressSpinnerModule, MatSnackBarModule,
   ],
   templateUrl: './documentacion.html',
   styleUrl: './documentacion.css',
 })
 export class DocumentacionComponent implements OnInit {
   private service = inject(DocumentacionService);
+  private router = inject(Router);
   private snackbar = inject(MatSnackBar);
   private destroyRef = inject(DestroyRef);
 
+  apiUrl = environment.apiUrl;
+
   ediciones = signal<ProgramaVersionEdicionResponse[]>([]);
-  postulantes = signal<PostulanteResponse[]>([]);
-  isLoading = signal(false);
-  edicionSeleccionada = signal<number | null>(null);
-  expandedId = signal<number | null>(null);
+  isLoading = signal(true);
+
+  edicionesActivas = computed(() =>
+    this.ediciones().filter(e => e.estado !== 'finalizado')
+  );
 
   ngOnInit(): void {
     this.service.getEdiciones().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: data => this.ediciones.set(data),
-      error: () => this.snackbar.open('Error al cargar ediciones', 'Cerrar', { duration: 3000 }),
+      next: data => {
+        this.ediciones.set(data.filter(e => e.estado !== 'finalizado'));
+        this.isLoading.set(false);
+      },
+      error: () => {
+        this.isLoading.set(false);
+        this.snackbar.open('Error al cargar ediciones', 'Cerrar', { duration: 3000 });
+      },
     });
   }
 
@@ -50,71 +52,44 @@ export class DocumentacionComponent implements OnInit {
     return ed.programa_version?.programa?.nombre_programa || `Programa #${ed.programa_version?.id_programa_version}`;
   }
 
-  cargarPostulantes(idEdicion: number): void {
-    this.edicionSeleccionada.set(idEdicion);
-    this.isLoading.set(true);
-    this.expandedId.set(null);
-    this.service.getPostulantesPorEdicion(idEdicion).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: data => {
-        this.postulantes.set(data);
-        this.isLoading.set(false);
-      },
-      error: () => {
-        this.isLoading.set(false);
-        this.snackbar.open('Error al cargar postulantes', 'Cerrar', { duration: 3000 });
-      },
-    });
+  tipoPrograma(ed: ProgramaVersionEdicionResponse): string {
+    return ed.programa_version?.programa?.tipo_programa?.nombre || '';
   }
 
-  toggleExpand(id: number): void {
-    this.expandedId.set(this.expandedId() === id ? null : id);
+  gestionLabel(ed: ProgramaVersionEdicionResponse): string {
+    const parts: string[] = [];
+    if (ed.edicion) parts.push(`Ed. ${ed.edicion}`);
+    if (ed.anio) parts.push(`${ed.anio}`);
+    return parts.join(' — ') || 'Sin gestión';
   }
 
-  iniciales(p: PostulanteResponse): string {
-    if (!p.alumno) return '??';
-    return (p.alumno.nombre[0] + p.alumno.apellido[0]).toUpperCase();
+  estadoClass(estado: string): string {
+    const map: Record<string, string> = {
+      programado: 'estado-programado',
+      en_curso: 'estado-en_curso',
+      reprogramado: 'estado-reprogramado',
+    };
+    return map[estado] || '';
   }
 
-  cambiarEstado(doc: ControlDocumentacionResponse, estado: string): void {
-    this.service.updateControlDocumentacion(doc.id_control_documentacion, { estado })
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => {
-          doc.estado = estado;
-          this.snackbar.open('Estado actualizado', 'Cerrar', { duration: 2000 });
-          this.recargarPostulantes();
-        },
-        error: err => this.snackbar.open(err.error?.detail || 'Error', 'Cerrar', { duration: 3000 }),
-      });
+  estadoLabel(estado: string): string {
+    const map: Record<string, string> = {
+      programado: 'Programado',
+      en_curso: 'En Curso',
+      reprogramado: 'Reprogramado',
+    };
+    return map[estado] || estado;
   }
 
-  rechazar(doc: ControlDocumentacionResponse): void {
-    const obs = prompt('Observaciones (requerido para rechazar):');
-    if (obs === null) return;
-    if (!obs.trim()) {
-      this.snackbar.open('Las observaciones son requeridas', 'Cerrar', { duration: 3000 });
-      return;
-    }
-    this.service.updateControlDocumentacion(doc.id_control_documentacion, {
-      estado: 'rechazado',
-      observaciones: obs,
-    }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: () => {
-        doc.estado = 'rechazado';
-        doc.observaciones = obs;
-        this.snackbar.open('Documento rechazado', 'Cerrar', { duration: 2000 });
-        this.recargarPostulantes();
-      },
-      error: err => this.snackbar.open(err.error?.detail || 'Error', 'Cerrar', { duration: 3000 }),
-    });
+  irAMatriz(ed: ProgramaVersionEdicionResponse): void {
+    this.router.navigate(['/admin/documentacion', ed.id_programa_version_edicion]);
   }
 
-  private recargarPostulantes(): void {
-    const id = this.edicionSeleccionada();
-    if (id) {
-      this.service.getPostulantesPorEdicion(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-        next: data => this.postulantes.set(data),
-      });
-    }
+  getFotoUrl(foto: string | null): string {
+    return foto ? `${this.apiUrl}${foto}` : '';
+  }
+
+  onImgError(event: Event): void {
+    (event.target as HTMLImageElement).style.display = 'none';
   }
 }

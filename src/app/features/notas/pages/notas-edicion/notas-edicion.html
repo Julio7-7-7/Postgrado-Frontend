@@ -1,0 +1,100 @@
+<div class="page-container">
+  <div class="header-section">
+    <div class="header-left">
+      <button mat-icon-button (click)="volver()" class="back-btn" matTooltip="Volver a ediciones">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div>
+        <h1><mat-icon>grading</mat-icon> Notas por Edición</h1>
+        <p class="subtitle">Gestión de notas de los alumnos</p>
+      </div>
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading-state">
+      <mat-spinner diameter="40"></mat-spinner>
+      <span>Cargando notas...</span>
+    </div>
+  } @else {
+    @if (alumnos().length === 0) {
+      <div class="empty-state">
+        <mat-icon>grading</mat-icon>
+        <h4>No hay alumnos inscritos en esta edición</h4>
+        <p>Las notas se registran cuando los alumnos rinden evaluaciones</p>
+      </div>
+    } @else {
+      <div class="alumnos-list">
+        @for (a of alumnos(); track a.id_detalle_programa_alumno) {
+          <div class="alumno-card" [class.expanded]="expandedId() === a.id_detalle_programa_alumno"
+               (click)="toggleExpand(a)">
+            <div class="alumno-header">
+              <div class="alumno-info">
+                <div class="avatar-sm">{{ iniciales(a) }}</div>
+                <div class="alumno-text">
+                  <span class="alumno-nombre">{{ a.alumno?.nombre }} {{ a.alumno?.apellido }}</span>
+                  <span class="alumno-ci">CI: {{ a.alumno?.ci || '—' }}</span>
+                </div>
+              </div>
+              <div class="alumno-actions">
+                @if (a.notas.length > 0) {
+                  <div class="prom-badge" [class]="promedioClass(a.promedio)">
+                    <span class="prom-label">Promedio</span>
+                    <span class="prom-value">{{ a.promedio | number:'1.1-1' }}</span>
+                  </div>
+                }
+                <button mat-flat-button color="primary" class="register-btn"
+                        (click)="agregarNota(a, $event)">
+                  <mat-icon>add</mat-icon> Agregar Nota
+                </button>
+                <mat-icon class="expand-icon" [class.rotated]="expandedId() === a.id_detalle_programa_alumno">
+                  expand_more
+                </mat-icon>
+              </div>
+            </div>
+
+            @if (expandedId() === a.id_detalle_programa_alumno) {
+              <div class="detail-panel">
+                @if (a.notas.length === 0) {
+                  <div class="no-notas">
+                    <mat-icon>school</mat-icon>
+                    <span>Sin notas registradas</span>
+                  </div>
+                } @else {
+                  <div class="notas-table">
+                    <div class="notas-header">
+                      <span class="col-orden">#</span>
+                      <span class="col-modulo">Módulo</span>
+                      <span class="col-tipo">Tipo</span>
+                      <span class="col-nota">Nota</span>
+                      <span class="col-fecha">Fecha</span>
+                      <span class="col-obs">Observaciones</span>
+                      <span class="col-acciones"></span>
+                    </div>
+                    @for (nota of a.notas; track nota.id_nota) {
+                      <div class="notas-row">
+                        <span class="col-orden">{{ nota.modulo_orden }}</span>
+                        <span class="col-modulo">{{ nota.modulo_nombre }}</span>
+                        <span class="col-tipo">
+                          <span class="tipo-badge">{{ nota.tipo }}</span>
+                        </span>
+                        <span class="col-nota" [class]="promedioClass(nota.nota)">{{ nota.nota | number:'1.1-1' }}</span>
+                        <span class="col-fecha">{{ nota.fecha }}</span>
+                        <span class="col-obs">{{ nota.observaciones || '—' }}</span>
+                        <span class="col-acciones">
+                          <button mat-icon-button matTooltip="Eliminar" (click)="eliminarNota(nota, $event)" class="action-icon delete">
+                            <mat-icon>delete</mat-icon>
+                          </button>
+                        </span>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+  }
+</div>

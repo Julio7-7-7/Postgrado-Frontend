@@ -1,0 +1,161 @@
+.toolbar-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  gap: 16px;
+}
+
+.toolbar-left {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.toolbar-left h3 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.toolbar-count {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.search-field {
+  width: 260px;
+}
+
+.search-field ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+  display: none;
+}
+
+.search-field ::ng-deep .mat-mdc-text-field-wrapper {
+  border-radius: 8px;
+}
+
+.period-field {
+  width: 130px;
+}
+
+.period-field ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+  display: none;
+}
+
+.period-field ::ng-deep .mat-mdc-text-field-wrapper {
+  border-radius: 8px;
+}
+
+.loading-container,
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48px;
+  gap: 12px;
+  color: #64748b;
+}
+
+.error-container mat-icon {
+  font-size: 40px;
+  width: 40px;
+  height: 40px;
+  color: #ef4444;
+}
+
+.table-wrapper {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+}
+
+.cell-name-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.avatar-sm {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #0891b2, #06b6d4);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.72rem;
+  flex-shrink: 0;
+}
+
+.cell-name {
+  font-weight: 500;
+  color: #1e293b;
+}
+
+.cell-email {
+  font-weight: 500;
+  color: #1e293b;
+}
+
+.cell-muted {
+  color: #94a3b8;
+  font-size: 0.82rem;
+}
+
+.cell-mono {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 0.82rem;
+  color: #475569;
+}
+
+.action-btns {
+  display: flex;
+  gap: 2px;
+}
+
+.action-btns button {
+  width: 32px;
+  height: 32px;
+}
+
+.action-btns button mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48px;
+  gap: 8px;
+  color: #94a3b8;
+}
+
+.empty-state mat-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+}
+
+.empty-state h4 {
+  margin: 0;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.empty-state p {
+  margin: 0;
+  font-size: 0.85rem;
+}

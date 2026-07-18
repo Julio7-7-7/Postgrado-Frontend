@@ -21,7 +21,15 @@
   color: #64748b;
 }
 
-.loading,
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 48px;
+  color: #64748b;
+}
+
 .empty {
   text-align: center;
   padding: 48px;
@@ -44,6 +52,14 @@
 
 .inscripcion-card {
   border-radius: 12px;
+  cursor: pointer;
+  transition: box-shadow 0.2s, transform 0.2s;
+  position: relative;
+}
+
+.inscripcion-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
 }
 
 .card-top {
@@ -101,4 +117,17 @@
   font-size: 0.85rem;
   color: #1e293b;
   font-weight: 500;
+}
+
+.docs-progreso {
+  color: #0d9488;
+  font-weight: 600;
+}
+
+.card-arrow {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #cbd5e1;
 }

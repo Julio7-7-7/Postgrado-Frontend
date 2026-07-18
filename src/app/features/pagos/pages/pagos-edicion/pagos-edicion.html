@@ -1,0 +1,108 @@
+<div class="page-container">
+  <div class="header-section">
+    <div class="header-left">
+      <button mat-icon-button (click)="volver()" class="back-btn" matTooltip="Volver a ediciones">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div>
+        <h1><mat-icon>payments</mat-icon> Pagos por Edición</h1>
+        <p class="subtitle">Gestión de pagos de los postulantes</p>
+      </div>
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading-state">
+      <mat-spinner diameter="40"></mat-spinner>
+      <span>Cargando pagos...</span>
+    </div>
+  } @else {
+    @if (alumnos().length === 0) {
+      <div class="empty-state">
+        <mat-icon>payments</mat-icon>
+        <h4>No hay postulantes en esta edición</h4>
+        <p>Los pagos se registran cuando los alumnos realizan sus aportes</p>
+      </div>
+    } @else {
+      <div class="alumnos-list">
+        @for (a of alumnos(); track a.id_detalle_programa_alumno) {
+          <div class="alumno-card" [class.expanded]="expandedId() === a.id_detalle_programa_alumno"
+               (click)="toggleExpand(a)">
+            <div class="alumno-header">
+              <div class="alumno-info">
+                <div class="avatar-sm">{{ iniciales(a) }}</div>
+                <div class="alumno-text">
+                  <span class="alumno-nombre">{{ a.alumno?.nombre }} {{ a.alumno?.apellido }}</span>
+                  <span class="alumno-ci">CI: {{ a.alumno?.ci || '—' }}</span>
+                </div>
+              </div>
+              <div class="alumno-actions">
+                <div class="total-badge" [class.complete]="a.total_pagado > 0">
+                  <span class="total-label">Total pagado</span>
+                  <span class="total-value">{{ a.total_pagado | number:'1.2-2' }} Bs.</span>
+                </div>
+                <button mat-flat-button color="primary" class="register-btn"
+                        (click)="registrarPago(a, $event)">
+                  <mat-icon>add</mat-icon> Registrar Pago
+                </button>
+                <mat-icon class="expand-icon" [class.rotated]="expandedId() === a.id_detalle_programa_alumno">
+                  expand_more
+                </mat-icon>
+              </div>
+            </div>
+
+            @if (expandedId() === a.id_detalle_programa_alumno) {
+              <div class="detail-panel">
+                @if (a.pagos.length === 0) {
+                  <div class="no-pagos">
+                    <mat-icon>receipt_long</mat-icon>
+                    <span>Sin pagos registrados</span>
+                  </div>
+                } @else {
+                  <div class="pagos-table">
+                    <div class="pagos-header">
+                      <span class="col-fecha">Fecha</span>
+                      <span class="col-concepto">Concepto</span>
+                      <span class="col-monto">Monto</span>
+                      <span class="col-referencia">Referencia</span>
+                      <span class="col-estado">Estado</span>
+                      <span class="col-acciones">Acciones</span>
+                    </div>
+                    @for (pago of a.pagos; track pago.id_pago) {
+                      <div class="pagos-row">
+                        <span class="col-fecha">{{ pago.fecha_pago }}</span>
+                        <span class="col-concepto">{{ pago.concepto }}</span>
+                        <span class="col-monto">{{ pago.monto | number:'1.2-2' }} Bs.</span>
+                        <span class="col-referencia">{{ pago.numero_referencia || '—' }}</span>
+                        <span class="col-estado">
+                          <span class="estado-pill" [class]="estadoClass(pago.estado)">
+                            {{ estadoLabel(pago.estado) }}
+                          </span>
+                        </span>
+                        <span class="col-acciones">
+                          @if (pago.estado === 'pendiente') {
+                            <button mat-icon-button matTooltip="Confirmar" (click)="confirmarPago(pago, $event)" class="action-icon confirm">
+                              <mat-icon>check_circle</mat-icon>
+                            </button>
+                            <button mat-icon-button matTooltip="Rechazar" (click)="rechazarPago(pago, $event)" class="action-icon reject">
+                              <mat-icon>cancel</mat-icon>
+                            </button>
+                          }
+                          @if (pago.comprobante_url) {
+                            <button mat-icon-button matTooltip="Ver comprobante" (click)="verComprobante(pago.comprobante_url, $event)" class="action-icon">
+                              <mat-icon>visibility</mat-icon>
+                            </button>
+                          }
+                        </span>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+  }
+</div>

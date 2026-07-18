@@ -1,5 +1,4 @@
 export type GeneroAlumno = 'masculino' | 'femenino' | 'otro';
-export type EstadoAlumno = 'activo' | 'inactivo' | 'graduado';
 
 export interface Alumno {
   id_alumno: number;
@@ -12,7 +11,6 @@ export interface Alumno {
   celular: string | null;
   correo: string;
   direccion: string | null;
-  estado: EstadoAlumno;
   created_at: string;
   updated_at: string;
 }
@@ -27,5 +25,4 @@ export interface AlumnoUpdate {
   celular?: string | null;
   correo?: string;
   direccion?: string | null;
-  estado?: EstadoAlumno;
 }

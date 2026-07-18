@@ -1,0 +1,240 @@
+.page-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.header-section { margin-bottom: 20px; }
+.header-left { display: flex; align-items: center; gap: 12px; }
+.back-btn { margin-right: 2px; }
+
+.header-section h1 {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.header-section h1 mat-icon { color: var(--fich-primary); }
+
+.subtitle {
+  margin: 2px 0 0;
+  color: var(--fich-text-muted);
+  font-size: 0.85rem;
+}
+
+/* States */
+
+.loading-state, .empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 56px 20px;
+  background: var(--fich-bg-card);
+  border-radius: 12px;
+  border: 1px solid var(--fich-border-light);
+}
+
+.empty-state mat-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  opacity: 0.3;
+}
+
+.empty-state h4 { margin: 0; font-weight: 600; color: var(--fich-text-secondary); }
+.empty-state p { margin: 0; color: var(--fich-text-muted); font-size: 0.85rem; }
+
+/* Alumno cards */
+
+.alumnos-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.alumno-card {
+  background: var(--fich-bg-card);
+  border: 1px solid var(--fich-border-light);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: border-color 0.12s;
+}
+
+.alumno-card:hover { border-color: var(--fich-primary); }
+.alumno-card.expanded { border-color: var(--fich-primary); background: var(--fich-bg-subtle); }
+
+.alumno-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  gap: 16px;
+}
+
+.alumno-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.avatar-sm {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #0891b2, #06b6d4);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.72rem;
+  flex-shrink: 0;
+}
+
+.alumno-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.alumno-nombre {
+  font-weight: 600;
+  color: var(--fich-text);
+  font-size: 0.88rem;
+}
+
+.alumno-ci {
+  font-size: 0.75rem;
+  color: var(--fich-text-muted);
+}
+
+.alumno-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.total-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1px;
+  padding-right: 12px;
+  border-right: 1px solid var(--fich-border-light);
+}
+
+.total-label {
+  font-size: 0.68rem;
+  color: var(--fich-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.total-value {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--fich-text-secondary);
+}
+
+.total-badge.complete .total-value { color: #10b981; }
+
+.register-btn {
+  height: 32px !important;
+  font-size: 0.78rem !important;
+  border-radius: 6px !important;
+}
+
+.register-btn mat-icon {
+  font-size: 16px;
+  margin-right: 2px;
+}
+
+.expand-icon {
+  color: var(--fich-text-muted);
+  transition: transform 0.2s;
+}
+
+.expand-icon.rotated { transform: rotate(180deg); }
+
+/* Detail panel */
+
+.detail-panel {
+  padding: 0 18px 16px;
+  border-top: 1px solid var(--fich-border-light);
+}
+
+.no-pagos {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 24px;
+  color: var(--fich-text-muted);
+  font-size: 0.85rem;
+}
+
+.no-pagos mat-icon { opacity: 0.3; }
+
+/* Pagos table */
+
+.pagos-table {
+  margin-top: 12px;
+}
+
+.pagos-header, .pagos-row {
+  display: grid;
+  grid-template-columns: 100px 1fr 110px 120px 100px 80px;
+  gap: 8px;
+  padding: 8px 12px;
+  align-items: center;
+  font-size: 0.82rem;
+}
+
+.pagos-header {
+  font-weight: 600;
+  color: var(--fich-text-muted);
+  text-transform: uppercase;
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid var(--fich-border-light);
+}
+
+.pagos-row {
+  border-bottom: 1px solid var(--fich-border-light);
+}
+
+.pagos-row:last-child { border-bottom: none; }
+
+.col-fecha { color: var(--fich-text-secondary); }
+.col-concepto { color: var(--fich-text); font-weight: 500; }
+.col-monto { font-weight: 600; color: var(--fich-text); text-align: right; }
+.col-referencia { color: var(--fich-text-muted); font-size: 0.78rem; }
+.col-acciones { text-align: center; }
+
+/* Estado pill */
+
+.estado-pill {
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+
+.estado-pendiente { background: #fef3c7; color: #92400e; }
+.estado-confirmado { background: #d1fae5; color: #065f46; }
+.estado-rechazado { background: #fee2e2; color: #991b1b; }
+
+/* Action icons */
+
+.action-icon { width: 30px !important; height: 30px !important; }
+.action-icon mat-icon { font-size: 18px; width: 18px; height: 18px; }
+.action-icon.confirm { color: #10b981; }
+.action-icon.reject { color: #ef4444; }

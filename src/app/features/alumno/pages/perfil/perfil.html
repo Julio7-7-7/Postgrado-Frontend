@@ -14,7 +14,6 @@
         <h1>{{ alumno()!.nombre }} {{ alumno()!.apellido }}</h1>
         <p class="email">{{ getUserEmail() }}</p>
         <div class="header-tags">
-          <span class="tag">{{ alumno()!.estado }}</span>
           @if (alumno()!.ci) {
             <span class="tag tag-muted">CI {{ alumno()!.ci }}</span>
           }

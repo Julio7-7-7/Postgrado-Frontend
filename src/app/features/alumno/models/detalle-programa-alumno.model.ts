@@ -7,6 +7,27 @@ export type EstadoDetalleAlumno =
   | 'postulante' | 'inscrito' | 'en_curso' | 'finalizado'
   | 'graduado' | 'titulado' | 'retirado' | 'observado';
 
+export interface ControlDocumentacionAlumno {
+  id_control_documentacion: number;
+  id_requisito: number;
+  id_detalle_programa_alumno: number;
+  url_documento: string | null;
+  obligatorio: boolean;
+  estado: string;
+  fecha_entrega: string | null;
+  fecha_revision: string | null;
+  observaciones: string | null;
+  requisito: {
+    id_requisito: number;
+    nombre: string;
+    descripcion: string | null;
+    imagen_url: string | null;
+    estado: string;
+  };
+  created_at: string;
+  updated_at: string;
+}
+
 export interface DetalleProgramaAlumno {
   id_detalle_programa_alumno: number;
   id_programa_version_edicion: number;
@@ -20,6 +41,7 @@ export interface DetalleProgramaAlumno {
   modalidad_academica: ModalidadAcademica;
   programa_version_edicion: ProgramaVersionEdicion;
   tipo_descuento: TipoDescuento | null;
+  control_documentacion: ControlDocumentacionAlumno[];
   created_at: string;
   updated_at: string;
 }

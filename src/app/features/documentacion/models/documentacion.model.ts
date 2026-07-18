@@ -1,3 +1,8 @@
+export interface RequisitoColumn {
+  id: number;
+  nombre: string;
+}
+
 export interface ControlDocumentacionResponse {
   id_control_documentacion: number;
   id_requisito: number;
@@ -7,6 +12,7 @@ export interface ControlDocumentacionResponse {
   fecha_entrega: string | null;
   fecha_revision: string | null;
   observaciones: string | null;
+  requisito_nombre?: string;
 }
 
 export interface ControlDocumentacionUpdate {
@@ -20,6 +26,7 @@ export interface PostulanteResponse {
   estado: string;
   fecha_inscripcion: string | null;
   descuento_aplicado: number;
+  modulo_inicio: number;
   alumno: {
     id_alumno: number;
     nombre: string;
@@ -52,6 +59,7 @@ export interface ProgramaResponse {
 export interface ProgramaVersionResponse {
   id_programa_version: number;
   version: number;
+  foto: string | null;
   programa: ProgramaResponse;
 }
 

@@ -1,0 +1,58 @@
+<h2 mat-dialog-title>
+  <mat-icon>note_add</mat-icon> Registrar Nota
+</h2>
+
+<div mat-dialog-content>
+  <p class="dialog-subtitle">
+    {{ data.alumno?.nombre }} {{ data.alumno?.apellido }}
+  </p>
+
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>Módulo</mat-label>
+    <mat-select [(ngModel)]="idModulo">
+      @for (m of modulos(); track m.id_detalle_programa_modulo) {
+        <mat-option [value]="m.id_detalle_programa_modulo">
+          #{{ m.orden }} — {{ m.modulo?.nombre_modulo }}
+        </mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>Nota (0-100)</mat-label>
+    <input matInput type="number" [(ngModel)]="nota" min="0" max="100" step="0.1">
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>Tipo</mat-label>
+    <mat-select [(ngModel)]="tipo">
+      <mat-option value="parcial">Parcial</mat-option>
+      <mat-option value="final">Final</mat-option>
+      <mat-option value="recuperatorio">Recuperatorio</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>Fecha</mat-label>
+    <input matInput [matDatepicker]="picker" [(ngModel)]="fecha">
+    <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+    <mat-datepicker #picker></mat-datepicker>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>Observaciones (opcional)</mat-label>
+    <textarea matInput [(ngModel)]="observaciones" rows="2"></textarea>
+  </mat-form-field>
+</div>
+
+<div mat-dialog-actions align="end">
+  <button mat-button (click)="dialogRef.close(false)">Cancelar</button>
+  <button mat-flat-button color="primary" (click)="guardar()" [disabled]="isSubmitting()">
+    @if (isSubmitting()) {
+      <mat-icon class="spinner-icon">sync</mat-icon>
+    } @else {
+      <mat-icon>save</mat-icon>
+    }
+    Guardar
+  </button>
+</div>

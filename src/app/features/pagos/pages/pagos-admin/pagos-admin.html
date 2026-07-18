@@ -1,0 +1,53 @@
+<div class="page-container">
+  <div class="header-section">
+    <h1><mat-icon>payments</mat-icon> Gestión de Pagos</h1>
+    <p class="subtitle">Seleccione una edición para gestionar los pagos de sus postulantes</p>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading-state">
+      <mat-spinner diameter="40"></mat-spinner>
+      <span>Cargando ediciones...</span>
+    </div>
+  } @else {
+    @if (ediciones().length === 0) {
+      <div class="empty-state">
+        <mat-icon>school</mat-icon>
+        <h4>No hay ediciones disponibles</h4>
+        <p>No se encontraron ediciones activas para gestionar pagos</p>
+      </div>
+    } @else {
+      <div class="ediciones-grid">
+        @for (ed of ediciones(); track ed.id_programa_version_edicion) {
+          <div class="edicion-card" (click)="irAPagos(ed)">
+            <div class="card-foto">
+              @if (ed.programa_version?.foto) {
+                <img [src]="getFotoUrl(ed.programa_version.foto)" (error)="onImgError($event)" alt="Foto" />
+              } @else {
+                <div class="card-foto-placeholder">
+                  <mat-icon>payments</mat-icon>
+                </div>
+              }
+            </div>
+            <div class="card-content">
+              <div class="card-top">
+                <span class="estado-chip" [class]="estadoClass(ed.estado)">{{ estadoLabel(ed.estado) }}</span>
+              </div>
+              <h3 class="card-title">{{ programaNombre(ed) }}</h3>
+              <div class="card-meta">
+                <span class="meta-tag tipo">{{ tipoPrograma(ed) }}</span>
+                <span class="meta-tag gestion">{{ gestionLabel(ed) }}</span>
+                @if (ed.modalidad) {
+                  <span class="meta-tag modalidad">{{ ed.modalidad }}</span>
+                }
+              </div>
+              <button mat-flat-button color="primary" class="action-btn">
+                <mat-icon>arrow_forward</mat-icon> Ver Pagos
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  }
+</div>

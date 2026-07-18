@@ -13,6 +13,7 @@ import { DocenteService } from '../../docente/services/docente.service';
 import { TipoProgramaService } from '../../tipo-programa/services/tipo-programa.service';
 import { AlumnoService } from '../../alumno/services/alumno.service';
 import { EdicionService } from '../../edicion/services/edicion.service';
+import { DashboardService } from '../services/dashboard.service';
 import { ProgramaVersionEdicion } from '../../edicion/models/edicion.model';
 import { environment } from '../../../../environments/environment';
 
@@ -43,6 +44,7 @@ export class HomeComponent implements OnInit {
   private tipoProgramaService = inject(TipoProgramaService);
   private alumnoService = inject(AlumnoService);
   private edicionService = inject(EdicionService);
+  private dashboardService = inject(DashboardService);
   private router = inject(Router);
   private snackBar = inject(MatSnackBar);
   private destroyRef = inject(DestroyRef);
@@ -81,17 +83,13 @@ export class HomeComponent implements OnInit {
   }
 
   private cargarStats() {
-    this.programaService.getAll().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (data) => this.totalProgramas.set(data.length),
-    });
-    this.docenteService.getAll().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (data) => this.totalDocentes.set(data.length),
-    });
-    this.tipoProgramaService.getAll().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (data) => this.totalTipos.set(data.length),
-    });
-    this.alumnoService.getAll().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (data) => this.totalAlumnos.set(data.length),
+    this.dashboardService.getStats().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (data) => {
+        this.totalProgramas.set(data.total_programas);
+        this.totalDocentes.set(data.total_docentes);
+        this.totalTipos.set(data.total_tipos);
+        this.totalAlumnos.set(data.total_alumnos);
+      },
     });
   }
 

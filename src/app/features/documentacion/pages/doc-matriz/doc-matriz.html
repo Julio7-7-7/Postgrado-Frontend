@@ -1,0 +1,106 @@
+<div class="page-container">
+  <div class="header-section">
+    <div class="header-left">
+      <button mat-icon-button (click)="volver()" class="back-btn" matTooltip="Volver a ediciones">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div>
+        <h1><mat-icon>table_chart</mat-icon> Matriz de Documentación</h1>
+        <p class="subtitle">Vista general de documentación por postulante — hacé click en una fila para revisar</p>
+      </div>
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading-state">
+      <mat-spinner diameter="40"></mat-spinner>
+      <span>Cargando postulantes...</span>
+    </div>
+  } @else {
+    @if (postulantes().length === 0) {
+      <div class="empty-state">
+        <mat-icon>people_outline</mat-icon>
+        <h4>No hay postulantes en esta edición</h4>
+        <p>Los alumnos se inscriben desde el portal de oferta académica</p>
+      </div>
+    } @else {
+      <div class="stats-bar">
+        <div class="stat-item">
+          <span class="stat-value">{{ postulantes().length }}</span>
+          <span class="stat-label">Postulantes</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item completos">
+          <span class="stat-value">{{ totalAprobados() }}</span>
+          <span class="stat-label">Completos</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item revision">
+          <span class="stat-value">{{ totalEnRevision() }}</span>
+          <span class="stat-label">En revisión</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item sin-avance">
+          <span class="stat-value">{{ totalSinAvance() }}</span>
+          <span class="stat-label">Sin avance</span>
+        </div>
+        @if (totalRetirados() > 0) {
+          <div class="stat-divider"></div>
+          <div class="stat-item retirados">
+            <span class="stat-value">{{ totalRetirados() }}</span>
+            <span class="stat-label">Retirados</span>
+          </div>
+        }
+      </div>
+
+      <div class="table-wrap">
+        <table class="matriz-table">
+          <thead>
+            <tr>
+              <th class="col-alumno">Alumno</th>
+              <th class="col-estado">Estado</th>
+              @for (req of requisitos(); track req.id) {
+                <th class="col-doc">{{ req.nombre }}</th>
+              }
+              <th class="col-progreso">Progreso</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (p of postulantes(); track p.id_detalle_programa_alumno) {
+              <tr class="matriz-row" [class.retirado]="p.estado === 'retirado'"
+                  (click)="openDetail(p, $event)">
+                <td class="col-alumno">
+                  <div class="alumno-cell">
+                    <div class="avatar-sm">{{ iniciales(p) }}</div>
+                    <div class="alumno-text">
+                      <span class="alumno-nombre">{{ p.alumno?.nombre }} {{ p.alumno?.apellido }}</span>
+                      <span class="alumno-ci">CI: {{ p.alumno?.ci || '—' }}</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="col-estado">
+                  <span class="estado-pill" [class]="estadoClass(p.estado)">{{ estadoLabel(p.estado) }}</span>
+                </td>
+                @for (req of requisitos(); track req.id) {
+                  @let estado = getCeldaEstado(p, req.id);
+                  <td class="col-doc" [class]="'cell-' + estado">
+                    <mat-icon class="cell-icon">{{ cellIcon(estado) }}</mat-icon>
+                  </td>
+                }
+                <td class="col-progreso">
+                  <div class="progress-cell">
+                    <div class="progress-bar">
+                      <div class="progress-fill" [style.width.%]="progresoPct(p)"
+                           [class.complete]="progresoPct(p) === 100"></div>
+                    </div>
+                    <span class="progress-label">{{ p.docs_completados }}/{{ p.docs_total }}</span>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
+</div>

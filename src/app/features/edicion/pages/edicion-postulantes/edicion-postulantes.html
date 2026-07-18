@@ -1,0 +1,149 @@
+<div class="page-container">
+  <div class="header-section">
+    <div class="header-left">
+      <button mat-icon-button (click)="volver()" class="back-btn" matTooltip="Volver a ediciones">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div>
+        <h2>
+          @if (edicion()) {
+            Postulantes — Edición #{{ edicion()!.edicion }} ({{ edicion()!.gestion }})
+          } @else {
+            Postulantes
+          }
+        </h2>
+        <p class="subtitle">Alumnos inscritos y su estado de documentación</p>
+      </div>
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="40"></mat-spinner>
+      <span>Cargando postulantes...</span>
+    </div>
+  } @else {
+    @if (postulantes().length === 0) {
+      <div class="empty-state">
+        <mat-icon>people_outline</mat-icon>
+        <h4>No hay postulantes en esta edición</h4>
+        <p>Los alumnos se inscriben desde el portal de oferta académica</p>
+      </div>
+    } @else {
+      <div class="summary-bar">
+        <span class="summary-item">
+          <mat-icon>groups</mat-icon>
+          {{ postulantes().length }} postulante(s)
+        </span>
+        <span class="summary-item">
+          <mat-icon>check_circle</mat-icon>
+          {{ postulantes().length - postulantes().filter(p => p.estado === 'postulante').length }} inscrito(s)
+        </span>
+      </div>
+
+      <div class="table-wrapper mat-elevation-z1">
+        <table mat-table [dataSource]="postulantes()" class="fich-table">
+          <ng-container matColumnDef="alumno">
+            <th mat-header-cell *matHeaderCellDef>Alumno</th>
+            <td mat-cell *matCellDef="let p">
+              <div class="cell-name-row">
+                <div class="avatar-sm">{{ iniciales(p) }}</div>
+                <div>
+                  <div class="cell-name">{{ p.alumno?.nombre }} {{ p.alumno?.apellido }}</div>
+                  <div class="cell-muted">CI: {{ p.alumno?.ci || '—' }}</div>
+                </div>
+              </div>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="correo">
+            <th mat-header-cell *matHeaderCellDef>Correo</th>
+            <td mat-cell *matCellDef="let p">
+              {{ p.alumno?.correo || '—' }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="estado">
+            <th mat-header-cell *matHeaderCellDef>Estado</th>
+            <td mat-cell *matCellDef="let p">
+              <span class="estado-pill" [class]="estadoClass(p.estado)">{{ estadoLabel(p.estado) }}</span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="documentacion">
+            <th mat-header-cell *matHeaderCellDef>Documentación</th>
+            <td mat-cell *matCellDef="let p">
+              <div class="docs-cell">
+                <div class="progress-bar-mini">
+                  <div class="progress-fill" [style.width.%]="progresoPct(p)"
+                       [class.complete]="progresoPct(p) === 100"></div>
+                </div>
+                <span class="docs-label">{{ p.docs_completados }}/{{ p.docs_total }}</span>
+              </div>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="descuento">
+            <th mat-header-cell *matHeaderCellDef>Descuento</th>
+            <td mat-cell *matCellDef="let p">
+              @if (p.descuento_aplicado > 0) {
+                <span class="descuento-badge">{{ p.descuento_aplicado }}%</span>
+              } @else {
+                <span class="cell-muted">—</span>
+              }
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="acciones">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let p">
+              <button mat-icon-button matTooltip="Ver documentos"
+                      (click)="toggleExpand(p.id_detalle_programa_alumno)">
+                <mat-icon>{{ expandedId() === p.id_detalle_programa_alumno ? 'expand_less' : 'expand_more' }}</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="['alumno', 'correo', 'estado', 'documentacion', 'descuento', 'acciones']"></tr>
+          <tr mat-row *matRowDef="let row; columns: ['alumno', 'correo', 'estado', 'documentacion', 'descuento', 'acciones'];"
+              [class.expanded-row]="expandedId() === row.id_detalle_programa_alumno"
+              (click)="toggleExpand(row.id_detalle_programa_alumno)"></tr>
+        </table>
+      </div>
+
+      @for (p of postulantes(); track p.id_detalle_programa_alumno) {
+        @if (expandedId() === p.id_detalle_programa_alumno) {
+          <div class="detail-panel">
+            <div class="detail-header">
+              <mat-icon>description</mat-icon>
+              <span>Documentos de {{ p.alumno?.nombre }} {{ p.alumno?.apellido }}</span>
+            </div>
+            @for (doc of p.control_documentacion; track doc.id_control_documentacion) {
+              <div class="doc-row">
+                <div class="doc-status">
+                  @switch (doc.estado) {
+                    @case ('pendiente') { <mat-icon class="status-icon pendiente">radio_button_unchecked</mat-icon> }
+                    @case ('entregado') { <mat-icon class="status-icon entregado">upload_file</mat-icon> }
+                    @case ('aceptado') { <mat-icon class="status-icon aceptado">check_circle</mat-icon> }
+                    @case ('rechazado') { <mat-icon class="status-icon rechazado">cancel</mat-icon> }
+                  }
+                </div>
+                <div class="doc-info">
+                  <span class="doc-name">{{ doc.requisito_nombre || 'Requisito #' + doc.id_requisito }}</span>
+                  @if (doc.observaciones) {
+                    <span class="doc-obs">{{ doc.observaciones }}</span>
+                  }
+                </div>
+                <div class="doc-state">
+                  <span class="doc-estado-pill" [class]="'doc-estado-' + doc.estado">
+                    {{ doc.estado }}
+                  </span>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      }
+    }
+  }
+</div>

@@ -1,0 +1,48 @@
+<h2 mat-dialog-title>
+  <mat-icon>add_card</mat-icon> Registrar Pago
+</h2>
+
+<div mat-dialog-content>
+  <p class="dialog-subtitle">
+    {{ data.alumno?.nombre }} {{ data.alumno?.apellido }}
+  </p>
+
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>Concepto</mat-label>
+    <input matInput [(ngModel)]="concepto" placeholder="Ej: Matrícula, Cuota 1, Cuota 2...">
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>Monto (Bs.)</mat-label>
+    <input matInput type="number" [(ngModel)]="monto" min="0.01" step="0.01">
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>Fecha de pago</mat-label>
+    <input matInput [matDatepicker]="picker" [(ngModel)]="fechaPago">
+    <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+    <mat-datepicker #picker></mat-datepicker>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>N° de referencia (opcional)</mat-label>
+    <input matInput [(ngModel)]="numeroReferencia" placeholder="N° de transacción">
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>URL comprobante (opcional)</mat-label>
+    <input matInput [(ngModel)]="comprobanteUrl" placeholder="Link al comprobante de pago">
+  </mat-form-field>
+</div>
+
+<div mat-dialog-actions align="end">
+  <button mat-button (click)="dialogRef.close(false)">Cancelar</button>
+  <button mat-flat-button color="primary" (click)="guardar()" [disabled]="isSubmitting()">
+    @if (isSubmitting()) {
+      <mat-icon class="spinner-icon">sync</mat-icon>
+    } @else {
+      <mat-icon>save</mat-icon>
+    }
+    Registrar
+  </button>
+</div>
