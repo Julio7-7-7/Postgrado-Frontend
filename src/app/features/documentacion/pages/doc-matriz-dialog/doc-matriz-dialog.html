@@ -1,0 +1,107 @@
+<div class="dialog-header">
+  <div class="header-left">
+    <div class="avatar-lg">{{ iniciales }}</div>
+    <div class="header-info">
+      <h2 mat-dialog-title>{{ nombreCompleto }}</h2>
+      <div class="header-meta">
+        @if (p.alumno?.ci) {
+          <span class="meta-chip"><mat-icon>badge</mat-icon> CI: {{ p.alumno!.ci }}</span>
+        }
+        @if (p.alumno?.correo) {
+          <span class="meta-chip"><mat-icon>email</mat-icon> {{ p.alumno!.correo }}</span>
+        }
+        <span class="estado-pill" [class]="estadoClass(p.estado)">{{ estadoLabel(p.estado) }}</span>
+      </div>
+    </div>
+  </div>
+  <button mat-icon-button mat-dialog-close class="close-btn">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+
+<div class="dialog-progress">
+  <div class="progress-info">
+    <span class="progress-label">Documentación: {{ p.docs_completados }}/{{ p.docs_total }} aprobados</span>
+    <span class="progress-pct">{{ progresoPct }}%</span>
+  </div>
+  <div class="progress-bar">
+    <div class="progress-fill" [style.width.%]="progresoPct"
+         [class.complete]="progresoPct === 100"></div>
+  </div>
+</div>
+
+<mat-dialog-content class="dialog-content">
+  @for (req of requisitos; track req.id) {
+    @let doc = getCelda(req.id);
+    <div class="doc-row" [class.doc-aceptado]="doc?.estado === 'aceptado'"
+         [class.doc-rechazado]="doc?.estado === 'rechazado'"
+         [class.doc-entregado]="doc?.estado === 'entregado'">
+      <div class="doc-main">
+        <div class="doc-status">
+          <mat-icon class="status-icon" [class]="'icon-' + (doc?.estado || 'pendiente')">
+            {{ cellIcon(doc?.estado || 'pendiente') }}
+          </mat-icon>
+        </div>
+        <div class="doc-info">
+          <span class="doc-name">{{ req.nombre }}</span>
+          @if (doc?.fecha_entrega || doc?.fecha_revision) {
+            <span class="doc-dates">
+              @if (doc!.fecha_entrega) { Entregado: {{ doc!.fecha_entrega }} }
+              @if (doc!.fecha_revision) { · Revisado: {{ doc!.fecha_revision }} }
+            </span>
+          }
+          @if (doc?.observaciones && doc!.estado === 'rechazado') {
+            <div class="doc-rechazo">
+              <mat-icon>info_outline</mat-icon>
+              <span>{{ doc!.observaciones }}</span>
+            </div>
+          }
+        </div>
+        <span class="doc-badge" [class]="'badge-' + (doc?.estado || 'pendiente')">
+          {{ badgeLabel(doc?.estado || 'pendiente') }}
+        </span>
+      </div>
+
+      <div class="doc-actions">
+        @if (doc?.url_documento) {
+          <button mat-stroked-button class="action-btn" (click)="verDocumento(doc!.url_documento!)">
+            <mat-icon>visibility</mat-icon> Ver
+          </button>
+        }
+        @if (doc && canApprove(doc)) {
+          <button mat-flat-button color="primary" class="action-btn" (click)="approveDoc(doc)">
+            <mat-icon>check</mat-icon> Aprobar
+          </button>
+          <button mat-stroked-button class="action-btn reject-btn" (click)="startReject(doc)">
+            <mat-icon>close</mat-icon> Rechazar
+          </button>
+        }
+        @if (doc?.estado === 'aceptado') {
+          <span class="approved-label"><mat-icon>verified</mat-icon> Aprobado</span>
+        }
+      </div>
+
+      @if (rejectingDocId() === doc?.id_control_documentacion) {
+        <div class="reject-form">
+          <mat-form-field appearance="outline" class="reject-field">
+            <mat-label>Motivo del rechazo</mat-label>
+            <textarea matInput rows="2"
+                      [ngModel]="rejectObservacion()"
+                      (ngModelChange)="rejectObservacion.set($event)"
+                      placeholder="Ej: No se lee claramente la firma..."></textarea>
+          </mat-form-field>
+          <div class="reject-actions">
+            <button mat-button (click)="cancelReject()">Cancelar</button>
+            <button mat-flat-button color="warn" (click)="confirmReject(doc!)">
+              <mat-icon>close</mat-icon> Rechazar
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cerrar</button>
+</mat-dialog-actions>
