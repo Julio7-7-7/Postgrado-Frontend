@@ -97,7 +97,7 @@
                   </div>
                   <div class="doc-right">
                     @if (doc.url_documento) {
-                      <a class="doc-view-btn" [href]="doc.url_documento" target="_blank"
+                      <a class="doc-view-btn" [href]="getDocUrl(doc.url_documento)" target="_blank"
                          matTooltip="Ver documento subido">
                         <mat-icon>visibility</mat-icon>
                       </a>
@@ -107,7 +107,7 @@
                         <div class="upload-progress-inline">
                           @if (uploadState() === 'completado') {
                             <mat-icon class="upload-done">check_circle</mat-icon>
-                            <span class="upload-done-text">¡Listo!</span>
+                            <span class="upload-done-text">Listo!</span>
                           } @else {
                             <mat-spinner diameter="18"></mat-spinner>
                             <span class="upload-status-text">
@@ -175,7 +175,7 @@
                   </div>
                   <div class="doc-right">
                     @if (doc.url_documento) {
-                      <a class="doc-view-btn" [href]="doc.url_documento" target="_blank"
+                      <a class="doc-view-btn" [href]="getDocUrl(doc.url_documento)" target="_blank"
                          matTooltip="Ver documento subido">
                         <mat-icon>visibility</mat-icon>
                       </a>

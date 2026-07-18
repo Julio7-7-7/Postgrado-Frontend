@@ -1,4 +1,4 @@
-import { Component, Inject, signal, inject, DestroyRef } from '@angular/core';
+import { Component, Inject, signal, inject, DestroyRef, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
@@ -15,6 +15,7 @@ import {
   ControlDocumentacionResponse,
   RequisitoColumn,
 } from '../../models/documentacion.model';
+import { environment } from '../../../../../environments/environment';
 
 export interface DocMatrizDialogData {
   postulante: PostulanteResponse;
@@ -36,9 +37,12 @@ export class DocMatrizDialogComponent {
   private service = inject(DocumentacionService);
   private snackbar = inject(MatSnackBar);
   private destroyRef = inject(DestroyRef);
+  private cdr = inject(ChangeDetectorRef);
 
   rejectingDocId = signal<number | null>(null);
   rejectObservacion = signal('');
+
+  apiUrl = environment.apiUrl;
 
   p: PostulanteResponse;
   requisitos: RequisitoColumn[];
@@ -125,6 +129,7 @@ export class DocMatrizDialogComponent {
         next: () => {
           doc.estado = 'aceptado';
           this.recalcProgress();
+          this.cdr.detectChanges();
           this.snackbar.open('Documento aprobado', 'Cerrar', { duration: 1500 });
         },
         error: err => this.snackbar.open(err.error?.detail || 'Error', 'Cerrar', { duration: 3000 }),
@@ -158,6 +163,7 @@ export class DocMatrizDialogComponent {
         this.rejectingDocId.set(null);
         this.rejectObservacion.set('');
         this.recalcProgress();
+        this.cdr.detectChanges();
         this.snackbar.open('Documento rechazado', 'Cerrar', { duration: 1500 });
       },
       error: err => this.snackbar.open(err.error?.detail || 'Error', 'Cerrar', { duration: 3000 }),
@@ -165,7 +171,7 @@ export class DocMatrizDialogComponent {
   }
 
   verDocumento(url: string): void {
-    window.open(url, '_blank');
+    window.open(`${this.apiUrl}${url}`, '_blank');
   }
 
   private recalcProgress(): void {

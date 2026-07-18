@@ -14,6 +14,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { DetalleProgramaAlumnoService } from '../../services/detalle-programa-alumno.service';
 import { DetalleProgramaAlumno, ControlDocumentacionAlumno, EstadoDetalleAlumno } from '../../models/detalle-programa-alumno.model';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog';
+import { environment } from '../../../../../environments/environment';
 
 const ESTADO_ORDEN: EstadoDetalleAlumno[] = [
   'postulante', 'observado', 'inscrito', 'en_curso', 'finalizado', 'graduado', 'titulado'
@@ -60,6 +61,8 @@ export class InscripcionDetailComponent implements OnInit {
   private dialog = inject(MatDialog);
   private destroyRef = inject(DestroyRef);
   router = inject(Router);
+
+  apiUrl = environment.apiUrl;
 
   inscripcion = signal<DetalleProgramaAlumno | null>(null);
   cargando = signal(true);
@@ -289,5 +292,9 @@ export class InscripcionDetailComponent implements OnInit {
 
   verRequisito(id: number): void {
     window.open(`/requisitos/${id}`, '_blank');
+  }
+
+  getDocUrl(url: string | null): string {
+    return url ? `${this.apiUrl}${url}` : '#';
   }
 }

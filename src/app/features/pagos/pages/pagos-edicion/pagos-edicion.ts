@@ -11,6 +11,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { PagoService } from '../../services/pago.service';
 import { AlumnoPagos, PagoResponse } from '../../models/pago.model';
 import { PagoRegisterDialog } from '../pago-register-dialog/pago-register-dialog';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-pagos-edicion',
@@ -35,6 +36,7 @@ export class PagosEdicionComponent implements OnInit {
   isLoading = signal(true);
   expandedId = signal<number | null>(null);
   idEdicion = 0;
+  apiUrl = environment.apiUrl;
 
   ngOnInit(): void {
     this.idEdicion = Number(this.route.snapshot.paramMap.get('idEdicion'));
@@ -123,7 +125,7 @@ export class PagosEdicionComponent implements OnInit {
 
   verComprobante(url: string, event: MouseEvent): void {
     event.stopPropagation();
-    window.open(url, '_blank');
+    window.open(`${this.apiUrl}${url}`, '_blank');
   }
 
   volver(): void {
