@@ -95,6 +95,66 @@
   background: var(--fich-border-light);
 }
 
+/* ─── Modalidad Sections ─── */
+
+.modalidad-section {
+  margin-bottom: 28px;
+}
+
+.modalidad-section:last-child {
+  margin-bottom: 0;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.section-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.section-icon mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  color: white;
+}
+
+.section-icon[data-modalidad="1"] { background: linear-gradient(135deg, #0891b2, #06b6d4); }
+.section-icon[data-modalidad="2"] { background: linear-gradient(135deg, #7c3aed, #8b5cf6); }
+.section-icon[data-modalidad="3"] { background: linear-gradient(135deg, #d97706, #f59e0b); }
+.section-icon[data-modalidad="4"] { background: linear-gradient(135deg, #059669, #10b981); }
+
+.section-text {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.section-text h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--fich-text);
+}
+
+.section-count {
+  font-size: 0.75rem;
+  color: var(--fich-text-muted);
+  background: var(--fich-bg-subtle);
+  padding: 2px 10px;
+  border-radius: 10px;
+}
+
 /* ─── Table ─── */
 
 .table-wrap {
@@ -156,7 +216,7 @@
 
 .col-alumno { width: 22%; }
 .col-estado { width: 12%; }
-.col-doc { width: calc((100% - 34%) / 4); text-align: center; }
+.col-doc { text-align: center; }
 .col-progreso { width: 14%; }
 
 /* ─── Alumno cell ─── */

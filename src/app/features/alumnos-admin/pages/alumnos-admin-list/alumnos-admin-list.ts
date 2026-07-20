@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject, DestroyRef } from '@angular/core';
+import { Component, OnInit, signal, computed, inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -6,6 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTableModule } from '@angular/material/table';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -21,7 +22,7 @@ import { AlumnoAdmin } from '../../models/alumnos-admin.model';
   imports: [
     CommonModule, FormsModule,
     MatButtonModule, MatIconModule, MatTooltipModule,
-    MatTableModule, MatProgressSpinnerModule,
+    MatTableModule, MatPaginatorModule, MatProgressSpinnerModule,
     MatSnackBarModule, MatDialogModule,
     MatFormFieldModule, MatInputModule, MatSelectModule,
   ],
@@ -42,6 +43,12 @@ export class AlumnosAdminListComponent implements OnInit {
   filterAnio: number | null = null;
   filterSemestre: number | null = null;
   aniosDisponibles = signal<number[]>([]);
+  pageIndex = signal(0);
+  pageSize = signal(20);
+  paginatedAlumnos = computed(() => {
+    const start = this.pageIndex() * this.pageSize();
+    return this.filteredAlumnos().slice(start, start + this.pageSize());
+  });
   columnas = ['nombre', 'ci', 'correo', 'celular', 'inscripciones', 'acciones'];
 
   ngOnInit(): void {
@@ -76,6 +83,7 @@ export class AlumnosAdminListComponent implements OnInit {
   }
 
   onPeriodoChange(): void {
+    this.pageIndex.set(0);
     if (this.filterAnio) {
       this.service.getByPeriodo(this.filterAnio, this.filterSemestre ?? undefined)
         .pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
@@ -112,7 +120,13 @@ export class AlumnosAdminListComponent implements OnInit {
 
   onSearch(value: string): void {
     this.searchText.set(value);
+    this.pageIndex.set(0);
     this.filtrar();
+  }
+
+  onPageChange(event: PageEvent): void {
+    this.pageIndex.set(event.pageIndex);
+    this.pageSize.set(event.pageSize);
   }
 
   iniciales(a: AlumnoAdmin): string {

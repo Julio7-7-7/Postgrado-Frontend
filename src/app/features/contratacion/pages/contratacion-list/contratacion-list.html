@@ -76,7 +76,7 @@
     </div>
 
     <div class="table-wrapper">
-      <table mat-table [dataSource]="listaFiltrada()">
+      <table mat-table [dataSource]="paginatedLista()">
         <ng-container matColumnDef="docente">
           <th mat-header-cell *matHeaderCellDef>Docente</th>
           <td mat-cell *matCellDef="let c">
@@ -136,6 +136,13 @@
         <tr mat-row *matRowDef="let row; columns: columnas;" class="clickable-row"
             (click)="irADetalle(row.id_contratacion)"></tr>
       </table>
+      <mat-paginator [length]="listaFiltrada().length"
+                     [pageSize]="pageSize()"
+                     [pageIndex]="pageIndex()"
+                     [pageSizeOptions]="[10, 20, 50]"
+                     (page)="onPageChange($event)"
+                     showFirstLastButtons>
+      </mat-paginator>
 
       @if (listaFiltrada().length === 0) {
         <div class="empty-state">

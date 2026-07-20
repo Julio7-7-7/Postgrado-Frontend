@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { MatTableModule } from '@angular/material/table';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -27,6 +28,7 @@ import { Docente } from '../../models/docente.model';
     RouterLink,
     FormsModule,
     MatTableModule,
+    MatPaginatorModule,
     MatButtonModule,
     MatIconModule,
     MatTooltipModule,
@@ -53,11 +55,15 @@ export class DocenteListComponent implements OnInit {
   error = signal<string | null>(null);
   criterioOrden = signal<'id' | 'nombre' | 'estado'>('id');
   showInactivos = signal(false);
+  pageIndex = signal(0);
+  pageSize = signal(20);
 
   listaActivos = computed(() => this.filtrarYOrdenar('activo'));
   listaInactivos = computed(() => this.filtrarYOrdenar('inactivo'));
-  listaDictando = computed(() => this.listaActivos().filter(d => d.tiene_modulos_activos));
-  listaDisponibles = computed(() => this.listaActivos().filter(d => !d.tiene_modulos_activos));
+  paginatedActivos = computed(() => {
+    const start = this.pageIndex() * this.pageSize();
+    return this.listaActivos().slice(start, start + this.pageSize());
+  });
 
   columnas: string[] = ['id', 'nombre', 'ci', 'extension', 'correo', 'grado', 'titulo', 'estado', 'acciones'];
 
@@ -92,6 +98,7 @@ export class DocenteListComponent implements OnInit {
   cargarDatos(): void {
     this.isLoading.set(true);
     this.error.set(null);
+    this.pageIndex.set(0);
 
     this.service.getAll().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (data) => {
@@ -109,6 +116,11 @@ export class DocenteListComponent implements OnInit {
 
   irADetalle(id: number): void {
     this.router.navigate(['/docentes', id]);
+  }
+
+  onPageChange(event: PageEvent): void {
+    this.pageIndex.set(event.pageIndex);
+    this.pageSize.set(event.pageSize);
   }
 
   confirmarCancelar(docente: Docente, event: Event): void {

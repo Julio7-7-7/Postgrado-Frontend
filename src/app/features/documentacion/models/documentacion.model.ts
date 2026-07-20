@@ -23,6 +23,8 @@ export interface ControlDocumentacionUpdate {
 
 export interface PostulanteResponse {
   id_detalle_programa_alumno: number;
+  id_modalidad_academica: number;
+  nombre_modalidad: string;
   estado: string;
   fecha_inscripcion: string | null;
   descuento_aplicado: number;

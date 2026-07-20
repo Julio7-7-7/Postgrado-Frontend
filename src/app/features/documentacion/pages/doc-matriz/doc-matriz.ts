@@ -16,6 +16,13 @@ import {
 } from '../../models/documentacion.model';
 import { DocMatrizDialogComponent } from '../doc-matriz-dialog/doc-matriz-dialog';
 
+export interface GrupoModalidad {
+  id_modalidad: number;
+  nombre: string;
+  requisitos: RequisitoColumn[];
+  postulantes: PostulanteResponse[];
+}
+
 @Component({
   selector: 'app-doc-matriz',
   standalone: true,
@@ -37,8 +44,8 @@ export class DocMatrizComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
 
   postulantes = signal<PostulanteResponse[]>([]);
+  grupos = signal<GrupoModalidad[]>([]);
   isLoading = signal(true);
-  requisitos = signal<RequisitoColumn[]>([]);
 
   totalAprobados = computed(() =>
     this.postulantes().filter(p => p.docs_completados === p.docs_total && p.docs_total > 0).length
@@ -70,7 +77,7 @@ export class DocMatrizComponent implements OnInit {
     this.service.getPostulantesPorEdicion(idEdicion).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: data => {
         this.postulantes.set(data);
-        this.extraerRequisitos(data);
+        this.agruparPorModalidad(data);
         this.isLoading.set(false);
       },
       error: () => {
@@ -80,18 +87,36 @@ export class DocMatrizComponent implements OnInit {
     });
   }
 
-  private extraerRequisitos(data: PostulanteResponse[]): void {
-    const seen = new Map<number, string>();
+  private agruparPorModalidad(data: PostulanteResponse[]): void {
+    const map = new Map<number, { nombre: string; postulantes: PostulanteResponse[] }>();
+
     for (const p of data) {
-      for (const doc of p.control_documentacion) {
-        if (!seen.has(doc.id_requisito)) {
-          seen.set(doc.id_requisito, doc.requisito_nombre || `Requisito #${doc.id_requisito}`);
+      const key = p.id_modalidad_academica;
+      if (!map.has(key)) {
+        map.set(key, { nombre: p.nombre_modalidad, postulantes: [] });
+      }
+      map.get(key)!.postulantes.push(p);
+    }
+
+    const result: GrupoModalidad[] = [];
+    for (const [id, grupo] of map) {
+      const seen = new Map<number, string>();
+      for (const p of grupo.postulantes) {
+        for (const doc of p.control_documentacion) {
+          if (!seen.has(doc.id_requisito)) {
+            seen.set(doc.id_requisito, doc.requisito_nombre || `Requisito #${doc.id_requisito}`);
+          }
         }
       }
+      result.push({
+        id_modalidad: id,
+        nombre: grupo.nombre,
+        requisitos: Array.from(seen.entries()).map(([rid, nombre]) => ({ id: rid, nombre })),
+        postulantes: grupo.postulantes,
+      });
     }
-    this.requisitos.set(
-      Array.from(seen.entries()).map(([id, nombre]) => ({ id, nombre }))
-    );
+
+    this.grupos.set(result);
   }
 
   getCeldaEstado(p: PostulanteResponse, reqId: number): string {
@@ -144,12 +169,12 @@ export class DocMatrizComponent implements OnInit {
     return map[estado] || estado;
   }
 
-  openDetail(p: PostulanteResponse, event: MouseEvent): void {
+  openDetail(p: PostulanteResponse, event: MouseEvent, requisitosGrupo: RequisitoColumn[]): void {
     event.stopPropagation();
     const dialogRef = this.dialog.open(DocMatrizDialogComponent, {
       width: '780px',
       maxHeight: '85vh',
-      data: { postulante: p, requisitos: this.requisitos() },
+      data: { postulante: p, requisitos: requisitosGrupo },
       panelClass: 'doc-matriz-dialog',
     });
 
@@ -165,6 +190,7 @@ export class DocMatrizComponent implements OnInit {
       p.id_detalle_programa_alumno === updated.id_detalle_programa_alumno ? updated : p
     );
     this.postulantes.set(current);
+    this.agruparPorModalidad(current);
   }
 
   volver(): void {
