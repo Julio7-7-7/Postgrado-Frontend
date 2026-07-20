@@ -1,0 +1,204 @@
+.page-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.header-section { margin-bottom: 20px; }
+.header-left { display: flex; align-items: center; gap: 12px; }
+.back-btn { margin-right: 2px; }
+
+.header-section h1 {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.header-section h1 mat-icon { color: var(--fich-primary); }
+
+.subtitle {
+  margin: 2px 0 0;
+  color: var(--fich-text-muted);
+  font-size: 0.85rem;
+}
+
+.loading-state, .empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 56px 20px;
+  background: var(--fich-bg-card);
+  border-radius: 12px;
+  border: 1px solid var(--fich-border-light);
+}
+
+.empty-state mat-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  opacity: 0.3;
+}
+
+.empty-state h4 { margin: 0; font-weight: 600; color: var(--fich-text-secondary); }
+.empty-state p { margin: 0; color: var(--fich-text-muted); font-size: 0.85rem; }
+
+.alumnos-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.alumno-card {
+  background: var(--fich-bg-card);
+  border: 1px solid var(--fich-border-light);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: border-color 0.12s;
+}
+
+.alumno-card:hover { border-color: var(--fich-primary); }
+.alumno-card.expanded { border-color: var(--fich-primary); background: var(--fich-bg-subtle); }
+
+.alumno-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  gap: 16px;
+}
+
+.alumno-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.avatar-sm {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #7c3aed, #8b5cf6);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.72rem;
+  flex-shrink: 0;
+}
+
+.alumno-text { display: flex; flex-direction: column; }
+.alumno-nombre { font-weight: 600; color: var(--fich-text); font-size: 0.88rem; }
+.alumno-ci { font-size: 0.75rem; color: var(--fich-text-muted); }
+
+.alumno-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.prom-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1px;
+  padding-right: 12px;
+  border-right: 1px solid var(--fich-border-light);
+}
+
+.prom-label {
+  font-size: 0.68rem;
+  color: var(--fich-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.prom-value {
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.prom-badge.aprobado .prom-value { color: #10b981; }
+.prom-badge.regular .prom-value { color: #f59e0b; }
+.prom-badge.reprobado .prom-value { color: #ef4444; }
+
+.register-btn {
+  height: 32px !important;
+  font-size: 0.78rem !important;
+  border-radius: 6px !important;
+}
+
+.register-btn mat-icon { font-size: 16px; margin-right: 2px; }
+
+.expand-icon { color: var(--fich-text-muted); transition: transform 0.2s; }
+.expand-icon.rotated { transform: rotate(180deg); }
+
+.detail-panel {
+  padding: 0 18px 16px;
+  border-top: 1px solid var(--fich-border-light);
+}
+
+.no-notas {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 24px;
+  color: var(--fich-text-muted);
+  font-size: 0.85rem;
+}
+
+.no-notas mat-icon { opacity: 0.3; }
+
+.notas-table { margin-top: 12px; }
+
+.notas-header, .notas-row {
+  display: grid;
+  grid-template-columns: 40px 1fr 90px 80px 100px 1fr 50px;
+  gap: 8px;
+  padding: 8px 12px;
+  align-items: center;
+  font-size: 0.82rem;
+}
+
+.notas-header {
+  font-weight: 600;
+  color: var(--fich-text-muted);
+  text-transform: uppercase;
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid var(--fich-border-light);
+}
+
+.notas-row { border-bottom: 1px solid var(--fich-border-light); }
+.notas-row:last-child { border-bottom: none; }
+
+.col-orden { color: var(--fich-text-muted); text-align: center; }
+.col-modulo { color: var(--fich-text); font-weight: 500; }
+.col-nota { font-weight: 700; text-align: center; }
+.col-nota.aprobado { color: #10b981; }
+.col-nota.regular { color: #f59e0b; }
+.col-nota.reprobado { color: #ef4444; }
+.col-fecha { color: var(--fich-text-muted); font-size: 0.78rem; }
+.col-obs { color: var(--fich-text-muted); font-size: 0.78rem; font-style: italic; }
+.col-acciones { text-align: center; }
+
+.tipo-badge {
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 12px;
+  background: var(--fich-bg-subtle);
+  color: var(--fich-text-secondary);
+  text-transform: capitalize;
+}
+
+.action-icon { width: 28px !important; height: 28px !important; }
+.action-icon mat-icon { font-size: 16px; width: 16px; height: 16px; }
+.action-icon.delete { color: #ef4444; }

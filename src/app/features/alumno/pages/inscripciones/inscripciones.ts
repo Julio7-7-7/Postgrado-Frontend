@@ -1,10 +1,12 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { DetalleProgramaAlumnoService } from '../../services/detalle-programa-alumno.service';
 import { DetalleProgramaAlumno, EstadoDetalleAlumno } from '../../models/detalle-programa-alumno.model';
@@ -15,7 +17,7 @@ import { DetalleProgramaAlumno, EstadoDetalleAlumno } from '../../models/detalle
   imports: [
     CommonModule,
     MatCardModule, MatButtonModule, MatIconModule, MatChipsModule,
-    MatDividerModule, MatSnackBarModule,
+    MatDividerModule, MatProgressSpinnerModule, MatSnackBarModule,
   ],
   templateUrl: './inscripciones.html',
   styleUrl: './inscripciones.css',
@@ -23,6 +25,7 @@ import { DetalleProgramaAlumno, EstadoDetalleAlumno } from '../../models/detalle
 export class InscripcionesComponent implements OnInit {
   private detalleService = inject(DetalleProgramaAlumnoService);
   private snackBar = inject(MatSnackBar);
+  private router = inject(Router);
 
   inscripciones = signal<DetalleProgramaAlumno[]>([]);
   cargando = signal(true);
@@ -45,6 +48,10 @@ export class InscripcionesComponent implements OnInit {
     });
   }
 
+  verDetalle(id: number): void {
+    this.router.navigate(['/alumnos/inscripciones', id]);
+  }
+
   estadoColor(estado: EstadoDetalleAlumno): string {
     const colors: Record<string, string> = {
       postulante: '#f59e0b',
@@ -63,5 +70,12 @@ export class InscripcionesComponent implements OnInit {
     if (!fecha) return '—';
     const d = new Date(fecha + 'T12:00:00');
     return d.toLocaleDateString('es-BO', { day: '2-digit', month: 'long', year: 'numeric' });
+  }
+
+  docsProgreso(ins: DetalleProgramaAlumno): string {
+    if (!ins.control_documentacion || ins.control_documentacion.length === 0) return '';
+    const total = ins.control_documentacion.filter(c => c.obligatorio).length;
+    const aceptados = ins.control_documentacion.filter(c => c.obligatorio && c.estado === 'aceptado').length;
+    return `${aceptados}/${total}`;
   }
 }

@@ -24,6 +24,11 @@ export const ALUMNO_ROUTES: Routes = [
           import('../pages/inscripciones/inscripciones').then(m => m.InscripcionesComponent),
       },
       {
+        path: 'inscripciones/:id',
+        loadComponent: () =>
+          import('../pages/inscripcion-detail/inscripcion-detail').then(m => m.InscripcionDetailComponent),
+      },
+      {
         path: 'inscribir/:id',
         loadComponent: () =>
           import('../pages/inscribir/inscribir').then(m => m.InscribirComponent),

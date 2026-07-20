@@ -1,0 +1,256 @@
+<div class="detail-container">
+  @if (cargando()) {
+    <div class="loading">
+      <mat-spinner diameter="36"></mat-spinner>
+      <span>Cargando inscripción...</span>
+    </div>
+  }
+
+  @if (!cargando() && inscripcion(); as ins) {
+    <div class="page-header">
+      <button class="back-btn" (click)="router.navigate(['/alumnos/inscripciones'])">
+        <mat-icon>arrow_back</mat-icon>
+        <span>Volver a Inscripciones</span>
+      </button>
+      <h1>{{ ins.programa_version_edicion.programa_version.programa.nombre_programa }}</h1>
+      <p class="subtitle">
+        Ed. {{ ins.programa_version_edicion.edicion }} — {{ ins.programa_version_edicion.gestion }}
+      </p>
+    </div>
+
+    <div class="detail-grid">
+      <div class="main-col">
+
+        <mat-card class="section-card stepper-card">
+          <div class="stepper-header">
+            <mat-icon [style.color]="estadoColor(ins.estado)">timeline</mat-icon>
+            <h3>Estado de la Inscripción</h3>
+            <span class="estado-badge" [style.background]="estadoColor(ins.estado) + '20'"
+                  [style.color]="estadoColor(ins.estado)">
+              {{ estadoLabel(ins.estado) }}
+            </span>
+          </div>
+          <div class="stepper">
+            @for (step of stepperSteps(); track step.estado; let i = $index; let last = $last) {
+              <div class="step" [class.completed]="step.completado" [class.current]="step.actual" [class.pending]="step.pendiente">
+                <div class="step-dot" [style.background]="step.completado || step.actual ? step.color : '#e2e8f0'"
+                     [style.border-color]="step.color">
+                  @if (step.completado) {
+                    <mat-icon>check</mat-icon>
+                  } @else if (step.actual) {
+                    <div class="step-pulse" [style.background]="step.color"></div>
+                  }
+                </div>
+                <span class="step-label" [class.active]="step.completado || step.actual">{{ step.label }}</span>
+                @if (!last) {
+                  <div class="step-line" [class.filled]="step.completado"></div>
+                }
+              </div>
+            }
+          </div>
+        </mat-card>
+
+        <mat-card class="section-card docs-card">
+          <div class="section-header">
+            <mat-icon [style.color]="'#0d9488'">description</mat-icon>
+            <div>
+              <h3>Documentación</h3>
+              <p class="section-sub">{{ progresoDocs().aceptados }} de {{ progresoDocs().total }} obligatorios aceptados</p>
+            </div>
+          </div>
+
+          @if (progresoDocs().total > 0) {
+            <div class="progress-bar-wrapper">
+              <div class="progress-bar">
+                <div class="progress-fill" [style.width.%]="progresoDocs().pct"></div>
+              </div>
+              <span class="progress-text">{{ progresoDocs().pct }}%</span>
+            </div>
+          }
+
+          @if (docsObligatorios().length > 0) {
+            <h4 class="docs-group-title">Documentos Obligatorios</h4>
+            <div class="docs-list">
+              @for (doc of docsObligatorios(); track doc.id_control_documentacion) {
+                <div class="doc-item" [class.doc-uploading]="isUploading(doc.id_control_documentacion)"
+                     [class.doc-success]="uploadState() === 'completado' && isUploading(doc.id_control_documentacion)">
+                  <div class="doc-left">
+                    <div class="doc-status-icon" [style.background]="docEstadoColor(doc.estado) + '15'"
+                         [style.color]="docEstadoColor(doc.estado)">
+                      <mat-icon>{{ docEstadoIcon(doc.estado) }}</mat-icon>
+                    </div>
+                    <div class="doc-info">
+                      <span class="doc-name" (click)="verRequisito(doc.id_requisito)">{{ doc.requisito.nombre }}</span>
+                      <div class="doc-meta">
+                        <span class="doc-status-text" [style.color]="docEstadoColor(doc.estado)">{{ docEstadoLabel(doc.estado) }}</span>
+                        @if (doc.fecha_entrega) {
+                          <span class="doc-date">· {{ convertirFecha(doc.fecha_entrega) }}</span>
+                        }
+                      </div>
+                      @if (doc.observaciones) {
+                        <p class="doc-obs">
+                          <mat-icon>warning</mat-icon>
+                          {{ doc.observaciones }}
+                        </p>
+                      }
+                    </div>
+                  </div>
+                  <div class="doc-right">
+                    @if (doc.url_documento) {
+                      <a class="doc-view-btn" [href]="getDocUrl(doc.url_documento)" target="_blank"
+                         matTooltip="Ver documento subido">
+                        <mat-icon>visibility</mat-icon>
+                      </a>
+                    }
+                    @if (doc.estado === 'pendiente' || doc.estado === 'rechazado') {
+                      @if (isUploading(doc.id_control_documentacion)) {
+                        <div class="upload-progress-inline">
+                          @if (uploadState() === 'completado') {
+                            <mat-icon class="upload-done">check_circle</mat-icon>
+                            <span class="upload-done-text">Listo!</span>
+                          } @else {
+                            <mat-spinner diameter="18"></mat-spinner>
+                            <span class="upload-status-text">
+                              @if (uploadState() === 'leyendo') { Leyendo... }
+                              @else { Subiendo... }
+                            </span>
+                          }
+                        </div>
+                      } @else {
+                        <label class="doc-upload-btn" matTooltip="Subir imagen o PDF">
+                          <mat-icon>cloud_upload</mat-icon>
+                          <span>{{ doc.estado === 'rechazado' ? 'Reenviar' : 'Subir' }}</span>
+                          <input type="file" accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
+                                 hidden (change)="onFileSelected($event, doc)">
+                        </label>
+                      }
+                    }
+                    @if (doc.estado === 'entregado') {
+                      <span class="doc-waiting-badge">
+                        <mat-icon>hourglass_top</mat-icon>
+                        En revisión
+                      </span>
+                    }
+                    @if (doc.estado === 'aceptado') {
+                      <span class="doc-approved-badge">
+                        <mat-icon>verified</mat-icon>
+                        Aprobado
+                      </span>
+                    }
+                  </div>
+                </div>
+
+                @if (isUploading(doc.id_control_documentacion) && uploadState() !== 'completado') {
+                  <div class="upload-progress-bar">
+                    <mat-progress-bar mode="determinate" [value]="uploadProgress()"></mat-progress-bar>
+                    <span class="upload-filename">{{ uploadedFileName() }}</span>
+                  </div>
+                }
+              }
+            </div>
+          }
+
+          @if (docsExtras().length > 0) {
+            <h4 class="docs-group-title extras">Documentos Adicionales (Descuento)</h4>
+            <div class="docs-list">
+              @for (doc of docsExtras(); track doc.id_control_documentacion) {
+                <div class="doc-item" [class.doc-uploading]="isUploading(doc.id_control_documentacion)">
+                  <div class="doc-left">
+                    <div class="doc-status-icon" [style.background]="docEstadoColor(doc.estado) + '15'"
+                         [style.color]="docEstadoColor(doc.estado)">
+                      <mat-icon>{{ docEstadoIcon(doc.estado) }}</mat-icon>
+                    </div>
+                    <div class="doc-info">
+                      <span class="doc-name" (click)="verRequisito(doc.id_requisito)">{{ doc.requisito.nombre }}</span>
+                      <div class="doc-meta">
+                        <span class="doc-status-text" [style.color]="docEstadoColor(doc.estado)">{{ docEstadoLabel(doc.estado) }}</span>
+                      </div>
+                      @if (doc.observaciones) {
+                        <p class="doc-obs">
+                          <mat-icon>warning</mat-icon>
+                          {{ doc.observaciones }}
+                        </p>
+                      }
+                    </div>
+                  </div>
+                  <div class="doc-right">
+                    @if (doc.url_documento) {
+                      <a class="doc-view-btn" [href]="getDocUrl(doc.url_documento)" target="_blank"
+                         matTooltip="Ver documento subido">
+                        <mat-icon>visibility</mat-icon>
+                      </a>
+                    }
+                    @if (doc.estado === 'pendiente' || doc.estado === 'rechazado') {
+                      @if (isUploading(doc.id_control_documentacion)) {
+                        <div class="upload-progress-inline">
+                          @if (uploadState() === 'completado') {
+                            <mat-icon class="upload-done">check_circle</mat-icon>
+                          } @else {
+                            <mat-spinner diameter="18"></mat-spinner>
+                          }
+                        </div>
+                      } @else {
+                        <label class="doc-upload-btn" matTooltip="Subir imagen o PDF">
+                          <mat-icon>cloud_upload</mat-icon>
+                          <span>Subir</span>
+                          <input type="file" accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
+                                 hidden (change)="onFileSelected($event, doc)">
+                        </label>
+                      }
+                    }
+                    @if (doc.estado === 'entregado') {
+                      <span class="doc-waiting-badge">
+                        <mat-icon>hourglass_top</mat-icon>
+                        En revisión
+                      </span>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </mat-card>
+      </div>
+
+      <div class="side-col">
+        <mat-card class="section-card info-card">
+          <h3><mat-icon>info</mat-icon> Detalles</h3>
+          <div class="info-rows">
+            <div class="info-row">
+              <span class="label">Modalidad</span>
+              <span class="value">{{ ins.modalidad_academica.nombre_modalidad }}</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Fecha de Inscripción</span>
+              <span class="value">{{ convertirFecha(ins.fecha_inscripcion) }}</span>
+            </div>
+            @if (ins.tipo_descuento) {
+              <div class="info-row">
+                <span class="label">Descuento</span>
+                <span class="value">{{ ins.tipo_descuento.nombre }} ({{ ins.descuento_aplicado }}%)</span>
+              </div>
+            }
+            @if (ins.programa_version_edicion.precio) {
+              <mat-divider></mat-divider>
+              <div class="info-row total">
+                <span class="label">Precio</span>
+                <span class="value">Bs {{ ins.programa_version_edicion.precio }}</span>
+              </div>
+            }
+          </div>
+        </mat-card>
+
+        @if (puedeRetirarse()) {
+          <mat-card class="section-card danger-card">
+            <h3><mat-icon [style.color]="'#ef4444'">warning</mat-icon> Zona de peligro</h3>
+            <p class="danger-text">Si te retirás, no podrás volver a inscribirte en esta edición.</p>
+            <button class="retirar-btn" (click)="retirar()">
+              <mat-icon>exit_to_app</mat-icon>
+              Retirarse de esta inscripción
+            </button>
+          </mat-card>
+        }
+      </div>
+    </div>
+  }
+</div>

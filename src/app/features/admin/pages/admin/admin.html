@@ -46,11 +46,39 @@
         <mat-icon>local_offer</mat-icon> Descuentos
       </a>
       <a mat-tab-link
-         [routerLink]="['./documentacion']"
+         [routerLink]="['./alumnos']"
          routerLinkActive
          #rla6="routerLinkActive"
          [active]="rla6.isActive">
+        <mat-icon>people</mat-icon> Alumnos
+      </a>
+      <a mat-tab-link
+         [routerLink]="['./documentacion']"
+         routerLinkActive
+         #rla7="routerLinkActive"
+         [active]="rla7.isActive">
         <mat-icon>description</mat-icon> Documentación
+      </a>
+      <a mat-tab-link
+         [routerLink]="['./inscripciones']"
+         routerLinkActive
+         #rla8="routerLinkActive"
+         [active]="rla8.isActive">
+        <mat-icon>how_to_reg</mat-icon> Inscripciones
+      </a>
+      <a mat-tab-link
+         [routerLink]="['./pagos']"
+         routerLinkActive
+         #rla9="routerLinkActive"
+         [active]="rla9.isActive">
+        <mat-icon>payments</mat-icon> Pagos
+      </a>
+      <a mat-tab-link
+         [routerLink]="['./notas']"
+         routerLinkActive
+         #rla10="routerLinkActive"
+         [active]="rla10.isActive">
+        <mat-icon>grading</mat-icon> Notas
       </a>
     </nav>
     <mat-tab-nav-panel #tabPanel class="admin-panel">

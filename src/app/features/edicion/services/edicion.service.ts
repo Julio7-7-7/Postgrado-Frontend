@@ -3,6 +3,7 @@ import { HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ApiService } from '../../../core/services/api.service';
 import { ProgramaVersionEdicion, ProgramaVersionEdicionCreate } from '../models/edicion.model';
+import { PostulanteResponse } from '../../documentacion/models/documentacion.model';
 
 @Injectable({ providedIn: 'root' })
 export class EdicionService extends ApiService {
@@ -21,6 +22,10 @@ export class EdicionService extends ApiService {
 
   getActivas(): Observable<ProgramaVersionEdicion[]> {
     return this.http.get<ProgramaVersionEdicion[]>(`${this.baseUrl}/${this.endpoint}/activas`);
+  }
+
+  getPostulantes(idEdicion: number): Observable<PostulanteResponse[]> {
+    return this.http.get<PostulanteResponse[]>(`${this.baseUrl}/${this.endpoint}/${idEdicion}/postulantes`);
   }
 
   create(data: ProgramaVersionEdicionCreate): Observable<ProgramaVersionEdicion> {

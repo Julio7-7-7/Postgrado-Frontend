@@ -77,7 +77,7 @@
     </div>
 
     <div class="table-section">
-      <table mat-table [dataSource]="listaActivos()" class="full-width-table">
+      <table mat-table [dataSource]="paginatedActivos()" class="full-width-table">
 
         <ng-container matColumnDef="id">
           <th mat-header-cell *matHeaderCellDef> ID </th>
@@ -156,6 +156,13 @@
         <tr mat-row *matRowDef="let row; columns: columnas;" class="clickable-row"
             (click)="irADetalle(row.id_docente)"></tr>
       </table>
+      <mat-paginator [length]="listaActivos().length"
+                     [pageSize]="pageSize()"
+                     [pageIndex]="pageIndex()"
+                     [pageSizeOptions]="[10, 20, 50]"
+                     (page)="onPageChange($event)"
+                     showFirstLastButtons>
+      </mat-paginator>
 
       @if (listaActivos().length === 0) {
         <div class="empty-state">

@@ -5,7 +5,10 @@
   </div>
 
   @if (cargando()) {
-    <div class="loading">Cargando inscripciones...</div>
+    <div class="loading">
+      <mat-spinner diameter="36"></mat-spinner>
+      <span>Cargando inscripciones...</span>
+    </div>
   }
 
   @if (!cargando() && inscripciones().length === 0) {
@@ -18,7 +21,7 @@
   @if (!cargando() && inscripciones().length > 0) {
     <div class="inscripciones-list">
       @for (ins of inscripciones(); track ins.id_detalle_programa_alumno) {
-        <mat-card class="inscripcion-card">
+        <mat-card class="inscripcion-card" (click)="verDetalle(ins.id_detalle_programa_alumno)">
           <mat-card-content>
             <div class="card-top">
               <div class="programa-info">
@@ -62,8 +65,17 @@
                   <span class="value">Bs {{ ins.programa_version_edicion.precio }}</span>
                 </div>
               }
+              @if (docsProgreso(ins)) {
+                <div class="detail-row">
+                  <span class="label">Documentación</span>
+                  <span class="value docs-progreso">{{ docsProgreso(ins) }} aceptados</span>
+                </div>
+              }
             </div>
           </mat-card-content>
+          <div class="card-arrow">
+            <mat-icon>chevron_right</mat-icon>
+          </div>
         </mat-card>
       }
     </div>

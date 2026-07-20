@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { MatTableModule } from '@angular/material/table';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -28,7 +29,7 @@ import { Programa } from '../../../programa/models/programa.model';
   standalone: true,
   imports: [
     CommonModule, RouterLink, FormsModule,
-    MatTableModule, MatButtonModule, MatIconModule, MatTooltipModule,
+    MatTableModule, MatPaginatorModule, MatButtonModule, MatIconModule, MatTooltipModule,
     MatProgressSpinnerModule, MatSnackBarModule, MatDialogModule, MatCardModule,
     MatFormFieldModule, MatInputModule, MatSelectModule,
   ],
@@ -52,6 +53,8 @@ export class ContratacionListComponent implements OnInit {
   filtroProgramaId = signal<number | null>(null);
   sortField = signal<'estado' | 'docente' | 'programa' | 'fecha_inicio'>('estado');
   sortDirection = signal<'asc' | 'desc'>('asc');
+  pageIndex = signal(0);
+  pageSize = signal(20);
 
   listaFiltrada = computed(() => {
     const busqueda = this.terminoBusqueda().toLowerCase().trim();
@@ -103,6 +106,11 @@ export class ContratacionListComponent implements OnInit {
     });
   });
 
+  paginatedLista = computed(() => {
+    const start = this.pageIndex() * this.pageSize();
+    return this.listaFiltrada().slice(start, start + this.pageSize());
+  });
+
   columnas: string[] = ['docente', 'sigla', 'modulo', 'fechas', 'progreso', 'acciones'];
 
   ngOnInit(): void {
@@ -145,6 +153,11 @@ export class ContratacionListComponent implements OnInit {
 
   irADetalle(id: number): void {
     this.router.navigate(['/contrataciones', id]);
+  }
+
+  onPageChange(event: PageEvent): void {
+    this.pageIndex.set(event.pageIndex);
+    this.pageSize.set(event.pageSize);
   }
 
   truncar(c: ContratacionDocente, event: Event): void {

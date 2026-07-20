@@ -44,10 +44,40 @@ export const ADMIN_ROUTES: Routes = [
         canActivate: [permisoGuard('tipos_descuento.ver')],
       },
       {
-        path: 'documentacion',
+        path: 'alumnos',
         loadComponent: () =>
-          import('../../documentacion/pages/documentacion/documentacion').then(m => m.DocumentacionComponent),
-        canActivate: [permisoGuard('control_documentacion.ver')],
+          import('../../alumnos-admin/pages/alumnos-admin-list/alumnos-admin-list').then(m => m.AlumnosAdminListComponent),
+        canActivate: [permisoGuard('alumnos.ver')],
+      },
+      {
+        path: 'documentacion',
+        loadChildren: () =>
+          import('../../documentacion/routes/documentacion.routes').then(m => m.DOCUMENTACION_ROUTES),
+        canActivate: [permisoGuard('documentos.revisar')],
+      },
+      {
+        path: 'inscripciones',
+        loadChildren: () =>
+          import('../../inscripciones/routes/inscripciones.routes').then(m => m.INSCRIPCIONES_ROUTES),
+        canActivate: [permisoGuard('alumnos.ver')],
+      },
+      {
+        path: 'pagos',
+        loadChildren: () =>
+          import('../../pagos/routes/pagos.routes').then(m => m.PAGOS_ROUTES),
+        canActivate: [permisoGuard('pagos.ver')],
+      },
+      {
+        path: 'notas',
+        loadChildren: () =>
+          import('../../notas/routes/notas.routes').then(m => m.NOTAS_ROUTES),
+        canActivate: [permisoGuard('notas.ver')],
+      },
+      {
+        path: 'transcript/:idAlumno',
+        loadComponent: () =>
+          import('../../transcript/pages/transcript/transcript').then(m => m.TranscriptComponent),
+        canActivate: [permisoGuard('alumnos.ver')],
       },
     ],
   },

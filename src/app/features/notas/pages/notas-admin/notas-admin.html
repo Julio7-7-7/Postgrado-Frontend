@@ -1,0 +1,49 @@
+<div class="page-container">
+  <div class="header-section">
+    <h1><mat-icon>grading</mat-icon> Gestión de Notas</h1>
+    <p class="subtitle">Seleccione una edición para gestionar las notas de los alumnos</p>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading-state">
+      <mat-spinner diameter="40"></mat-spinner>
+      <span>Cargando ediciones...</span>
+    </div>
+  } @else {
+    @if (ediciones().length === 0) {
+      <div class="empty-state">
+        <mat-icon>school</mat-icon>
+        <h4>No hay ediciones disponibles</h4>
+        <p>No se encontraron ediciones activas para gestionar notas</p>
+      </div>
+    } @else {
+      <div class="ediciones-grid">
+        @for (ed of ediciones(); track ed.id_programa_version_edicion) {
+          <div class="edicion-card" (click)="irANotas(ed)">
+            <div class="card-header">
+              <div class="card-icon">
+                <mat-icon>grading</mat-icon>
+              </div>
+              <span class="estado-chip" [class]="estadoClass(ed.estado)">{{ estadoLabel(ed.estado) }}</span>
+            </div>
+            <div class="card-body">
+              <h3 class="card-title">{{ programaNombre(ed) }}</h3>
+              <div class="card-meta">
+                <span class="meta-tag tipo">{{ tipoPrograma(ed) }}</span>
+                <span class="meta-tag gestion">{{ gestionLabel(ed) }}</span>
+                @if (ed.modalidad) {
+                  <span class="meta-tag modalidad">{{ ed.modalidad }}</span>
+                }
+              </div>
+            </div>
+            <div class="card-footer">
+              <button mat-flat-button color="primary" class="action-btn">
+                <mat-icon>arrow_forward</mat-icon> Ver Notas
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  }
+</div>

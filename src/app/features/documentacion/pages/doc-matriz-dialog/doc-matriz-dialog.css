@@ -1,0 +1,304 @@
+/* ─── Header ─── */
+
+.dialog-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 20px 24px 0;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+
+.avatar-lg {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #0d9488, #14b8a6);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.header-info h2 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--fich-text);
+}
+
+.header-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+
+.meta-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.78rem;
+  color: var(--fich-text-muted);
+  background: var(--fich-bg-subtle);
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.meta-chip mat-icon {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+}
+
+.close-btn {
+  flex-shrink: 0;
+}
+
+/* ─── Estado pill ─── */
+
+.estado-pill {
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.estado-postulante { background: #fef3c7; color: #92400e; }
+.estado-observado { background: #ffedd5; color: #9a3412; }
+.estado-inscrito { background: #d1fae5; color: #065f46; }
+.estado-en_curso { background: #dbeafe; color: #1e40af; }
+.estado-finalizado { background: #e0e7ff; color: #3730a3; }
+.estado-retirado { background: #fee2e2; color: #991b1b; }
+
+/* ─── Progress ─── */
+
+.dialog-progress {
+  padding: 12px 24px 0;
+}
+
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.progress-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--fich-text-secondary);
+}
+
+.progress-pct {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--fich-primary);
+}
+
+.progress-bar {
+  height: 6px;
+  background: var(--fich-bg-subtle);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #0d9488, #14b8a6);
+  border-radius: 4px;
+  transition: width 0.3s;
+}
+
+.progress-fill.complete {
+  background: #10b981;
+}
+
+/* ─── Content ─── */
+
+.dialog-content {
+  padding: 16px 24px !important;
+  max-height: 55vh;
+}
+
+/* ─── Doc row ─── */
+
+.doc-row {
+  border: 1px solid var(--fich-border-light);
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  background: var(--fich-bg-card);
+  transition: border-color 0.12s;
+}
+
+.doc-row:last-child { margin-bottom: 0; }
+
+.doc-row.doc-aceptado { border-left: 3px solid #10b981; }
+.doc-row.doc-rechazado { border-left: 3px solid #ef4444; }
+.doc-row.doc-entregado { border-left: 3px solid #f59e0b; }
+
+.doc-main {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.doc-status {
+  flex-shrink: 0;
+}
+
+.status-icon {
+  font-size: 22px;
+  width: 22px;
+  height: 22px;
+}
+
+.icon-aceptado { color: #10b981; }
+.icon-rechazado { color: #ef4444; }
+.icon-entregado { color: #f59e0b; }
+.icon-pendiente { color: #94a3b8; }
+
+.doc-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.doc-name {
+  font-weight: 600;
+  color: var(--fich-text);
+  font-size: 0.9rem;
+}
+
+.doc-dates {
+  font-size: 0.75rem;
+  color: var(--fich-text-muted);
+}
+
+.doc-rechazo {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin-top: 6px;
+  padding: 6px 10px;
+  background: #fef2f2;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  color: #991b1b;
+  font-style: italic;
+}
+
+.doc-rechazo mat-icon {
+  font-size: 15px;
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.doc-badge {
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.badge-aceptado { background: #d1fae5; color: #065f46; }
+.badge-rechazado { background: #fee2e2; color: #991b1b; }
+.badge-entregado { background: #fef3c7; color: #92400e; }
+.badge-pendiente { background: #f1f5f9; color: #64748b; }
+
+/* ─── Actions ─── */
+
+.doc-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.action-btn {
+  height: 32px !important;
+  font-size: 0.78rem !important;
+  border-radius: 6px !important;
+}
+
+.action-btn mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  margin-right: 4px;
+}
+
+.approved-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #10b981;
+}
+
+.approved-label mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.reject-btn {
+  color: #ef4444 !important;
+  border-color: #fecaca !important;
+}
+
+.reject-btn:hover {
+  background: #fef2f2 !important;
+}
+
+/* ─── Reject form ─── */
+
+.reject-form {
+  margin-top: 10px;
+  padding: 12px;
+  background: #fff;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+}
+
+.reject-field {
+  width: 100%;
+}
+
+.reject-field ::ng-deep .mat-mdc-text-field-wrapper {
+  background: #fff;
+}
+
+.reject-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+/* ─── Dialog actions ─── */
+
+mat-dialog-actions {
+  padding: 8px 24px 16px !important;
+}

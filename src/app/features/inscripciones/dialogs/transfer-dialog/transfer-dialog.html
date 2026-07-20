@@ -1,0 +1,47 @@
+<h2 mat-dialog-title>
+  <mat-icon class="title-icon">swap_horiz</mat-icon>
+  Transferir Estudiante a Otra Edición
+</h2>
+
+<mat-dialog-content>
+  <div class="alumno-info">
+    <span class="alumno-name">{{ data.inscripcion.alumno.nombre }} {{ data.inscripcion.alumno.apellido }}</span>
+    <span class="alumno-ci">CI: {{ data.inscripcion.alumno.ci || 'N/A' }}</span>
+    <span class="alumno-estado">Estado actual: {{ data.inscripcion.estado }}</span>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading-box">
+      <mat-spinner diameter="32"></mat-spinner>
+      <span>Cargando ediciones disponibles...</span>
+    </div>
+  } @else {
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Edición destino</mat-label>
+      <mat-select [(value)]="edicionDestino">
+        @for (ed of ediciones(); track ed.id_programa_version_edicion) {
+          <mat-option [value]="ed.id_programa_version_edicion">
+            {{ edicionLabel(ed) }}
+          </mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Motivo de la transferencia</mat-label>
+      <textarea matInput rows="3" [(ngModel)]="motivo"
+                placeholder="Ej: El estudiante no pudo completar los módulos restantes en esta edición..."></textarea>
+    </mat-form-field>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancelar()" [disabled]="isSubmitting()">Cancelar</button>
+  <button mat-flat-button color="primary" (click)="confirmar()"
+          [disabled]="isSubmitting() || isLoading() || !edicionDestino || !motivo.trim()">
+    @if (isSubmitting()) {
+      <mat-spinner diameter="18" class="btn-spinner"></mat-spinner>
+    }
+    Transferir
+  </button>
+</mat-dialog-actions>

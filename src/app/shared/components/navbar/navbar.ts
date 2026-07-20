@@ -48,7 +48,7 @@ export class NavbarComponent {
     { path: '/dashboard', label: 'Inicio', icon: 'home', exact: true, feature: 'home', permiso: 'programas.ver' },
     { path: '/programas', label: 'Programas', icon: 'school', feature: 'programas', permiso: 'programas.ver' },
     { path: '/tipos-programa', label: 'Tipos', icon: 'category', feature: 'tipos-programa', permiso: 'tipos_programa.ver' },
-    { path: '/alumnos', label: 'Alumnos', icon: 'people', feature: 'alumno', permiso: 'alumnos.ver' },
+    { path: '/admin/alumnos', label: 'Alumnos', icon: 'people', feature: 'alumno', permiso: 'alumnos.ver' },
     { path: '/docentes', label: 'Docentes', icon: 'badge', feature: 'docente', permiso: 'docentes.ver' },
     { path: '/contrataciones', label: 'Contrataciones', icon: 'assignment', feature: 'contratacion', permiso: 'contrataciones.ver' },
     { path: '/admin', label: 'Admin', icon: 'admin_panel_settings', feature: 'admin', permiso: 'roles.gestionar' },

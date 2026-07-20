@@ -1,0 +1,125 @@
+<div class="toolbar-row">
+  <div class="toolbar-left">
+    <h3>Alumnos</h3>
+    <span class="toolbar-count">{{ filteredAlumnos().length }} alumnos</span>
+  </div>
+  <div class="toolbar-right">
+    <mat-form-field appearance="outline" class="period-field">
+      <mat-label>Año</mat-label>
+      <mat-select [(ngModel)]="filterAnio" (selectionChange)="onPeriodoChange()">
+        <mat-option [value]="null">Todos</mat-option>
+        @for (y of aniosDisponibles(); track y) {
+          <mat-option [value]="y">{{ y }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="period-field">
+      <mat-label>Semestre</mat-label>
+      <mat-select [(ngModel)]="filterSemestre" (selectionChange)="onPeriodoChange()">
+        <mat-option [value]="null">Todos</mat-option>
+        <mat-option [value]="1">1er Semestre</mat-option>
+        <mat-option [value]="2">2do Semestre</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>Buscar</mat-label>
+      <input matInput placeholder="Nombre, CI, correo..."
+             (input)="onSearch($any($event.target).value)">
+      <mat-icon matPrefix>search</mat-icon>
+    </mat-form-field>
+  </div>
+</div>
+
+@if (isLoading()) {
+  <div class="loading-container">
+    <mat-spinner diameter="36"></mat-spinner>
+    <span>Cargando alumnos...</span>
+  </div>
+} @else if (error()) {
+  <div class="error-container">
+    <mat-icon>error_outline</mat-icon>
+    <p>{{ error() }}</p>
+    <button mat-stroked-button (click)="cargarDatos()">Reintentar</button>
+  </div>
+} @else {
+  <div class="table-wrapper mat-elevation-z1">
+    <table mat-table [dataSource]="paginatedAlumnos()" class="fich-table">
+      <ng-container matColumnDef="nombre">
+        <th mat-header-cell *matHeaderCellDef>Nombre</th>
+        <td mat-cell *matCellDef="let a">
+          <div class="cell-name-row">
+            <div class="avatar-sm">{{ iniciales(a) }}</div>
+            <div>
+              <div class="cell-name">{{ a.nombre }} {{ a.apellido }}</div>
+              @if (a.genero) {
+                <div class="cell-muted">{{ a.genero }}</div>
+              }
+            </div>
+          </div>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="ci">
+        <th mat-header-cell *matHeaderCellDef>CI / Pasaporte</th>
+        <td mat-cell *matCellDef="let a">
+          <span class="cell-mono">{{ a.ci || a.pasaporte || '—' }}</span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="correo">
+        <th mat-header-cell *matHeaderCellDef>Correo</th>
+        <td mat-cell *matCellDef="let a">
+          <span class="cell-email">{{ a.correo }}</span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="celular">
+        <th mat-header-cell *matHeaderCellDef>Celular</th>
+        <td mat-cell *matCellDef="let a">
+          {{ a.celular || '—' }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="inscripciones">
+        <th mat-header-cell *matHeaderCellDef>Inscripciones</th>
+        <td mat-cell *matCellDef="let a">
+          <span class="cell-muted">—</span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="acciones">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let a">
+          <div class="action-btns">
+            <button mat-icon-button matTooltip="Editar" (click)="editarAlumno(a)">
+              <mat-icon>edit</mat-icon>
+            </button>
+          </div>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="columnas"></tr>
+      <tr mat-row *matRowDef="let row; columns: columnas;"></tr>
+    </table>
+    <mat-paginator [length]="filteredAlumnos().length"
+                   [pageSize]="pageSize()"
+                   [pageIndex]="pageIndex()"
+                   [pageSizeOptions]="[10, 20, 50]"
+                   (page)="onPageChange($event)"
+                   showFirstLastButtons>
+    </mat-paginator>
+  </div>
+
+  @if (filteredAlumnos().length === 0) {
+    <div class="empty-state">
+      <mat-icon>people</mat-icon>
+      @if (searchText()) {
+        <h4>Sin resultados</h4>
+        <p>No se encontraron alumnos con "{{ searchText() }}"</p>
+      } @else {
+        <h4>No hay alumnos registrados</h4>
+        <p>Los alumnos se crean automáticamente al inscribirse</p>
+      }
+    </div>
+  }
+}

@@ -1,0 +1,337 @@
+.page-container {
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+/* ─── Header ─── */
+
+.header-section { margin-bottom: 20px; }
+.header-left { display: flex; align-items: center; gap: 12px; }
+.back-btn { margin-right: 2px; }
+
+.header-section h1 {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.header-section h1 mat-icon { color: var(--fich-primary); }
+
+.subtitle {
+  margin: 2px 0 0;
+  color: var(--fich-text-muted);
+  font-size: 0.85rem;
+}
+
+/* ─── States ─── */
+
+.loading-state, .empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 56px 20px;
+  background: var(--fich-bg-card);
+  border-radius: 12px;
+  border: 1px solid var(--fich-border-light);
+}
+
+.empty-state mat-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  opacity: 0.3;
+}
+
+.empty-state h4 { margin: 0; font-weight: 600; color: var(--fich-text-secondary); }
+.empty-state p { margin: 0; color: var(--fich-text-muted); font-size: 0.85rem; }
+
+/* ─── Stats Bar ─── */
+
+.stats-bar {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 14px 20px;
+  background: var(--fich-bg-card);
+  border: 1px solid var(--fich-border-light);
+  border-radius: 10px;
+  margin-bottom: 16px;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.stat-value {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--fich-text);
+}
+
+.stat-label {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--fich-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.stat-item.completos .stat-value { color: #10b981; }
+.stat-item.revision .stat-value { color: #f59e0b; }
+.stat-item.sin-avance .stat-value { color: #94a3b8; }
+.stat-item.retirados .stat-value { color: #ef4444; }
+
+.stat-divider {
+  width: 1px;
+  height: 28px;
+  background: var(--fich-border-light);
+}
+
+/* ─── Modalidad Sections ─── */
+
+.modalidad-section {
+  margin-bottom: 28px;
+}
+
+.modalidad-section:last-child {
+  margin-bottom: 0;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.section-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.section-icon mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  color: white;
+}
+
+.section-icon[data-modalidad="1"] { background: linear-gradient(135deg, #0891b2, #06b6d4); }
+.section-icon[data-modalidad="2"] { background: linear-gradient(135deg, #7c3aed, #8b5cf6); }
+.section-icon[data-modalidad="3"] { background: linear-gradient(135deg, #d97706, #f59e0b); }
+.section-icon[data-modalidad="4"] { background: linear-gradient(135deg, #059669, #10b981); }
+
+.section-text {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.section-text h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--fich-text);
+}
+
+.section-count {
+  font-size: 0.75rem;
+  color: var(--fich-text-muted);
+  background: var(--fich-bg-subtle);
+  padding: 2px 10px;
+  border-radius: 10px;
+}
+
+/* ─── Table ─── */
+
+.table-wrap {
+  border: 1px solid var(--fich-border-light);
+  border-radius: 12px;
+  background: var(--fich-bg-card);
+}
+
+.matriz-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  table-layout: fixed;
+}
+
+.matriz-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.matriz-table th {
+  background: var(--fich-bg-subtle);
+  color: var(--fich-text-muted);
+  font-weight: 600;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 12px 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--fich-border-light);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.matriz-table td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--fich-border-light);
+  vertical-align: middle;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.matriz-table tbody tr {
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.matriz-table tbody tr:hover {
+  background: var(--fich-bg-hover);
+}
+
+.matriz-table tbody tr.retirado {
+  opacity: 0.55;
+}
+
+/* ─── Column widths ─── */
+
+.col-alumno { width: 22%; }
+.col-estado { width: 12%; }
+.col-doc { text-align: center; }
+.col-progreso { width: 14%; }
+
+/* ─── Alumno cell ─── */
+
+.alumno-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.avatar-sm {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #0d9488, #14b8a6);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.72rem;
+  flex-shrink: 0;
+}
+
+.alumno-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.alumno-nombre {
+  font-weight: 600;
+  color: var(--fich-text);
+  font-size: 0.88rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.alumno-ci {
+  font-size: 0.75rem;
+  color: var(--fich-text-muted);
+}
+
+/* ─── Estado pill ─── */
+
+.estado-pill {
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  white-space: nowrap;
+}
+
+.estado-postulante { background: #fef3c7; color: #92400e; }
+.estado-observado { background: #ffedd5; color: #9a3412; }
+.estado-inscrito { background: #d1fae5; color: #065f46; }
+.estado-en_curso { background: #dbeafe; color: #1e40af; }
+.estado-finalizado { background: #e0e7ff; color: #3730a3; }
+.estado-retirado { background: #fee2e2; color: #991b1b; }
+
+/* ─── Cell icons ─── */
+
+.col-doc {
+  text-align: center;
+}
+
+.cell-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.cell-sin_doc { color: #cbd5e1; }
+.cell-pendiente { color: #94a3b8; }
+.cell-entregado { color: #f59e0b; }
+.cell-aceptado { color: #10b981; }
+.cell-rechazado { color: #ef4444; }
+
+/* ─── Progress ─── */
+
+.progress-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.progress-bar {
+  flex: 1;
+  height: 5px;
+  background: var(--fich-bg-subtle);
+  border-radius: 4px;
+  overflow: hidden;
+  min-width: 40px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #0d9488, #14b8a6);
+  border-radius: 4px;
+  transition: width 0.3s;
+}
+
+.progress-fill.complete {
+  background: #10b981;
+}
+
+.progress-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--fich-text-secondary);
+  white-space: nowrap;
+  min-width: 30px;
+  text-align: right;
+}

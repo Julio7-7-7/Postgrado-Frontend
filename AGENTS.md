@@ -1061,3 +1061,46 @@ bdab4ed feat(modalidad-form): add selected-requisitos chips above multi-select
 - Filtrado de alumnos por período
 - Refinar contraste y diferenciación visual
 - Acoplamiento de estudiantes entre ediciones: campo `modulo_inicio` en `DetalleProgramaAlumno`
+
+## Sesión 2026-07-17 — Audit fixes, descuento persistence, form harmonization
+
+### Bugs corregidos
+1. **`descuento_aplicado` no se persistía en `editar()`** — `data.descuento_aplicado = td.porcentaje` seteaba en el modelo Pydantic pero `model_dump(exclude_unset=True)` lo ignoraba (no está en `model_fields_set`). Fix: setear directamente en el ORM object `detalle.descuento_aplicado` después del loop `setattr`
+2. **`EstadoDetalleAlumno` type stale** — `convalidando` (eliminado del enum) → `observado` en `detalle-programa-alumno.model.ts` + mapa de colores en `inscripciones.ts`
+3. **`inscribir.ts` sin error handlers** — `modalidadService.getAll()` y `descuentoService.getAll()` no tenían `error:` → spinner fallaba silenciosamente. Agregados handlers con snackbar + `onComplete()`
+4. **Requisitos ya seleccionados visibles en autocomplete** — `cargarRequisitos()` inicializaba `filteredRequisitos` con todos los activos sin excluir los ya seleccionados. Fix: filtrar por `!selected.includes()` al cargar
+5. **`GET /requisitos/{id}` requería auth** — router tenía `dependencies=[Depends(get_current_user)]` y endpoint tenía `require_permiso`. La vista pública `/requisitos/:id` no tiene auth guard → 401. Fix: eliminar auth del router y del `GET /{id}`
+
+### Refactors UI
+- **`tipo-descuento-form`**: checkbox chips → autocomplete pattern (mismo que `modalidad-form`). Con chips seleccionados arriba, búsqueda, filtering que excluye ya seleccionados. Escala a 50+ items
+- **`modalidad-form`**: agregado `MatSelectModule` (faltaba para `mat-select`), eliminado `MatChipsModule` (innecesario)
+- **`inscribir` form restyle completo**:
+  - Loading: texto → `mat-spinner`
+  - Un solo `mat-card` → **section cards** separados (datos personales, inscripción, documentación)
+  - Headers de sección con icono degradado circular + título + descripción
+  - Meta chips del programa con fondo `bg-subtle` + borde
+  - Requisitos con hover y link como chip pill
+  - Acciones: barra `justify-content: space-between`, botón con spinner inline
+  - Todo con variables `--fich-*`
+- **`.field { margin-bottom: 4px }`** agregado a ambos forms (modalidad + descuento) para que el label flotante no se coma el input de arriba
+
+### Commits
+**Backend:**
+```
+67bed31 fix: descuento_aplicado persistence and public requisito detail
+```
+
+**Frontend:**
+```
+0e248ae fix: audit fixes and UI polish
+```
+
+### Pendientes
+- Bug #34: Navbar admin link "Alumnos" redirige al portal estudiante — falta gestión de alumnos para admin
+- Subida de documentos por parte del alumno (subir archivo al servidor, no solo ver requisitos)
+- Módulo pagos: modelo, endpoints y front
+- Módulo notas: modelo, endpoints y front
+- Endpoint dashboard: estadísticas del admin
+- Filtrado de alumnos por período
+- Refinar contraste y diferenciación visual
+- Acoplamiento de estudiantes entre ediciones: campo `modulo_inicio` en `DetalleProgramaAlumno`

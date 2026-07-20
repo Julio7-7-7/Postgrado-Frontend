@@ -1,0 +1,140 @@
+<div class="page-container">
+  <div class="header-section">
+    <div class="header-left">
+      <button mat-icon-button (click)="volver()" class="back-btn" matTooltip="Volver a ediciones">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div>
+        <h1><mat-icon>how_to_reg</mat-icon> Inscripciones por Edición</h1>
+        <p class="subtitle">Alumnos inscritos en esta edición del programa</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <span class="total-count">{{ total() }} inscripción{{ total() !== 1 ? 'es' : '' }}</span>
+    </div>
+  </div>
+
+  <div class="filters-bar">
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-icon matPrefix>search</mat-icon>
+      <input matInput placeholder="Buscar por nombre, apellido o CI..."
+             [value]="busqueda()"
+             (input)="onBusqueda($any($event.target).value)" />
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="estado-field">
+      <mat-label>Estado</mat-label>
+      <mat-select [value]="filtroEstado()" (selectionChange)="onFiltroEstado($event.value)">
+        <mat-option value="">Todos</mat-option>
+        <mat-option value="postulante">Postulante</mat-option>
+        <mat-option value="inscrito">Inscrito</mat-option>
+        <mat-option value="en_curso">En Curso</mat-option>
+        <mat-option value="incorporado">Incorporado</mat-option>
+        <mat-option value="finalizado">Finalizado</mat-option>
+        <mat-option value="observado">Observado</mat-option>
+        <mat-option value="retirado">Retirado</mat-option>
+        <mat-option value="graduado">Graduado</mat-option>
+        <mat-option value="titulado">Titulado</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading-state">
+      <mat-spinner diameter="40"></mat-spinner>
+      <span>Cargando inscripciones...</span>
+    </div>
+  } @else {
+    @if (items().length === 0) {
+      <div class="empty-state">
+        <mat-icon>how_to_reg</mat-icon>
+        <h4>No se encontraron inscripciones</h4>
+        <p>{{ busqueda() || filtroEstado() ? 'Pruebe con otros filtros de búsqueda' : 'No hay alumnos inscritos en esta edición' }}</p>
+      </div>
+    } @else {
+      <div class="table-container">
+        <table class="fich-table inscripciones-table">
+          <thead>
+            <tr>
+              <th class="col-alumno">Alumno</th>
+              <th class="col-ci">CI</th>
+              <th class="col-estado">Estado</th>
+              <th class="col-modalidad">Modalidad</th>
+              <th class="col-docs">Documentos</th>
+              <th class="col-modulo">Mód. Inicio</th>
+              <th class="col-descuento">Descuento</th>
+              <th class="col-acciones">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of items(); track item.id_detalle_programa_alumno) {
+              <tr class="table-row">
+                <td class="col-alumno">
+                  <div class="alumno-cell">
+                    <div class="avatar-sm">{{ iniciales(item) }}</div>
+                    <div class="alumno-text">
+                      <span class="alumno-nombre">{{ item.alumno.nombre }} {{ item.alumno.apellido }}</span>
+                      <span class="alumno-correo">{{ item.alumno.correo || '' }}</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="col-ci">{{ item.alumno.ci || '—' }}</td>
+                <td class="col-estado">
+                  <span class="estado-pill" [class]="estadoClass(item.estado)">
+                    {{ estadoLabel(item.estado) }}
+                  </span>
+                </td>
+                <td class="col-modalidad">{{ item.modalidad }}</td>
+                <td class="col-docs">
+                  <span class="docs-badge" [class.complete]="item.docs_completados === item.docs_total && item.docs_total > 0">
+                    {{ item.docs_completados }}/{{ item.docs_total }}
+                  </span>
+                </td>
+                <td class="col-modulo">{{ item.modulo_inicio }}</td>
+                <td class="col-descuento">
+                  @if (item.descuento_aplicado > 0) {
+                    <span class="descuento-badge">{{ item.descuento_aplicado }}%</span>
+                    @if (item.tipo_descuento) {
+                      <span class="descuento-name">{{ item.tipo_descuento }}</span>
+                    }
+                  } @else {
+                    <span class="no-descuento">—</span>
+                  }
+                </td>
+                <td class="col-acciones">
+                  <div class="acciones-cell">
+                    <button mat-icon-button class="action-btn transcript-btn"
+                            (click)="verTranscript(item)" matTooltip="Ver transcript del alumno">
+                      <mat-icon>school</mat-icon>
+                    </button>
+                    @if (canTransferir(item)) {
+                      <button mat-icon-button class="action-btn transfer-btn"
+                              (click)="abrirTransferir(item)" matTooltip="Transferir a otra edición">
+                        <mat-icon>swap_horiz</mat-icon>
+                      </button>
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      @if (pages() > 1) {
+        <div class="pagination">
+          <button mat-icon-button (click)="irAPagina(page() - 1)" [disabled]="page() === 1" matTooltip="Anterior">
+            <mat-icon>chevron_left</mat-icon>
+          </button>
+          @for (p of paginasVisibles(); track p) {
+            <button mat-icon-button [class.active]="p === page()" (click)="irAPagina(p)" class="page-btn">
+              {{ p }}
+            </button>
+          }
+          <button mat-icon-button (click)="irAPagina(page() + 1)" [disabled]="page() === pages()" matTooltip="Siguiente">
+            <mat-icon>chevron_right</mat-icon>
+          </button>
+        </div>
+      }
+    }
+  }
+</div>
