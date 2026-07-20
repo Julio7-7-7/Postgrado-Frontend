@@ -56,6 +56,12 @@ export const ADMIN_ROUTES: Routes = [
         canActivate: [permisoGuard('documentos.revisar')],
       },
       {
+        path: 'inscripciones',
+        loadChildren: () =>
+          import('../../inscripciones/routes/inscripciones.routes').then(m => m.INSCRIPCIONES_ROUTES),
+        canActivate: [permisoGuard('alumnos.ver')],
+      },
+      {
         path: 'pagos',
         loadChildren: () =>
           import('../../pagos/routes/pagos.routes').then(m => m.PAGOS_ROUTES),
@@ -66,6 +72,12 @@ export const ADMIN_ROUTES: Routes = [
         loadChildren: () =>
           import('../../notas/routes/notas.routes').then(m => m.NOTAS_ROUTES),
         canActivate: [permisoGuard('notas.ver')],
+      },
+      {
+        path: 'transcript/:idAlumno',
+        loadComponent: () =>
+          import('../../transcript/pages/transcript/transcript').then(m => m.TranscriptComponent),
+        canActivate: [permisoGuard('alumnos.ver')],
       },
     ],
   },

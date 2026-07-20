@@ -1,0 +1,44 @@
+.title-icon {
+  vertical-align: middle;
+  margin-right: 8px;
+  color: var(--fich-feature-edicion, #4f46e5);
+}
+
+.alumno-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 16px;
+  background: #f8fafc;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.alumno-name {
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.alumno-ci,
+.alumno-estado {
+  font-size: 13px;
+  color: #64748b;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.loading-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 24px;
+  justify-content: center;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.btn-spinner {
+  display: inline-block;
+}
