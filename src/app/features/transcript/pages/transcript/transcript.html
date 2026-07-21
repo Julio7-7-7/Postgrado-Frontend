@@ -68,7 +68,7 @@
                 <span class="mod-col-fecha">Fecha</span>
               </div>
               @for (mod of ins.modulos; track mod.id_detalle_programa_modulo) {
-                <div class="modulo-row">
+                <div class="modulo-row" [class]="moduloClass(mod, ins)" [matTooltip]="moduloTitle(mod, ins)">
                   <span class="mod-col-orden">{{ mod.modulo_orden }}</span>
                   <span class="mod-col-nombre">{{ mod.modulo_nombre }}</span>
                   <span class="mod-col-nota" [class]="notaClass(mod.nota)">
@@ -79,7 +79,11 @@
                     }
                   </span>
                   <span class="mod-col-edicion">
-                    Ed. {{ mod.edicion_numero }} ({{ semestreLabel(mod.edicion_semestre) }} {{ mod.edicion_anio }})
+                    @if (mod.completado_en_edicion !== null) {
+                      Ed. {{ mod.edicion_numero }} ({{ semestreLabel(mod.edicion_semestre) }} {{ mod.edicion_anio }})
+                    } @else {
+                      <span class="sin-nota">—</span>
+                    }
                   </span>
                   <span class="mod-col-fecha">
                     {{ mod.fecha_completion || '—' }}
@@ -95,6 +99,41 @@
           }
         </div>
       }
+    }
+
+    @if (transferencias().length > 0) {
+      <div class="transferencias-card">
+        <div class="transferencias-header">
+          <mat-icon>swap_horiz</mat-icon>
+          <h3>Historial de Transferencias</h3>
+        </div>
+        <div class="transferencias-timeline">
+          @for (t of transferencias(); track t.id_historial) {
+            <div class="transferencia-item">
+              <div class="transferencia-fecha">{{ t.fecha | date:'dd/MM/yyyy HH:mm' }}</div>
+              <div class="transferencia-flow">
+                <div class="transferencia-edicion origen">
+                  <span class="ed-label">Origen</span>
+                  <span class="ed-nombre">{{ t.origen.programa_nombre }}</span>
+                  <span class="ed-info">Ed. {{ t.origen.edicion_numero }} — {{ semestreLabel(t.origen.semestre) }} {{ t.origen.anio }}</span>
+                  <span class="ed-estado" [class]="estadoClass(t.origen.estado)">{{ estadoLabel(t.origen.estado) }}</span>
+                </div>
+                <mat-icon class="transferencia-arrow">arrow_forward</mat-icon>
+                <div class="transferencia-edicion destino">
+                  <span class="ed-label">Destino</span>
+                  <span class="ed-nombre">{{ t.destino.programa_nombre }}</span>
+                  <span class="ed-info">Ed. {{ t.destino.edicion_numero }} — {{ semestreLabel(t.destino.semestre) }} {{ t.destino.anio }}</span>
+                  <span class="ed-estado" [class]="estadoClass(t.destino.estado)">{{ estadoLabel(t.destino.estado) }}</span>
+                </div>
+              </div>
+              <div class="transferencia-motivo">
+                <mat-icon>reason</mat-icon>
+                <span>{{ t.motivo }}</span>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
     }
   }
 </div>

@@ -1,5 +1,5 @@
 <h2 mat-dialog-title>
-  <mat-icon>note_add</mat-icon> Registrar Nota
+  <mat-icon>{{ esEdicion ? 'edit' : 'note_add' }}</mat-icon> {{ esEdicion ? 'Editar Nota' : 'Registrar Nota' }}
 </h2>
 
 <div mat-dialog-content>

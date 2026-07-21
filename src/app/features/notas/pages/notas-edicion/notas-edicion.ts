@@ -11,6 +11,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { NotaService } from '../../services/nota.service';
 import { AlumnoNotas, NotaResponse } from '../../models/nota.model';
 import { NotaRegisterDialog } from '../nota-register-dialog/nota-register-dialog';
+import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog';
 
 @Component({
   selector: 'app-notas-edicion',
@@ -87,14 +88,35 @@ export class NotasEdicionComponent implements OnInit {
     });
   }
 
+  editarNota(nota: NotaResponse, a: AlumnoNotas, event: MouseEvent): void {
+    event.stopPropagation();
+    const dialogRef = this.dialog.open(NotaRegisterDialog, {
+      width: '480px',
+      data: { idDetalle: a.id_detalle_programa_alumno, alumno: a.alumno, idEdicion: this.idEdicion, notaExistente: nota },
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) this.cargarDatos();
+    });
+  }
+
   eliminarNota(nota: NotaResponse, event: MouseEvent): void {
     event.stopPropagation();
-    this.service.delete(nota.id_nota).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: () => {
-        this.cargarDatos();
-        this.snackbar.open('Nota eliminada', 'Cerrar', { duration: 1500 });
-      },
-      error: err => this.snackbar.open(err.error?.detail || 'Error', 'Cerrar', { duration: 3000 }),
+    const confirmRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '380px',
+      data: { titulo: 'Eliminar nota', mensaje: `¿Está seguro de eliminar la nota ${nota.nota} del módulo "${nota.modulo_nombre}"?` },
+    });
+
+    confirmRef.afterClosed().subscribe(confirmed => {
+      if (confirmed) {
+        this.service.delete(nota.id_nota).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+          next: () => {
+            this.cargarDatos();
+            this.snackbar.open('Nota eliminada', 'Cerrar', { duration: 1500 });
+          },
+          error: err => this.snackbar.open(err.error?.detail || 'Error', 'Cerrar', { duration: 3000 }),
+        });
+      }
     });
   }
 

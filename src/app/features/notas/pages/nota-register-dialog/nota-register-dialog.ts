@@ -12,7 +12,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NotaService } from '../../services/nota.service';
-import { NotaCreate } from '../../models/nota.model';
+import { NotaCreate, NotaUpdate } from '../../models/nota.model';
 import { DetalleService } from '../../../detalle-programa-modulo/services/detalle.service';
 
 @Component({
@@ -34,7 +34,7 @@ export class NotaRegisterDialog implements OnInit {
   private snackbar = inject(MatSnackBar);
   dialogRef = inject(MatDialogRef<NotaRegisterDialog>);
   private destroyRef = inject(DestroyRef);
-  data = inject<{ idDetalle: number; alumno: any; idEdicion: number }>(MAT_DIALOG_DATA);
+  data = inject<{ idDetalle: number; alumno: any; idEdicion: number; notaExistente?: any }>(MAT_DIALOG_DATA);
 
   modulos = signal<any[]>([]);
   idModulo: number | null = null;
@@ -44,10 +44,23 @@ export class NotaRegisterDialog implements OnInit {
   observaciones = '';
   isSubmitting = signal(false);
 
+  get esEdicion(): boolean {
+    return !!this.data.notaExistente;
+  }
+
   ngOnInit(): void {
     this.modService.getAll(this.data.idEdicion).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: data => this.modulos.set(data),
     });
+
+    if (this.data.notaExistente) {
+      const n = this.data.notaExistente;
+      this.idModulo = n.id_detalle_programa_modulo;
+      this.nota = n.nota;
+      this.tipo = n.tipo;
+      this.fecha = new Date(n.fecha + 'T00:00:00');
+      this.observaciones = n.observaciones || '';
+    }
   }
 
   guardar(): void {
@@ -58,24 +71,46 @@ export class NotaRegisterDialog implements OnInit {
 
     this.isSubmitting.set(true);
 
-    const payload: NotaCreate = {
-      id_detalle_programa_alumno: this.data.idDetalle,
-      id_detalle_programa_modulo: this.idModulo,
-      nota: this.nota,
-      tipo: this.tipo,
-      fecha: this.fecha.toISOString().split('T')[0],
-      observaciones: this.observaciones.trim() || null,
-    };
+    const fechaStr = this.fecha.toISOString().split('T')[0];
 
-    this.service.create(payload).subscribe({
-      next: () => {
-        this.isSubmitting.set(false);
-        this.dialogRef.close(true);
-      },
-      error: err => {
-        this.isSubmitting.set(false);
-        this.snackbar.open(err.error?.detail || 'Error al registrar nota', 'Cerrar', { duration: 3000 });
-      },
-    });
+    if (this.esEdicion) {
+      const payload: NotaUpdate = {
+        nota: this.nota,
+        tipo: this.tipo,
+        fecha: fechaStr,
+        observaciones: this.observaciones.trim() || null,
+      };
+
+      this.service.update(this.data.notaExistente.id_nota, payload).subscribe({
+        next: () => {
+          this.isSubmitting.set(false);
+          this.dialogRef.close(true);
+        },
+        error: err => {
+          this.isSubmitting.set(false);
+          this.snackbar.open(err.error?.detail || 'Error al editar nota', 'Cerrar', { duration: 3000 });
+        },
+      });
+    } else {
+      const payload: NotaCreate = {
+        id_detalle_programa_alumno: this.data.idDetalle,
+        id_detalle_programa_modulo: this.idModulo,
+        nota: this.nota,
+        tipo: this.tipo,
+        fecha: fechaStr,
+        observaciones: this.observaciones.trim() || null,
+      };
+
+      this.service.create(payload).subscribe({
+        next: () => {
+          this.isSubmitting.set(false);
+          this.dialogRef.close(true);
+        },
+        error: err => {
+          this.isSubmitting.set(false);
+          this.snackbar.open(err.error?.detail || 'Error al registrar nota', 'Cerrar', { duration: 3000 });
+        },
+      });
+    }
   }
 }

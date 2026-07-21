@@ -55,13 +55,12 @@ export class InscripcionesComponent implements OnInit {
   estadoColor(estado: EstadoDetalleAlumno): string {
     const colors: Record<string, string> = {
       postulante: '#f59e0b',
+      observado: '#f97316',
       inscrito: '#3b82f6',
-      en_curso: '#10b981',
+      incorporado: '#0ea5e9',
       finalizado: '#6b7280',
       graduado: '#8b5cf6',
-      titulado: '#1d4ed8',
       retirado: '#ef4444',
-      observado: '#f97316',
     };
     return colors[estado] || '#6b7280';
   }

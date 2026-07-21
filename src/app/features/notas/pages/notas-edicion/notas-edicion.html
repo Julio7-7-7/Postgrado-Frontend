@@ -82,6 +82,9 @@
                         <span class="col-fecha">{{ nota.fecha }}</span>
                         <span class="col-obs">{{ nota.observaciones || '—' }}</span>
                         <span class="col-acciones">
+                          <button mat-icon-button matTooltip="Editar" (click)="editarNota(nota, a, $event)" class="action-icon edit">
+                            <mat-icon>edit</mat-icon>
+                          </button>
                           <button mat-icon-button matTooltip="Eliminar" (click)="eliminarNota(nota, $event)" class="action-icon delete">
                             <mat-icon>delete</mat-icon>
                           </button>

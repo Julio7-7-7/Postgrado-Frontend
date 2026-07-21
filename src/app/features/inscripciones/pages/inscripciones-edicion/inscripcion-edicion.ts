@@ -120,13 +120,12 @@ export class InscripcionesEdicionComponent implements OnInit {
   estadoClass(estado: string): string {
     const map: Record<string, string> = {
       postulante: 'estado-postulante',
-      inscrito: 'estado-inscrito',
-      en_curso: 'estado-en_curso',
-      finalizado: 'estado-finalizado',
       observado: 'estado-observado',
+      inscrito: 'estado-inscrito',
+      incorporado: 'estado-incorporado',
+      finalizado: 'estado-finalizado',
       retirado: 'estado-retirado',
       graduado: 'estado-graduado',
-      titulado: 'estado-titulado',
     };
     return map[estado] || '';
   }
@@ -134,20 +133,18 @@ export class InscripcionesEdicionComponent implements OnInit {
   estadoLabel(estado: string): string {
     const map: Record<string, string> = {
       postulante: 'Postulante',
+      observado: 'Observado',
       inscrito: 'Inscrito',
-      en_curso: 'En Curso',
       incorporado: 'Incorporado',
       finalizado: 'Finalizado',
-      observado: 'Observado',
       retirado: 'Retirado',
       graduado: 'Graduado',
-      titulado: 'Titulado',
     };
     return map[estado] || estado;
   }
 
   canTransferir(item: InscripcionEdicionItem): boolean {
-    return item.estado === 'en_curso' || item.estado === 'incorporado';
+    return item.estado === 'inscrito' || item.estado === 'incorporado';
   }
 
   abrirTransferir(item: InscripcionEdicionItem): void {
