@@ -1104,3 +1104,63 @@ bdab4ed feat(modalidad-form): add selected-requisitos chips above multi-select
 - Filtrado de alumnos por período
 - Refinar contraste y diferenciación visual
 - Acoplamiento de estudiantes entre ediciones: campo `modulo_inicio` en `DetalleProgramaAlumno`
+
+## Sesión 2026-07-14/15 — Fix post-refactor: imports rotos + trailing slashes backend
+
+### Problema 1 — Import paths rotos en features (frontend)
+Después del split del admin feature, los componentes en `pages/roles-list/`, `pages/usuarios-list/`, etc. importaban `../services/` y `../models/` que resolvían a `pages/services/` (no existe). Necesitaban `../../services/` y `../../models/`.
+
+**Causa:** los archivos se movieron de `admin/pages/` a `features/roles/pages/roles-list/` pero nadie ajustó los imports relativos.
+
+### Problema 2 — RolResponse no existe en usuarios.model
+`roles-change-dialog.ts`, `usuarios-list.ts` y `usuario-form.ts` importaban `RolResponse` de `usuarios.model` — ese tipo no estaba exportado ahí. Corregido a importar desde `roles/models/roles.model`.
+
+### Problema 3 — Path a confirm-dialog incorrecto
+Desde `pages/usuarios-list/` el path `../../../shared/` solo llegaba a `features/`, no a `src/app/`. Corregido a `../../../../shared/`.
+
+### Problema 4 — NG8011 content projection warnings
+Tres templates tenían `<mat-icon>` como hijo directo de `@else` con múltiples nodos raíz. Angular no podía proyectar al slot correcto de Material. Fix: envolver en `<ng-container>`.
+
+### Problema 5 — FastAPI: trailing slashes en router prefixes
+5 routers tenían `prefix="/foo/"` que terminaba en `/`. FastAPI lanzaba `AssertionError`. Quitado el `/` final de:
+- `programa_version_edicion.py`
+- `usuarios.py`
+- `permisos.py`
+- `roles.py`
+- `detalle_programa_modulo.py`
+
+### Archivos modificados (frontend — 15 archivos)
+- `features/roles/pages/roles-list/roles-list.ts` — imports `../../services/`, `../../models/`, `../rol-form/rol-form`
+- `features/roles/pages/rol-form/rol-form.ts` — imports `../../services/`, `../../models/`
+- `features/roles/pages/rol-form/rol-form.html` — `<ng-container>` en `@else`
+- `features/modalidad/pages/modalidad-list/modalidad-list.ts` — imports `../../services/`, `../../models/`, `../modalidad-form/modalidad-form`
+- `features/modalidad/pages/modalidad-form/modalidad-form.ts` — imports `../../services/`, `../../models/`
+- `features/tipo-descuento/pages/tipo-descuento-list/tipo-descuento-list.ts` — imports `../../services/`, `../../models/`, `../tipo-descuento-form/tipo-descuento-form`
+- `features/tipo-descuento/pages/tipo-descuento-form/tipo-descuento-form.ts` — imports `../../services/`, `../../models/`, `../../../modalidad/models/modalidad.model`
+- `features/documentacion/pages/documentacion/documentacion.ts` — imports `../../services/`, `../../models/`
+- `features/usuarios/pages/usuarios-list/usuarios-list.ts` — imports `../../services/`, `../../models/` (de roles), `../../dialogs/*`, `../../../../shared/...`
+- `features/usuarios/pages/usuario-form/usuario-form.ts` — imports `../../services/`, `../../models/` (de roles)
+- `features/usuarios/pages/usuario-form/usuario-form.html` — `<ng-container>` en `@else`
+- `features/usuarios/dialogs/roles-change-dialog.ts` — import `RolResponse` de `../../roles/models/roles.model`
+- `features/usuarios/dialogs/usuario-edit-dialog.html` — `<ng-container>` en `@else`
+- `features/admin/routes/admin.routes.ts` — paths `../../../` → `../../` para lazy loads
+
+### Archivos modificados (backend — 5 archivos)
+- `routers/programa_version_edicion.py` — prefix sin `/` final
+- `routers/usuarios.py` — prefix sin `/` final
+- `routers/permisos.py` — prefix sin `/` final
+- `routers/roles.py` — prefix sin `/` final
+- `routers/detalle_programa_modulo.py` — prefix sin `/` final
+
+### Verificación
+- `npx tsc --noEmit` → 0 errores
+- Backend arranca sin errores
+
+### Pendientes
+- Bug #34: Navbar admin link "Alumnos" redirige al portal estudiante — falta gestión de alumnos para admin
+- Subida de documentos por alumno + validación por admin
+- Módulo pagos
+- Módulo notas
+- Endpoint dashboard: estadísticas del admin
+- Filtrado de alumnos por período
+- Refinar contraste y diferenciación visual
