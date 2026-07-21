@@ -1,0 +1,113 @@
+<div class="page-container">
+  <div class="header-section">
+    <div class="header-left">
+      <button mat-icon-button (click)="volver()" class="back-btn" matTooltip="Volver a mis módulos">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div>
+        <h1><mat-icon>grading</mat-icon> Calificar Módulo</h1>
+        @if (datos()) {
+          <p class="subtitle">
+            {{ datos()!.modulo.nombre }} — {{ datos()!.edicion.programa_nombre }}
+            (Ed. {{ datos()!.edicion.edicion_numero }})
+          </p>
+        }
+      </div>
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading-state">
+      <mat-spinner diameter="40"></mat-spinner>
+      <span>Cargando alumnos...</span>
+    </div>
+  } @else if (datos()) {
+    @let d = datos()!;
+
+    <div class="modulo-info-bar">
+      <div class="info-chip">
+        <mat-icon>schedule</mat-icon>
+        <span>{{ d.modulo.fecha_inicio | date:'dd/MM/yyyy' }} → {{ d.modulo.fecha_fin | date:'dd/MM/yyyy' }}</span>
+      </div>
+      <div class="info-chip">
+        <mat-icon>people</mat-icon>
+        <span>{{ d.alumnos.length }} alumno{{ d.alumnos.length !== 1 ? 's' : '' }}</span>
+      </div>
+      <div class="info-chip">
+        <mat-icon>bar_chart</mat-icon>
+        <span>Promedio general: {{ promedioGeneral() | number:'1.1-1' }}</span>
+      </div>
+    </div>
+
+    @if (d.alumnos.length === 0) {
+      <div class="empty-state">
+        <mat-icon>people_outline</mat-icon>
+        <h4>No hay alumnos inscritos</h4>
+        <p>Los alumnos aparecerán cuando se inscriban en esta edición</p>
+      </div>
+    } @else {
+      <div class="alumnos-list">
+        @for (a of d.alumnos; track a.id_detalle_programa_alumno) {
+          <div class="alumno-card">
+            <div class="alumno-main">
+              <div class="alumno-left">
+                <div class="avatar-sm">{{ iniciales(a) }}</div>
+                <div class="alumno-text">
+                  <span class="alumno-nombre">{{ a.alumno?.nombre }} {{ a.alumno?.apellido }}</span>
+                  <span class="alumno-ci">CI: {{ a.alumno?.ci || '—' }}</span>
+                </div>
+              </div>
+              <div class="alumno-right">
+                @if (a.notas.length > 0) {
+                  <div class="prom-badge" [class]="promedioClass(a.promedio)">
+                    <span class="prom-label">Promedio</span>
+                    <span class="prom-value">{{ a.promedio | number:'1.1-1' }}</span>
+                  </div>
+                } @else {
+                  <span class="sin-notas-label">Sin notas</span>
+                }
+                <div class="alumno-actions">
+                  <button mat-flat-button color="primary" class="action-btn"
+                          (click)="agregarNota(a, $event)" matTooltip="Agregar nota">
+                    <mat-icon>add</mat-icon> Nota
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            @if (a.notas.length > 0) {
+              <mat-divider></mat-divider>
+              <div class="notas-section">
+                <div class="notas-header">
+                  <span class="col-tipo">Tipo</span>
+                  <span class="col-nota">Nota</span>
+                  <span class="col-fecha">Fecha</span>
+                  <span class="col-obs">Observaciones</span>
+                  <span class="col-acciones"></span>
+                </div>
+                @for (nota of a.notas; track nota.id_nota) {
+                  <div class="notas-row">
+                    <span class="col-tipo">
+                      <span class="tipo-badge">{{ nota.tipo }}</span>
+                    </span>
+                    <span class="col-nota" [class]="promedioClass(nota.nota)">{{ nota.nota | number:'1.1-1' }}</span>
+                    <span class="col-fecha">{{ nota.fecha }}</span>
+                    <span class="col-obs">{{ nota.observaciones || '—' }}</span>
+                    <span class="col-acciones">
+                      <button mat-icon-button matTooltip="Editar" (click)="editarNota(nota, a, $event)" class="action-icon edit">
+                        <mat-icon>edit</mat-icon>
+                      </button>
+                      <button mat-icon-button matTooltip="Eliminar" (click)="eliminarNota(nota, $event)" class="action-icon delete">
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </span>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+  }
+</div>

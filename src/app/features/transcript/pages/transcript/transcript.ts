@@ -8,7 +8,9 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { InscripcionEdicionService } from '../../../inscripciones/services/inscripcion-edicion.service';
-import { TranscriptResponse } from '../../../inscripciones/models/inscripcion-edicion.model';
+import { NotaService } from '../../../notas/services/nota.service';
+import { TranscriptResponse, InscripcionTranscript, ModuloTranscript } from '../../../inscripciones/models/inscripcion-edicion.model';
+import { HistorialTransferencia } from '../../../notas/models/nota.model';
 
 @Component({
   selector: 'app-transcript',
@@ -23,21 +25,24 @@ import { TranscriptResponse } from '../../../inscripciones/models/inscripcion-ed
 })
 export class TranscriptComponent implements OnInit {
   private service = inject(InscripcionEdicionService);
+  private notaService = inject(NotaService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private snackbar = inject(MatSnackBar);
   private destroyRef = inject(DestroyRef);
 
   transcript = signal<TranscriptResponse | null>(null);
+  transferencias = signal<HistorialTransferencia[]>([]);
   isLoading = signal(true);
+  idAlumno = 0;
 
   ngOnInit(): void {
-    const idAlumno = Number(this.route.snapshot.paramMap.get('idAlumno'));
-    if (!idAlumno) {
+    this.idAlumno = Number(this.route.snapshot.paramMap.get('idAlumno'));
+    if (!this.idAlumno) {
       this.router.navigate(['/admin/inscripciones']);
       return;
     }
-    this.loadTranscript(idAlumno);
+    this.loadTranscript(this.idAlumno);
   }
 
   loadTranscript(idAlumno: number): void {
@@ -47,11 +52,26 @@ export class TranscriptComponent implements OnInit {
       .subscribe({
         next: data => {
           this.transcript.set(data);
-          this.isLoading.set(false);
+          this.loadHistorial(idAlumno);
         },
         error: () => {
           this.isLoading.set(false);
           this.snackbar.open('Error al cargar transcript', 'Cerrar', { duration: 3000 });
+        },
+      });
+  }
+
+  private loadHistorial(idAlumno: number): void {
+    this.notaService.getHistorialTransferencias(idAlumno)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: data => {
+          this.transferencias.set(data.transferencias);
+          this.isLoading.set(false);
+        },
+        error: () => {
+          this.transferencias.set([]);
+          this.isLoading.set(false);
         },
       });
   }
@@ -63,14 +83,12 @@ export class TranscriptComponent implements OnInit {
   estadoClass(estado: string): string {
     const map: Record<string, string> = {
       postulante: 'estado-postulante',
+      observado: 'estado-observado',
       inscrito: 'estado-inscrito',
-      en_curso: 'estado-en_curso',
       incorporado: 'estado-incorporado',
       finalizado: 'estado-finalizado',
-      observado: 'estado-observado',
       retirado: 'estado-retirado',
       graduado: 'estado-graduado',
-      titulado: 'estado-titulado',
     };
     return map[estado] || '';
   }
@@ -78,14 +96,12 @@ export class TranscriptComponent implements OnInit {
   estadoLabel(estado: string): string {
     const map: Record<string, string> = {
       postulante: 'Postulante',
+      observado: 'Observado',
       inscrito: 'Inscrito',
-      en_curso: 'En Curso',
       incorporado: 'Incorporado',
       finalizado: 'Finalizado',
-      observado: 'Observado',
       retirado: 'Retirado',
       graduado: 'Graduado',
-      titulado: 'Titulado',
     };
     return map[estado] || estado;
   }
@@ -100,5 +116,19 @@ export class TranscriptComponent implements OnInit {
     if (nota >= 70) return 'nota-aprobado';
     if (nota >= 51) return 'nota-regular';
     return 'nota-reprobado';
+  }
+
+  moduloClass(mod: ModuloTranscript, ins: InscripcionTranscript): string {
+    if (mod.modulo_orden < ins.modulo_inicio) return 'mod-saltado';
+    if (mod.completado_en_edicion !== null && mod.completado_en_edicion !== ins.edicion_id) return 'mod-arrastrado';
+    return '';
+  }
+
+  moduloTitle(mod: ModuloTranscript, ins: InscripcionTranscript): string {
+    if (mod.modulo_orden < ins.modulo_inicio) return 'Módulo no cursado (incorporación)';
+    if (mod.completado_en_edicion !== null && mod.completado_en_edicion !== ins.edicion_id) {
+      return `Arrastrado de Ed. ${mod.edicion_numero} (${this.semestreLabel(mod.edicion_semestre)} ${mod.edicion_anio})`;
+    }
+    return '';
   }
 }

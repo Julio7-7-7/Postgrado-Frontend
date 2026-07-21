@@ -577,13 +577,99 @@ El backend resuelve esto en `_obtener_permisos()` (`dependencies.py:74`) al mome
 - `styles.css` — status-dot global
 
 ### Pendientes
-- Bug #34: Navbar admin tiene link "Alumnos" que redirige al portal estudiante — no hay gestión de alumnos para admin
-- Subida de documentos (requisitos) por parte del alumno + validación por admin
-- Módulo pagos
-- Módulo notas
+- Bug #34: Navbar admin link "Alumnos" redirige al portal estudiante — falta gestión de alumnos para admin
+- Subida de documentos por alumno + validación por admin
 - Endpoint dashboard: estadísticas del admin
 - Filtrado de alumnos por período
 - Refinar contraste y diferenciación visual
+
+## Sesión 2026-07-21 — Portal docente + Notas mejoradas + Transferencia
+
+### Notas — fix backend (router `nota.py` reescrito)
+- **N+1 fix**: batch queries con `in_()` para alumnos, módulos y notas en `GET /por-edicion`
+- **Validación de estado**: `crear_nota` rechaza para inscripciones `postulante`, `observado`, `retirado`
+- **Validación módulo×edición**: verifica que el módulo pertenezca a la edición del DPA
+- **Auto-fill `id_programa_version_edicion`**: se infiere del DPA, el frontend no necesita enviarlo
+
+### Notas — edition-state restore (frontend)
+- `documentacion.ts/css` y `pagos-admin.ts/css`: restaurado `en_curso` para estado de edición (estos componentes muestran estado de edición, no de alumno). El task agent los había cambiado erróneamente a `incorporado`
+
+### Backend — 3 endpoints nuevos
+- `GET /notas/por-docente/{id_docente}` — retorna módulos del docente agrupados por edición + alumnos inscritos por edición
+- `GET /notas/por-modulo/{id_dpm}` — retorna alumnos de un módulo específico + sus notas + promedio
+- `GET /detalle-programa-alumno/historial-transferencias/{id_alumno}` — retorna cadena de transferencias de un alumno
+- `TransferirInscripcionRequest.modulo_inicio` — ahora editable (antes hardcodeado a 1)
+
+### Frontend — Portal docente completo
+- **`docente-mis-modulos`** (nuevo componente): muestra módulos del docente agrupados por edición, con stats (num módulos, num alumnos), cards clickeables para calificar
+- **`docente-calificar`** (nuevo componente): ve alumnos de un módulo específico con sus notas, puede agregar/editar/eliminar notas con confirmación
+- **Navbar corregido**: "Mis Alumnos" (roto) → "Mis Módulos" con ruta dinámica usando `user().id_profile`
+- **`docente.routes.ts`**: rutas `:id/mis-modulos` y `:id/calificar/:idDpm` con lazy loading
+- **`AuthService`**: nuevo computed `misModulosRoute()` para ruta dinámica del docente
+
+### Frontend — Notas admin mejoradas
+- **Editar notas**: `nota-register-dialog` ahora soporta modo edición (pre-carga datos existentes, usa `PATCH /notas/{id}`)
+- **Confirmar eliminación**: `ConfirmDialog` antes de borrar nota (tanto en `notas-edicion` como en `docente-calificar`)
+- **`notas-edicion.ts`**: nuevo método `editarNota()` + import de `ConfirmDialogComponent`
+- **`nota.model.ts`**: nuevas interfaces `DocenteEdicionCompleta`, `DocenteModuloDetalle`, `HistorialTransferencia`, `HistorialTransferenciasResponse`
+- **`nota.service.ts`**: nuevos métodos `getNotasPorDocente()`, `getNotasPorModulo()`, `getHistorialTransferencias()`
+
+### Frontend — Transferencia mejorada
+- **`transfer-dialog.ts/html`**: nuevo campo "Módulo de inicio" editable (min=1, default=moduloinicio actual)
+- **`TransferirRequest`**: agregado campo `modulo_inicio`
+
+### Frontend — Transcript historial transferencias
+- **`transcript.ts`**: carga `HistorialTransferencia[]` vía `NotaService.getHistorialTransferencias()`
+- **`transcript.html`**: sección "Historial de Transferencias" con timeline visual (origen → destino con flecha, motivo)
+- **`transcript.css`**: estilos `.transferencias-card`, `.transferencia-item`, `.transferencia-flow`
+
+### Archivos tocados
+
+**Backend (7 archivos modificados):**
+- `routers/nota.py` — reescrito: N+1 fix + 2 endpoints nuevos (por-docente, por-modulo)
+- `routers/detalle_programa_alumno.py` — nuevo endpoint historial-transferencias + modulo_inicio editable en transferir
+- `schemas/detalle_programa_alumno.py` — `TransferirInscripcionRequest.modulo_inicio`
+- `routers/avance_modulo.py` — transcript retorna todos los módulos (de sesión anterior)
+- `routers/dashboard.py` — stats con `inscrito + incorporado` (de sesión anterior)
+- `schemas/avance_modulo.py` — `ModuloTranscriptItem.completado_en_edicion` nullable (de sesión anterior)
+- `docs/er-diagram.txt` — análisis pagos (de sesión anterior)
+
+**Frontend — Nuevos archivos (8 archivos):**
+- `features/docente/pages/docente-mis-modulos/docente-mis-modulos.ts` + `.html` + `.css`
+- `features/docente/pages/docente-calificar/docente-calificar.ts` + `.html` + `.css`
+
+**Frontend — Archivos modificados (20+):**
+- `features/docente/routes/docente.routes.ts` — rutas nuevas mis-modulos y calificar
+- `features/notas/models/nota.model.ts` — interfaces docente + historial transferencias
+- `features/notas/services/nota.service.ts` — 3 métodos nuevos
+- `features/notas/pages/nota-register-dialog/nota-register-dialog.ts` + `.html` — modo edición
+- `features/notas/pages/notas-edicion/notas-edicion.ts` + `.html` + `.css` — edit + confirm delete
+- `features/notas/pages/notas-admin/notas-admin.css` — restore en_curso
+- `features/inscripciones/dialogs/transfer-dialog/transfer-dialog.ts` + `.html` — modulo_inicio editable
+- `features/inscripciones/models/inscripcion-edicion.model.ts` — TransferirRequest con modulo_inicio
+- `features/transcript/pages/transcript/transcript.ts` + `.html` + `.css` — historial transferencias
+- `shared/components/navbar/navbar.ts` — Mis Módulos con ruta dinámica
+- `features/pagos/pages/pagos-admin/pagos-admin.ts` + `.css` — restore en_curso
+- `features/documentacion/pages/documentacion/documentacion.ts` + `.css` — restore en_curso
+- `features/alumno/models/detalle-programa-alumno.model.ts` — estados actualizados (sesión anterior)
+- `features/alumno/pages/inscripcion-detail/inscripcion-detail.ts` — estados (sesión anterior)
+- `features/alumno/pages/inscripciones/inscripciones.ts` — estados (sesión anterior)
+- `features/inscripciones/pages/inscripciones-edicion/inscripcion-edicion.ts` + `.html` + `.css` — estados (sesión anterior)
+- `features/documentacion/pages/doc-matriz-dialog/doc-matriz-dialog.ts` + `.css` — (sesión anterior)
+- `features/documentacion/pages/doc-matriz/doc-matriz.ts` + `.css` — (sesión anterior)
+- `features/edicion/pages/edicion-postulantes/edicion-postulantes.ts` + `.css` — (sesión anterior)
+
+### Verificación
+- Backend: 135 routers, carga sin errores
+- Frontend: `npx ng build --configuration=production` → OK (711.53 kB, budget warning)
+
+### Pendientes
+- Bug #34: Navbar admin link "Alumnos" redirige al portal estudiante
+- Subida de documentos por alumno + validación por admin
+- Endpoint dashboard: estadísticas del admin
+- Filtrado de alumnos por período
+- Refinar contraste y diferenciación visual
+- 4 decisiones de diseño reincorporación pendientes (copia vs regeneración de docs, migración de notas, UI admin para registros frozen, visibilidad de módulos completados en edición destino)
 
 ### Decisiones de diseño — Documentación y descuentos (2026-07-13)
 

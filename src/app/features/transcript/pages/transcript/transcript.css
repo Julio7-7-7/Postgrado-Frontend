@@ -198,14 +198,12 @@
 }
 
 .estado-postulante { background: #dbeafe; color: #1e40af; }
+.estado-observado { background: #fee2e2; color: #991b1b; }
 .estado-inscrito { background: #d1fae5; color: #065f46; }
-.estado-en_curso { background: #fef3c7; color: #92400e; }
 .estado-incorporado { background: #fef3c7; color: #92400e; border: 1px dashed #f59e0b; }
 .estado-finalizado { background: #e0e7ff; color: #3730a3; }
-.estado-observado { background: #fee2e2; color: #991b1b; }
 .estado-retirado { background: #f3f4f6; color: #6b7280; }
 .estado-graduado { background: #d1fae5; color: #065f46; }
-.estado-titulado { background: #ede9fe; color: #6d28d9; }
 
 .promedio-ins {
   font-size: 0.85rem;
@@ -217,6 +215,32 @@
 .nota-aprobado { background: #d1fae5; color: #065f46; }
 .nota-regular { background: #fef3c7; color: #92400e; }
 .nota-reprobado { background: #fee2e2; color: #991b1b; }
+
+/* Git-diff styles for incorporated students */
+
+.mod-saltado {
+  background: #fefce8;
+  opacity: 0.55;
+}
+
+.mod-saltado .mod-col-nombre {
+  text-decoration: line-through;
+  color: var(--fich-text-muted);
+}
+
+.mod-saltado .sin-nota {
+  color: #ca8a04;
+}
+
+.mod-arrastrado {
+  background: #f0fdf4;
+  border-left: 3px solid #22c55e;
+}
+
+.mod-arrastrado .mod-col-edicion {
+  color: #16a34a;
+  font-weight: 600;
+}
 
 /* Modulos table */
 
@@ -276,6 +300,128 @@
   font-size: 18px;
   width: 18px;
   height: 18px;
+  opacity: 0.5;
+}
+
+/* Transfer history */
+
+.transferencias-card {
+  margin-top: 20px;
+  background: var(--fich-bg-card);
+  border: 1px solid var(--fich-border-light);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.transferencias-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--fich-border-light);
+}
+
+.transferencias-header mat-icon {
+  color: #0d9488;
+}
+
+.transferencias-header h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--fich-text);
+}
+
+.transferencias-timeline {
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.transferencia-item {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 14px;
+  background: #f8fafc;
+}
+
+.transferencia-fecha {
+  font-size: 0.75rem;
+  color: var(--fich-text-muted);
+  margin-bottom: 10px;
+}
+
+.transferencia-flow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.transferencia-edicion {
+  flex: 1;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+}
+
+.transferencia-edicion.origen { border-left: 3px solid #f59e0b; }
+.transferencia-edicion.destino { border-left: 3px solid #0d9488; }
+
+.ed-label {
+  display: block;
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--fich-text-muted);
+  margin-bottom: 4px;
+}
+
+.ed-nombre {
+  display: block;
+  font-weight: 600;
+  color: var(--fich-text);
+  font-size: 0.85rem;
+}
+
+.ed-info {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--fich-text-muted);
+}
+
+.ed-estado {
+  display: inline-block;
+  margin-top: 4px;
+  padding: 1px 8px;
+  border-radius: 10px;
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+.transferencia-arrow {
+  color: #0d9488;
+  flex-shrink: 0;
+}
+
+.transferencia-motivo {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #e2e8f0;
+  font-size: 0.8rem;
+  color: var(--fich-text-muted);
+}
+
+.transferencia-motivo mat-icon {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+  margin-top: 2px;
   opacity: 0.5;
 }
 

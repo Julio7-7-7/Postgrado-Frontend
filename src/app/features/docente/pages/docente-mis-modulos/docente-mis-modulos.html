@@ -1,0 +1,84 @@
+<div class="page-container">
+  <div class="header-section">
+    <div class="header-left">
+      <button mat-icon-button (click)="volver()" class="back-btn" matTooltip="Volver al perfil">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div>
+        <h1><mat-icon>menu_book</mat-icon> Mis Módulos</h1>
+        <p class="subtitle">Módulos que dicto por edición</p>
+      </div>
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading-state">
+      <mat-spinner diameter="40"></mat-spinner>
+      <span>Cargando módulos...</span>
+    </div>
+  } @else {
+    @if (ediciones().length === 0) {
+      <div class="empty-state">
+        <mat-icon>menu_book</mat-icon>
+        <h4>No tiene módulos asignados</h4>
+        <p>Contacte al administrador para asignarle módulos</p>
+      </div>
+    } @else {
+      @for (ed of ediciones(); track ed.edicion.id_programa_version_edicion) {
+        <mat-card class="edicion-card">
+          <div class="edicion-header">
+            <div class="edicion-info">
+              <h3>{{ ed.edicion.programa_nombre }}</h3>
+              <div class="edicion-meta">
+                <span class="edicion-label">Ed. {{ ed.edicion.edicion_numero }}</span>
+                <span class="edicion-periodo">{{ semestreLabel(ed.edicion.semestre) }} {{ ed.edicion.anio }}</span>
+                <span class="ed-estado-badge" [class]="estadoEdicionClass(ed.edicion.estado)">
+                  {{ ed.edicion.estado }}
+                </span>
+              </div>
+            </div>
+            <div class="edicion-stats">
+              <div class="stat-item">
+                <span class="stat-value">{{ ed.modulos.length }}</span>
+                <span class="stat-label">Módulos</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-value">{{ ed.alumnos.length }}</span>
+                <span class="stat-label">Alumnos</span>
+              </div>
+            </div>
+          </div>
+
+          <mat-divider></mat-divider>
+
+          <div class="modulos-grid">
+            @for (mod of ed.modulos; track mod.id_detalle_programa_modulo) {
+              <div class="modulo-card" (click)="gestionarModulo(mod)">
+                <div class="modulo-top">
+                  <span class="modulo-sigla">{{ mod.sigla }}</span>
+                  <span class="modulo-estado-badge" [class]="estadoModuloClass(mod.estado)">
+                    {{ mod.estado }}
+                  </span>
+                </div>
+                <h4 class="modulo-nombre">{{ mod.nombre }}</h4>
+                <div class="modulo-meta">
+                  <span>Módulo {{ mod.orden }}</span>
+                  @if (mod.fecha_inicio) {
+                    <span>{{ mod.fecha_inicio | date:'dd/MM/yyyy' }} → {{ mod.fecha_fin | date:'dd/MM/yyyy' }}</span>
+                  }
+                </div>
+                <div class="modulo-footer">
+                  <span class="alumnos-count">
+                    <mat-icon>people</mat-icon>
+                    {{ mod.num_alumnos }} alumno{{ mod.num_alumnos !== 1 ? 's' : '' }}
+                  </span>
+                  <mat-icon class="calificar-icon" matTooltip="Calificar alumnos">grading</mat-icon>
+                </div>
+              </div>
+            }
+          </div>
+        </mat-card>
+      }
+    }
+  }
+</div>

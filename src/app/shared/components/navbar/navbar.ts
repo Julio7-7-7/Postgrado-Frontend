@@ -44,6 +44,14 @@ export class NavbarComponent {
     return null;
   });
 
+  misModulosRoute = computed(() => {
+    const user = this.auth.user();
+    if (user?.rol === 'docente' && user.id_profile) {
+      return `/docentes/${user.id_profile}/mis-modulos`;
+    }
+    return '/docentes';
+  });
+
   allNavItems: NavItem[] = [
     { path: '/dashboard', label: 'Inicio', icon: 'home', exact: true, feature: 'home', permiso: 'programas.ver' },
     { path: '/programas', label: 'Programas', icon: 'school', feature: 'programas', permiso: 'programas.ver' },
@@ -56,7 +64,7 @@ export class NavbarComponent {
 
   docenteItems: NavItem[] = [
     { path: '/docentes', label: 'Mi Perfil', icon: 'badge', exact: true, feature: 'docente', permiso: 'docentes.ver' },
-    { path: '/alumnos', label: 'Mis Alumnos', icon: 'people', feature: 'alumno', permiso: 'alumnos.ver' },
+    { path: '/docentes', label: 'Mis Módulos', icon: 'menu_book', feature: 'docente', permiso: 'notas.ver' },
     { path: '/', label: 'Oferta Académica', icon: 'school', exact: true, feature: 'alumno', permiso: 'dashboard.ver' },
   ];
 
@@ -71,7 +79,10 @@ export class NavbarComponent {
       return this.studentItems.filter(item => this.auth.hasPermiso(item.permiso));
     }
     if (user?.rol === 'docente') {
-      return this.docenteItems.filter(item => this.auth.hasPermiso(item.permiso));
+      const modulosPath = this.misModulosRoute();
+      return this.docenteItems.map(item =>
+        item.label === 'Mis Módulos' ? { ...item, path: modulosPath } : item
+      ).filter(item => this.auth.hasPermiso(item.permiso));
     }
     return this.allNavItems.filter(item => this.auth.hasPermiso(item.permiso));
   });

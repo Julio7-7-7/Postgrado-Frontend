@@ -17,17 +17,16 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
 import { environment } from '../../../../../environments/environment';
 
 const ESTADO_ORDEN: EstadoDetalleAlumno[] = [
-  'postulante', 'observado', 'inscrito', 'en_curso', 'finalizado', 'graduado', 'titulado'
+  'postulante', 'observado', 'inscrito', 'incorporado', 'finalizado', 'graduado'
 ];
 
 const ESTADO_LABELS: Record<string, string> = {
   postulante: 'Postulante',
   observado: 'Observado',
   inscrito: 'Inscrito',
-  en_curso: 'En Curso',
+  incorporado: 'Incorporado',
   finalizado: 'Finalizado',
   graduado: 'Graduado',
-  titulado: 'Titulado',
   retirado: 'Retirado',
 };
 
@@ -35,10 +34,9 @@ const ESTADO_COLORS: Record<string, string> = {
   postulante: '#f59e0b',
   observado: '#f97316',
   inscrito: '#3b82f6',
-  en_curso: '#10b981',
+  incorporado: '#0ea5e9',
   finalizado: '#6b7280',
   graduado: '#8b5cf6',
-  titulado: '#1d4ed8',
   retirado: '#ef4444',
 };
 
@@ -287,7 +285,7 @@ export class InscripcionDetailComponent implements OnInit {
   puedeRetirarse(): boolean {
     const ins = this.inscripcion();
     if (!ins) return false;
-    return !['retirado', 'finalizado', 'graduado', 'titulado'].includes(ins.estado);
+    return !['retirado', 'finalizado', 'graduado'].includes(ins.estado);
   }
 
   verRequisito(id: number): void {

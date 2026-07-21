@@ -39,11 +39,14 @@ export class TransferDialogComponent implements OnInit {
 
   edicionDestino: number | null = null;
   motivo = '';
+  moduloInicio = 1;
 
   constructor(
     public dialogRef: MatDialogRef<TransferDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: TransferDialogData,
-  ) {}
+  ) {
+    this.moduloInicio = this.data.inscripcion.modulo_inicio || 1;
+  }
 
   ngOnInit(): void {
     this.service.getEdicionesDisponibles()
@@ -77,12 +80,18 @@ export class TransferDialogComponent implements OnInit {
       return;
     }
 
+    if (this.moduloInicio < 1) {
+      this.snackbar.open('El módulo de inicio debe ser al menos 1', 'Cerrar', { duration: 2000 });
+      return;
+    }
+
     this.isSubmitting.set(true);
     this.service.transferir(this.data.inscripcion.id_detalle_programa_alumno, {
       id_programa_version_edicion_destino: this.edicionDestino,
       motivo: this.motivo.trim(),
       id_modalidad_academica: (this.data.inscripcion as any).id_modalidad_academica ?? 0,
       id_tipo_descuento: null,
+      modulo_inicio: this.moduloInicio,
     }).pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {

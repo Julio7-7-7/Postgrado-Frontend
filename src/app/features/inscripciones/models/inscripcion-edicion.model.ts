@@ -32,6 +32,7 @@ export interface TransferirRequest {
   motivo: string;
   id_modalidad_academica: number;
   id_tipo_descuento: number | null;
+  modulo_inicio: number;
 }
 
 export interface ModuloTranscript {
@@ -40,7 +41,7 @@ export interface ModuloTranscript {
   modulo_orden: number;
   nota: number | null;
   nota_tipo: string | null;
-  completado_en_edicion: number;
+  completado_en_edicion: number | null;
   edicion_numero: number | null;
   edicion_anio: number | null;
   edicion_semestre: number | null;
@@ -56,6 +57,7 @@ export interface InscripcionTranscript {
   edicion_semestre: number | null;
   programa_nombre: string;
   modalidad_nombre: string;
+  modulo_inicio: number;
   modulos: ModuloTranscript[];
   promedio: number | null;
 }

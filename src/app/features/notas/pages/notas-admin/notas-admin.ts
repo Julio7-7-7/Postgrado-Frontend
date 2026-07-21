@@ -73,6 +73,7 @@ export class NotasAdminComponent implements OnInit {
       programado: 'Programado',
       en_curso: 'En Curso',
       reprogramado: 'Reprogramado',
+      finalizado: 'Finalizado',
     };
     return map[estado] || estado;
   }

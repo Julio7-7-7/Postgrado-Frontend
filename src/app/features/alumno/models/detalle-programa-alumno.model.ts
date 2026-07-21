@@ -4,8 +4,8 @@ import type { ProgramaVersionEdicion } from '../../edicion/models/edicion.model'
 import type { TipoDescuento } from './tipo-descuento.model';
 
 export type EstadoDetalleAlumno =
-  | 'postulante' | 'inscrito' | 'en_curso' | 'finalizado'
-  | 'graduado' | 'titulado' | 'retirado' | 'observado';
+  | 'postulante' | 'observado' | 'inscrito' | 'incorporado'
+  | 'finalizado' | 'graduado' | 'retirado';
 
 export interface ControlDocumentacionAlumno {
   id_control_documentacion: number;

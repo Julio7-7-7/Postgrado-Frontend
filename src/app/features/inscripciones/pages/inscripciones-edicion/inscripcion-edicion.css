@@ -179,14 +179,12 @@
 }
 
 .estado-postulante { background: #dbeafe; color: #1e40af; }
+.estado-observado { background: #fee2e2; color: #991b1b; }
 .estado-inscrito { background: #d1fae5; color: #065f46; }
-.estado-en_curso { background: #fef3c7; color: #92400e; }
 .estado-incorporado { background: #fef3c7; color: #92400e; border: 1px dashed #f59e0b; }
 .estado-finalizado { background: #e0e7ff; color: #3730a3; }
-.estado-observado { background: #fee2e2; color: #991b1b; }
 .estado-retirado { background: #f3f4f6; color: #6b7280; }
 .estado-graduado { background: #d1fae5; color: #065f46; }
-.estado-titulado { background: #ede9fe; color: #6d28d9; }
 
 /* Actions */
 

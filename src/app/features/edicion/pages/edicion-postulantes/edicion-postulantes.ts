@@ -97,7 +97,7 @@ export class EdicionPostulantesComponent implements OnInit {
       postulante: 'estado-postulante',
       observado: 'estado-observado',
       inscrito: 'estado-inscrito',
-      en_curso: 'estado-en_curso',
+      incorporado: 'estado-incorporado',
       finalizado: 'estado-finalizado',
       retirado: 'estado-retirado',
     };
@@ -109,7 +109,7 @@ export class EdicionPostulantesComponent implements OnInit {
       postulante: 'Postulante',
       observado: 'Observado',
       inscrito: 'Inscrito',
-      en_curso: 'En Curso',
+      incorporado: 'Incorporado',
       finalizado: 'Finalizado',
       retirado: 'Retirado',
     };
