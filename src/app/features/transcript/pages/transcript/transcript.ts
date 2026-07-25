@@ -117,9 +117,9 @@ export class TranscriptComponent implements OnInit {
 
   notaClass(nota: number | null): string {
     if (nota === null) return '';
-    if (nota >= 70) return 'pass';
-    if (nota >= 51) return 'regular';
-    return 'fail';
+    if (nota >= 70) return 'nota-a';
+    if (nota >= 51) return 'nota-r';
+    return 'nota-d';
   }
 
   blockClass(idx: number, total: number): string {
