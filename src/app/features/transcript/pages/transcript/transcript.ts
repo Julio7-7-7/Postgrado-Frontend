@@ -134,7 +134,7 @@ export class TranscriptComponent implements OnInit {
   }
 
   gridCols(n: number): string {
-    return `1fr repeat(${n}, 1fr)`;
+    return `repeat(${n}, 1fr)`;
   }
 
   modTypeClass(mod: ModuloTranscript, ins: InscripcionTranscript): string {
