@@ -6,7 +6,7 @@
       </button>
       <div>
         <h1><mat-icon>school</mat-icon> Transcript Acad&eacute;mico</h1>
-        <p class="subtitle">Historial completo de m&oacute;dulos, notas y ediciones cursadas</p>
+        <p class="subtitle">Historial de m&oacute;dulos, notas y ediciones cursadas</p>
       </div>
     </div>
   </div>
@@ -41,11 +41,14 @@
         <p>Este alumno no tiene inscripciones registradas</p>
       </div>
     } @else {
-      @for (ins of t.inscripciones; track ins.id_detalle_programa_alumno; let idx = $index) {
-        <div class="edicion-card" [class]="blockClass(idx, t.inscripciones.length)">
-          <div class="edicion-header" [class]="idx === 0 ? 'eh-origen' : 'eh-actual'">
+      @for (ins of t.inscripciones; track ins.id_detalle_programa_alumno; let idx = $index; let total = $count) {
+        @let esOrigen = idx === 0 && total > 1;
+        <div class="edicion-card" [class]="blockClass(idx, total)">
+          <div class="edicion-header" [class]="esOrigen ? 'eh-origen' : 'eh-actual'">
             <div class="eh-left">
-              <span class="eh-tag">{{ idx === 0 ? 'Origen' : 'Actual' }}</span>
+              @if (total > 1) {
+                <span class="eh-tag">{{ esOrigen ? 'Origen' : 'Actual' }}</span>
+              }
               <span class="eh-title">{{ ins.programa_nombre }}</span>
               <span class="eh-meta">Ed. {{ ins.edicion_numero }} &middot; {{ semestreLabel(ins.edicion_semestre) }} {{ ins.edicion_anio }}</span>
             </div>
@@ -60,45 +63,44 @@
 
           @if (ins.modulos.length > 0) {
             <div class="modules-area">
-              <div class="layout-dual">
-                <div class="layout-labels">
-                  <div class="ll-row ll-mods">M&oacute;dulos</div>
-                  <div class="ll-row ll-grade">Calificaci&oacute;n</div>
-                  <div class="ll-row ll-snake"></div>
+              <div class="dual-layout">
+                <div class="dual-labels">
+                  <div class="dl-row dl-mods">M&oacute;dulos</div>
+                  <div class="dl-row dl-grade">Nota</div>
+                  <div class="dl-row dl-snake"></div>
                 </div>
-                <div class="layout-cols">
-                  <div class="lc-dots" [style.gridTemplateColumns]="gridCols(ins.modulos.length)">
+                <div class="dual-cols">
+                  <div class="dc-grid" [style.gridTemplateColumns]="gridCols(ins.modulos.length)">
                     @for (mod of ins.modulos; track mod.id_detalle_programa_modulo) {
-                      <div class="lc-dot-cell">
-                        <span class="dot" [class.dot-done]="mod.nota !== null"
-                              [class.dot-dragged]="mod.completado_en_edicion !== null && mod.completado_en_edicion !== ins.edicion_id"
+                      <div class="dc-cell dc-dot-cell">
+                        <span class="dot"
+                              [class.dot-done]="mod.nota !== null"
+                              [class.dot-drag]="mod.completado_en_edicion !== null && mod.completado_en_edicion !== ins.edicion_id"
                               [matTooltip]="mod.modulo_nombre"
                               matTooltipPosition="above">
                           {{ mod.modulo_orden }}
                         </span>
                       </div>
                     }
-                  </div>
-                  <div class="lc-grades" [style.gridTemplateColumns]="gridCols(ins.modulos.length)">
                     @for (mod of ins.modulos; track mod.id_detalle_programa_modulo; let mi = $index) {
-                      <div class="lc-grade-cell" [class]="modTypeClass(mod, ins)"
+                      <div class="dc-cell dc-grade-cell" [class]="modTypeClass(mod, ins)"
                            [matTooltip]="cellTooltip(mod, ins)">
                         @if (mod.nota !== null) {
-                          <span class="grade-num" [class]="notaClass(mod.nota)">{{ round(mod.nota) }}</span>
+                          <span class="gval" [class]="notaClass(mod.nota)">{{ round(mod.nota) }}</span>
                         } @else {
-                          <span class="grade-dash">&mdash;</span>
+                          <span class="gdash">&mdash;</span>
                         }
                         @if (mod.completado_en_edicion !== null && mod.completado_en_edicion !== ins.edicion_id) {
-                          <span class="drag-marker" matTooltip="Cursado en otra edici&oacute;n">&mapstoup;</span>
+                          <span class="gdrag">&mapstoup;</span>
                         }
                         @if (mod.nota === null && mod.modulo_orden >= ins.modulo_inicio && mi === currentModIdx(ins)) {
-                          <span class="pos-marker"></span>
+                          <span class="gdot"></span>
                         }
                       </div>
                     }
                   </div>
-                  <div class="lc-snake">
-                    <div class="snake" [class]="idx === 0 ? 'snake-origen' : 'snake-actual'"
+                  <div class="dc-snake">
+                    <div class="snake" [class]="esOrigen ? 'snake-origen' : 'snake-actual'"
                          [style.width]="snakeWidth(ins)">
                       <div class="snake-fill"></div>
                       <div class="snake-head"></div>
@@ -109,7 +111,7 @@
 
               @if (ins.promedio !== null) {
                 <div class="prom-row">
-                  <span class="prom-label">Promedio de edici&oacute;n</span>
+                  <span class="prom-label">Promedio</span>
                   <span class="prom-value" [class]="notaClass(ins.promedio)">{{ round(ins.promedio) }}</span>
                 </div>
               }
@@ -117,7 +119,7 @@
           } @else {
             <div class="sin-modulos">
               <mat-icon>info</mat-icon>
-              <span>No hay m&oacute;dulos registrados para esta inscripci&oacute;n</span>
+              <span>No hay m&oacute;dulos registrados</span>
             </div>
           }
         </div>
