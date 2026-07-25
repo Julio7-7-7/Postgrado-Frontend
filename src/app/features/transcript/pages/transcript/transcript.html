@@ -22,13 +22,13 @@
         <div class="avatar-lg">{{ t.alumno_nombre[0] }}{{ t.alumno_apellido[0] }}</div>
         <div class="alumno-info">
           <h2>{{ t.alumno_nombre }} {{ t.alumno_apellido }}</h2>
-          <span class="ci-label">CI: {{ t.alumno_ci || 'N/A' }}</span>
+          <span class="ci-label">{{ t.alumno_ci || 'Sin CI' }}</span>
         </div>
         @if (t.promedio_general !== null) {
           <div class="promedio-chip" [class]="notaClass(t.promedio_general)">
             <span class="promedio-num">{{ round(t.promedio_general) }}</span>
             <span class="promedio-sep"></span>
-            <span class="promedio-lbl">Promedio</span>
+            <span class="promedio-lbl">Promedio general</span>
           </div>
         }
       </div>
@@ -55,9 +55,6 @@
             <div class="eh-right">
               <span class="eh-modalidad">{{ ins.modalidad_nombre }}</span>
               <span class="estado-pill" [class]="estadoClass(ins.estado)">{{ estadoLabel(ins.estado) }}</span>
-              @if (ins.promedio !== null) {
-                <span class="eh-promedio" [class]="notaClass(ins.promedio)">{{ round(ins.promedio) }}</span>
-              }
             </div>
           </div>
 
@@ -70,13 +67,15 @@
                   <div class="dl-row dl-snake"></div>
                 </div>
                 <div class="dual-cols">
-                  <div class="dc-grid" [style.gridTemplateColumns]="gridCols(ins.modulos.length)">
+                  <div class="dc-grid" [class.dg-origen]="esOrigen" [class.dg-actual]="!esOrigen" [style.gridTemplateColumns]="gridCols(ins.modulos.length)">
                     @for (mod of ins.modulos; track mod.id_detalle_programa_modulo) {
                       <div class="dc-cell dc-dot-cell">
                         <span class="dot"
                               [class.dot-done]="mod.nota !== null"
+                              [class.dot-origen]="esOrigen"
+                              [class.dot-actual]="!esOrigen"
                               [class.dot-drag]="mod.completado_en_edicion !== null && mod.completado_en_edicion !== ins.edicion_id"
-                              [matTooltip]="mod.modulo_nombre"
+                              [matTooltip]="cellTooltip(mod, ins)"
                               matTooltipPosition="above">
                           {{ mod.modulo_orden }}
                         </span>
@@ -108,13 +107,6 @@
                   </div>
                 </div>
               </div>
-
-              @if (ins.promedio !== null) {
-                <div class="prom-row">
-                  <span class="prom-label">Promedio</span>
-                  <span class="prom-value" [class]="notaClass(ins.promedio)">{{ round(ins.promedio) }}</span>
-                </div>
-              }
             </div>
           } @else {
             <div class="sin-modulos">
