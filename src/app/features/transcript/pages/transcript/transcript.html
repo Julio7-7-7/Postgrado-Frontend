@@ -1,12 +1,12 @@
 <div class="page-container">
   <div class="header-section">
     <div class="header-left">
-      <button mat-icon-button (click)="volver()" class="back-btn" matTooltip="Volver a inscripciones">
+      <button mat-icon-button (click)="volver()" class="back-btn" matTooltip="Volver">
         <mat-icon>arrow_back</mat-icon>
       </button>
       <div>
-        <h1><mat-icon>school</mat-icon> Transcript Académico</h1>
-        <p class="subtitle">Historial completo de módulos, notas y ediciones cursadas</p>
+        <h1><mat-icon>school</mat-icon> Transcript Acad&eacute;mico</h1>
+        <p class="subtitle">Historial completo de m&oacute;dulos, notas y ediciones cursadas</p>
       </div>
     </div>
   </div>
@@ -17,7 +17,7 @@
       <span>Cargando transcript...</span>
     </div>
   } @else if (transcript(); as t) {
-    <div class="transcript-card">
+    <div class="alumno-card">
       <div class="alumno-header">
         <div class="avatar-lg">{{ t.alumno_nombre[0] }}{{ t.alumno_apellido[0] }}</div>
         <div class="alumno-info">
@@ -25,9 +25,10 @@
           <span class="ci-label">CI: {{ t.alumno_ci || 'N/A' }}</span>
         </div>
         @if (t.promedio_general !== null) {
-          <div class="promedio-badge">
-            <span class="promedio-valor">{{ t.promedio_general }}</span>
-            <span class="promedio-label">Promedio General</span>
+          <div class="promedio-chip" [class]="notaClass(t.promedio_general)">
+            <span class="promedio-num">{{ round(t.promedio_general) }}</span>
+            <span class="promedio-sep"></span>
+            <span class="promedio-lbl">Promedio</span>
           </div>
         }
       </div>
@@ -40,61 +41,71 @@
         <p>Este alumno no tiene inscripciones registradas</p>
       </div>
     } @else {
-      @for (ins of t.inscripciones; track ins.id_detalle_programa_alumno) {
-        <div class="inscripcion-card">
-          <div class="inscripcion-header">
-            <div class="inscripcion-meta">
-              <span class="programa-name">{{ ins.programa_nombre }}</span>
-              <span class="edicion-label">
-                Edición {{ ins.edicion_numero }} — {{ semestreLabel(ins.edicion_semestre) }} {{ ins.edicion_anio }}
-              </span>
+      @for (ins of t.inscripciones; track ins.id_detalle_programa_alumno; let idx = $index) {
+        <div class="edicion-card" [class]="blockClass(idx, t.inscripciones.length)">
+          <div class="edicion-header" [class]="idx === 0 ? 'eh-indigo' : 'eh-teal'">
+            <div class="eh-left">
+              <span class="eh-tag">{{ idx === 0 ? 'Origen' : 'Actual' }}</span>
+              <span class="eh-title">{{ ins.programa_nombre }}</span>
+              <span class="eh-meta">Ed. {{ ins.edicion_numero }} &middot; {{ semestreLabel(ins.edicion_semestre) }} {{ ins.edicion_anio }}</span>
             </div>
-            <div class="inscripcion-right">
-              <span class="modalidad-label">{{ ins.modalidad_nombre }}</span>
+            <div class="eh-right">
+              <span class="eh-modalidad">{{ ins.modalidad_nombre }}</span>
               <span class="estado-pill" [class]="estadoClass(ins.estado)">{{ estadoLabel(ins.estado) }}</span>
               @if (ins.promedio !== null) {
-                <span class="promedio-ins" [class]="notaClass(ins.promedio)">{{ ins.promedio }}</span>
+                <span class="eh-promedio" [class]="notaClass(ins.promedio)">{{ round(ins.promedio) }}</span>
               }
             </div>
           </div>
 
           @if (ins.modulos.length > 0) {
-            <div class="modulos-table">
-              <div class="modulo-header-row">
-                <span class="mod-col-orden">#</span>
-                <span class="mod-col-nombre">Módulo</span>
-                <span class="mod-col-nota">Nota</span>
-                <span class="mod-col-edicion">Cursado en</span>
-                <span class="mod-col-fecha">Fecha</span>
+            <div class="modules-area">
+              <div class="mods-grid" [style.gridTemplateColumns]="gridCols(ins.modulos.length)">
+                @for (mod of ins.modulos; track mod.id_detalle_programa_modulo; let mi = $index) {
+                  <div class="mod-cell" [class]="modTypeClass(mod, ins)"
+                       [matTooltip]="cellTooltip(mod, ins)"
+                       matTooltipPosition="above">
+
+                    <span class="mod-order">{{ mod.modulo_orden }}</span>
+
+                    <div class="grade-area">
+                      @if (mod.nota !== null) {
+                        <span class="grade-num" [class]="notaClass(mod.nota)">{{ round(mod.nota) }}</span>
+                      } @else {
+                        <span class="grade-dash">&mdash;</span>
+                      }
+                    </div>
+
+                    @if (mod.completado_en_edicion !== null && mod.completado_en_edicion !== ins.edicion_id) {
+                      <span class="drag-marker">arrastrado</span>
+                    }
+
+                    @if (mod.nota === null && mod.modulo_orden >= ins.modulo_inicio && mi === currentModIdx(ins)) {
+                      <span class="current-marker"></span>
+                    }
+                  </div>
+                }
               </div>
-              @for (mod of ins.modulos; track mod.id_detalle_programa_modulo) {
-                <div class="modulo-row" [class]="moduloClass(mod, ins)" [matTooltip]="moduloTitle(mod, ins)">
-                  <span class="mod-col-orden">{{ mod.modulo_orden }}</span>
-                  <span class="mod-col-nombre">{{ mod.modulo_nombre }}</span>
-                  <span class="mod-col-nota" [class]="notaClass(mod.nota)">
-                    @if (mod.nota !== null) {
-                      {{ mod.nota }}
-                    } @else {
-                      <span class="sin-nota">—</span>
-                    }
-                  </span>
-                  <span class="mod-col-edicion">
-                    @if (mod.completado_en_edicion !== null) {
-                      Ed. {{ mod.edicion_numero }} ({{ semestreLabel(mod.edicion_semestre) }} {{ mod.edicion_anio }})
-                    } @else {
-                      <span class="sin-nota">—</span>
-                    }
-                  </span>
-                  <span class="mod-col-fecha">
-                    {{ mod.fecha_completion || '—' }}
-                  </span>
+
+              <div class="snake-wrap">
+                <div class="snake" [class]="idx === 0 ? 'snake-indigo' : 'snake-teal'"
+                     [style.width]="snakeWidth(ins)">
+                  <div class="snake-fill"></div>
+                  <div class="snake-head"></div>
+                </div>
+              </div>
+
+              @if (ins.promedio !== null) {
+                <div class="prom-row">
+                  <span class="prom-label">Promedio de edici&oacute;n</span>
+                  <span class="prom-value" [class]="notaClass(ins.promedio)">{{ round(ins.promedio) }}</span>
                 </div>
               }
             </div>
           } @else {
             <div class="sin-modulos">
               <mat-icon>info</mat-icon>
-              <span>No hay módulos registrados para esta inscripción</span>
+              <span>No hay m&oacute;dulos registrados para esta inscripci&oacute;n</span>
             </div>
           }
         </div>
@@ -108,27 +119,27 @@
           <h3>Historial de Transferencias</h3>
         </div>
         <div class="transferencias-timeline">
-          @for (t of transferencias(); track t.id_historial) {
+          @for (tr of transferencias(); track tr.id_historial) {
             <div class="transferencia-item">
-              <div class="transferencia-fecha">{{ t.fecha | date:'dd/MM/yyyy HH:mm' }}</div>
+              <div class="transferencia-fecha">{{ tr.fecha | date:'dd/MM/yyyy HH:mm' }}</div>
               <div class="transferencia-flow">
                 <div class="transferencia-edicion origen">
                   <span class="ed-label">Origen</span>
-                  <span class="ed-nombre">{{ t.origen.programa_nombre }}</span>
-                  <span class="ed-info">Ed. {{ t.origen.edicion_numero }} — {{ semestreLabel(t.origen.semestre) }} {{ t.origen.anio }}</span>
-                  <span class="ed-estado" [class]="estadoClass(t.origen.estado)">{{ estadoLabel(t.origen.estado) }}</span>
+                  <span class="ed-nombre">{{ tr.origen.programa_nombre }}</span>
+                  <span class="ed-info">Ed. {{ tr.origen.edicion_numero }} &middot; {{ semestreLabel(tr.origen.semestre) }} {{ tr.origen.anio }}</span>
+                  <span class="ed-estado" [class]="estadoClass(tr.origen.estado)">{{ estadoLabel(tr.origen.estado) }}</span>
                 </div>
                 <mat-icon class="transferencia-arrow">arrow_forward</mat-icon>
                 <div class="transferencia-edicion destino">
                   <span class="ed-label">Destino</span>
-                  <span class="ed-nombre">{{ t.destino.programa_nombre }}</span>
-                  <span class="ed-info">Ed. {{ t.destino.edicion_numero }} — {{ semestreLabel(t.destino.semestre) }} {{ t.destino.anio }}</span>
-                  <span class="ed-estado" [class]="estadoClass(t.destino.estado)">{{ estadoLabel(t.destino.estado) }}</span>
+                  <span class="ed-nombre">{{ tr.destino.programa_nombre }}</span>
+                  <span class="ed-info">Ed. {{ tr.destino.edicion_numero }} &middot; {{ semestreLabel(tr.destino.semestre) }} {{ tr.destino.anio }}</span>
+                  <span class="ed-estado" [class]="estadoClass(tr.destino.estado)">{{ estadoLabel(tr.destino.estado) }}</span>
                 </div>
               </div>
               <div class="transferencia-motivo">
-                <mat-icon>reason</mat-icon>
-                <span>{{ t.motivo }}</span>
+                <mat-icon>description</mat-icon>
+                <span>{{ tr.motivo }}</span>
               </div>
             </div>
           }
