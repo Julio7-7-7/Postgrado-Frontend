@@ -43,7 +43,7 @@
     } @else {
       @for (ins of t.inscripciones; track ins.id_detalle_programa_alumno; let idx = $index) {
         <div class="edicion-card" [class]="blockClass(idx, t.inscripciones.length)">
-          <div class="edicion-header" [class]="idx === 0 ? 'eh-blue' : 'eh-green'">
+          <div class="edicion-header" [class]="idx === 0 ? 'eh-origen' : 'eh-actual'">
             <div class="eh-left">
               <span class="eh-tag">{{ idx === 0 ? 'Origen' : 'Actual' }}</span>
               <span class="eh-title">{{ ins.programa_nombre }}</span>
@@ -60,48 +60,50 @@
 
           @if (ins.modulos.length > 0) {
             <div class="modules-area">
-              <div class="grid-cols" [style.gridTemplateColumns]="gridCols(ins.modulos.length)">
-                <div class="col-label mods-label">M&oacute;dulos</div>
-                @for (mod of ins.modulos; track mod.id_detalle_programa_modulo) {
-                  <div class="col mod-dot-cell">
-                    <span class="dot" [class.dot-done]="mod.nota !== null"
-                          [class.dot-dragged]="mod.completado_en_edicion !== null && mod.completado_en_edicion !== ins.edicion_id"
-                          [matTooltip]="mod.modulo_nombre"
-                          matTooltipPosition="above">
-                      {{ mod.modulo_orden }}
-                    </span>
-                  </div>
-                }
-
-                <div class="col-label grade-label">Calificaci&oacute;n</div>
-                @for (mod of ins.modulos; track mod.id_detalle_programa_modulo; let mi = $index) {
-                  <div class="col gc" [class]="modTypeClass(mod, ins)"
-                       [matTooltip]="cellTooltip(mod, ins)">
-                    @if (mod.nota !== null) {
-                      <span class="grade-num" [class]="notaClass(mod.nota)">{{ round(mod.nota) }}</span>
-                    } @else {
-                      <span class="grade-dash">&mdash;</span>
-                    }
-                    @if (mod.completado_en_edicion !== null && mod.completado_en_edicion !== ins.edicion_id) {
-                      <span class="drag-marker" matTooltip="Cursado en otra edici&oacute;n">&mapstoup;</span>
-                    }
-                    @if (mod.nota === null && mod.modulo_orden >= ins.modulo_inicio && mi === currentModIdx(ins)) {
-                      <span class="pos-marker"></span>
+              <div class="layout-dual">
+                <div class="layout-labels">
+                  <div class="ll-row ll-mods">M&oacute;dulos</div>
+                  <div class="ll-row ll-grade">Calificaci&oacute;n</div>
+                  <div class="ll-row ll-snake"></div>
+                </div>
+                <div class="layout-cols">
+                  <div class="lc-dots" [style.gridTemplateColumns]="gridCols(ins.modulos.length)">
+                    @for (mod of ins.modulos; track mod.id_detalle_programa_modulo) {
+                      <div class="lc-dot-cell">
+                        <span class="dot" [class.dot-done]="mod.nota !== null"
+                              [class.dot-dragged]="mod.completado_en_edicion !== null && mod.completado_en_edicion !== ins.edicion_id"
+                              [matTooltip]="mod.modulo_nombre"
+                              matTooltipPosition="above">
+                          {{ mod.modulo_orden }}
+                        </span>
+                      </div>
                     }
                   </div>
-                }
-
-                <div class="col-label"></div>
-                @for (mod of ins.modulos; track mod.id_detalle_programa_modulo) {
-                  <div class="col col-divider"></div>
-                }
-              </div>
-
-              <div class="snake-wrap">
-                <div class="snake" [class]="idx === 0 ? 'snake-blue' : 'snake-green'"
-                     [style.width]="snakeWidth(ins)">
-                  <div class="snake-fill"></div>
-                  <div class="snake-head" [style.opacity]="snakeWidth(ins) === '0%' ? '0' : '1'"></div>
+                  <div class="lc-grades" [style.gridTemplateColumns]="gridCols(ins.modulos.length)">
+                    @for (mod of ins.modulos; track mod.id_detalle_programa_modulo; let mi = $index) {
+                      <div class="lc-grade-cell" [class]="modTypeClass(mod, ins)"
+                           [matTooltip]="cellTooltip(mod, ins)">
+                        @if (mod.nota !== null) {
+                          <span class="grade-num" [class]="notaClass(mod.nota)">{{ round(mod.nota) }}</span>
+                        } @else {
+                          <span class="grade-dash">&mdash;</span>
+                        }
+                        @if (mod.completado_en_edicion !== null && mod.completado_en_edicion !== ins.edicion_id) {
+                          <span class="drag-marker" matTooltip="Cursado en otra edici&oacute;n">&mapstoup;</span>
+                        }
+                        @if (mod.nota === null && mod.modulo_orden >= ins.modulo_inicio && mi === currentModIdx(ins)) {
+                          <span class="pos-marker"></span>
+                        }
+                      </div>
+                    }
+                  </div>
+                  <div class="lc-snake">
+                    <div class="snake" [class]="idx === 0 ? 'snake-origen' : 'snake-actual'"
+                         [style.width]="snakeWidth(ins)">
+                      <div class="snake-fill"></div>
+                      <div class="snake-head"></div>
+                    </div>
+                  </div>
                 </div>
               </div>
 
