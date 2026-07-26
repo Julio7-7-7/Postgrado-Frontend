@@ -113,7 +113,8 @@
 
             <mat-card-actions>
               <button mat-raised-button color="primary" class="card-btn" (click)="inscribirse(ed)">
-                <mat-icon>assignment</mat-icon> Inscribirme
+                <mat-icon>{{ ed.estado === 'en_curso' ? 'school' : 'assignment' }}</mat-icon>
+                {{ ed.estado === 'en_curso' ? 'Solicitar Incorporación' : 'Inscribirme' }}
               </button>
               @if (i !== currentSlide()) {
                 <div class="card-click-catcher" (click)="irASlide(i)"></div>

@@ -24,32 +24,27 @@
         <p>Los alumnos se inscriben desde el portal de oferta académica</p>
       </div>
     } @else {
-      <div class="stats-bar">
-        <div class="stat-item">
-          <span class="stat-value">{{ postulantes().length }}</span>
-          <span class="stat-label">Postulantes</span>
+      <div class="stats-row">
+        <div class="stat-chip sin-avance" (click)="onFiltroEstado('sin_avance')"
+             [class.active]="filtroEstado() === 'sin_avance'">
+          <mat-icon>radio_button_unchecked</mat-icon>
+          <span>{{ countSinAvance() }} sin avance</span>
         </div>
-        <div class="stat-divider"></div>
-        <div class="stat-item completos">
-          <span class="stat-value">{{ totalAprobados() }}</span>
-          <span class="stat-label">Completos</span>
+        <div class="stat-chip en-revision" (click)="onFiltroEstado('en_revision')"
+             [class.active]="filtroEstado() === 'en_revision'">
+          <mat-icon>schedule</mat-icon>
+          <span>{{ countEnRevision() }} en revisión</span>
         </div>
-        <div class="stat-divider"></div>
-        <div class="stat-item revision">
-          <span class="stat-value">{{ totalEnRevision() }}</span>
-          <span class="stat-label">En revisión</span>
+        <div class="stat-chip aprobados" (click)="onFiltroEstado('aprobados')"
+             [class.active]="filtroEstado() === 'aprobados'">
+          <mat-icon>check_circle</mat-icon>
+          <span>{{ countAprobados() }} aprobados</span>
         </div>
-        <div class="stat-divider"></div>
-        <div class="stat-item sin-avance">
-          <span class="stat-value">{{ totalSinAvance() }}</span>
-          <span class="stat-label">Sin avance</span>
-        </div>
-        @if (totalRetirados() > 0) {
-          <div class="stat-divider"></div>
-          <div class="stat-item retirados">
-            <span class="stat-value">{{ totalRetirados() }}</span>
-            <span class="stat-label">Retirados</span>
-          </div>
+        @if (filtroEstado()) {
+          <button class="clear-filter" (click)="onFiltroEstado('')">
+            <mat-icon>close</mat-icon>
+            Limpiar
+          </button>
         }
       </div>
 

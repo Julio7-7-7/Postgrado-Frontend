@@ -34,12 +34,18 @@ export class LoginComponent implements OnInit {
   password = '';
   loading = false;
   inscribirId: number | null = null;
+  incorporarId: number | null = null;
 
   ngOnInit(): void {
     this.inscribirId = Number(this.route.snapshot.queryParams['inscribir']) || null;
+    this.incorporarId = Number(this.route.snapshot.queryParams['incorporar']) || null;
 
     if (this.auth.isLogged()) {
       const user = this.auth.user();
+      if (this.incorporarId && user?.rol === 'alumno') {
+        this.router.navigate(['/alumnos', 'solicitar-incorporacion', this.incorporarId], { replaceUrl: true });
+        return;
+      }
       if (this.inscribirId && user?.rol === 'alumno') {
         this.router.navigate(['/alumnos', 'inscribir', this.inscribirId], { replaceUrl: true });
         return;
@@ -62,7 +68,7 @@ export class LoginComponent implements OnInit {
         this.userRoles.set(resp.roles);
         this.loginUserId.set(resp.id_usuario);
 
-        if (this.inscribirId) {
+        if (this.inscribirId || this.incorporarId) {
           const rolAlumno = resp.roles.find(r => r.nombre === 'alumno');
           if (rolAlumno) {
             this.seleccionarRol(rolAlumno.id_rol);
@@ -91,7 +97,9 @@ export class LoginComponent implements OnInit {
         this.auth.guardarSesion(resp);
         this.loading = false;
 
-        if (this.inscribirId && resp.user.rol === 'alumno') {
+        if (this.incorporarId && resp.user.rol === 'alumno') {
+          this.router.navigate(['/alumnos', 'solicitar-incorporacion', this.incorporarId], { replaceUrl: true });
+        } else if (this.inscribirId && resp.user.rol === 'alumno') {
           this.router.navigate(['/alumnos', 'inscribir', this.inscribirId], { replaceUrl: true });
         } else {
           this.redirectAfterLogin(resp.user.rol, resp.user.id_profile);
@@ -159,10 +167,9 @@ export class LoginComponent implements OnInit {
   }
 
   goToRegister(): void {
-    if (this.inscribirId) {
-      this.router.navigate(['/registro'], { queryParams: { inscribir: this.inscribirId } });
-    } else {
-      this.router.navigate(['/registro']);
-    }
+    const qp: Record<string, number> = {};
+    if (this.inscribirId) qp['inscribir'] = this.inscribirId;
+    if (this.incorporarId) qp['incorporar'] = this.incorporarId;
+    this.router.navigate(['/registro'], { queryParams: Object.keys(qp).length ? qp : undefined });
   }
 }

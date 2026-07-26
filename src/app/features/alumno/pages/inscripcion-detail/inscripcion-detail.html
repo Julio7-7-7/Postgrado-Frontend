@@ -12,7 +12,12 @@
         <mat-icon>arrow_back</mat-icon>
         <span>Volver a Inscripciones</span>
       </button>
-      <h1>{{ ins.programa_version_edicion.programa_version.programa.nombre_programa }}</h1>
+      <div class="header-title-row">
+        <h1>{{ ins.programa_version_edicion.programa_version.programa.nombre_programa }}</h1>
+        @if (ins.es_incorporacion) {
+          <span class="incorporacion-badge">Incorporación</span>
+        }
+      </div>
       <p class="subtitle">
         Ed. {{ ins.programa_version_edicion.edicion }} — {{ ins.programa_version_edicion.gestion }}
       </p>
@@ -224,6 +229,12 @@
               <span class="label">Fecha de Inscripción</span>
               <span class="value">{{ convertirFecha(ins.fecha_inscripcion) }}</span>
             </div>
+            @if (ins.es_incorporacion) {
+              <div class="info-row">
+                <span class="label">Tipo</span>
+                <span class="value incorporacion-text">Incorporación</span>
+              </div>
+            }
             @if (ins.tipo_descuento) {
               <div class="info-row">
                 <span class="label">Descuento</span>

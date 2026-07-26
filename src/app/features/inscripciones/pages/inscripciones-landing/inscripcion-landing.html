@@ -1,7 +1,12 @@
 <div class="page-container">
   <div class="header-section">
-    <h1><mat-icon>how_to_reg</mat-icon> Gestión de Inscripciones</h1>
-    <p class="subtitle">Seleccione una edición para ver y gestionar las inscripciones de sus alumnos</p>
+    <div class="header-left">
+      <h1><mat-icon>how_to_reg</mat-icon> Gestión de Inscripciones</h1>
+      <p class="subtitle">Seleccione una edición para ver y gestionar las inscripciones de sus alumnos</p>
+    </div>
+    <button mat-stroked-button class="solicitudes-btn" (click)="irASolicitudes()">
+      <mat-icon>inbox</mat-icon> Solicitudes de Incorporación
+    </button>
   </div>
 
   @if (isLoading()) {

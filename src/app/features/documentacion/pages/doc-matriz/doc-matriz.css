@@ -50,50 +50,81 @@
 .empty-state h4 { margin: 0; font-weight: 600; color: var(--fich-text-secondary); }
 .empty-state p { margin: 0; color: var(--fich-text-muted); font-size: 0.85rem; }
 
-/* ─── Stats Bar ─── */
+/* ─── Filter Chips ─── */
 
-.stats-bar {
+.stats-row {
   display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 20px;
-  padding: 14px 20px;
-  background: var(--fich-bg-card);
-  border: 1px solid var(--fich-border-light);
-  border-radius: 10px;
-  margin-bottom: 16px;
 }
 
-.stat-item {
-  display: flex;
-  flex-direction: column;
+.stat-chip {
+  display: inline-flex;
   align-items: center;
-  gap: 2px;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.2s;
+  user-select: none;
 }
 
-.stat-value {
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: var(--fich-text);
+.stat-chip mat-icon { font-size: 16px; width: 16px; height: 16px; }
+
+.stat-chip.sin-avance {
+  background: #f1f5f9;
+  color: #475569;
+  border-color: #e2e8f0;
+}
+.stat-chip.sin-avance:hover,
+.stat-chip.sin-avance.active {
+  background: #e2e8f0;
+  box-shadow: 0 0 0 2px #94a3b8;
 }
 
-.stat-label {
-  font-size: 0.72rem;
+.stat-chip.en-revision {
+  background: #dbeafe;
+  color: #1e40af;
+  border-color: #93c5fd;
+}
+.stat-chip.en-revision:hover,
+.stat-chip.en-revision.active {
+  background: #bfdbfe;
+  box-shadow: 0 0 0 2px #3b82f6;
+}
+
+.stat-chip.aprobados {
+  background: #d1fae5;
+  color: #065f46;
+  border-color: #6ee7b7;
+}
+.stat-chip.aprobados:hover,
+.stat-chip.aprobados.active {
+  background: #a7f3d0;
+  box-shadow: 0 0 0 2px #10b981;
+}
+
+.clear-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.78rem;
   font-weight: 500;
-  color: var(--fich-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
+  cursor: pointer;
+  border: 1px solid #e2e8f0;
+  background: white;
+  color: #64748b;
+  transition: all 0.2s;
 }
-
-.stat-item.completos .stat-value { color: #10b981; }
-.stat-item.revision .stat-value { color: #f59e0b; }
-.stat-item.sin-avance .stat-value { color: #94a3b8; }
-.stat-item.retirados .stat-value { color: #ef4444; }
-
-.stat-divider {
-  width: 1px;
-  height: 28px;
-  background: var(--fich-border-light);
-}
+.clear-filter:hover { background: #f1f5f9; color: #1e293b; }
+.clear-filter mat-icon { font-size: 14px; width: 14px; height: 14px; }
 
 /* ─── Modalidad Sections ─── */
 

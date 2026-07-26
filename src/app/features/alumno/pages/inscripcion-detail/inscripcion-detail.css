@@ -8,7 +8,28 @@
 }
 .back-btn:hover { color: #1e293b; }
 .page-header h1 { margin: 0; font-size: 1.5rem; color: #1e293b; }
+.header-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.header-title-row h1 { margin: 0; }
+.incorporacion-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 16px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
+  white-space: nowrap;
+}
 .subtitle { margin: 4px 0 0; color: #64748b; }
+.incorporacion-text { color: #92400e; font-weight: 600; }
 
 .loading {
   display: flex; flex-direction: column; align-items: center; gap: 12px;

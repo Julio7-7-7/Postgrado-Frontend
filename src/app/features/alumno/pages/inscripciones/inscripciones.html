@@ -30,9 +30,14 @@
                   <p class="edicion-info">Ed. {{ ins.programa_version_edicion.edicion }} — {{ ins.programa_version_edicion.gestion }}</p>
                 }
               </div>
-              <div class="estado-chip" [style.background]="estadoColor(ins.estado) + '20'"
-                   [style.color]="estadoColor(ins.estado)" [style.border-color]="estadoColor(ins.estado)">
-                {{ ins.estado }}
+              <div class="chips-right">
+                @if (ins.es_incorporacion) {
+                  <span class="incorporacion-badge">Incorporación</span>
+                }
+                <div class="estado-chip" [style.background]="estadoColor(ins.estado) + '20'"
+                     [style.color]="estadoColor(ins.estado)" [style.border-color]="estadoColor(ins.estado)">
+                  {{ ins.estado }}
+                </div>
               </div>
             </div>
 
