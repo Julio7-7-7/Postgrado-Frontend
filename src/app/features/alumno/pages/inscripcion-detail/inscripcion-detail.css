@@ -185,3 +185,33 @@
 }
 .retirar-btn:hover { background: #dc2626; }
 .retirar-btn mat-icon { font-size: 16px; width: 16px; height: 16px; }
+
+/* Carta de incorporación */
+.carta-card { border: 1px solid #99f6e4; background: #f0fdfa; }
+.carta-prompt {
+  display: flex; align-items: center; gap: 16px; padding: 8px 0;
+}
+.carta-prompt mat-icon { font-size: 36px; width: 36px; height: 36px; flex-shrink: 0; }
+.carta-text { flex: 1; min-width: 0; }
+.carta-text h3 { margin: 0 0 4px; font-size: 0.95rem; color: #1e293b; }
+.carta-text p { margin: 0; font-size: 0.8rem; color: #64748b; }
+
+/* Pending upload bar */
+.pending-upload-bar {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 12px 16px; margin-top: 12px;
+  background: #f0fdfa; border: 1px solid #99f6e4; border-radius: 8px;
+}
+.pending-upload-info {
+  display: flex; align-items: center; gap: 8px; min-width: 0;
+}
+.pending-upload-info mat-icon { font-size: 20px; width: 20px; height: 20px; flex-shrink: 0; }
+.pending-filename {
+  display: block; font-size: 0.85rem; font-weight: 500; color: #1e293b;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.pending-filesize { display: block; font-size: 0.75rem; color: #94a3b8; }
+.pending-upload-actions {
+  display: flex; align-items: center; gap: 8px; flex-shrink: 0;
+}
+.cancel-btn { color: #64748b; }

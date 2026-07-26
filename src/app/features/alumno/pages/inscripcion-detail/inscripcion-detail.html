@@ -55,6 +55,22 @@
           </div>
         </mat-card>
 
+        @if (needsCartaUpload()) {
+          <mat-card class="section-card carta-card">
+            <div class="carta-prompt">
+              <mat-icon [style.color]="'#0d9488'">description</mat-icon>
+              <div class="carta-text">
+                <h3>Carta de solicitud de incorporación</h3>
+                <p>Subí la carta dirigida al director de la escuela de postgrado para completar tu incorporación.</p>
+              </div>
+              <button mat-flat-button color="primary" (click)="irASubirCarta()">
+                <mat-icon>cloud_upload</mat-icon>
+                Subir carta
+              </button>
+            </div>
+          </mat-card>
+        }
+
         <mat-card class="section-card docs-card">
           <div class="section-header">
             <mat-icon [style.color]="'#0d9488'">description</mat-icon>
@@ -212,6 +228,27 @@
                   </div>
                 </div>
               }
+            </div>
+          }
+          @if (pendingFile()) {
+            <div class="pending-upload-bar">
+              <div class="pending-upload-info">
+                <mat-icon [style.color]="'#0d9488'">attach_file</mat-icon>
+                <div>
+                  <span class="pending-filename">{{ pendingFileName() }}</span>
+                  <span class="pending-filesize">{{ pendingFileSize() }}</span>
+                </div>
+              </div>
+              <div class="pending-upload-actions">
+                <button mat-button (click)="cancelUpload()" class="cancel-btn">
+                  <mat-icon>close</mat-icon>
+                  Cancelar
+                </button>
+                <button mat-flat-button color="primary" (click)="confirmUpload()">
+                  <mat-icon>cloud_upload</mat-icon>
+                  Confirmar y subir
+                </button>
+              </div>
             </div>
           }
         </mat-card>

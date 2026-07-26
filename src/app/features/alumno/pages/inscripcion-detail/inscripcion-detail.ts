@@ -70,6 +70,11 @@ export class InscripcionDetailComponent implements OnInit {
   uploadProgress = signal(0);
   uploadedFileName = signal<string | null>(null);
 
+  pendingFile = signal<File | null>(null);
+  pendingDocId = signal<number | null>(null);
+  pendingFileName = signal('');
+  pendingFileSize = signal('');
+
   stepperSteps = computed(() => {
     const ins = this.inscripcion();
     if (!ins) return [];
@@ -193,7 +198,84 @@ export class InscripcionDetailComponent implements OnInit {
       return;
     }
 
-    this.uploadingDocId.set(doc.id_control_documentacion);
+    this.pendingFile.set(file);
+    this.pendingDocId.set(doc.id_control_documentacion);
+    this.pendingFileName.set(file.name);
+    this.pendingFileSize.set(this.formatSize(file.size));
+    input.value = '';
+  }
+
+  retirar(): void {
+    const ins = this.inscripcion();
+    if (!ins) return;
+
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        titulo: 'Retirarse de la inscripción',
+        mensaje: `¿Estás seguro que deseas retirarte de "${ins.programa_version_edicion.programa_version.programa.nombre_programa}"? Esta acción no se puede deshacer.`,
+      },
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.detalleService.retirar(ins.id_detalle_programa_alumno)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe({
+            next: () => {
+              this.snackBar.open('Te has retirado de la inscripción', 'Cerrar', { duration: 3000 });
+              this.inscripcion.update(i => i ? { ...i, estado: 'retirado' } : i);
+            },
+            error: (err) => {
+              this.snackBar.open(err.error?.detail || 'Error al retirarse', 'Cerrar', { duration: 4000 });
+            },
+          });
+      }
+    });
+  }
+
+  puedeRetirarse(): boolean {
+    const ins = this.inscripcion();
+    if (!ins) return false;
+    return !['retirado', 'finalizado', 'graduado'].includes(ins.estado);
+  }
+
+  verRequisito(id: number): void {
+    window.open(`/requisitos/${id}`, '_blank');
+  }
+
+  irASubirCarta(): void {
+    const ins = this.inscripcion();
+    if (ins) {
+      this.router.navigate(['/alumnos', 'solicitar-incorporacion', ins.id_programa_version_edicion]);
+    }
+  }
+
+  needsCartaUpload(): boolean {
+    const ins = this.inscripcion();
+    return !!ins && ins.es_incorporacion && ins.estado === 'postulante';
+  }
+
+  getDocUrl(url: string | null): string {
+    return url ? `${this.apiUrl}${url}` : '#';
+  }
+
+  formatSize(bytes: number): string {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+  }
+
+  confirmUpload(): void {
+    const file = this.pendingFile();
+    const docId = this.pendingDocId();
+    if (!file || !docId) return;
+
+    this.pendingFile.set(null);
+    this.pendingDocId.set(null);
+    this.pendingFileName.set('');
+    this.pendingFileSize.set('');
+
+    this.uploadingDocId.set(docId);
     this.uploadedFileName.set(file.name);
     this.uploadState.set('leyendo');
     this.uploadProgress.set(0);
@@ -208,7 +290,7 @@ export class InscripcionDetailComponent implements OnInit {
       this.uploadProgress.set(30);
       this.uploadState.set('subiendo');
       const base64 = reader.result as string;
-      this.detalleService.subirDocumento(doc.id_control_documentacion, base64)
+      this.detalleService.subirDocumento(docId, base64)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: (updatedDoc) => {
@@ -251,48 +333,12 @@ export class InscripcionDetailComponent implements OnInit {
       this.snackBar.open('Error al leer el archivo', 'Cerrar', { duration: 4000 });
     };
     reader.readAsDataURL(file);
-    input.value = '';
   }
 
-  retirar(): void {
-    const ins = this.inscripcion();
-    if (!ins) return;
-
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      data: {
-        titulo: 'Retirarse de la inscripción',
-        mensaje: `¿Estás seguro que deseas retirarte de "${ins.programa_version_edicion.programa_version.programa.nombre_programa}"? Esta acción no se puede deshacer.`,
-      },
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.detalleService.retirar(ins.id_detalle_programa_alumno)
-          .pipe(takeUntilDestroyed(this.destroyRef))
-          .subscribe({
-            next: () => {
-              this.snackBar.open('Te has retirado de la inscripción', 'Cerrar', { duration: 3000 });
-              this.inscripcion.update(i => i ? { ...i, estado: 'retirado' } : i);
-            },
-            error: (err) => {
-              this.snackBar.open(err.error?.detail || 'Error al retirarse', 'Cerrar', { duration: 4000 });
-            },
-          });
-      }
-    });
-  }
-
-  puedeRetirarse(): boolean {
-    const ins = this.inscripcion();
-    if (!ins) return false;
-    return !['retirado', 'finalizado', 'graduado'].includes(ins.estado);
-  }
-
-  verRequisito(id: number): void {
-    window.open(`/requisitos/${id}`, '_blank');
-  }
-
-  getDocUrl(url: string | null): string {
-    return url ? `${this.apiUrl}${url}` : '#';
+  cancelUpload(): void {
+    this.pendingFile.set(null);
+    this.pendingDocId.set(null);
+    this.pendingFileName.set('');
+    this.pendingFileSize.set('');
   }
 }

@@ -230,7 +230,7 @@
                                        (change)="onFileSelected($event, docState.ordenGlobal)">
                                 <button mat-stroked-button color="primary" class="reemplazar-btn"
                                         (click)="inputReemplazo.click()"
-                                        [disabled]="subiendo() !== 'ninguno'"
+                                        [disabled]="subiendo() !== 'ninguno' || pendingFile() !== null"
                                         matTooltip="Reemplazar este documento">
                                   <mat-icon>upload_file</mat-icon> Reemplazar
                                 </button>
@@ -270,9 +270,9 @@
                                    #fileInput
                                    (change)="onFileSelected($event)"
                                    class="file-input"
-                                   [disabled]="subiendo() !== 'ninguno'">
+                                   [disabled]="subiendo() !== 'ninguno' || pendingFile() !== null">
                             <button mat-raised-button color="primary"
-                                    [disabled]="subiendo() !== 'ninguno'"
+                                    [disabled]="subiendo() !== 'ninguno' || pendingFile() !== null"
                                     (click)="fileInput.click()">
                               @if (subiendo() === 'ninguno') {
                                 <mat-icon>upload_file</mat-icon>
@@ -283,6 +283,27 @@
                               {{ subiendo() === 'ninguno' ? 'Subir PDF' : 'Subiendo...' }}
                             </button>
                           </div>
+                          @if (pendingFile()) {
+                            <div class="pending-upload-bar">
+                              <div class="pending-upload-info">
+                                <mat-icon [style.color]="'#d97706'">picture_as_pdf</mat-icon>
+                                <div>
+                                  <span class="pending-filename">{{ pendingFileName() }}</span>
+                                  <span class="pending-filesize">{{ pendingFileSize() }}</span>
+                                </div>
+                              </div>
+                              <div class="pending-upload-actions">
+                                <button mat-button (click)="cancelUpload()" class="cancel-btn">
+                                  <mat-icon>close</mat-icon>
+                                  Cancelar
+                                </button>
+                                <button mat-flat-button color="primary" (click)="confirmUpload()">
+                                  <mat-icon>cloud_upload</mat-icon>
+                                  Confirmar y subir
+                                </button>
+                              </div>
+                            </div>
+                          }
                           @if (subiendo() !== 'ninguno') {
                             <div class="upload-progress">
                               <mat-progress-bar mode="determinate" [value]="progresoSubida()"
