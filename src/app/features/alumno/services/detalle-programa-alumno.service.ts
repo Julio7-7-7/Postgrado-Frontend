@@ -36,12 +36,19 @@ export class DetalleProgramaAlumnoService extends ApiService {
     id_modalidad_academica?: number | null;
     id_tipo_descuento?: number | null;
     modulo_inicio?: number;
-    url_documento: string;
+    url_documento?: string;
     id_requisito?: number | null;
   }): Observable<SolicitudIncorporacion> {
     return this.http.post<SolicitudIncorporacion>(
       `${this.baseUrl}/solicitud-incorporacion/solicitar`,
       data
+    );
+  }
+
+  subirDocumentoSolicitud(idSolicitud: number, idDoc: number, urlDocumento: string): Observable<SolicitudIncorporacion> {
+    return this.http.patch<SolicitudIncorporacion>(
+      `${this.baseUrl}/solicitud-incorporacion/${idSolicitud}/documentos/${idDoc}/subir`,
+      { url_documento: urlDocumento }
     );
   }
 

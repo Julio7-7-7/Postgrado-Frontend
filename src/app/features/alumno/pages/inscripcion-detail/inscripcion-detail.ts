@@ -13,7 +13,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { DetalleProgramaAlumnoService } from '../../services/detalle-programa-alumno.service';
 import { DetalleProgramaAlumno, ControlDocumentacionAlumno, EstadoDetalleAlumno } from '../../models/detalle-programa-alumno.model';
-import { SolicitudIncorporacion } from '../../models/solicitud-incorporacion.model';
+import { SolicitudIncorporacion, SolicitudDocumento } from '../../models/solicitud-incorporacion.model';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog';
 import { environment } from '../../../../../environments/environment';
 
@@ -94,7 +94,11 @@ export class InscripcionDetailComponent implements OnInit {
   docsObligatorios = computed(() => {
     const ins = this.inscripcion();
     if (!ins) return [];
-    return ins.control_documentacion.filter(c => c.obligatorio);
+    return ins.control_documentacion.filter(c => {
+      if (!c.obligatorio) return false;
+      if (!ins.es_incorporacion && c.requisito?.nombre === 'Carta de Solicitud de Incorporación') return false;
+      return true;
+    });
   });
 
   docsExtras = computed(() => {
@@ -108,6 +112,12 @@ export class InscripcionDetailComponent implements OnInit {
     if (obligatorios.length === 0) return { total: 0, aceptados: 0, pct: 0 };
     const aceptados = obligatorios.filter(c => c.estado === 'aceptado').length;
     return { total: obligatorios.length, aceptados, pct: Math.round((aceptados / obligatorios.length) * 100) };
+  });
+
+  cartaDoc = computed((): SolicitudDocumento | null => {
+    const sol = this.solicitud();
+    if (!sol || !sol.documentos || sol.documentos.length === 0) return null;
+    return sol.documentos[sol.documentos.length - 1];
   });
 
   ngOnInit(): void {
@@ -275,12 +285,13 @@ export class InscripcionDetailComponent implements OnInit {
     const sol = this.solicitud();
     if (!sol) return true;
     if (sol.estado === 'rechazado') return false;
-    return !sol.url_documento;
+    if (!sol.documentos || sol.documentos.length === 0) return true;
+    return !sol.documentos.every(d => !!d.url_documento);
   }
 
   cartaEnRevision(): boolean {
-    const sol = this.solicitud();
-    return !!sol && !!sol.url_documento && sol.estado === 'pendiente';
+    const doc = this.cartaDoc();
+    return !!doc && !!doc.url_documento && doc.estado === 'pendiente';
   }
 
   cartaAprobada(): boolean {

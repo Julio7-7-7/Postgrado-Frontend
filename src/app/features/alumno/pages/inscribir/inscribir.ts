@@ -81,7 +81,8 @@ export class InscribirComponent implements OnInit {
   tamanoArchivo = signal('');
   previewUrl = signal('');
   esPdf = signal(false);
-  subiendoCarta = signal(false);
+  subiendoDocId = signal<number | null>(null);
+  pendingDocId = signal<number | null>(null);
 
   descuentosDisponibles = computed(() => {
     const modId = this.selectedModalidad();
@@ -89,6 +90,14 @@ export class InscribirComponent implements OnInit {
     return this.tiposDescuento().filter(d =>
       d.modalidades.some(m => m.id_modalidad_academica === modId)
     );
+  });
+
+  documentosProgreso = computed(() => {
+    const sol = this.solicitud();
+    if (!sol || !sol.documentos) return { subidos: 0, total: 0, pct: 0 };
+    const subidos = sol.documentos.filter(d => !!d.url_documento).length;
+    const total = sol.documentos.length;
+    return { subidos, total, pct: total > 0 ? Math.round((subidos / total) * 100) : 0 };
   });
 
   descuentosUsados = computed(() => {
@@ -198,13 +207,14 @@ export class InscribirComponent implements OnInit {
           );
           if (sol) {
             this.solicitud.set(sol);
-            if (sol.url_documento) {
+            const allUploaded = sol.documentos && sol.documentos.length > 0 && sol.documentos.every(d => !!d.url_documento);
+            if (allUploaded) {
               this.router.navigate(['/alumnos', 'inscripciones', inscExistente.id_detalle_programa_alumno]);
               return;
             }
             this.currentStep.set(3);
           } else {
-            this.currentStep.set(3);
+            this._crearSolicitud(idEdicion);
           }
           this.cargando.set(false);
         },
@@ -308,8 +318,7 @@ export class InscribirComponent implements OnInit {
         this.guardando.set(false);
         this.dpaId.set(dpa.id_detalle_programa_alumno);
         if (ed.estado === 'en_curso') {
-          this.snackBar.open('¡Inscripción exitosa! Ahora subí tu carta de solicitud.', 'Cerrar', { duration: 5000 });
-          this.currentStep.set(3);
+          this._crearSolicitud(ed.id_programa_version_edicion);
         } else {
           this.snackBar.open('¡Inscripción exitosa! Revisá la documentación pendiente.', 'Cerrar', { duration: 5000 });
           this.router.navigate(['/alumnos', 'inscripciones']);
@@ -363,44 +372,70 @@ export class InscribirComponent implements OnInit {
     this.tamanoArchivo.set('');
     this.previewUrl.set('');
     this.esPdf.set(false);
+    this.pendingDocId.set(null);
   }
 
-  enviarCarta(): void {
-    const file = this.archivoSeleccionado();
-    if (!file) return;
+  seleccionarDocumento(docId: number): void {
+    this.pendingDocId.set(docId);
+    this.archivoSeleccionado.set(null);
+    this.previewUrl.set('');
+    this.esPdf.set(false);
+  }
 
-    this.subiendoCarta.set(true);
+  private _crearSolicitud(idEdicion: number): void {
+    this.detalleService.solicitarIncorporacion({
+      id_programa_version_edicion: idEdicion,
+    }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (sol) => {
+        this.solicitud.set(sol);
+        this.currentStep.set(3);
+        this.cargando.set(false);
+      },
+      error: (err) => {
+        this.cargando.set(false);
+        this.snackBar.open(err.error?.detail || 'Error al crear solicitud', 'Cerrar', { duration: 4000 });
+      },
+    });
+  }
+
+  subirDocumento(): void {
+    const file = this.archivoSeleccionado();
+    const docId = this.pendingDocId();
+    const sol = this.solicitud();
+    if (!file || !docId || !sol) return;
+
+    this.subiendoDocId.set(docId);
     const reader = new FileReader();
     reader.onload = () => {
       const base64 = reader.result as string;
-      const payload: any = { url_documento: base64 };
-
-      const idEdicion = this.edicion()?.id_programa_version_edicion;
-      if (idEdicion) {
-        payload.id_programa_version_edicion = idEdicion;
-      }
-
-      this.detalleService.solicitarIncorporacion(payload)
+      this.detalleService.subirDocumentoSolicitud(sol.id_solicitud, docId, base64)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
-          next: () => {
-            this.subiendoCarta.set(false);
-            this.snackBar.open('¡Carta enviada! Esperá la aprobación del administrador.', 'Cerrar', { duration: 5000 });
-            const dpaId = this.dpaId();
-            if (dpaId) {
-              this.router.navigate(['/alumnos', 'inscripciones', dpaId]);
-            } else {
-              this.router.navigate(['/alumnos', 'inscripciones']);
+          next: (updatedSol) => {
+            this.subiendoDocId.set(null);
+            this.solicitud.set(updatedSol);
+            this.limpiarArchivo();
+            this.snackBar.open('Documento subido correctamente', 'Cerrar', { duration: 2000 });
+
+            const progreso = this.documentosProgreso();
+            if (progreso.subidos === progreso.total) {
+              this.snackBar.open('¡Todos los documentos subidos!', 'Cerrar', { duration: 3000 });
+              const dpaId = this.dpaId();
+              if (dpaId) {
+                this.router.navigate(['/alumnos', 'inscripciones', dpaId]);
+              } else {
+                this.router.navigate(['/alumnos', 'inscripciones']);
+              }
             }
           },
           error: (err) => {
-            this.subiendoCarta.set(false);
-            this.snackBar.open(err.error?.detail || 'Error al enviar la carta', 'Cerrar', { duration: 5000 });
+            this.subiendoDocId.set(null);
+            this.snackBar.open(err.error?.detail || 'Error al subir documento', 'Cerrar', { duration: 4000 });
           },
         });
     };
     reader.onerror = () => {
-      this.subiendoCarta.set(false);
+      this.subiendoDocId.set(null);
       this.snackBar.open('Error al leer el archivo', 'Cerrar', { duration: 4000 });
     };
     reader.readAsDataURL(file);

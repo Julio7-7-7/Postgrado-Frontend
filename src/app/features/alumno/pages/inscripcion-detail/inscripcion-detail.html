@@ -60,12 +60,12 @@
             <div class="carta-prompt">
               <mat-icon [style.color]="'#0d9488'">description</mat-icon>
               <div class="carta-text">
-                <h3>Carta de solicitud de incorporación</h3>
-                <p>Subí la carta dirigida al director de la escuela de postgrado para completar tu incorporación.</p>
+                <h3>Requisitos de incorporación</h3>
+                <p>Completá los documentos requeridos para finalizar tu incorporación a esta edición.</p>
               </div>
               <button mat-flat-button color="primary" (click)="irASubirCarta()">
                 <mat-icon>cloud_upload</mat-icon>
-                Subir carta
+                Completar requisitos
               </button>
             </div>
           </mat-card>
@@ -76,8 +76,8 @@
             <div class="carta-prompt">
               <mat-icon [style.color]="'#f59e0b'">schedule</mat-icon>
               <div class="carta-text">
-                <h3>Carta en revisión</h3>
-                <p>Tu carta de incorporación fue enviada y está siendo revisada por el administrador.</p>
+                <h3>Requisitos en revisión</h3>
+                <p>Tus documentos de incorporación fueron enviados y están siendo revisados por el administrador.</p>
               </div>
               <span class="carta-status-badge pendiente">Pendiente</span>
             </div>
@@ -89,7 +89,7 @@
             <div class="carta-prompt">
               <mat-icon [style.color]="'#22c55e'">check_circle</mat-icon>
               <div class="carta-text">
-                <h3>Carta aprobada</h3>
+                <h3>Incorporación aprobada</h3>
                 <p>Tu solicitud de incorporación fue aprobada.</p>
               </div>
               <span class="carta-status-badge aprobada">Aprobada</span>
@@ -102,12 +102,12 @@
             <div class="carta-prompt">
               <mat-icon [style.color]="'#ef4444'">cancel</mat-icon>
               <div class="carta-text">
-                <h3>Carta rechazada</h3>
-                <p>Tu solicitud de incorporación fue rechazada. Podés enviar una nueva carta.</p>
+                <h3>Incorporación rechazada</h3>
+                <p>Tu solicitud de incorporación fue rechazada. Podés enviar los documentos nuevamente.</p>
               </div>
               <button mat-flat-button color="primary" (click)="irASubirCarta()">
                 <mat-icon>replay</mat-icon>
-                Enviar nueva carta
+                Reenviar documentos
               </button>
             </div>
           </mat-card>
