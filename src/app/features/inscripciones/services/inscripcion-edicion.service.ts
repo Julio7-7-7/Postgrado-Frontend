@@ -3,6 +3,7 @@ import { Observable, map } from 'rxjs';
 import { ApiService } from '../../../core/services/api.service';
 import { PaginatedInscripciones, TransferirRequest, TranscriptResponse, EdicionBasica } from '../models/inscripcion-edicion.model';
 import { DetalleProgramaAlumno } from '../../alumno/models/detalle-programa-alumno.model';
+import { SolicitudIncorporacionConDetalle } from '../../alumno/models/solicitud-incorporacion.model';
 
 @Injectable({ providedIn: 'root' })
 export class InscripcionEdicionService extends ApiService {
@@ -21,7 +22,7 @@ export class InscripcionEdicionService extends ApiService {
   }
 
   getTranscript(idAlumno: number): Observable<TranscriptResponse> {
-    return this.http.get<TranscriptResponse>(`${this.baseUrl}/avance-modulo/transcript/${idAlumno}`);
+    return this.http.get<TranscriptResponse>(`${this.baseUrl}/notas/transcript/${idAlumno}`);
   }
 
   getEdicionesDisponibles(): Observable<EdicionBasica[]> {
@@ -39,5 +40,23 @@ export class InscripcionEdicionService extends ApiService {
 
   getDetalle(idDetalle: number): Observable<DetalleProgramaAlumno> {
     return this.http.get<DetalleProgramaAlumno>(`${this.baseUrl}/detalle-programa-alumno/${idDetalle}`);
+  }
+
+  getSolicitudesIncorporacion(estado?: string): Observable<SolicitudIncorporacionConDetalle[]> {
+    let url = `${this.baseUrl}/solicitud-incorporacion/`;
+    if (estado) url += `?estado=${estado}`;
+    return this.http.get<SolicitudIncorporacionConDetalle[]>(url);
+  }
+
+  aprobarSolicitud(idSolicitud: number): Observable<SolicitudIncorporacionConDetalle> {
+    return this.http.patch<SolicitudIncorporacionConDetalle>(
+      `${this.baseUrl}/solicitud-incorporacion/${idSolicitud}/aprobar`, null
+    );
+  }
+
+  rechazarSolicitud(idSolicitud: number, observaciones: string): Observable<SolicitudIncorporacionConDetalle> {
+    return this.http.patch<SolicitudIncorporacionConDetalle>(
+      `${this.baseUrl}/solicitud-incorporacion/${idSolicitud}/rechazar?observaciones=${encodeURIComponent(observaciones)}`, null
+    );
   }
 }

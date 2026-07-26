@@ -36,6 +36,8 @@ export interface DetalleProgramaAlumno {
   id_tipo_descuento: number | null;
   descuento_aplicado: number;
   estado: EstadoDetalleAlumno;
+  modulo_inicio: number;
+  es_incorporacion: boolean;
   fecha_inscripcion: string | null;
   alumno: Alumno;
   modalidad_academica: ModalidadAcademica;
@@ -50,4 +52,5 @@ export interface AutoInscribirRequest {
   id_programa_version_edicion: number;
   id_modalidad_academica: number;
   id_tipo_descuento?: number | null;
+  modulo_inicio?: number;
 }

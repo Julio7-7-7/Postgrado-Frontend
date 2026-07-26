@@ -74,6 +74,12 @@ export const ADMIN_ROUTES: Routes = [
         canActivate: [permisoGuard('notas.ver')],
       },
       {
+        path: 'solicitudes-incorporacion',
+        loadComponent: () =>
+          import('../../inscripciones/pages/solicitudes-incorporacion/solicitudes-incorporacion').then(m => m.SolicitudesIncorporacionComponent),
+        canActivate: [permisoGuard('alumnos.ver')],
+      },
+      {
         path: 'transcript/:idAlumno',
         loadComponent: () =>
           import('../../transcript/pages/transcript/transcript').then(m => m.TranscriptComponent),

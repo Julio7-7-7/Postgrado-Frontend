@@ -14,6 +14,7 @@ export interface InscripcionEdicionItem {
   descuento_aplicado: number;
   tipo_descuento: string | null;
   modulo_inicio: number;
+  es_incorporacion: boolean;
   fecha_inscripcion: string | null;
   docs_completados: number;
   docs_total: number;
@@ -40,12 +41,10 @@ export interface ModuloTranscript {
   modulo_nombre: string;
   modulo_orden: number;
   nota: number | null;
-  nota_tipo: string | null;
-  completado_en_edicion: number | null;
+  calificacion: string | null;
   edicion_numero: number | null;
   edicion_anio: number | null;
   edicion_semestre: number | null;
-  fecha_completion: string | null;
 }
 
 export interface InscripcionTranscript {
@@ -62,12 +61,22 @@ export interface InscripcionTranscript {
   promedio: number | null;
 }
 
+export interface EdicionInfo {
+  id_programa_version_edicion: number;
+  edicion_numero: number | null;
+  anio: number | null;
+  semestre: number | null;
+  programa_nombre: string;
+  estado: string | null;
+}
+
 export interface TranscriptResponse {
   id_alumno: number;
   alumno_nombre: string;
   alumno_apellido: string;
   alumno_ci: string | null;
   inscripciones: InscripcionTranscript[];
+  ediciones_info: EdicionInfo[];
   promedio_general: number | null;
 }
 

@@ -67,6 +67,13 @@
         <mat-icon>how_to_reg</mat-icon> Inscripciones
       </a>
       <a mat-tab-link
+         [routerLink]="['./solicitudes-incorporacion']"
+         routerLinkActive
+         #rla11="routerLinkActive"
+         [active]="rla11.isActive">
+        <mat-icon>school</mat-icon> Solicitudes
+      </a>
+      <a mat-tab-link
          [routerLink]="['./pagos']"
          routerLinkActive
          #rla9="routerLinkActive"

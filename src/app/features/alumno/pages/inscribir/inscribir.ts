@@ -100,6 +100,7 @@ export class InscribirComponent implements OnInit {
       this.router.navigate(['/alumnos']);
       return;
     }
+
     this._cargarDatos(id);
   }
 
