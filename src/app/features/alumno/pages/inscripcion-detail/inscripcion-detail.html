@@ -71,6 +71,48 @@
           </mat-card>
         }
 
+        @if (cartaEnRevision()) {
+          <mat-card class="section-card carta-card pendiente">
+            <div class="carta-prompt">
+              <mat-icon [style.color]="'#f59e0b'">schedule</mat-icon>
+              <div class="carta-text">
+                <h3>Carta en revisión</h3>
+                <p>Tu carta de incorporación fue enviada y está siendo revisada por el administrador.</p>
+              </div>
+              <span class="carta-status-badge pendiente">Pendiente</span>
+            </div>
+          </mat-card>
+        }
+
+        @if (cartaAprobada()) {
+          <mat-card class="section-card carta-card aprobada">
+            <div class="carta-prompt">
+              <mat-icon [style.color]="'#22c55e'">check_circle</mat-icon>
+              <div class="carta-text">
+                <h3>Carta aprobada</h3>
+                <p>Tu solicitud de incorporación fue aprobada.</p>
+              </div>
+              <span class="carta-status-badge aprobada">Aprobada</span>
+            </div>
+          </mat-card>
+        }
+
+        @if (cartaRechazada()) {
+          <mat-card class="section-card carta-card rechazada">
+            <div class="carta-prompt">
+              <mat-icon [style.color]="'#ef4444'">cancel</mat-icon>
+              <div class="carta-text">
+                <h3>Carta rechazada</h3>
+                <p>Tu solicitud de incorporación fue rechazada. Podés enviar una nueva carta.</p>
+              </div>
+              <button mat-flat-button color="primary" (click)="irASubirCarta()">
+                <mat-icon>replay</mat-icon>
+                Enviar nueva carta
+              </button>
+            </div>
+          </mat-card>
+        }
+
         <mat-card class="section-card docs-card">
           <div class="section-header">
             <mat-icon [style.color]="'#0d9488'">description</mat-icon>

@@ -13,6 +13,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { DetalleProgramaAlumnoService } from '../../services/detalle-programa-alumno.service';
 import { DetalleProgramaAlumno, ControlDocumentacionAlumno, EstadoDetalleAlumno } from '../../models/detalle-programa-alumno.model';
+import { SolicitudIncorporacion } from '../../models/solicitud-incorporacion.model';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog';
 import { environment } from '../../../../../environments/environment';
 
@@ -63,6 +64,7 @@ export class InscripcionDetailComponent implements OnInit {
   apiUrl = environment.apiUrl;
 
   inscripcion = signal<DetalleProgramaAlumno | null>(null);
+  solicitud = signal<SolicitudIncorporacion | null>(null);
   cargando = signal(true);
 
   uploadingDocId = signal<number | null>(null);
@@ -122,13 +124,30 @@ export class InscripcionDetailComponent implements OnInit {
     this.detalleService.getMiInscripcion(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (data) => {
         this.inscripcion.set(data);
-        this.cargando.set(false);
+        if (data.es_incorporacion) {
+          this._cargarSolicitud(data.id_programa_version_edicion);
+        } else {
+          this.cargando.set(false);
+        }
       },
       error: () => {
         this.cargando.set(false);
         this.snackBar.open('Inscripción no encontrada', 'Cerrar', { duration: 4000 });
         this.router.navigate(['/alumnos/inscripciones']);
       },
+    });
+  }
+
+  private _cargarSolicitud(idEdicion: number): void {
+    this.detalleService.getMisSolicitudes().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (solicitudes) => {
+        const sol = solicitudes.find(s => s.id_programa_version_edicion === idEdicion);
+        if (sol) {
+          this.solicitud.set(sol);
+        }
+        this.cargando.set(false);
+      },
+      error: () => { this.cargando.set(false); },
     });
   }
 
@@ -252,7 +271,24 @@ export class InscripcionDetailComponent implements OnInit {
 
   needsCartaUpload(): boolean {
     const ins = this.inscripcion();
-    return !!ins && ins.es_incorporacion && ins.estado === 'postulante';
+    if (!ins || !ins.es_incorporacion || ins.estado !== 'postulante') return false;
+    const sol = this.solicitud();
+    return !sol || !sol.url_documento;
+  }
+
+  cartaEnRevision(): boolean {
+    const sol = this.solicitud();
+    return !!sol && !!sol.url_documento && sol.estado === 'pendiente';
+  }
+
+  cartaAprobada(): boolean {
+    const sol = this.solicitud();
+    return !!sol && sol.estado === 'aceptado';
+  }
+
+  cartaRechazada(): boolean {
+    const sol = this.solicitud();
+    return !!sol && sol.estado === 'rechazado';
   }
 
   getDocUrl(url: string | null): string {
