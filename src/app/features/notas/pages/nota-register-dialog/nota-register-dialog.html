@@ -12,7 +12,7 @@
     <mat-select [(ngModel)]="idModulo">
       @for (m of modulos(); track m.id_detalle_programa_modulo) {
         <mat-option [value]="m.id_detalle_programa_modulo">
-          #{{ m.orden }} — {{ m.modulo?.nombre_modulo }}
+          #{{ m.orden }} — {{ m.modulo.nombre_modulo }}
         </mat-option>
       }
     </mat-select>

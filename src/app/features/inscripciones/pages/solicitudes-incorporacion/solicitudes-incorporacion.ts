@@ -40,6 +40,9 @@ import { environment } from '../../../../../environments/environment';
           </div>
         </div>
         <div class="header-right">
+          <button mat-stroked-button class="config-btn" (click)="irARequisitos()" matTooltip="Configurar documentos requeridos">
+            <mat-icon>settings</mat-icon> Documentos
+          </button>
           <span class="total-count">{{ total() }} solicitud{{ total() !== 1 ? 'es' : '' }}</span>
         </div>
       </div>
@@ -86,7 +89,7 @@ import { environment } from '../../../../../environments/environment';
               <tr>
                 <th class="col-alumno">Alumno</th>
                 <th class="col-programa">Programa / Edición</th>
-                <th class="col-documento">Documento</th>
+                <th class="col-documento">Documentos</th>
                 <th class="col-fecha">Fecha</th>
                 <th class="col-estado">Estado</th>
                 <th class="col-acciones">Acciones</th>
@@ -112,8 +115,22 @@ import { environment } from '../../../../../environments/environment';
                   </td>
                   <td class="col-documento">
                     <div class="doc-cell">
-                      <mat-icon class="doc-icon">description</mat-icon>
-                      <span>{{ item.tipo_documento }}</span>
+                      @if (item.documentos && item.documentos.length > 0) {
+                        @for (doc of item.documentos; track doc.id_solicitud_documento) {
+                          <div class="doc-chip">
+                            <mat-icon class="doc-icon">description</mat-icon>
+                            <span>{{ doc.nombre_requisito }}</span>
+                          </div>
+                          @if (doc.url_documento) {
+                            <a class="doc-view-btn" [href]="getDocUrl(doc.url_documento)" target="_blank"
+                               matTooltip="Ver documento">
+                              <mat-icon>visibility</mat-icon>
+                            </a>
+                          }
+                        }
+                      } @else {
+                        <span class="no-docs">Sin documentos</span>
+                      }
                     </div>
                   </td>
                   <td class="col-fecha">{{ convertirFecha(item.created_at) }}</td>
@@ -122,12 +139,6 @@ import { environment } from '../../../../../environments/environment';
                   </td>
                   <td class="col-acciones">
                     <div class="acciones-cell">
-                      @if (item.url_documento) {
-                        <a class="action-icon view-icon" [href]="getDocUrl(item.url_documento)" target="_blank"
-                           matTooltip="Ver carta de solicitud">
-                          <mat-icon>visibility</mat-icon>
-                        </a>
-                      }
                       @if (item.estado === 'pendiente') {
                         <button mat-icon-button class="action-icon reject-icon"
                                 (click)="rechazar(item)" matTooltip="Rechazar solicitud">
@@ -217,6 +228,10 @@ export class SolicitudesIncorporacionComponent implements OnInit {
 
   volver(): void {
     this.router.navigate(['/admin/inscripciones']);
+  }
+
+  irARequisitos(): void {
+    this.router.navigate(['/admin/requisitos-incorporacion']);
   }
 
   iniciales(item: SolicitudIncorporacionConDetalle): string {
