@@ -81,6 +81,10 @@ export class InscripcionesLandingComponent implements OnInit {
     this.router.navigate(['/admin/inscripciones', ed.id_programa_version_edicion]);
   }
 
+  irASolicitudes(): void {
+    this.router.navigate(['/admin/solicitudes-incorporacion']);
+  }
+
   getFotoUrl(foto: string | null): string {
     return foto ? `${this.apiUrl}${foto}` : '';
   }

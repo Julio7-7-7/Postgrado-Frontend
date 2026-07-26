@@ -29,6 +29,7 @@ export class RegisterComponent implements OnInit {
 
   loading = false;
   inscribirId: number | null = null;
+  incorporarId: number | null = null;
 
   email = '';
   password = '';
@@ -41,6 +42,7 @@ export class RegisterComponent implements OnInit {
 
   ngOnInit(): void {
     this.inscribirId = Number(this.route.snapshot.queryParams['inscribir']) || null;
+    this.incorporarId = Number(this.route.snapshot.queryParams['incorporar']) || null;
     if (this.auth.isLogged()) {
       this.router.navigate(['/']);
     }
@@ -74,7 +76,9 @@ export class RegisterComponent implements OnInit {
         this.loading = false;
         this.snackBar.open('¡Cuenta creada! Completá tu perfil para inscribirte', 'Cerrar', { duration: 4000 });
 
-        if (this.inscribirId) {
+        if (this.incorporarId) {
+          this.router.navigate(['/alumnos', 'solicitar-incorporacion', this.incorporarId], { replaceUrl: true });
+        } else if (this.inscribirId) {
           this.router.navigate(['/alumnos', 'inscribir', this.inscribirId], { replaceUrl: true });
         } else {
           this.router.navigate(['/alumnos/perfil'], { replaceUrl: true });
@@ -89,10 +93,9 @@ export class RegisterComponent implements OnInit {
   }
 
   goToLogin(): void {
-    if (this.inscribirId) {
-      this.router.navigate(['/login'], { queryParams: { inscribir: this.inscribirId } });
-    } else {
-      this.router.navigate(['/login']);
-    }
+    const params: any = {};
+    if (this.inscribirId) params.inscribir = this.inscribirId;
+    if (this.incorporarId) params.incorporar = this.incorporarId;
+    this.router.navigate(['/login'], { queryParams: Object.keys(params).length ? params : undefined });
   }
 }

@@ -33,6 +33,16 @@ export const ALUMNO_ROUTES: Routes = [
         loadComponent: () =>
           import('../pages/inscribir/inscribir').then(m => m.InscribirComponent),
       },
+      {
+        path: 'solicitar-incorporacion',
+        loadComponent: () =>
+          import('../pages/solicitar-incorporacion/solicitar-incorporacion').then(m => m.SolicitarIncorporacionComponent),
+      },
+      {
+        path: 'solicitar-incorporacion/:idEdicion',
+        loadComponent: () =>
+          import('../pages/solicitar-incorporacion/solicitar-incorporacion').then(m => m.SolicitarIncorporacionComponent),
+      },
     ],
   },
 ];

@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject, DestroyRef } from '@angular/core';
+import { Component, OnInit, signal, computed, inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -11,7 +11,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { NotaService } from '../../services/nota.service';
 import { AlumnoNotas, NotaResponse } from '../../models/nota.model';
 import { NotaRegisterDialog } from '../nota-register-dialog/nota-register-dialog';
-import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog';
+import { clasificarNota } from '../../../../core/utils/nota-utils';
 
 @Component({
   selector: 'app-notas-edicion',
@@ -35,7 +35,11 @@ export class NotasEdicionComponent implements OnInit {
   alumnos = signal<AlumnoNotas[]>([]);
   isLoading = signal(true);
   expandedId = signal<number | null>(null);
+  showRetirados = signal(false);
   idEdicion = 0;
+
+  activos = computed(() => this.alumnos().filter(a => a.estado !== 'retirado'));
+  retirados = computed(() => this.alumnos().filter(a => a.estado === 'retirado'));
 
   ngOnInit(): void {
     this.idEdicion = Number(this.route.snapshot.paramMap.get('idEdicion'));
@@ -71,9 +75,7 @@ export class NotasEdicionComponent implements OnInit {
   }
 
   promedioClass(promedio: number): string {
-    if (promedio >= 70) return 'aprobado';
-    if (promedio >= 51) return 'regular';
-    return 'reprobado';
+    return clasificarNota(promedio);
   }
 
   agregarNota(a: AlumnoNotas, event: MouseEvent): void {
@@ -97,26 +99,6 @@ export class NotasEdicionComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) this.cargarDatos();
-    });
-  }
-
-  eliminarNota(nota: NotaResponse, event: MouseEvent): void {
-    event.stopPropagation();
-    const confirmRef = this.dialog.open(ConfirmDialogComponent, {
-      width: '380px',
-      data: { titulo: 'Eliminar nota', mensaje: `¿Está seguro de eliminar la nota ${nota.nota} del módulo "${nota.modulo_nombre}"?` },
-    });
-
-    confirmRef.afterClosed().subscribe(confirmed => {
-      if (confirmed) {
-        this.service.delete(nota.id_nota).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-          next: () => {
-            this.cargarDatos();
-            this.snackbar.open('Nota eliminada', 'Cerrar', { duration: 1500 });
-          },
-          error: err => this.snackbar.open(err.error?.detail || 'Error', 'Cerrar', { duration: 3000 }),
-        });
-      }
     });
   }
 

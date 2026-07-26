@@ -6,9 +6,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { DocumentacionService } from '../../../documentacion/services/documentacion.service';
+import { NotaService } from '../../services/nota.service';
 import { ProgramaVersionEdicionResponse } from '../../../documentacion/models/documentacion.model';
-import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-notas-admin',
@@ -21,18 +20,16 @@ import { environment } from '../../../../../environments/environment';
   styleUrl: './notas-admin.css',
 })
 export class NotasAdminComponent implements OnInit {
-  private docService = inject(DocumentacionService);
+  private notaService = inject(NotaService);
   private router = inject(Router);
   private snackbar = inject(MatSnackBar);
   private destroyRef = inject(DestroyRef);
-
-  apiUrl = environment.apiUrl;
 
   ediciones = signal<ProgramaVersionEdicionResponse[]>([]);
   isLoading = signal(true);
 
   ngOnInit(): void {
-    this.docService.getEdiciones().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    this.notaService.getEdiciones().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: data => {
         this.ediciones.set(data.filter(e => e.estado !== 'finalizado'));
         this.isLoading.set(false);

@@ -44,28 +44,15 @@ export class DocMatrizComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
 
   postulantes = signal<PostulanteResponse[]>([]);
+  allPostulantes = signal<PostulanteResponse[]>([]);
   grupos = signal<GrupoModalidad[]>([]);
   isLoading = signal(true);
+  filtroEstado = signal('');
 
-  totalAprobados = computed(() =>
-    this.postulantes().filter(p => p.docs_completados === p.docs_total && p.docs_total > 0).length
-  );
-
-  totalEnRevision = computed(() =>
-    this.postulantes().filter(p =>
-      p.estado !== 'retirado' && p.docs_completados < p.docs_total && p.docs_completados > 0
-    ).length
-  );
-
-  totalSinAvance = computed(() =>
-    this.postulantes().filter(p =>
-      p.estado !== 'retirado' && p.docs_completados === 0
-    ).length
-  );
-
-  totalRetirados = computed(() =>
-    this.postulantes().filter(p => p.estado === 'retirado').length
-  );
+  total = computed(() => this.postulantes().length);
+  countSinAvance = computed(() => this.allPostulantes().filter(p => p.docs_completados === 0).length);
+  countEnRevision = computed(() => this.allPostulantes().filter(p => p.docs_completados > 0 && p.docs_completados < p.docs_total).length);
+  countAprobados = computed(() => this.allPostulantes().filter(p => p.docs_completados === p.docs_total && p.docs_total > 0).length);
 
   ngOnInit(): void {
     const idEdicion = Number(this.route.snapshot.paramMap.get('idEdicion'));
@@ -76,8 +63,8 @@ export class DocMatrizComponent implements OnInit {
 
     this.service.getPostulantesPorEdicion(idEdicion).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: data => {
-        this.postulantes.set(data);
-        this.agruparPorModalidad(data);
+        this.allPostulantes.set(data);
+        this.aplicarFiltro();
         this.isLoading.set(false);
       },
       error: () => {
@@ -117,6 +104,32 @@ export class DocMatrizComponent implements OnInit {
     }
 
     this.grupos.set(result);
+  }
+
+  aplicarFiltro(): void {
+    const filtro = this.filtroEstado();
+    const all = this.allPostulantes();
+    let filtered: PostulanteResponse[];
+
+    if (!filtro) {
+      filtered = all;
+    } else if (filtro === 'sin_avance') {
+      filtered = all.filter(p => p.docs_completados === 0);
+    } else if (filtro === 'en_revision') {
+      filtered = all.filter(p => p.docs_completados > 0 && p.docs_completados < p.docs_total);
+    } else if (filtro === 'aprobados') {
+      filtered = all.filter(p => p.docs_completados === p.docs_total && p.docs_total > 0);
+    } else {
+      filtered = all;
+    }
+
+    this.postulantes.set(filtered);
+    this.agruparPorModalidad(filtered);
+  }
+
+  onFiltroEstado(value: string): void {
+    this.filtroEstado.set(value);
+    this.aplicarFiltro();
   }
 
   getCeldaEstado(p: PostulanteResponse, reqId: number): string {
@@ -176,6 +189,7 @@ export class DocMatrizComponent implements OnInit {
       maxHeight: '85vh',
       data: { postulante: p, requisitos: requisitosGrupo },
       panelClass: 'doc-matriz-dialog',
+      disableClose: true,
     });
 
     dialogRef.afterClosed().subscribe(updated => {

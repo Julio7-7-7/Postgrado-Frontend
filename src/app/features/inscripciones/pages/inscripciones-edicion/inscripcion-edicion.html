@@ -71,6 +71,9 @@
                     <div class="avatar-sm">{{ iniciales(item) }}</div>
                     <div class="alumno-text">
                       <span class="alumno-nombre">{{ item.alumno.nombre }} {{ item.alumno.apellido }}</span>
+                      @if (item.es_incorporacion) {
+                        <span class="incorporacion-tag">Incorporación</span>
+                      }
                       <span class="alumno-correo">{{ item.alumno.correo || '' }}</span>
                     </div>
                   </div>

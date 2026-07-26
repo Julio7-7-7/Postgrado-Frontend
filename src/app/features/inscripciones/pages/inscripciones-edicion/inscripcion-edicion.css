@@ -158,6 +158,20 @@
   text-overflow: ellipsis;
 }
 
+.incorporacion-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  background: #fef3c7;
+  color: #92400e;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
 .alumno-correo {
   font-size: 0.72rem;
   color: var(--fich-text-muted);

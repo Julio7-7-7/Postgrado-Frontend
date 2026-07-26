@@ -11,6 +11,7 @@ import { InscripcionEdicionService } from '../../../inscripciones/services/inscr
 import { NotaService } from '../../../notas/services/nota.service';
 import { TranscriptResponse, InscripcionTranscript, ModuloTranscript } from '../../../inscripciones/models/inscripcion-edicion.model';
 import { HistorialTransferencia } from '../../../notas/models/nota.model';
+import { clasificarNota } from '../../../../core/utils/nota-utils';
 
 @Component({
   selector: 'app-transcript',
@@ -111,24 +112,56 @@ export class TranscriptComponent implements OnInit {
     return s === 1 ? 'I' : 'II';
   }
 
+  round(n: number): number {
+    return Math.floor(n + 0.5);
+  }
+
   notaClass(nota: number | null): string {
     if (nota === null) return '';
-    if (nota >= 70) return 'nota-aprobado';
-    if (nota >= 51) return 'nota-regular';
-    return 'nota-reprobado';
+    return clasificarNota(nota);
   }
 
-  moduloClass(mod: ModuloTranscript, ins: InscripcionTranscript): string {
-    if (mod.modulo_orden < ins.modulo_inicio) return 'mod-saltado';
-    if (mod.completado_en_edicion !== null && mod.completado_en_edicion !== ins.edicion_id) return 'mod-arrastrado';
-    return '';
+  blockClass(idx: number, total: number): string {
+    if (total <= 1) return '';
+    return `block-${Math.min(idx + 1, 3)}`;
   }
 
-  moduloTitle(mod: ModuloTranscript, ins: InscripcionTranscript): string {
-    if (mod.modulo_orden < ins.modulo_inicio) return 'Módulo no cursado (incorporación)';
-    if (mod.completado_en_edicion !== null && mod.completado_en_edicion !== ins.edicion_id) {
-      return `Arrastrado de Ed. ${mod.edicion_numero} (${this.semestreLabel(mod.edicion_semestre)} ${mod.edicion_anio})`;
+  currentModIdx(ins: InscripcionTranscript): number {
+    return ins.modulos.findIndex(
+      m => m.nota === null && m.modulo_orden >= ins.modulo_inicio
+    );
+  }
+
+  gridCols(n: number): string {
+    return `repeat(${n}, 1fr)`;
+  }
+
+  modTypeClass(mod: ModuloTranscript, ins: InscripcionTranscript): string {
+    if (mod.nota === null && mod.modulo_orden < ins.modulo_inicio) return 'gc-skipped';
+    if (mod.nota === null) {
+      const firstNull = this.currentModIdx(ins);
+      const mi = ins.modulos.indexOf(mod);
+      if (mi === firstNull) return 'gc-current';
+      return 'gc-future';
     }
-    return '';
+    return 'gc-done';
+  }
+
+  cellTooltip(mod: ModuloTranscript, ins: InscripcionTranscript): string {
+    if (mod.modulo_orden < ins.modulo_inicio) {
+      return 'Módulo no cursado (incorporación)';
+    }
+    if (mod.nota !== null) {
+      const cal = mod.calificacion ? mod.calificacion.charAt(0).toUpperCase() + mod.calificacion.slice(1) : '';
+      return `${mod.modulo_nombre}: ${Math.floor(mod.nota + 0.5)} (${cal})`;
+    }
+    return `${mod.modulo_nombre} — pendiente`;
+  }
+
+  snakeWidth(ins: InscripcionTranscript): string {
+    if (ins.modulos.length === 0) return '0%';
+    const lastIdx = ins.modulos.reduce((max, m, i) => (m.nota !== null ? i : max), -1);
+    if (lastIdx < 0) return '0%';
+    return `${((lastIdx + 1) / ins.modulos.length) * 100}%`;
   }
 }

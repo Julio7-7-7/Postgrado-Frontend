@@ -139,6 +139,8 @@ export class PublicHomeComponent implements OnInit, AfterViewInit {
   }
 
   inscribirse(edicion: ProgramaVersionEdicion): void {
+    const esEnCurso = edicion.estado === 'en_curso';
+
     if (this.auth.isLogged()) {
       this.alumnoService.getMiPerfil().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: (alumno) => {
@@ -156,12 +158,18 @@ export class PublicHomeComponent implements OnInit, AfterViewInit {
               );
               if (yaInscripto) {
                 this.router.navigate(['/alumnos/inscripciones']);
+              } else if (esEnCurso) {
+                this.router.navigate(['/alumnos', 'solicitar-incorporacion', edicion.id_programa_version_edicion]);
               } else {
                 this.router.navigate(['/alumnos', 'inscribir', edicion.id_programa_version_edicion]);
               }
             },
             error: () => {
-              this.router.navigate(['/alumnos', 'inscribir', edicion.id_programa_version_edicion]);
+              if (esEnCurso) {
+                this.router.navigate(['/alumnos', 'solicitar-incorporacion', edicion.id_programa_version_edicion]);
+              } else {
+                this.router.navigate(['/alumnos', 'inscribir', edicion.id_programa_version_edicion]);
+              }
             },
           });
         },
@@ -170,9 +178,15 @@ export class PublicHomeComponent implements OnInit, AfterViewInit {
         },
       });
     } else {
-      this.router.navigate(['/login'], {
-        queryParams: { inscribir: edicion.id_programa_version_edicion },
-      });
+      if (esEnCurso) {
+        this.router.navigate(['/login'], {
+          queryParams: { incorporar: edicion.id_programa_version_edicion },
+        });
+      } else {
+        this.router.navigate(['/login'], {
+          queryParams: { inscribir: edicion.id_programa_version_edicion },
+        });
+      }
     }
   }
 

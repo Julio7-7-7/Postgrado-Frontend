@@ -2,12 +2,17 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from '../../../core/services/api.service';
 import {
-  AlumnoNotas, NotaCreate, NotaUpdate, NotaResponse, MisNotasResponse,
+  AlumnoNotas, NotaCreate, NotaUpdate, NotaResponse,
   DocenteEdicionCompleta, DocenteModuloDetalle, HistorialTransferenciasResponse,
 } from '../models/nota.model';
+import { ProgramaVersionEdicionResponse } from '../../documentacion/models/documentacion.model';
 
 @Injectable({ providedIn: 'root' })
 export class NotaService extends ApiService {
+
+  getEdiciones(): Observable<ProgramaVersionEdicionResponse[]> {
+    return this.http.get<ProgramaVersionEdicionResponse[]>(`${this.baseUrl}/programa-version-edicion/`);
+  }
 
   getNotasPorEdicion(idEdicion: number): Observable<AlumnoNotas[]> {
     return this.http.get<AlumnoNotas[]>(`${this.baseUrl}/notas/por-edicion/${idEdicion}`);
@@ -21,20 +26,12 @@ export class NotaService extends ApiService {
     return this.http.get<DocenteModuloDetalle>(`${this.baseUrl}/notas/por-modulo/${idDpm}`);
   }
 
-  getMisNotas(idDetalle: number): Observable<MisNotasResponse> {
-    return this.http.get<MisNotasResponse>(`${this.baseUrl}/notas/mis-notas/${idDetalle}`);
-  }
-
   create(data: NotaCreate): Observable<NotaResponse> {
     return this.http.post<NotaResponse>(`${this.baseUrl}/notas/`, data);
   }
 
   update(id: number, data: NotaUpdate): Observable<NotaResponse> {
     return this.http.patch<NotaResponse>(`${this.baseUrl}/notas/${id}`, data);
-  }
-
-  delete(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/notas/${id}`);
   }
 
   getHistorialTransferencias(idAlumno: number): Observable<HistorialTransferenciasResponse> {
