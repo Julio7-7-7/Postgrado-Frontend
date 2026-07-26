@@ -337,3 +337,350 @@
 .submit-btn mat-spinner {
   display: inline-block;
 }
+
+/* ─── Wizard Stepper ─── */
+.wizard-stepper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin-bottom: 24px;
+  padding: 20px 0;
+}
+
+.wizard-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.step-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+  background: #e2e8f0;
+  color: #94a3b8;
+  transition: all 0.3s ease;
+}
+
+.wizard-step.active .step-circle {
+  background: #0d9488;
+  color: white;
+  box-shadow: 0 0 0 4px rgba(13, 148, 136, 0.15);
+}
+
+.wizard-step.done .step-circle {
+  background: #0d9488;
+  color: white;
+}
+
+.step-circle mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.step-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.wizard-step.active .step-label {
+  color: #0d9488;
+}
+
+.wizard-step.done .step-label {
+  color: #0d9488;
+}
+
+.step-line {
+  width: 60px;
+  height: 2px;
+  background: #e2e8f0;
+  margin: 0 8px;
+  margin-bottom: 20px;
+  transition: background 0.3s ease;
+}
+
+.step-line.done {
+  background: #0d9488;
+}
+
+/* ─── Gate card ─── */
+.gate-card {
+  background: var(--fich-bg-card);
+  border: 1px solid var(--fich-border);
+  border-radius: var(--fich-radius-md);
+  padding: 32px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.gate-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #f0fdfa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+}
+
+.gate-icon mat-icon {
+  font-size: 28px;
+  width: 28px;
+  height: 28px;
+  color: #0d9488;
+}
+
+.gate-card h3 {
+  margin: 0 0 8px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--fich-text);
+}
+
+.gate-card > p {
+  margin: 0 0 20px;
+  font-size: 0.9rem;
+  color: var(--fich-text-muted);
+}
+
+.gate-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 24px;
+  text-align: left;
+  max-width: 560px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.gate-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--fich-border-light);
+  font-size: 0.88rem;
+  color: var(--fich-text-secondary);
+  line-height: 1.5;
+}
+
+.gate-list li:last-child {
+  border-bottom: none;
+}
+
+.gate-list li mat-icon {
+  color: #0d9488;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.gate-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.gate-actions button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ─── Upload card ─── */
+.upload-card {
+  background: var(--fich-bg-card);
+  border: 1px solid var(--fich-border);
+  border-radius: var(--fich-radius-md);
+  padding: 28px;
+  margin-bottom: 16px;
+}
+
+.upload-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.upload-card-header h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--fich-text);
+}
+
+.upload-subtitle {
+  margin: 0 0 20px;
+  font-size: 0.85rem;
+  color: var(--fich-text-muted);
+}
+
+.uploading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 32px 0;
+}
+
+.uploading-state h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--fich-text);
+}
+
+.uploading-state p {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--fich-text-muted);
+}
+
+.file-preview {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: var(--fich-bg-subtle);
+  border: 1px solid var(--fich-border-light);
+  border-radius: var(--fich-radius-sm);
+  margin-bottom: 16px;
+}
+
+.file-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.file-icon.pdf {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.file-thumb {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.file-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.file-info h3 {
+  margin: 0;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--fich-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.file-info p {
+  margin: 2px 0 0;
+  font-size: 0.78rem;
+  color: var(--fich-text-muted);
+}
+
+.file-actions {
+  flex-shrink: 0;
+}
+
+.remove-btn {
+  color: var(--fich-text-muted);
+}
+
+.upload-confirm {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.enviar-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 24px;
+  height: 42px;
+  font-weight: 600;
+}
+
+.drop-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 40px 24px;
+  border: 2px dashed var(--fich-border);
+  border-radius: var(--fich-radius-md);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.drop-area:hover {
+  border-color: #0d9488;
+  background: #f0fdfa;
+}
+
+.drop-icon mat-icon {
+  font-size: 40px;
+  width: 40px;
+  height: 40px;
+  color: #0d9488;
+}
+
+.drop-area h3 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--fich-text);
+}
+
+.drop-area p {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--fich-text-muted);
+}
+
+.formats {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin-top: 4px;
+}
+
+.upload-actions-bottom {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--fich-border-light);
+}
+
+.upload-actions-bottom button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--fich-text-muted);
+}

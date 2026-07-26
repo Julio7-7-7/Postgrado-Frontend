@@ -246,7 +246,7 @@ export class InscripcionDetailComponent implements OnInit {
   irASubirCarta(): void {
     const ins = this.inscripcion();
     if (ins) {
-      this.router.navigate(['/alumnos', 'solicitar-incorporacion', ins.id_programa_version_edicion]);
+      this.router.navigate(['/alumnos', 'inscribir', ins.id_programa_version_edicion]);
     }
   }
 

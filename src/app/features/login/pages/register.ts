@@ -77,7 +77,7 @@ export class RegisterComponent implements OnInit {
         this.snackBar.open('¡Cuenta creada! Completá tu perfil para inscribirte', 'Cerrar', { duration: 4000 });
 
         if (this.incorporarId) {
-          this.router.navigate(['/alumnos', 'solicitar-incorporacion', this.incorporarId], { replaceUrl: true });
+          this.router.navigate(['/alumnos', 'inscribir', this.incorporarId], { replaceUrl: true });
         } else if (this.inscribirId) {
           this.router.navigate(['/alumnos', 'inscribir', this.inscribirId], { replaceUrl: true });
         } else {

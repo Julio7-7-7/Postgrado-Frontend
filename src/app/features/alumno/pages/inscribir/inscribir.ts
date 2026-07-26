@@ -14,6 +14,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { AlumnoService } from '../../services/alumno.service';
 import { EdicionService } from '../../../edicion/services/edicion.service';
@@ -26,6 +27,7 @@ import { TipoDescuento } from '../../models/tipo-descuento.model';
 import { RequisitoResumen } from '../../models/modalidad-academica.model';
 import { ProgramaVersionEdicion } from '../../../edicion/models/edicion.model';
 import { DetalleProgramaAlumno } from '../../models/detalle-programa-alumno.model';
+import { SolicitudIncorporacion } from '../../models/solicitud-incorporacion.model';
 import { environment } from '../../../../../environments/environment';
 
 @Component({
@@ -35,7 +37,8 @@ import { environment } from '../../../../../environments/environment';
     CommonModule, FormsModule, RouterModule,
     MatCardModule, MatButtonModule, MatIconModule, MatFormFieldModule,
     MatInputModule, MatSelectModule, MatDatepickerModule, MatNativeDateModule,
-    MatDividerModule, MatTooltipModule, MatProgressSpinnerModule, MatSnackBarModule,
+    MatDividerModule, MatTooltipModule, MatProgressSpinnerModule, MatProgressBarModule,
+    MatSnackBarModule,
   ],
   templateUrl: './inscribir.html',
   styleUrl: './inscribir.css',
@@ -51,7 +54,6 @@ export class InscribirComponent implements OnInit {
   private snackBar = inject(MatSnackBar);
   private destroyRef = inject(DestroyRef);
 
-  // state
   edicion = signal<ProgramaVersionEdicion | null>(null);
   alumno = signal<Alumno | null>(null);
   modalidades = signal<ModalidadAcademica[]>([]);
@@ -61,7 +63,6 @@ export class InscribirComponent implements OnInit {
   guardando = signal(false);
   formTocado = signal(false);
 
-  // form fields
   editData: AlumnoUpdate = {};
   selectedModalidad = signal<number | null>(null);
   selectedDescuento = signal<number | null>(null);
@@ -70,7 +71,18 @@ export class InscribirComponent implements OnInit {
   generos: GeneroAlumno[] = ['masculino', 'femenino'];
   apiUrl = environment.apiUrl;
 
-  // Fix 2: descuentos filtrados por modalidad
+  currentStep = signal(1);
+  esIncorporacion = signal(false);
+  solicitud = signal<SolicitudIncorporacion | null>(null);
+  dpaId = signal<number | null>(null);
+
+  archivoSeleccionado = signal<File | null>(null);
+  nombreArchivo = signal('');
+  tamanoArchivo = signal('');
+  previewUrl = signal('');
+  esPdf = signal(false);
+  subiendoCarta = signal(false);
+
   descuentosDisponibles = computed(() => {
     const modId = this.selectedModalidad();
     if (!modId) return [];
@@ -79,7 +91,6 @@ export class InscribirComponent implements OnInit {
     );
   });
 
-  // Fix 4: IDs de descuentos que el alumno ya usó (uso_unico + estado no postulante/observado)
   descuentosUsados = computed(() => {
     const usados = new Set<number>();
     for (const insc of this.inscripciones()) {
@@ -100,18 +111,19 @@ export class InscribirComponent implements OnInit {
       this.router.navigate(['/alumnos']);
       return;
     }
-
     this._cargarDatos(id);
   }
 
-  private _cargarDatos(id: number): void {
+  private _cargarDatos(idEdicion: number): void {
     const total = 5;
     let completados = 0;
     const onComplete = () => {
-      if (++completados >= total) this.cargando.set(false);
+      if (++completados >= total) {
+        this._detectarEstadoInicial(idEdicion);
+      }
     };
 
-    this.edicionService.getById(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    this.edicionService.getById(idEdicion).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (ed) => this.edicion.set(ed),
       error: () => {
         this.snackBar.open('Error al cargar programa', 'Cerrar', { duration: 4000 });
@@ -154,11 +166,58 @@ export class InscribirComponent implements OnInit {
       complete: onComplete,
     });
 
-    // Fix 4: cargar inscripciones previas para checkear uso_unico
     this.detalleService.getMisInscripciones().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (insc) => this.inscripciones.set(insc),
       complete: onComplete,
     });
+  }
+
+  private _detectarEstadoInicial(idEdicion: number): void {
+    const ed = this.edicion();
+    if (!ed) { this.cargando.set(false); return; }
+
+    if (ed.estado !== 'en_curso') {
+      this.esIncorporacion.set(false);
+      this.cargando.set(false);
+      return;
+    }
+
+    this.esIncorporacion.set(true);
+
+    const inscExistente = this.inscripciones().find(
+      i => i.id_programa_version_edicion === idEdicion
+    );
+
+    if (inscExistente) {
+      this.dpaId.set(inscExistente.id_detalle_programa_alumno);
+
+      this.detalleService.getMisSolicitudes().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+        next: (solicitudes) => {
+          const sol = solicitudes.find(
+            s => s.id_programa_version_edicion === idEdicion
+          );
+          if (sol) {
+            this.solicitud.set(sol);
+            if (sol.url_documento) {
+              this.router.navigate(['/alumnos', 'inscripciones', inscExistente.id_detalle_programa_alumno]);
+              return;
+            }
+            this.currentStep.set(3);
+          } else {
+            this.currentStep.set(3);
+          }
+          this.cargando.set(false);
+        },
+        error: () => { this.cargando.set(false); },
+      });
+    } else {
+      this.currentStep.set(1);
+      this.cargando.set(false);
+    }
+  }
+
+  avANextStep(): void {
+    this.currentStep.update(s => s + 1);
   }
 
   onModalidadChange(idModalidad: number | null): void {
@@ -170,7 +229,6 @@ export class InscribirComponent implements OnInit {
     const mod = this.modalidades().find(m => m.id_modalidad_academica === idModalidad);
     this.requisitosModalidad.set(mod?.requisitos ?? []);
 
-    // Fix 2: si el descuento seleccionado ya no está disponible para esta modalidad, limpiar
     const descActual = this.selectedDescuento();
     if (descActual) {
       const disponible = this.descuentosDisponibles().some(d => d.id_tipo_descuento === descActual);
@@ -246,11 +304,12 @@ export class InscribirComponent implements OnInit {
       id_modalidad_academica: this.selectedModalidad()!,
       id_tipo_descuento: this.selectedDescuento(),
     }).subscribe({
-      next: () => {
+      next: (dpa) => {
         this.guardando.set(false);
+        this.dpaId.set(dpa.id_detalle_programa_alumno);
         if (ed.estado === 'en_curso') {
           this.snackBar.open('¡Inscripción exitosa! Ahora subí tu carta de solicitud.', 'Cerrar', { duration: 5000 });
-          this.router.navigate(['/alumnos', 'solicitar-incorporacion', ed.id_programa_version_edicion]);
+          this.currentStep.set(3);
         } else {
           this.snackBar.open('¡Inscripción exitosa! Revisá la documentación pendiente.', 'Cerrar', { duration: 5000 });
           this.router.navigate(['/alumnos', 'inscripciones']);
@@ -262,6 +321,89 @@ export class InscribirComponent implements OnInit {
         this.snackBar.open(msg, 'Cerrar', { duration: 5000 });
       },
     });
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || !input.files[0]) return;
+
+    const file = input.files[0];
+    const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'];
+    if (!validTypes.includes(file.type)) {
+      this.snackBar.open('Formato no soportado. Use JPG, PNG, GIF, WebP o PDF.', 'Cerrar', { duration: 4000 });
+      input.value = '';
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      this.snackBar.open('El archivo no puede superar 10 MB', 'Cerrar', { duration: 4000 });
+      input.value = '';
+      return;
+    }
+
+    this.archivoSeleccionado.set(file);
+    this.nombreArchivo.set(file.name);
+    this.tamanoArchivo.set(this._formatSize(file.size));
+    this.esPdf.set(file.type === 'application/pdf');
+
+    if (!this.esPdf()) {
+      const reader = new FileReader();
+      reader.onload = () => this.previewUrl.set(reader.result as string);
+      reader.readAsDataURL(file);
+    } else {
+      this.previewUrl.set('');
+    }
+
+    input.value = '';
+  }
+
+  limpiarArchivo(): void {
+    this.archivoSeleccionado.set(null);
+    this.nombreArchivo.set('');
+    this.tamanoArchivo.set('');
+    this.previewUrl.set('');
+    this.esPdf.set(false);
+  }
+
+  enviarCarta(): void {
+    const file = this.archivoSeleccionado();
+    if (!file) return;
+
+    this.subiendoCarta.set(true);
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64 = reader.result as string;
+      const payload: any = { url_documento: base64 };
+
+      const idEdicion = this.edicion()?.id_programa_version_edicion;
+      if (idEdicion) {
+        payload.id_programa_version_edicion = idEdicion;
+      }
+
+      this.detalleService.solicitarIncorporacion(payload)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: () => {
+            this.subiendoCarta.set(false);
+            this.snackBar.open('¡Carta enviada! Esperá la aprobación del administrador.', 'Cerrar', { duration: 5000 });
+            const dpaId = this.dpaId();
+            if (dpaId) {
+              this.router.navigate(['/alumnos', 'inscripciones', dpaId]);
+            } else {
+              this.router.navigate(['/alumnos', 'inscripciones']);
+            }
+          },
+          error: (err) => {
+            this.subiendoCarta.set(false);
+            this.snackBar.open(err.error?.detail || 'Error al enviar la carta', 'Cerrar', { duration: 5000 });
+          },
+        });
+    };
+    reader.onerror = () => {
+      this.subiendoCarta.set(false);
+      this.snackBar.open('Error al leer el archivo', 'Cerrar', { duration: 4000 });
+    };
+    reader.readAsDataURL(file);
   }
 
   getBannerColor(edicion: ProgramaVersionEdicion): string {
@@ -278,5 +420,11 @@ export class InscribirComponent implements OnInit {
     if (!fecha) return '—';
     const d = new Date(fecha + 'T12:00:00');
     return d.toLocaleDateString('es-BO', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  }
+
+  private _formatSize(bytes: number): string {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
   }
 }
