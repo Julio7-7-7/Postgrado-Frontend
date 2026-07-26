@@ -158,18 +158,12 @@ export class PublicHomeComponent implements OnInit, AfterViewInit {
               );
               if (yaInscripto) {
                 this.router.navigate(['/alumnos/inscripciones']);
-              } else if (esEnCurso) {
-                this.router.navigate(['/alumnos', 'solicitar-incorporacion', edicion.id_programa_version_edicion]);
               } else {
                 this.router.navigate(['/alumnos', 'inscribir', edicion.id_programa_version_edicion]);
               }
             },
             error: () => {
-              if (esEnCurso) {
-                this.router.navigate(['/alumnos', 'solicitar-incorporacion', edicion.id_programa_version_edicion]);
-              } else {
-                this.router.navigate(['/alumnos', 'inscribir', edicion.id_programa_version_edicion]);
-              }
+              this.router.navigate(['/alumnos', 'inscribir', edicion.id_programa_version_edicion]);
             },
           });
         },

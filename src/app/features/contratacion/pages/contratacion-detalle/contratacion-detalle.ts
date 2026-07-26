@@ -50,6 +50,10 @@ export class ContratacionDetalleComponent implements OnInit {
   loading = signal(true);
   subiendo = signal<'ninguno' | 'file-read' | 'subiendo' | 'completado'>('ninguno');
   progresoSubida = signal(0);
+  pendingFile = signal<File | null>(null);
+  pendingFileName = signal('');
+  pendingFileSize = signal('');
+  pendingOrdenReemplazo = signal<number | undefined>(undefined);
   error = signal<string | null>(null);
   etapaExpandida = signal<string | null>(null);
   montoEditando = signal(false);
@@ -200,8 +204,26 @@ export class ContratacionDetalleComponent implements OnInit {
     const file = input.files[0];
     if (file.type !== 'application/pdf') {
       this.snackbar.open('Solo se aceptan archivos PDF', 'Cerrar', { duration: 4000 });
+      input.value = '';
       return;
     }
+
+    this.pendingFile.set(file);
+    this.pendingFileName.set(file.name);
+    this.pendingFileSize.set(this.formatSize(file.size));
+    this.pendingOrdenReemplazo.set(ordenReemplazo);
+    input.value = '';
+  }
+
+  confirmUpload(): void {
+    const file = this.pendingFile();
+    const ordenReemplazo = this.pendingOrdenReemplazo();
+    if (!file) return;
+
+    this.pendingFile.set(null);
+    this.pendingFileName.set('');
+    this.pendingFileSize.set('');
+    this.pendingOrdenReemplazo.set(undefined);
 
     this.subiendo.set('file-read');
 
@@ -242,6 +264,19 @@ export class ContratacionDetalleComponent implements OnInit {
       this.snackbar.open('Error al leer el archivo', 'Cerrar', { duration: 4000 });
     };
     reader.readAsDataURL(file);
+  }
+
+  cancelUpload(): void {
+    this.pendingFile.set(null);
+    this.pendingFileName.set('');
+    this.pendingFileSize.set('');
+    this.pendingOrdenReemplazo.set(undefined);
+  }
+
+  formatSize(bytes: number): string {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
   }
 
   irADocente(id: number): void {

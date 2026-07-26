@@ -43,7 +43,7 @@ export class LoginComponent implements OnInit {
     if (this.auth.isLogged()) {
       const user = this.auth.user();
       if (this.incorporarId && user?.rol === 'alumno') {
-        this.router.navigate(['/alumnos', 'solicitar-incorporacion', this.incorporarId], { replaceUrl: true });
+        this.router.navigate(['/alumnos', 'inscribir', this.incorporarId], { replaceUrl: true });
         return;
       }
       if (this.inscribirId && user?.rol === 'alumno') {
@@ -98,7 +98,7 @@ export class LoginComponent implements OnInit {
         this.loading = false;
 
         if (this.incorporarId && resp.user.rol === 'alumno') {
-          this.router.navigate(['/alumnos', 'solicitar-incorporacion', this.incorporarId], { replaceUrl: true });
+          this.router.navigate(['/alumnos', 'inscribir', this.incorporarId], { replaceUrl: true });
         } else if (this.inscribirId && resp.user.rol === 'alumno') {
           this.router.navigate(['/alumnos', 'inscribir', this.inscribirId], { replaceUrl: true });
         } else {

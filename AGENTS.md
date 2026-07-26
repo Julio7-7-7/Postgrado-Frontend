@@ -170,16 +170,21 @@ Nombre del usuario: **Julio** (no "julius" — eso es solo el system user)
   - **Aprobación admin**: Primera incorporación → DPA va a `postulante`; Migración → DPA va directo a `inscrito`
   - **Rechazo admin**: Solicitud → `rechazado`, DPA queda `postulante`
 - **Backend simplificado**: `autoInscribir()` ya no acepta `es_incorporacion`/`id_solicitud` (esas funciones las maneja `solicitarIncorporacion`). `transferir()` ya no crea solicitud.
-- **Frontend unificado**: `solicitar-incorporacion` es ahora una página única que funciona tanto para primera incorporación (con `/:idEdicion`) como para migración (sin param). Formulario de modalidad/descuento/módulo + carta en un solo paso.
-- **Ruta agregada**: `solicitar-incorporacion` (sin param) para migración
+- **Frontend unificado**: `inscribir` es ahora un wizard de 3 pasos para ediciones `en_curso` (situación → formulario → carta). Para ediciones `programado`, formulario directo sin wizard. Componente `solicitar-incorporacion` eliminado (funcionalidad integrada en `inscribir`).
+- **Ruta**: Solo `/alumnos/inscribir/:idEdicion` (eliminadas rutas `solicitar-incorporacion`)
+- **Wizard persistence**: El paso actual se deriva del backend (DPA + solicitud existentes). Si el usuario sale y vuelve, retoma donde se quedó.
+- **Carta status en inscripcion-detail**: `needsCartaUpload()` verifica tanto `es_incorporacion` como la existencia de solicitud. `cartaEnRevision()`, `cartaAprobada()`, `cartaRechazada()` muestran badges de estado.
 - Renombrado `documento_incorporacion` → `solicitud_incorporacion`
 - Nuevo campo `es_incorporacion` BOOLEAN en `detalle_programa_alumno`
 - Requisito "Carta de Solicitud de Incorporación" (id=6) creado
 - **Backend**: modelo `SolicitudIncorporacion`, 6 endpoints (solicitar, listar, mis-solicitudes, detalle, aprobar, rechazar)
-- **Frontend**: componente `solicitar-incorporacion` (alumno, unified), `solicitudes-incorporacion` (admin), badge "Incorporación" en inscripciones, inscripcion-detail, inscripciones-edicion; `inscribir` simplificado (sin lógica de incorporación)
+- **Frontend**: `inscribir` (wizard 3 pasos para en_curso, formulario directo para programado), `solicitudes-incorporacion` (admin), badge "Incorporación" en inscripciones, inscripcion-detail, inscripciones-edicion
 - **Doc-matriz bugfix**: dialog refresh — botones "Cerrar" y X ahora usan `(click)="close()"` en vez de `mat-dialog-close`, `disableClose: true` para ESC/backdrop. Parent `afterClosed()` siempre recibe el postulante actualizado.
 - **Doc-matriz filter chips**: stats-bar reemplazada por chips clickeables (sin avance, en revisión, aprobados) con botón "Limpiar". `allPostulantes` signal mantiene el dataset completo, `postulantes` se filtra según `filtroEstado`.
 - **Solicitudes curado**: fix IDOR en `GET /{id_solicitud}` (alumno solo ve las suyas, admin necesita `alumnos.ver`), `login.goToRegister()` ahora forward el param `?incorporar=` a registro, registros legacy con `estado='aprobado'` corregidos a `'aceptado'`, schema `SolicitudIncorporacionUpdate` eliminado (dead code), texto "arrastra tu archivo" corregido a "seleccionar tu archivo", método renombrado `getSolicitudesPendientes` → `getSolicitudesIncorporacion`, botón "Solicitudes de Incorporación" agregado al header de inscripciones-landing.
+- **Subida de documentos global en dos pasos**: Todos los uploads de archivos ahora siguen el patrón select → preview/confirm → upload. Componentes afectados:
+  - `inscripcion-detail`: barra de confirmación con nombre, tamaño, cancelar/confirmar. Botón "Subir carta" solo se muestra si no existe solicitud. Badges de estado para carta: Pendiente, Aprobada, Rechazada (con opción de re-enviar).
+  - `contratacion-detalle`: barra de confirmación para subir y reemplazar PDFs de contratación.
 
 ## Hecho reciente (2026-07-25)
 - Eliminación de `avance_modulo` y `nota.id_programa_version_edicion` — simplificación del modelo de datos

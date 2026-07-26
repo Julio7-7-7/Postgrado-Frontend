@@ -55,6 +55,64 @@
           </div>
         </mat-card>
 
+        @if (needsCartaUpload()) {
+          <mat-card class="section-card carta-card">
+            <div class="carta-prompt">
+              <mat-icon [style.color]="'#0d9488'">description</mat-icon>
+              <div class="carta-text">
+                <h3>Carta de solicitud de incorporación</h3>
+                <p>Subí la carta dirigida al director de la escuela de postgrado para completar tu incorporación.</p>
+              </div>
+              <button mat-flat-button color="primary" (click)="irASubirCarta()">
+                <mat-icon>cloud_upload</mat-icon>
+                Subir carta
+              </button>
+            </div>
+          </mat-card>
+        }
+
+        @if (cartaEnRevision()) {
+          <mat-card class="section-card carta-card pendiente">
+            <div class="carta-prompt">
+              <mat-icon [style.color]="'#f59e0b'">schedule</mat-icon>
+              <div class="carta-text">
+                <h3>Carta en revisión</h3>
+                <p>Tu carta de incorporación fue enviada y está siendo revisada por el administrador.</p>
+              </div>
+              <span class="carta-status-badge pendiente">Pendiente</span>
+            </div>
+          </mat-card>
+        }
+
+        @if (cartaAprobada()) {
+          <mat-card class="section-card carta-card aprobada">
+            <div class="carta-prompt">
+              <mat-icon [style.color]="'#22c55e'">check_circle</mat-icon>
+              <div class="carta-text">
+                <h3>Carta aprobada</h3>
+                <p>Tu solicitud de incorporación fue aprobada.</p>
+              </div>
+              <span class="carta-status-badge aprobada">Aprobada</span>
+            </div>
+          </mat-card>
+        }
+
+        @if (cartaRechazada()) {
+          <mat-card class="section-card carta-card rechazada">
+            <div class="carta-prompt">
+              <mat-icon [style.color]="'#ef4444'">cancel</mat-icon>
+              <div class="carta-text">
+                <h3>Carta rechazada</h3>
+                <p>Tu solicitud de incorporación fue rechazada. Podés enviar una nueva carta.</p>
+              </div>
+              <button mat-flat-button color="primary" (click)="irASubirCarta()">
+                <mat-icon>replay</mat-icon>
+                Enviar nueva carta
+              </button>
+            </div>
+          </mat-card>
+        }
+
         <mat-card class="section-card docs-card">
           <div class="section-header">
             <mat-icon [style.color]="'#0d9488'">description</mat-icon>
@@ -212,6 +270,27 @@
                   </div>
                 </div>
               }
+            </div>
+          }
+          @if (pendingFile()) {
+            <div class="pending-upload-bar">
+              <div class="pending-upload-info">
+                <mat-icon [style.color]="'#0d9488'">attach_file</mat-icon>
+                <div>
+                  <span class="pending-filename">{{ pendingFileName() }}</span>
+                  <span class="pending-filesize">{{ pendingFileSize() }}</span>
+                </div>
+              </div>
+              <div class="pending-upload-actions">
+                <button mat-button (click)="cancelUpload()" class="cancel-btn">
+                  <mat-icon>close</mat-icon>
+                  Cancelar
+                </button>
+                <button mat-flat-button color="primary" (click)="confirmUpload()">
+                  <mat-icon>cloud_upload</mat-icon>
+                  Confirmar y subir
+                </button>
+              </div>
             </div>
           }
         </mat-card>
