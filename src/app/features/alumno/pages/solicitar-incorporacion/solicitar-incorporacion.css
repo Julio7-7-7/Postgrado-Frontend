@@ -163,6 +163,23 @@
   margin-bottom: 16px;
 }
 
+.inscribir-prompt {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 24px;
+}
+.inscribir-prompt mat-icon {
+  font-size: 40px;
+  width: 40px;
+  height: 40px;
+  color: #0d9488;
+  flex-shrink: 0;
+}
+.prompt-text { flex: 1; min-width: 0; }
+.prompt-text h3 { margin: 0 0 4px; font-size: 15px; color: #1e293b; }
+.prompt-text p { margin: 0; font-size: 13px; color: #64748b; }
+
 /* Status boxes */
 .status-box {
   display: flex;

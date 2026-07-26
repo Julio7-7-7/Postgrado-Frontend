@@ -248,8 +248,13 @@ export class InscribirComponent implements OnInit {
     }).subscribe({
       next: () => {
         this.guardando.set(false);
-        this.snackBar.open('¡Inscripción exitosa! Revisá la documentación pendiente.', 'Cerrar', { duration: 5000 });
-        this.router.navigate(['/alumnos', 'inscripciones']);
+        if (ed.estado === 'en_curso') {
+          this.snackBar.open('¡Inscripción exitosa! Ahora subí tu carta de solicitud.', 'Cerrar', { duration: 5000 });
+          this.router.navigate(['/alumnos', 'solicitar-incorporacion', ed.id_programa_version_edicion]);
+        } else {
+          this.snackBar.open('¡Inscripción exitosa! Revisá la documentación pendiente.', 'Cerrar', { duration: 5000 });
+          this.router.navigate(['/alumnos', 'inscripciones']);
+        }
       },
       error: (err) => {
         this.guardando.set(false);

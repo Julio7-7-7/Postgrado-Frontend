@@ -1,34 +1,25 @@
-import { Component, OnInit, inject, signal, computed, DestroyRef } from '@angular/core';
+import { Component, OnInit, inject, signal, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { DetalleProgramaAlumnoService } from '../../services/detalle-programa-alumno.service';
 import { EdicionService } from '../../../edicion/services/edicion.service';
-import { ModalidadAcademicaService } from '../../services/modalidad-academica.service';
-import { TipoDescuentoService } from '../../services/tipo-descuento.service';
 import { ProgramaVersionEdicion } from '../../../edicion/models/edicion.model';
-import { ModalidadAcademica } from '../../models/modalidad-academica.model';
-import { TipoDescuento } from '../../models/tipo-descuento.model';
 import { SolicitudIncorporacion } from '../../models/solicitud-incorporacion.model';
 
 @Component({
   selector: 'app-solicitar-incorporacion',
   standalone: true,
   imports: [
-    CommonModule, FormsModule,
+    CommonModule,
     MatCardModule, MatButtonModule, MatIconModule,
-    MatFormFieldModule, MatInputModule, MatSelectModule,
     MatProgressBarModule, MatProgressSpinnerModule,
     MatSnackBarModule, MatTooltipModule,
   ],
@@ -65,195 +56,224 @@ import { SolicitudIncorporacion } from '../../models/solicitud-incorporacion.mod
           </div>
         }
 
-        @if (!yaSolicito()) {
-          @if (!esMigracion() && edicion()) {
-            <div class="section-card">
-              <div class="section-card-header">
-                <div class="section-icon"><mat-icon>school</mat-icon></div>
-                <div>
-                  <h3>Opciones de inscripción</h3>
-                  <p class="section-desc">Elegí la modalidad y si aplicás a algún descuento</p>
+        @if (esMigracion()) {
+          <div class="steps-card">
+            <div class="steps-header">
+              <mat-icon [style.color]="'#7c3aed'">info</mat-icon>
+              <h3>¿Cómo funciona la migración?</h3>
+            </div>
+            <div class="steps-grid">
+              <div class="step active-step">
+                <div class="step-num">1</div>
+                <div class="step-text">
+                  <strong>Subí tu carta</strong>
+                  <span>Carta dirigida al director solicitando la migración</span>
                 </div>
               </div>
-              <div class="form-grid">
-                <mat-form-field appearance="outline">
-                  <mat-label>Modalidad académica</mat-label>
-                  <mat-select [(ngModel)]="selectedModalidad" (ngModelChange)="onModalidadChange($event)" required>
-                    @for (m of modalidades(); track m.id_modalidad_academica) {
-                      <mat-option [value]="m.id_modalidad_academica">{{ m.nombre_modalidad }}</mat-option>
-                    }
-                  </mat-select>
-                </mat-form-field>
-                <mat-form-field appearance="outline">
-                  <mat-label>Tipo de descuento (opcional)</mat-label>
-                  <mat-select [(ngModel)]="selectedDescuento" [disabled]="!selectedModalidad">
-                    <mat-option [value]="null">Sin descuento</mat-option>
-                    @for (d of descuentosDisponibles(); track d.id_tipo_descuento) {
-                      <mat-option [value]="d.id_tipo_descuento">
-                        {{ d.nombre }} ({{ d.porcentaje }}%){{ d.uso_unico ? ' — Uso único' : '' }}
-                      </mat-option>
-                    }
-                  </mat-select>
-                </mat-form-field>
-                <mat-form-field appearance="outline">
-                  <mat-label>Módulo de inicio</mat-label>
-                  <mat-select [(ngModel)]="moduloInicio">
-                    @for (i of [1,2,3,4,5,6,7,8,9,10]; track i) {
-                      <mat-option [value]="i">Módulo {{ i }}</mat-option>
-                    }
-                  </mat-select>
-                </mat-form-field>
+              <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-text">
+                  <strong>Revisión admin</strong>
+                  <span>El admin elige la edición y aproba tu solicitud</span>
+                </div>
+              </div>
+              <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-text">
+                  <strong>Inscripción</strong>
+                  <span>Quedás inscrito directamente en la edición destino</span>
+                </div>
               </div>
             </div>
-          }
+          </div>
+        }
 
-          @if (esMigracion()) {
-            <div class="section-card">
-              <div class="section-card-header">
-                <div class="section-icon"><mat-icon>info</mat-icon></div>
-                <div>
-                  <h3>¿Cómo funciona la migración?</h3>
-                  <p class="section-desc">El administrador elegirá la edición destino según tu avance de módulos</p>
+        @if (!yaInscribio() && !esMigracion()) {
+          <div class="steps-card">
+            <div class="steps-header">
+              <mat-icon [style.color]="'#0d9488'">info</mat-icon>
+              <h3>¿Cómo funciona?</h3>
+            </div>
+            <div class="steps-grid">
+              <div class="step active-step">
+                <div class="step-num">1</div>
+                <div class="step-text">
+                  <strong>Inscribite</strong>
+                  <span>Elegí modalidad, descuento y completá tus datos</span>
                 </div>
               </div>
-              <div class="steps-grid">
-                <div class="step active-step">
-                  <div class="step-num">1</div>
-                  <div class="step-text">
-                    <strong>Subí tu carta</strong>
-                    <span>Carta dirigida al director solicitando la migración</span>
-                  </div>
+              <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-text">
+                  <strong>Subí tu carta</strong>
+                  <span>Carta dirigida al director de la escuela de postgrado</span>
                 </div>
-                <div class="step">
-                  <div class="step-num">2</div>
-                  <div class="step-text">
-                    <strong>Revisión admin</strong>
-                    <span>El admin elige la edición y aproba tu solicitud</span>
-                  </div>
+              </div>
+              <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-text">
+                  <strong>Revisión admin</strong>
+                  <span>El administrador revisa y aprueba tu solicitud</span>
                 </div>
-                <div class="step">
-                  <div class="step-num">3</div>
-                  <div class="step-text">
-                    <strong>Inscripción</strong>
-                    <span>Quedás inscrito directamente en la edición destino</span>
-                  </div>
+              </div>
+              <div class="step">
+                <div class="step-num">4</div>
+                <div class="step-text">
+                  <strong>Documentación</strong>
+                  <span>Subí los documentos requeridos</span>
                 </div>
               </div>
             </div>
-          }
+          </div>
 
-          @if (!esMigracion()) {
-            <div class="steps-card">
-              <div class="steps-header">
-                <mat-icon [style.color]="'#0d9488'">info</mat-icon>
-                <h3>¿Cómo funciona?</h3>
+          <div class="action-card">
+            <div class="inscribir-prompt">
+              <mat-icon>school</mat-icon>
+              <div class="prompt-text">
+                <h3>Primero inscribite al programa</h3>
+                <p>Completá el formulario de inscripción con tu modalidad y datos personales. Después vas a poder subir la carta.</p>
               </div>
-              <div class="steps-grid">
-                <div class="step active-step">
-                  <div class="step-num">1</div>
-                  <div class="step-text">
-                    <strong>Elegí opciones</strong>
-                    <span>Modalidad, descuento y módulo de inicio</span>
-                  </div>
-                </div>
-                <div class="step">
-                  <div class="step-num">2</div>
-                  <div class="step-text">
-                    <strong>Subí tu carta</strong>
-                    <span>Carta dirigida al director de la escuela de postgrado</span>
-                  </div>
-                </div>
-                <div class="step">
-                  <div class="step-num">3</div>
-                  <div class="step-text">
-                    <strong>Revisión admin</strong>
-                    <span>El administrador revisa y aprueba tu solicitud</span>
-                  </div>
-                </div>
-                <div class="step">
-                  <div class="step-num">4</div>
-                  <div class="step-text">
-                    <strong>Documentación</strong>
-                    <span>Subí los documentos requeridos</span>
-                  </div>
-                </div>
-              </div>
+              <button mat-flat-button color="primary" (click)="irAInscribir()">
+                <mat-icon>arrow_forward</mat-icon>
+                Inscribirme ahora
+              </button>
             </div>
-          }
+          </div>
+        }
 
-          <div class="upload-card">
-            <div class="upload-card-header">
-              <mat-icon [style.color]="'#0d9488'">description</mat-icon>
-              <h3>{{ esMigracion() ? 'Carta de solicitud de migración' : 'Carta de solicitud de incorporación' }}</h3>
-            </div>
-            @if (subiendo()) {
-              <div class="uploading-state">
-                <mat-spinner diameter="40"></mat-spinner>
-                <h3>Subiendo carta...</h3>
-                <p>{{ nombreArchivo() }} — {{ tamanoArchivo() }}</p>
-                <mat-progress-bar mode="indeterminate"></mat-progress-bar>
-              </div>
-            } @else if (archivoSeleccionado()) {
-              <div class="file-preview">
-                @if (esPdf()) {
-                  <div class="file-icon pdf">
-                    <mat-icon>picture_as_pdf</mat-icon>
+        @if (yaInscribio()) {
+          @if (solicitudConCarta()) {
+            @if (estadoSolicitud() === 'aceptado') {
+              <div class="action-card">
+                <div class="status-box aprobada">
+                  <div class="status-icon-circle aprobada">
+                    <mat-icon>check_circle</mat-icon>
                   </div>
-                } @else {
-                  <img [src]="previewUrl()" class="file-thumb" (error)="$event.target.style.display='none'">
-                }
-                <div class="file-info">
-                  <h3>{{ nombreArchivo() }}</h3>
-                  <p>{{ tamanoArchivo() }}</p>
+                  <div class="status-content">
+                    <h3>Solicitud aprobada</h3>
+                    <p>Tu solicitud fue aprobada. El administrador procesó tu incorporación.</p>
+                  </div>
                 </div>
-                <div class="file-actions">
-                  <button mat-icon-button class="remove-btn" (click)="limpiarArchivo()" matTooltip="Quitar archivo">
+              </div>
+            } @else if (estadoSolicitud() === 'rechazado') {
+              <div class="action-card">
+                <div class="status-box rechazada">
+                  <div class="status-icon-circle rechazada">
                     <mat-icon>close</mat-icon>
-                  </button>
+                  </div>
+                  <div class="status-content">
+                    <h3>Solicitud rechazada</h3>
+                    <p>Tu solicitud fue rechazada. Podés enviar una nueva carta.</p>
+                  </div>
+                  <label class="reenviar-btn" matTooltip="Enviar nueva carta">
+                    <mat-icon>replay</mat-icon>
+                    Enviar nueva solicitud
+                    <input type="file" accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
+                           hidden (change)="onFileSelected($event)">
+                  </label>
                 </div>
               </div>
             } @else {
-              <label class="drop-area" for="fileInput">
-                <div class="drop-icon">
-                  <mat-icon>cloud_upload</mat-icon>
+              <div class="action-card">
+                <div class="status-box pendiente">
+                  <div class="status-icon-circle pendiente">
+                    <mat-icon>schedule</mat-icon>
+                  </div>
+                  <div class="status-content">
+                    <h3>Solicitud pendiente</h3>
+                    <p>Tu solicitud está siendo revisada. Te notificaremos cuando sea aprobada.</p>
+                  </div>
                 </div>
-                <h3>Subí tu carta de solicitud</h3>
-                <p>Hacé click aquí para seleccionar tu archivo</p>
-                <span class="formats">PDF, JPG, PNG, GIF o WebP — máx. 10 MB</span>
-                <input id="fileInput" type="file" accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
-                       hidden (change)="onFileSelected($event)">
-              </label>
-            }
-            @if (archivoSeleccionado()) {
-              <div class="upload-confirm">
-                <button mat-flat-button color="primary" (click)="enviarSolicitud()" class="enviar-btn"
-                        [disabled]="!puedeEnviar()">
-                  <mat-icon>send</mat-icon>
-                  Enviar solicitud
-                </button>
               </div>
             }
-          </div>
-        } @else {
-          <div class="action-card">
-            @if (estadoSolicitud() === 'aceptado') {
+          } @else {
+            <div class="upload-card">
+              <div class="upload-card-header">
+                <mat-icon [style.color]="'#0d9488'">description</mat-icon>
+                <h3>Subí tu carta de solicitud de incorporación</h3>
+              </div>
+              @if (subiendo()) {
+                <div class="uploading-state">
+                  <mat-spinner diameter="40"></mat-spinner>
+                  <h3>Subiendo carta...</h3>
+                  <p>{{ nombreArchivo() }} — {{ tamanoArchivo() }}</p>
+                  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+                </div>
+              } @else if (archivoSeleccionado()) {
+                <div class="file-preview">
+                  @if (esPdf()) {
+                    <div class="file-icon pdf">
+                      <mat-icon>picture_as_pdf</mat-icon>
+                    </div>
+                  } @else {
+                    <img [src]="previewUrl()" class="file-thumb" (error)="$event.target.style.display='none'">
+                  }
+                  <div class="file-info">
+                    <h3>{{ nombreArchivo() }}</h3>
+                    <p>{{ tamanoArchivo() }}</p>
+                  </div>
+                  <div class="file-actions">
+                    <button mat-icon-button class="remove-btn" (click)="limpiarArchivo()" matTooltip="Quitar archivo">
+                      <mat-icon>close</mat-icon>
+                    </button>
+                  </div>
+                </div>
+                <div class="upload-confirm">
+                  <button mat-flat-button color="primary" (click)="enviarCarta()" class="enviar-btn">
+                    <mat-icon>send</mat-icon>
+                    Enviar carta
+                  </button>
+                </div>
+              } @else {
+                <label class="drop-area" for="fileInput">
+                  <div class="drop-icon">
+                    <mat-icon>cloud_upload</mat-icon>
+                  </div>
+                  <h3>Subí tu carta de solicitud</h3>
+                  <p>Hacé click aquí para seleccionar tu archivo</p>
+                  <span class="formats">PDF, JPG, PNG, GIF o WebP — máx. 10 MB</span>
+                  <input id="fileInput" type="file" accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
+                         hidden (change)="onFileSelected($event)">
+                </label>
+              }
+            </div>
+          }
+        }
+
+        @if (!yaInscribio() && esMigracion()) {
+          @if (solicitudMigracionPendiente()) {
+            <div class="action-card">
+              <div class="status-box pendiente">
+                <div class="status-icon-circle pendiente">
+                  <mat-icon>schedule</mat-icon>
+                </div>
+                <div class="status-content">
+                  <h3>Solicitud de migración pendiente</h3>
+                  <p>Tu solicitud está siendo revisada. El administrador elegirá la edición destino.</p>
+                </div>
+              </div>
+            </div>
+          } @else if (solicitudMigracionAceptada()) {
+            <div class="action-card">
               <div class="status-box aprobada">
                 <div class="status-icon-circle aprobada">
                   <mat-icon>check_circle</mat-icon>
                 </div>
                 <div class="status-content">
-                  <h3>Solicitud aprobada</h3>
-                  <p>Tu solicitud fue aprobada. {{ esMigracion() ? 'El administrador te inscribió en la edición destino.' : 'Podés proceder con la inscripción a esta edición.' }}</p>
+                  <h3>Migración aprobada</h3>
+                  <p>Tu solicitud fue aprobada. El administrador te inscribió en la edición destino.</p>
                 </div>
               </div>
-            } @else if (estadoSolicitud() === 'rechazado') {
+            </div>
+          } @else if (solicitudMigracionRechazada()) {
+            <div class="action-card">
               <div class="status-box rechazada">
                 <div class="status-icon-circle rechazada">
                   <mat-icon>close</mat-icon>
                 </div>
                 <div class="status-content">
                   <h3>Solicitud rechazada</h3>
-                  <p>Tu solicitud fue rechazada. Podés enviar una nueva carta de solicitud.</p>
+                  <p>Tu solicitud de migración fue rechazada.</p>
                 </div>
                 <label class="reenviar-btn" matTooltip="Enviar nueva carta">
                   <mat-icon>replay</mat-icon>
@@ -262,18 +282,59 @@ import { SolicitudIncorporacion } from '../../models/solicitud-incorporacion.mod
                          hidden (change)="onFileSelected($event)">
                 </label>
               </div>
-            } @else {
-              <div class="status-box pendiente">
-                <div class="status-icon-circle pendiente">
-                  <mat-icon>schedule</mat-icon>
-                </div>
-                <div class="status-content">
-                  <h3>Solicitud pendiente</h3>
-                  <p>Tu solicitud está siendo revisada. Te notificaremos cuando sea aprobada.</p>
-                </div>
+            </div>
+          } @else {
+            <div class="upload-card">
+              <div class="upload-card-header">
+                <mat-icon [style.color]="'#7c3aed'">description</mat-icon>
+                <h3>Carta de solicitud de migración</h3>
               </div>
-            }
-          </div>
+              @if (subiendo()) {
+                <div class="uploading-state">
+                  <mat-spinner diameter="40"></mat-spinner>
+                  <h3>Subiendo carta...</h3>
+                  <p>{{ nombreArchivo() }} — {{ tamanoArchivo() }}</p>
+                  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+                </div>
+              } @else if (archivoSeleccionado()) {
+                <div class="file-preview">
+                  @if (esPdf()) {
+                    <div class="file-icon pdf">
+                      <mat-icon>picture_as_pdf</mat-icon>
+                    </div>
+                  } @else {
+                    <img [src]="previewUrl()" class="file-thumb" (error)="$event.target.style.display='none'">
+                  }
+                  <div class="file-info">
+                    <h3>{{ nombreArchivo() }}</h3>
+                    <p>{{ tamanoArchivo() }}</p>
+                  </div>
+                  <div class="file-actions">
+                    <button mat-icon-button class="remove-btn" (click)="limpiarArchivo()" matTooltip="Quitar archivo">
+                      <mat-icon>close</mat-icon>
+                    </button>
+                  </div>
+                </div>
+                <div class="upload-confirm">
+                  <button mat-flat-button color="primary" (click)="enviarCarta()" class="enviar-btn">
+                    <mat-icon>send</mat-icon>
+                    Enviar carta
+                  </button>
+                </div>
+              } @else {
+                <label class="drop-area" for="fileInput">
+                  <div class="drop-icon">
+                    <mat-icon>cloud_upload</mat-icon>
+                  </div>
+                  <h3>Subí tu carta de solicitud</h3>
+                  <p>Hacé click aquí para seleccionar tu archivo</p>
+                  <span class="formats">PDF, JPG, PNG, GIF o WebP — máx. 10 MB</span>
+                  <input id="fileInput" type="file" accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
+                         hidden (change)="onFileSelected($event)">
+                </label>
+              }
+            </div>
+          }
         }
       }
     </div>
@@ -286,19 +347,12 @@ export class SolicitarIncorporacionComponent implements OnInit {
   private snackBar = inject(MatSnackBar);
   private detalleService = inject(DetalleProgramaAlumnoService);
   private edicionService = inject(EdicionService);
-  private modalidadService = inject(ModalidadAcademicaService);
-  private descuentoService = inject(TipoDescuentoService);
   private destroyRef = inject(DestroyRef);
 
   edicion = signal<ProgramaVersionEdicion | null>(null);
-  modalidades = signal<ModalidadAcademica[]>([]);
-  tiposDescuento = signal<TipoDescuento[]>([]);
   cargando = signal(true);
   subiendo = signal(false);
-  exito = signal(false);
-  yaSolicito = signal(false);
-  estadoSolicitud = signal('');
-  solicitudId = signal<number | null>(null);
+  solicitud = signal<SolicitudIncorporacion | null>(null);
 
   archivoSeleccionado = signal<File | null>(null);
   nombreArchivo = signal('');
@@ -307,19 +361,14 @@ export class SolicitarIncorporacionComponent implements OnInit {
   esPdf = signal(false);
 
   esMigracion = signal(false);
+  yaInscribio = signal(false);
   idEdicion = 0;
 
-  selectedModalidad: number | null = null;
-  selectedDescuento: number | null = null;
-  moduloInicio = 1;
-
-  descuentosDisponibles = computed(() => {
-    const modId = this.selectedModalidad;
-    if (!modId) return [];
-    return this.tiposDescuento().filter(d =>
-      d.modalidades.some(m => m.id_modalidad_academica === modId)
-    );
-  });
+  solicitudConCarta = signal(false);
+  estadoSolicitud = signal('');
+  solicitudMigracionPendiente = signal(false);
+  solicitudMigracionAceptada = signal(false);
+  solicitudMigracionRechazada = signal(false);
 
   ngOnInit(): void {
     this.idEdicion = Number(this.route.snapshot.paramMap.get('idEdicion'));
@@ -334,7 +383,7 @@ export class SolicitarIncorporacionComponent implements OnInit {
 
   private _cargarDatosConEdicion(): void {
     let completados = 0;
-    const total = 4;
+    const total = 2;
     const onComplete = () => {
       if (++completados >= total) {
         this.verificarSolicitudExistente();
@@ -347,19 +396,7 @@ export class SolicitarIncorporacionComponent implements OnInit {
       complete: onComplete,
     });
 
-    this.modalidadService.getAll().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (mods) => this.modalidades.set(mods.filter(m => m.estado === 'activo')),
-      error: () => onComplete(),
-      complete: onComplete,
-    });
-
-    this.descuentoService.getAll().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (desc) => this.tiposDescuento.set(desc.filter(d => d.estado === 'activo')),
-      error: () => onComplete(),
-      complete: onComplete,
-    });
-
-    this.detalleService.getMisInscripciones().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    this.detalleService.getMisSolicitudes().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       complete: onComplete,
     });
   }
@@ -367,13 +404,13 @@ export class SolicitarIncorporacionComponent implements OnInit {
   private _cargarDatosMigracion(): void {
     this.detalleService.getMisSolicitudes().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (solicitudes) => {
-        const pendiente = solicitudes.find(
-          s => !s.id_programa_version_edicion && s.estado === 'pendiente'
-        );
-        if (pendiente) {
-          this.yaSolicito.set(true);
-          this.estadoSolicitud.set(pendiente.estado);
-          this.solicitudId.set(pendiente.id_solicitud);
+        const mig = solicitudes.find(s => !s.id_programa_version_edicion);
+        if (mig) {
+          this.yaInscribio.set(true);
+          this.solicitud.set(mig);
+          this.solicitudMigracionPendiente.set(mig.estado === 'pendiente');
+          this.solicitudMigracionAceptada.set(mig.estado === 'aceptado');
+          this.solicitudMigracionRechazada.set(mig.estado === 'rechazado');
         }
         this.cargando.set(false);
       },
@@ -388,9 +425,10 @@ export class SolicitarIncorporacionComponent implements OnInit {
           s => s.id_programa_version_edicion === this.idEdicion
         );
         if (existente) {
-          this.yaSolicito.set(true);
+          this.yaInscribio.set(true);
+          this.solicitud.set(existente);
           this.estadoSolicitud.set(existente.estado);
-          this.solicitudId.set(existente.id_solicitud);
+          this.solicitudConCarta.set(!!existente.url_documento);
         }
         this.cargando.set(false);
       },
@@ -398,13 +436,8 @@ export class SolicitarIncorporacionComponent implements OnInit {
     });
   }
 
-  onModalidadChange(idModalidad: number | null): void {
-    this.selectedModalidad = idModalidad;
-    const descActual = this.selectedDescuento;
-    if (descActual && idModalidad) {
-      const disponible = this.descuentosDisponibles().some(d => d.id_tipo_descuento === descActual);
-      if (!disponible) this.selectedDescuento = null;
-    }
+  irAInscribir(): void {
+    this.router.navigate(['/alumnos', 'inscribir', this.idEdicion]);
   }
 
   onFileSelected(event: Event): void {
@@ -449,36 +482,18 @@ export class SolicitarIncorporacionComponent implements OnInit {
     this.esPdf.set(false);
   }
 
-  puedeEnviar(): boolean {
-    if (!this.archivoSeleccionado()) return false;
-    if (!this.esMigracion() && !this.selectedModalidad) return false;
-    return true;
-  }
-
-  enviarSolicitud(): void {
+  enviarCarta(): void {
     const file = this.archivoSeleccionado();
     if (!file) return;
-
-    if (!this.esMigracion() && !this.selectedModalidad) {
-      this.snackBar.open('Seleccioná una modalidad académica', 'Cerrar', { duration: 3000 });
-      return;
-    }
 
     this.subiendo.set(true);
     const reader = new FileReader();
     reader.onload = () => {
       const base64 = reader.result as string;
-      const payload: any = {
-        url_documento: base64,
-      };
+      const payload: any = { url_documento: base64 };
 
-      if (this.esMigracion()) {
-        payload.id_requisito = null;
-      } else {
+      if (!this.esMigracion()) {
         payload.id_programa_version_edicion = this.idEdicion;
-        payload.id_modalidad_academica = this.selectedModalidad;
-        payload.id_tipo_descuento = this.selectedDescuento;
-        payload.modulo_inicio = this.moduloInicio;
       }
 
       this.detalleService.solicitarIncorporacion(payload)
@@ -486,20 +501,17 @@ export class SolicitarIncorporacionComponent implements OnInit {
         .subscribe({
           next: () => {
             this.subiendo.set(false);
-            this.exito.set(true);
-            this.yaSolicito.set(true);
+            this.solicitudConCarta.set(true);
             this.estadoSolicitud.set('pendiente');
+            if (this.esMigracion()) {
+              this.solicitudMigracionPendiente.set(true);
+            }
             this.limpiarArchivo();
-            this.snackBar.open(
-              this.esMigracion()
-                ? '¡Solicitud enviada! Esperá la aprobación del administrador.'
-                : '¡Carta enviada! Esperá la aprobación del administrador.',
-              'Cerrar', { duration: 5000 }
-            );
+            this.snackBar.open('¡Carta enviada! Esperá la aprobación del administrador.', 'Cerrar', { duration: 5000 });
           },
           error: (err) => {
             this.subiendo.set(false);
-            this.snackBar.open(err.error?.detail || 'Error al enviar la solicitud', 'Cerrar', { duration: 5000 });
+            this.snackBar.open(err.error?.detail || 'Error al enviar la carta', 'Cerrar', { duration: 5000 });
           },
         });
     };
