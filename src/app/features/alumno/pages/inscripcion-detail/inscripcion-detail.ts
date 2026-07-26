@@ -273,7 +273,9 @@ export class InscripcionDetailComponent implements OnInit {
     const ins = this.inscripcion();
     if (!ins || !ins.es_incorporacion || ins.estado !== 'postulante') return false;
     const sol = this.solicitud();
-    return !sol || !sol.url_documento;
+    if (!sol) return true;
+    if (sol.estado === 'rechazado') return false;
+    return !sol.url_documento;
   }
 
   cartaEnRevision(): boolean {
