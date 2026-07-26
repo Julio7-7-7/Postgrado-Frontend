@@ -24,16 +24,16 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #1e293b;
+  color: var(--fich-text);
 }
 
 .header-left h1 mat-icon {
-  color: #0d9488;
+  color: var(--fich-feature-docente);
 }
 
 .subtitle {
   margin: 4px 0 0;
-  color: #64748b;
+  color: var(--fich-text-muted);
   font-size: 0.875rem;
 }
 
@@ -46,17 +46,17 @@
   justify-content: center;
   padding: 64px 24px;
   gap: 12px;
-  color: #64748b;
+  color: var(--fich-text-muted);
 }
 
 .empty-state mat-icon {
   font-size: 48px;
   width: 48px;
   height: 48px;
-  color: #cbd5e1;
+  opacity: 0.3;
 }
 
-.empty-state h4 { margin: 0; color: #475569; }
+.empty-state h4 { margin: 0; color: var(--fich-text-secondary); }
 
 .modulo-info-bar {
   display: flex;
@@ -70,11 +70,11 @@
   align-items: center;
   gap: 6px;
   padding: 6px 14px;
-  background: #f0fdfa;
-  border: 1px solid #99f6e4;
+  background: var(--fich-bg-subtle);
+  border: 1px solid var(--fich-primary-lighter);
   border-radius: 20px;
   font-size: 0.8rem;
-  color: #0d9488;
+  color: var(--fich-primary);
 }
 
 .info-chip mat-icon {
@@ -90,9 +90,9 @@
 }
 
 .alumno-card {
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--fich-border);
   border-radius: 10px;
-  background: #fff;
+  background: var(--fich-bg-card);
   overflow: hidden;
 }
 
@@ -113,8 +113,8 @@
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #0d9488, #14b8a6);
-  color: #fff;
+  background: linear-gradient(135deg, var(--fich-feature-docente), var(--fich-feature-docente-light));
+  color: var(--fich-bg-card);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -130,12 +130,12 @@
 
 .alumno-nombre {
   font-weight: 600;
-  color: #1e293b;
+  color: var(--fich-text);
 }
 
 .alumno-ci {
   font-size: 0.8rem;
-  color: #64748b;
+  color: var(--fich-text-muted);
 }
 
 .alumno-right {
@@ -150,31 +150,24 @@
   border-radius: 8px;
 }
 
-.prom-badge.aprobado { background: #dcfce7; }
-.prom-badge.regular { background: #fef9c3; }
-.prom-badge.reprobado { background: #fee2e2; }
-
 .prom-label {
   display: block;
   font-size: 0.65rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: #64748b;
+  color: var(--fich-text-muted);
 }
 
 .prom-value {
   display: block;
   font-size: 1.1rem;
   font-weight: 700;
+  color: var(--fich-text);
 }
-
-.prom-badge.aprobado .prom-value { color: #16a34a; }
-.prom-badge.regular .prom-value { color: #ca8a04; }
-.prom-badge.reprobado .prom-value { color: #dc2626; }
 
 .sin-notas-label {
   font-size: 0.8rem;
-  color: #94a3b8;
+  color: var(--fich-text-muted);
   font-style: italic;
 }
 
@@ -202,7 +195,7 @@
 
 .notas-header, .notas-row {
   display: grid;
-  grid-template-columns: 80px 70px 100px 1fr 80px;
+  grid-template-columns: 80px 120px 100px 80px;
   gap: 8px;
   padding: 6px 0;
   align-items: center;
@@ -211,38 +204,28 @@
 
 .notas-header {
   font-weight: 600;
-  color: #64748b;
+  color: var(--fich-text-muted);
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.3px;
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid var(--fich-border-light);
   padding-bottom: 8px;
 }
 
 .notas-row {
-  border-bottom: 1px solid #f8fafc;
+  border-bottom: 1px solid var(--fich-border-light);
 }
 
-.tipo-badge {
-  padding: 1px 8px;
-  border-radius: 10px;
-  font-size: 0.7rem;
-  font-weight: 500;
-  background: #f1f5f9;
-  color: #475569;
-}
+.col-nota { font-weight: 700; text-align: center; font-size: 0.9rem; }
+.col-calificacion { font-weight: 500; text-transform: capitalize; font-size: 0.8rem; }
+.col-fecha { color: var(--fich-text-muted); font-size: 0.8rem; }
 
-.col-nota.aprobado { color: #16a34a; font-weight: 600; }
-.col-nota.regular { color: #ca8a04; font-weight: 600; }
-.col-nota.reprobado { color: #dc2626; font-weight: 600; }
-
-.col-obs {
-  color: #64748b;
-  font-size: 0.8rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
+.cal-abandono { color: var(--fich-text-muted); }
+.cal-insuficiente { color: var(--fich-danger); }
+.cal-suficiente { color: var(--fich-warning); }
+.cal-bueno { color: var(--fich-info); }
+.cal-distinguido { color: var(--fich-success); }
+.cal-sobresaliente { color: var(--fich-primary); }
 
 .col-acciones {
   display: flex;
@@ -261,5 +244,4 @@
   height: 16px;
 }
 
-.action-icon.edit { color: #0d9488; }
-.action-icon.delete { color: #dc2626; }
+.action-icon.edit { color: var(--fich-primary); }

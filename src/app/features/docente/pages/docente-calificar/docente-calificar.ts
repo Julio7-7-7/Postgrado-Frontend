@@ -11,9 +11,14 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { NotaService } from '../../../notas/services/nota.service';
-import { DocenteModuloDetalle } from '../../../notas/models/nota.model';
+import { DocenteModuloDetalle, NotaItem } from '../../../notas/models/nota.model';
+
+interface AlumnoCalificar {
+  id_detalle_programa_alumno: number;
+  alumno: { id_alumno: number; nombre: string; apellido: string; ci: string | null } | null;
+}
 import { NotaRegisterDialog } from '../../../notas/pages/nota-register-dialog/nota-register-dialog';
-import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog';
+import { clasificarNota } from '../../../../core/utils/nota-utils';
 
 @Component({
   selector: 'app-docente-calificar',
@@ -42,7 +47,7 @@ export class DocenteCalificarComponent implements OnInit {
   promedioGeneral = computed(() => {
     const d = this.datos();
     if (!d || d.alumnos.length === 0) return 0;
-    const conPromedio = d.alumnos.filter(a => a.promedio > 0);
+    const conPromedio = d.alumnos.filter(a => a.notas.length > 0);
     if (conPromedio.length === 0) return 0;
     return Math.round(conPromedio.reduce((sum, a) => sum + a.promedio, 0) / conPromedio.length * 10) / 10;
   });
@@ -71,7 +76,7 @@ export class DocenteCalificarComponent implements OnInit {
     });
   }
 
-  agregarNota(a: any, event: MouseEvent): void {
+  agregarNota(a: AlumnoCalificar, event: MouseEvent): void {
     event.stopPropagation();
     const d = this.datos();
     if (!d) return;
@@ -90,7 +95,7 @@ export class DocenteCalificarComponent implements OnInit {
     });
   }
 
-  editarNota(nota: any, a: any, event: MouseEvent): void {
+  editarNota(nota: NotaItem, a: AlumnoCalificar, event: MouseEvent): void {
     event.stopPropagation();
     const dialogRef = this.dialog.open(NotaRegisterDialog, {
       width: '480px',
@@ -107,33 +112,11 @@ export class DocenteCalificarComponent implements OnInit {
     });
   }
 
-  eliminarNota(nota: any, event: MouseEvent): void {
-    event.stopPropagation();
-    const confirmRef = this.dialog.open(ConfirmDialogComponent, {
-      width: '380px',
-      data: { titulo: 'Eliminar nota', mensaje: `¿Está seguro de eliminar la nota ${nota.nota}?` },
-    });
-
-    confirmRef.afterClosed().subscribe(confirmed => {
-      if (confirmed) {
-        this.service.delete(nota.id_nota).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-          next: () => {
-            this.cargarDatos();
-            this.snackbar.open('Nota eliminada', 'Cerrar', { duration: 1500 });
-          },
-          error: err => this.snackbar.open(err.error?.detail || 'Error', 'Cerrar', { duration: 3000 }),
-        });
-      }
-    });
-  }
-
   promedioClass(promedio: number): string {
-    if (promedio >= 70) return 'aprobado';
-    if (promedio >= 51) return 'regular';
-    return 'reprobado';
+    return clasificarNota(promedio);
   }
 
-  iniciales(a: any): string {
+  iniciales(a: AlumnoCalificar): string {
     if (!a.alumno) return '??';
     return (a.alumno.nombre[0] + a.alumno.apellido[0]).toUpperCase();
   }

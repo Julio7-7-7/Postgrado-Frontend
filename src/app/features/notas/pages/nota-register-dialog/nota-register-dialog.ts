@@ -12,8 +12,9 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NotaService } from '../../services/nota.service';
-import { NotaCreate, NotaUpdate } from '../../models/nota.model';
+import { NotaCreate, NotaUpdate, NotaDialogData } from '../../models/nota.model';
 import { DetalleService } from '../../../detalle-programa-modulo/services/detalle.service';
+import { DetalleProgramaModulo } from '../../../detalle-programa-modulo/models/detalle.model';
 
 @Component({
   selector: 'app-nota-register-dialog',
@@ -34,14 +35,12 @@ export class NotaRegisterDialog implements OnInit {
   private snackbar = inject(MatSnackBar);
   dialogRef = inject(MatDialogRef<NotaRegisterDialog>);
   private destroyRef = inject(DestroyRef);
-  data = inject<{ idDetalle: number; alumno: any; idEdicion: number; notaExistente?: any }>(MAT_DIALOG_DATA);
+  data = inject<NotaDialogData>(MAT_DIALOG_DATA);
 
-  modulos = signal<any[]>([]);
+  modulos = signal<DetalleProgramaModulo[]>([]);
   idModulo: number | null = null;
   nota: number | null = null;
-  tipo = 'final';
   fecha: Date | null = new Date();
-  observaciones = '';
   isSubmitting = signal(false);
 
   get esEdicion(): boolean {
@@ -57,15 +56,18 @@ export class NotaRegisterDialog implements OnInit {
       const n = this.data.notaExistente;
       this.idModulo = n.id_detalle_programa_modulo;
       this.nota = n.nota;
-      this.tipo = n.tipo;
       this.fecha = new Date(n.fecha + 'T00:00:00');
-      this.observaciones = n.observaciones || '';
     }
   }
 
   guardar(): void {
     if (!this.idModulo || this.nota === null || !this.fecha) {
       this.snackbar.open('Complete todos los campos obligatorios', 'Cerrar', { duration: 3000 });
+      return;
+    }
+
+    if (this.nota < 0 || this.nota > 100) {
+      this.snackbar.open('La nota debe estar entre 0 y 100', 'Cerrar', { duration: 3000 });
       return;
     }
 
@@ -76,12 +78,11 @@ export class NotaRegisterDialog implements OnInit {
     if (this.esEdicion) {
       const payload: NotaUpdate = {
         nota: this.nota,
-        tipo: this.tipo,
         fecha: fechaStr,
-        observaciones: this.observaciones.trim() || null,
       };
 
-      this.service.update(this.data.notaExistente.id_nota, payload).subscribe({
+      const notaId = this.data.notaExistente!.id_nota;
+      this.service.update(notaId, payload).subscribe({
         next: () => {
           this.isSubmitting.set(false);
           this.dialogRef.close(true);
@@ -96,9 +97,7 @@ export class NotaRegisterDialog implements OnInit {
         id_detalle_programa_alumno: this.data.idDetalle,
         id_detalle_programa_modulo: this.idModulo,
         nota: this.nota,
-        tipo: this.tipo,
         fecha: fechaStr,
-        observaciones: this.observaciones.trim() || null,
       };
 
       this.service.create(payload).subscribe({

@@ -11,6 +11,7 @@ import { InscripcionEdicionService } from '../../../inscripciones/services/inscr
 import { NotaService } from '../../../notas/services/nota.service';
 import { TranscriptResponse, InscripcionTranscript, ModuloTranscript } from '../../../inscripciones/models/inscripcion-edicion.model';
 import { HistorialTransferencia } from '../../../notas/models/nota.model';
+import { clasificarNota } from '../../../../core/utils/nota-utils';
 
 @Component({
   selector: 'app-transcript',
@@ -112,14 +113,12 @@ export class TranscriptComponent implements OnInit {
   }
 
   round(n: number): number {
-    return Math.round(n);
+    return Math.floor(n + 0.5);
   }
 
   notaClass(nota: number | null): string {
     if (nota === null) return '';
-    if (nota >= 70) return 'nota-a';
-    if (nota >= 51) return 'nota-r';
-    return 'nota-d';
+    return clasificarNota(nota);
   }
 
   blockClass(idx: number, total: number): string {
@@ -145,9 +144,6 @@ export class TranscriptComponent implements OnInit {
       if (mi === firstNull) return 'gc-current';
       return 'gc-future';
     }
-    if (mod.completado_en_edicion !== null && mod.completado_en_edicion !== ins.edicion_id) {
-      return 'gc-dragged';
-    }
     return 'gc-done';
   }
 
@@ -156,12 +152,8 @@ export class TranscriptComponent implements OnInit {
       return 'Módulo no cursado (incorporación)';
     }
     if (mod.nota !== null) {
-      const status = mod.nota >= 70 ? 'Aprobado' : mod.nota >= 51 ? 'Regular' : 'Reprobado';
-      let text = `${mod.modulo_nombre}: ${Math.round(mod.nota)} (${status})`;
-      if (mod.completado_en_edicion !== null && mod.completado_en_edicion !== ins.edicion_id) {
-        text += ` — cursado en Ed. ${mod.edicion_numero}`;
-      }
-      return text;
+      const cal = mod.calificacion ? mod.calificacion.charAt(0).toUpperCase() + mod.calificacion.slice(1) : '';
+      return `${mod.modulo_nombre}: ${Math.floor(mod.nota + 0.5)} (${cal})`;
     }
     return `${mod.modulo_nombre} — pendiente`;
   }

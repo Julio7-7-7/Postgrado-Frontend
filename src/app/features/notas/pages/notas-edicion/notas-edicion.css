@@ -82,7 +82,7 @@
   width: 34px;
   height: 34px;
   border-radius: 8px;
-  background: linear-gradient(135deg, #7c3aed, #8b5cf6);
+  background: linear-gradient(135deg, var(--fich-feature-edicion), var(--fich-feature-edicion-light));
   color: white;
   display: flex;
   align-items: center;
@@ -122,11 +122,8 @@
 .prom-value {
   font-size: 0.92rem;
   font-weight: 700;
+  color: var(--fich-text);
 }
-
-.prom-badge.aprobado .prom-value { color: #10b981; }
-.prom-badge.regular .prom-value { color: #f59e0b; }
-.prom-badge.reprobado .prom-value { color: #ef4444; }
 
 .register-btn {
   height: 32px !important;
@@ -160,7 +157,7 @@
 
 .notas-header, .notas-row {
   display: grid;
-  grid-template-columns: 40px 1fr 90px 80px 100px 1fr 50px;
+  grid-template-columns: 40px 1fr 80px 120px 100px 50px;
   gap: 8px;
   padding: 8px 12px;
   align-items: center;
@@ -182,24 +179,72 @@
 .col-orden { color: var(--fich-text-muted); text-align: center; }
 .col-modulo { color: var(--fich-text); font-weight: 500; }
 .col-nota { font-weight: 700; text-align: center; }
-.col-nota.aprobado { color: #10b981; }
-.col-nota.regular { color: #f59e0b; }
-.col-nota.reprobado { color: #ef4444; }
+.col-calificacion { font-weight: 500; text-transform: capitalize; font-size: 0.78rem; }
 .col-fecha { color: var(--fich-text-muted); font-size: 0.78rem; }
-.col-obs { color: var(--fich-text-muted); font-size: 0.78rem; font-style: italic; }
 .col-acciones { text-align: center; }
 
-.tipo-badge {
-  font-size: 0.68rem;
-  font-weight: 600;
-  padding: 2px 8px;
-  border-radius: 12px;
-  background: var(--fich-bg-subtle);
-  color: var(--fich-text-secondary);
-  text-transform: capitalize;
-}
+.cal-abandono { color: var(--fich-text-muted); }
+.cal-insuficiente { color: var(--fich-danger); }
+.cal-suficiente { color: var(--fich-warning); }
+.cal-bueno { color: var(--fich-info); }
+.cal-distinguido { color: var(--fich-success); }
+.cal-sobresaliente { color: var(--fich-primary); }
 
 .action-icon { width: 28px !important; height: 28px !important; }
 .action-icon mat-icon { font-size: 16px; width: 16px; height: 16px; }
-.action-icon.edit { color: #0d9488; }
-.action-icon.delete { color: #ef4444; }
+.action-icon.edit { color: var(--fich-primary); }
+
+/* Retirados section */
+.retirados-section {
+  margin-top: 8px;
+}
+
+.retirados-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--fich-bg-subtle);
+  border: 1px solid var(--fich-border-light);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--fich-text-muted);
+  transition: background 0.15s;
+}
+
+.retirados-toggle:hover {
+  background: var(--fich-bg-card);
+}
+
+.toggle-chevron {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  transition: transform 0.2s;
+}
+
+.toggle-chevron.rotated {
+  transform: rotate(180deg);
+}
+
+.retirados-list {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.alumno-card.retired {
+  opacity: 0.65;
+}
+
+.alumno-card.retired:hover {
+  opacity: 1;
+}
+
+.avatar-retired {
+  background: linear-gradient(135deg, var(--fich-text-muted), var(--fich-text-faint)) !important;
+}

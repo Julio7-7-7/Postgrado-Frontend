@@ -79,26 +79,19 @@
               <mat-divider></mat-divider>
               <div class="notas-section">
                 <div class="notas-header">
-                  <span class="col-tipo">Tipo</span>
                   <span class="col-nota">Nota</span>
+                  <span class="col-calificacion">Clasificación</span>
                   <span class="col-fecha">Fecha</span>
-                  <span class="col-obs">Observaciones</span>
                   <span class="col-acciones"></span>
                 </div>
                 @for (nota of a.notas; track nota.id_nota) {
                   <div class="notas-row">
-                    <span class="col-tipo">
-                      <span class="tipo-badge">{{ nota.tipo }}</span>
-                    </span>
-                    <span class="col-nota" [class]="promedioClass(nota.nota)">{{ nota.nota | number:'1.1-1' }}</span>
-                    <span class="col-fecha">{{ nota.fecha }}</span>
-                    <span class="col-obs">{{ nota.observaciones || '—' }}</span>
+                    <span class="col-nota" [class]="'cal-' + nota.calificacion">{{ nota.nota | number:'1.1-1' }}</span>
+                    <span class="col-calificacion" [class]="'cal-' + nota.calificacion">{{ nota.calificacion }}</span>
+                    <span class="col-fecha">{{ nota.fecha | date:'dd/MM/yyyy' }}</span>
                     <span class="col-acciones">
                       <button mat-icon-button matTooltip="Editar" (click)="editarNota(nota, a, $event)" class="action-icon edit">
                         <mat-icon>edit</mat-icon>
-                      </button>
-                      <button mat-icon-button matTooltip="Eliminar" (click)="eliminarNota(nota, $event)" class="action-icon delete">
-                        <mat-icon>delete</mat-icon>
                       </button>
                     </span>
                   </div>

@@ -74,7 +74,6 @@
                               [class.dot-done]="mod.nota !== null"
                               [class.dot-origen]="esOrigen"
                               [class.dot-actual]="!esOrigen"
-                              [class.dot-drag]="mod.completado_en_edicion !== null && mod.completado_en_edicion !== ins.edicion_id"
                               [matTooltip]="cellTooltip(mod, ins)"
                               matTooltipPosition="above">
                           {{ mod.modulo_orden }}
@@ -88,9 +87,6 @@
                           <span class="gval" [class]="notaClass(mod.nota)">{{ round(mod.nota) }}</span>
                         } @else {
                           <span class="gdash">&mdash;</span>
-                        }
-                        @if (mod.completado_en_edicion !== null && mod.completado_en_edicion !== ins.edicion_id) {
-                          <span class="gdrag">&mapstoup;</span>
                         }
                         @if (mod.nota === null && mod.modulo_orden >= ins.modulo_inicio && mi === currentModIdx(ins)) {
                           <span class="gdot"></span>

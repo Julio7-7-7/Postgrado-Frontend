@@ -2,12 +2,21 @@ export interface NotaResponse {
   id_nota: number;
   id_detalle_programa_alumno: number;
   id_detalle_programa_modulo: number;
+  id_programa_version_edicion: number | null;
   modulo_nombre: string;
   modulo_orden: number;
   nota: number;
-  tipo: string;
+  calificacion: string;
   fecha: string;
-  observaciones: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface NotaItem {
+  id_nota: number;
+  nota: number;
+  calificacion: string;
+  fecha: string;
   created_at: string;
   updated_at: string;
 }
@@ -16,16 +25,26 @@ export interface NotaCreate {
   id_detalle_programa_alumno: number;
   id_detalle_programa_modulo: number;
   nota: number;
-  tipo: string;
   fecha: string;
-  observaciones?: string | null;
 }
 
 export interface NotaUpdate {
   nota?: number;
-  tipo?: string;
   fecha?: string;
-  observaciones?: string | null;
+}
+
+export interface AlumnoBasico {
+  id_alumno: number;
+  nombre: string;
+  apellido: string;
+  ci: string | null;
+}
+
+export interface NotaDialogData {
+  idDetalle: number;
+  alumno: AlumnoBasico | null;
+  idEdicion: number;
+  notaExistente?: NotaResponse;
 }
 
 export interface AlumnoNotas {
@@ -36,12 +55,10 @@ export interface AlumnoNotas {
     apellido: string;
     ci: string | null;
   } | null;
+  modulo_inicio: number;
+  estado: string;
   notas: NotaResponse[];
   promedio: number;
-}
-
-export interface MisNotasResponse {
-  notas: any[];
 }
 
 export interface DocenteEdicionResumen {
@@ -104,15 +121,7 @@ export interface DocenteModuloDetalle {
     } | null;
     modulo_inicio: number;
     estado: string;
-    notas: {
-      id_nota: number;
-      nota: number;
-      tipo: string;
-      fecha: string;
-      observaciones: string | null;
-      created_at: string;
-      updated_at: string;
-    }[];
+    notas: NotaItem[];
     promedio: number;
   }[];
 }
@@ -141,8 +150,19 @@ export interface HistorialTransferencia {
   fecha: string;
 }
 
+export interface InscripcionBasica {
+  id_detalle_programa_alumno: number;
+  id_programa_version_edicion: number;
+  edicion_numero: number;
+  anio: number;
+  semestre: number;
+  programa_nombre: string;
+  estado: string;
+  modulo_inicio: number;
+}
+
 export interface HistorialTransferenciasResponse {
   id_alumno: number;
-  inscripciones: any[];
+  inscripciones: InscripcionBasica[];
   transferencias: HistorialTransferencia[];
 }

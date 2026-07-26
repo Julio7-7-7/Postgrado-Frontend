@@ -24,24 +24,10 @@
   </mat-form-field>
 
   <mat-form-field appearance="outline" class="full-width">
-    <mat-label>Tipo</mat-label>
-    <mat-select [(ngModel)]="tipo">
-      <mat-option value="parcial">Parcial</mat-option>
-      <mat-option value="final">Final</mat-option>
-      <mat-option value="recuperatorio">Recuperatorio</mat-option>
-    </mat-select>
-  </mat-form-field>
-
-  <mat-form-field appearance="outline" class="full-width">
     <mat-label>Fecha</mat-label>
     <input matInput [matDatepicker]="picker" [(ngModel)]="fecha">
     <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
     <mat-datepicker #picker></mat-datepicker>
-  </mat-form-field>
-
-  <mat-form-field appearance="outline" class="full-width">
-    <mat-label>Observaciones (opcional)</mat-label>
-    <textarea matInput [(ngModel)]="observaciones" rows="2"></textarea>
   </mat-form-field>
 </div>
 
