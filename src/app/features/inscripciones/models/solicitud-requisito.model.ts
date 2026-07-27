@@ -3,6 +3,7 @@ export interface SolicitudRequisito {
   id_requisito: number;
   obligatorio: boolean;
   estado: string;
+  tipo: string;
   requisito_nombre: string | null;
 }
 

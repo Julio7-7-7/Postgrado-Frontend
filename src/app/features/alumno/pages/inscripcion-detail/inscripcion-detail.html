@@ -435,6 +435,106 @@
               <span class="carta-status-badge pendiente">Pendiente</span>
             </div>
           </mat-card>
+
+          @if (reincDocs().length > 0) {
+            <mat-card class="section-card docs-card">
+              <div class="section-header">
+                <mat-icon [style.color]="'#6366f1'">description</mat-icon>
+                <div>
+                  <h3>Documentos de reincorporación</h3>
+                  <p class="section-sub">{{ reincDocs().length - reincDocsPendientes() }} de {{ reincDocs().length }} entregados</p>
+                </div>
+              </div>
+              <div class="docs-list">
+                @for (doc of reincDocs(); track doc.id_solicitud_reincorporacion_documento) {
+                  <div class="doc-item"
+                       [class.doc-aceptado]="doc.estado === 'entregado'"
+                       [class.doc-pending-confirm]="pendingReincDocId() === doc.id_solicitud_reincorporacion_documento">
+                    <div class="doc-row-main">
+                      <div class="doc-left">
+                        <div class="doc-status-icon" [style.background]="doc.estado === 'entregado' ? '#10b98115' : '#94a3b815'"
+                             [style.color]="doc.estado === 'entregado' ? '#10b981' : '#94a3b8'">
+                          <mat-icon>{{ doc.estado === 'entregado' ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+                        </div>
+                        <div class="doc-info">
+                          <span class="doc-name">{{ doc.nombre_requisito }}</span>
+                          <div class="doc-meta">
+                            <span class="doc-status-text" [style.color]="doc.estado === 'entregado' ? '#10b981' : '#94a3b8'">
+                              {{ doc.estado === 'entregado' ? 'Entregado' : 'Pendiente' }}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="doc-right">
+                        @if (doc.url_documento && doc.url_documento !== '') {
+                          <a class="doc-view-btn" [href]="getDocUrl(doc.url_documento)" target="_blank"
+                             matTooltip="Ver documento subido">
+                            <mat-icon>visibility</mat-icon>
+                          </a>
+                        }
+                        @if (doc.estado === 'pendiente') {
+                          @if (pendingReincDocId() === doc.id_solicitud_reincorporacion_documento) {
+                            <div class="pending-confirm-inline">
+                              <span class="pending-filename-inline">{{ pendingReincFileName() }}</span>
+                              <span class="pending-size-inline">{{ pendingReincFileSize() }}</span>
+                            </div>
+                          } @else if (isReincUploading(doc.id_solicitud_reincorporacion_documento)) {
+                            <div class="upload-progress-inline">
+                              @if (uploadReincState() === 'completado') {
+                                <mat-icon class="upload-done">check_circle</mat-icon>
+                                <span class="upload-done-text">Listo!</span>
+                              } @else {
+                                <mat-spinner diameter="18"></mat-spinner>
+                                <span class="upload-status-text">
+                                  @if (uploadReincState() === 'leyendo') { Leyendo... }
+                                  @else { Subiendo... }
+                                </span>
+                              }
+                            </div>
+                          } @else {
+                            <label class="doc-upload-btn" matTooltip="Subir imagen o PDF">
+                              <mat-icon>cloud_upload</mat-icon>
+                              <span>Subir</span>
+                              <input type="file" accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
+                                     hidden (change)="onReincFileSelected($event, doc)">
+                            </label>
+                          }
+                        }
+                        @if (doc.estado === 'entregado') {
+                          <span class="doc-approved-badge">
+                            <mat-icon>verified</mat-icon>
+                            Entregado
+                          </span>
+                        }
+                      </div>
+                    </div>
+
+                    @if (pendingReincDocId() === doc.id_solicitud_reincorporacion_documento && uploadReincState() === 'ninguno') {
+                      <div class="doc-pending-actions">
+                        <mat-progress-bar mode="determinate" [value]="0" class="pending-progress"></mat-progress-bar>
+                        <div class="doc-pending-buttons">
+                          <button mat-button class="cancel-pending-btn" (click)="cancelReincUpload()">
+                            <mat-icon>close</mat-icon>
+                            Cancelar
+                          </button>
+                          <button mat-flat-button color="primary" class="confirm-pending-btn" (click)="confirmReincUpload()">
+                            <mat-icon>cloud_upload</mat-icon>
+                            Subir
+                          </button>
+                        </div>
+                      </div>
+                    }
+
+                    @if (isReincUploading(doc.id_solicitud_reincorporacion_documento) && uploadReincState() !== 'completado') {
+                      <div class="doc-upload-progress">
+                        <mat-progress-bar mode="determinate" [value]="uploadReincProgress()"></mat-progress-bar>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            </mat-card>
+          }
         }
 
         @if (tieneSolicitudRechazada()) {
@@ -454,6 +554,106 @@
               </button>
             </div>
           </mat-card>
+
+          @if (reincDocs().length > 0) {
+            <mat-card class="section-card docs-card">
+              <div class="section-header">
+                <mat-icon [style.color]="'#6366f1'">description</mat-icon>
+                <div>
+                  <h3>Documentos de reincorporación</h3>
+                  <p class="section-sub">{{ reincDocs().length - reincDocsPendientes() }} de {{ reincDocs().length }} entregados</p>
+                </div>
+              </div>
+              <div class="docs-list">
+                @for (doc of reincDocs(); track doc.id_solicitud_reincorporacion_documento) {
+                  <div class="doc-item"
+                       [class.doc-aceptado]="doc.estado === 'entregado'"
+                       [class.doc-pending-confirm]="pendingReincDocId() === doc.id_solicitud_reincorporacion_documento">
+                    <div class="doc-row-main">
+                      <div class="doc-left">
+                        <div class="doc-status-icon" [style.background]="doc.estado === 'entregado' ? '#10b98115' : '#94a3b815'"
+                             [style.color]="doc.estado === 'entregado' ? '#10b981' : '#94a3b8'">
+                          <mat-icon>{{ doc.estado === 'entregado' ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+                        </div>
+                        <div class="doc-info">
+                          <span class="doc-name">{{ doc.nombre_requisito }}</span>
+                          <div class="doc-meta">
+                            <span class="doc-status-text" [style.color]="doc.estado === 'entregado' ? '#10b981' : '#94a3b8'">
+                              {{ doc.estado === 'entregado' ? 'Entregado' : 'Pendiente' }}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="doc-right">
+                        @if (doc.url_documento && doc.url_documento !== '') {
+                          <a class="doc-view-btn" [href]="getDocUrl(doc.url_documento)" target="_blank"
+                             matTooltip="Ver documento subido">
+                            <mat-icon>visibility</mat-icon>
+                          </a>
+                        }
+                        @if (doc.estado === 'pendiente') {
+                          @if (pendingReincDocId() === doc.id_solicitud_reincorporacion_documento) {
+                            <div class="pending-confirm-inline">
+                              <span class="pending-filename-inline">{{ pendingReincFileName() }}</span>
+                              <span class="pending-size-inline">{{ pendingReincFileSize() }}</span>
+                            </div>
+                          } @else if (isReincUploading(doc.id_solicitud_reincorporacion_documento)) {
+                            <div class="upload-progress-inline">
+                              @if (uploadReincState() === 'completado') {
+                                <mat-icon class="upload-done">check_circle</mat-icon>
+                                <span class="upload-done-text">Listo!</span>
+                              } @else {
+                                <mat-spinner diameter="18"></mat-spinner>
+                                <span class="upload-status-text">
+                                  @if (uploadReincState() === 'leyendo') { Leyendo... }
+                                  @else { Subiendo... }
+                                </span>
+                              }
+                            </div>
+                          } @else {
+                            <label class="doc-upload-btn" matTooltip="Subir imagen o PDF">
+                              <mat-icon>cloud_upload</mat-icon>
+                              <span>Subir</span>
+                              <input type="file" accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
+                                     hidden (change)="onReincFileSelected($event, doc)">
+                            </label>
+                          }
+                        }
+                        @if (doc.estado === 'entregado') {
+                          <span class="doc-approved-badge">
+                            <mat-icon>verified</mat-icon>
+                            Entregado
+                          </span>
+                        }
+                      </div>
+                    </div>
+
+                    @if (pendingReincDocId() === doc.id_solicitud_reincorporacion_documento && uploadReincState() === 'ninguno') {
+                      <div class="doc-pending-actions">
+                        <mat-progress-bar mode="determinate" [value]="0" class="pending-progress"></mat-progress-bar>
+                        <div class="doc-pending-buttons">
+                          <button mat-button class="cancel-pending-btn" (click)="cancelReincUpload()">
+                            <mat-icon>close</mat-icon>
+                            Cancelar
+                          </button>
+                          <button mat-flat-button color="primary" class="confirm-pending-btn" (click)="confirmReincUpload()">
+                            <mat-icon>cloud_upload</mat-icon>
+                            Subir
+                          </button>
+                        </div>
+                      </div>
+                    }
+
+                    @if (isReincUploading(doc.id_solicitud_reincorporacion_documento) && uploadReincState() !== 'completado') {
+                      <div class="doc-upload-progress">
+                        <mat-progress-bar mode="determinate" [value]="uploadReincProgress()"></mat-progress-bar>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            </mat-card>
+          }
         }
       </div>
     </div>

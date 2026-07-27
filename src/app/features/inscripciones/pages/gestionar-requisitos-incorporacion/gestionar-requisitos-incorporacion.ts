@@ -34,10 +34,21 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
             <mat-icon>arrow_back</mat-icon>
           </button>
           <div>
-            <h1><mat-icon>description</mat-icon> Documentos de Incorporación</h1>
-            <p class="subtitle">Configurar qué documentos son requeridos cuando un alumno solicita incorporación</p>
+            <h1><mat-icon>description</mat-icon> Documentos Requeridos</h1>
+            <p class="subtitle">Configurar qué documentos son requeridos por tipo de solicitud</p>
           </div>
         </div>
+      </div>
+
+      <div class="tabs-bar">
+        <button class="tab-btn" [class.active]="tipo() === 'incorporacion'" (click)="cambiarTipo('incorporacion')">
+          <mat-icon>how_to_reg</mat-icon>
+          <span>Incorporación</span>
+        </button>
+        <button class="tab-btn" [class.active]="tipo() === 'reincorporacion'" (click)="cambiarTipo('reincorporacion')">
+          <mat-icon>replay</mat-icon>
+          <span>Reincorporación</span>
+        </button>
       </div>
 
       @if (isLoading()) {
@@ -63,7 +74,7 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
           <div class="empty-state">
             <mat-icon>folder_open</mat-icon>
             <h4>Sin requisitos configurados</h4>
-            <p>Agregá requisitos de la lista superior para definir los documentos necesarios para incorporación.</p>
+            <p>Agregá requisitos de la lista superior para definir los documentos necesarios.</p>
           </div>
         } @else {
           <div class="table-container">
@@ -107,7 +118,7 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
 
           <div class="info-note">
             <mat-icon>info</mat-icon>
-            <span>Cuando un alumno crea una solicitud de incorporación, se generarán automáticamente los documentos configurados aquí.</span>
+            <span>Cuando un alumno crea una solicitud de {{ tipo() === 'incorporacion' ? 'incorporación' : 'reincorporación' }}, se generarán automáticamente los documentos configurados aquí.</span>
           </div>
         }
       }
@@ -115,12 +126,28 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
   `,
   styles: [`
     .page-container { max-width: 800px; margin: 0 auto; padding: 24px; }
-    .header-section { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+    .header-section { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
     .header-left { display: flex; align-items: center; gap: 12px; }
     .back-btn { margin-right: 2px; }
     .header-section h1 { margin: 0; font-size: 1.4rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
     .header-section h1 mat-icon { color: #0d9488; }
     .subtitle { margin: 2px 0 0; color: #64748b; font-size: 0.85rem; }
+
+    .tabs-bar {
+      display: flex; gap: 4px; margin-bottom: 20px;
+      background: #f1f5f9; border-radius: 10px; padding: 4px;
+    }
+    .tab-btn {
+      flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 10px 16px; border: none; background: transparent;
+      border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 500;
+      color: #64748b; transition: all 0.2s;
+    }
+    .tab-btn mat-icon { font-size: 18px; width: 18px; height: 18px; }
+    .tab-btn:hover { background: #e2e8f0; color: #334155; }
+    .tab-btn.active {
+      background: white; color: #0d9488; box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
 
     .loading-state, .empty-state {
       display: flex; flex-direction: column; align-items: center; gap: 12px;
@@ -180,6 +207,7 @@ export class GestionarRequisitosIncorporacionComponent implements OnInit {
   private dialog = inject(MatDialog);
   private destroyRef = inject(DestroyRef);
 
+  tipo = signal<'incorporacion' | 'reincorporacion'>('incorporacion');
   items = signal<SolicitudRequisito[]>([]);
   allRequisitos = signal<Requisito[]>([]);
   isLoading = signal(true);
@@ -193,14 +221,21 @@ export class GestionarRequisitosIncorporacionComponent implements OnInit {
     this.cargarDatos();
   }
 
+  cambiarTipo(nuevo: 'incorporacion' | 'reincorporacion'): void {
+    if (this.tipo() === nuevo) return;
+    this.tipo.set(nuevo);
+    this.cargarDatos();
+  }
+
   cargarDatos(): void {
     this.isLoading.set(true);
+    this.items.set([]);
     let loaded = 0;
     const onComplete = () => {
       if (++loaded >= 2) this.isLoading.set(false);
     };
 
-    this.service.getRequisitosConfigurados().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    this.service.getRequisitosConfigurados(this.tipo()).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: data => { this.items.set(data); onComplete(); },
       error: () => {
         this.snackBar.open('Error al cargar requisitos configurados', 'Cerrar', { duration: 3000 });
@@ -218,7 +253,7 @@ export class GestionarRequisitosIncorporacionComponent implements OnInit {
   }
 
   onRequisitoSelected(idRequisito: number): void {
-    this.service.agregarRequisito(idRequisito).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    this.service.agregarRequisito(idRequisito, true, this.tipo()).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (nuevo) => {
         this.items.update(items => [...items, nuevo]);
         this.snackBar.open('Requisito agregado', 'Cerrar', { duration: 2000 });
@@ -243,10 +278,11 @@ export class GestionarRequisitosIncorporacionComponent implements OnInit {
   }
 
   desactivar(item: SolicitudRequisito): void {
+    const tipoLabel = this.tipo() === 'incorporacion' ? 'incorporación' : 'reincorporación';
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: {
         titulo: 'Quitar requisito',
-        mensaje: `¿Quitar "${item.requisito_nombre}" de los documentos requeridos para incorporación?`,
+        mensaje: `¿Quitar "${item.requisito_nombre}" de los documentos requeridos para ${tipoLabel}?`,
       },
     });
     dialogRef.afterClosed().subscribe(result => {

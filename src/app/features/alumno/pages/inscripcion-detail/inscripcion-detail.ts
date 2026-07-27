@@ -13,7 +13,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { DetalleProgramaAlumnoService } from '../../services/detalle-programa-alumno.service';
 import { DetalleProgramaAlumno, ControlDocumentacionAlumno, EstadoDetalleAlumno } from '../../models/detalle-programa-alumno.model';
-import { SolicitudIncorporacion, SolicitudDocumento, SolicitudReincorporacion } from '../../models/solicitud-incorporacion.model';
+import { SolicitudIncorporacion, SolicitudDocumento, SolicitudReincorporacion, SolicitudReincorporacionDocumento } from '../../models/solicitud-incorporacion.model';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog';
 import { environment } from '../../../../../environments/environment';
 
@@ -80,6 +80,14 @@ export class InscripcionDetailComponent implements OnInit {
   pendingDocId = signal<number | null>(null);
   pendingFileName = signal('');
   pendingFileSize = signal('');
+
+  pendingReincFile = signal<File | null>(null);
+  pendingReincDocId = signal<number | null>(null);
+  pendingReincFileName = signal('');
+  pendingReincFileSize = signal('');
+  uploadingReincDocId = signal<number | null>(null);
+  uploadReincState = signal<'ninguno' | 'leyendo' | 'subiendo' | 'completado'>('ninguno');
+  uploadReincProgress = signal(0);
 
   stepperSteps = computed(() => {
     const ins = this.inscripcion();
@@ -317,6 +325,14 @@ export class InscripcionDetailComponent implements OnInit {
     return this.solicitudReincorporacion()?.estado === 'rechazada';
   }
 
+  reincDocs = computed((): SolicitudReincorporacionDocumento[] => {
+    return this.solicitudReincorporacion()?.documentos || [];
+  });
+
+  reincDocsPendientes = computed(() => {
+    return this.reincDocs().filter(d => d.estado === 'pendiente').length;
+  });
+
   private _cargarSolicitudReincorporacion(): void {
     this.detalleService.getMisSolicitudesReincorporacion().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (solicitudes) => {
@@ -453,5 +469,104 @@ export class InscripcionDetailComponent implements OnInit {
     this.pendingDocId.set(null);
     this.pendingFileName.set('');
     this.pendingFileSize.set('');
+  }
+
+  isReincUploading(docId: number): boolean {
+    return this.uploadingReincDocId() === docId;
+  }
+
+  onReincFileSelected(event: Event, doc: SolicitudReincorporacionDocumento): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || !input.files[0]) return;
+    const file = input.files[0];
+    const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'];
+    if (!validTypes.includes(file.type)) {
+      this.snackBar.open('Solo se aceptan imágenes (JPG, PNG, GIF, WebP) o PDF', 'Cerrar', { duration: 4000 });
+      input.value = '';
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      this.snackBar.open('El archivo no puede superar 10 MB', 'Cerrar', { duration: 4000 });
+      input.value = '';
+      return;
+    }
+    this.pendingReincFile.set(file);
+    this.pendingReincDocId.set(doc.id_solicitud_reincorporacion_documento);
+    this.pendingReincFileName.set(file.name);
+    this.pendingReincFileSize.set(this.formatSize(file.size));
+    input.value = '';
+  }
+
+  confirmReincUpload(): void {
+    const file = this.pendingReincFile();
+    const docId = this.pendingReincDocId();
+    const sol = this.solicitudReincorporacion();
+    if (!file || !docId || !sol) return;
+
+    this.pendingReincFile.set(null);
+    this.pendingReincDocId.set(null);
+    this.pendingReincFileName.set('');
+    this.pendingReincFileSize.set('');
+
+    this.uploadingReincDocId.set(docId);
+    this.uploadReincState.set('leyendo');
+    this.uploadReincProgress.set(0);
+
+    const reader = new FileReader();
+    reader.onprogress = (e) => {
+      if (e.lengthComputable) {
+        this.uploadReincProgress.set(Math.round((e.loaded / e.total) * 30));
+      }
+    };
+    reader.onload = () => {
+      this.uploadReincProgress.set(30);
+      this.uploadReincState.set('subiendo');
+      const base64 = reader.result as string;
+      this.detalleService.subirDocumentoReincorporacion(
+        sol.id_solicitud_reincorporacion, docId, base64
+      ).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+        next: () => {
+          this.uploadReincProgress.set(100);
+          this.uploadReincState.set('completado');
+          this.solicitudReincorporacion.update(s => {
+            if (!s) return s;
+            return {
+              ...s,
+              documentos: s.documentos.map(d =>
+                d.id_solicitud_reincorporacion_documento === docId
+                  ? { ...d, estado: 'entregado', url_documento: '/media/reincorporacion/uploaded' }
+                  : d
+              ),
+            };
+          });
+          this.snackBar.open('Documento subido correctamente', 'Cerrar', { duration: 3000 });
+          setTimeout(() => {
+            this.uploadingReincDocId.set(null);
+            this.uploadReincState.set('ninguno');
+            this.uploadReincProgress.set(0);
+          }, 1200);
+        },
+        error: (err) => {
+          this.uploadingReincDocId.set(null);
+          this.uploadReincState.set('ninguno');
+          this.uploadReincProgress.set(0);
+          this.snackBar.open(err.error?.detail || 'Error al subir documento', 'Cerrar', { duration: 4000 });
+        },
+      });
+    };
+    reader.onerror = () => {
+      this.uploadingReincDocId.set(null);
+      this.uploadReincState.set('ninguno');
+      this.uploadReincProgress.set(0);
+      this.snackBar.open('Error al leer el archivo', 'Cerrar', { duration: 4000 });
+    };
+    reader.readAsDataURL(file);
+  }
+
+  cancelReincUpload(): void {
+    this.pendingReincFile.set(null);
+    this.pendingReincDocId.set(null);
+    this.pendingReincFileName.set('');
+    this.pendingReincFileSize.set('');
   }
 }

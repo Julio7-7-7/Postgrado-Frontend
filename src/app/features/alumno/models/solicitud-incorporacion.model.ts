@@ -98,6 +98,16 @@ export interface SolicitudReincorporacion {
   motivo_rechazo: string | null;
   created_at: string;
   updated_at: string;
+  documentos: SolicitudReincorporacionDocumento[];
+}
+
+export interface SolicitudReincorporacionDocumento {
+  id_solicitud_reincorporacion_documento: number;
+  id_requisito: number;
+  nombre_requisito: string;
+  url_documento: string;
+  estado: string;
+  fecha_entrega: string;
 }
 
 export interface SolicitudReincorporacionConDetalle {
@@ -116,6 +126,7 @@ export interface SolicitudReincorporacionConDetalle {
   edicion_anio: number | null;
   edicion_semestre: number | null;
   programa_nombre: string | null;
+  documentos: SolicitudReincorporacionDocumento[];
 }
 
 export type TipoSolicitud = 'incorporacion' | 'reincorporacion';
