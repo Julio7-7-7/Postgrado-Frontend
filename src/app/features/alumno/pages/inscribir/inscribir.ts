@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -27,14 +28,15 @@ import { TipoDescuento } from '../../models/tipo-descuento.model';
 import { RequisitoResumen } from '../../models/modalidad-academica.model';
 import { ProgramaVersionEdicion } from '../../../edicion/models/edicion.model';
 import { DetalleProgramaAlumno } from '../../models/detalle-programa-alumno.model';
-import { SolicitudIncorporacion } from '../../models/solicitud-incorporacion.model';
+import { SolicitudIncorporacion, SolicitudDocumento } from '../../models/solicitud-incorporacion.model';
 import { environment } from '../../../../../environments/environment';
+import { SolicitudDocumentoDialogComponent } from './solicitud-documento-dialog';
 
 @Component({
   selector: 'app-inscribir',
   standalone: true,
   imports: [
-    CommonModule, FormsModule, RouterModule,
+    CommonModule, FormsModule, RouterModule, MatDialogModule,
     MatCardModule, MatButtonModule, MatIconModule, MatFormFieldModule,
     MatInputModule, MatSelectModule, MatDatepickerModule, MatNativeDateModule,
     MatDividerModule, MatTooltipModule, MatProgressSpinnerModule, MatProgressBarModule,
@@ -53,6 +55,7 @@ export class InscribirComponent implements OnInit {
   private detalleService = inject(DetalleProgramaAlumnoService);
   private snackBar = inject(MatSnackBar);
   private destroyRef = inject(DestroyRef);
+  private dialog = inject(MatDialog);
 
   edicion = signal<ProgramaVersionEdicion | null>(null);
   alumno = signal<Alumno | null>(null);
@@ -75,14 +78,6 @@ export class InscribirComponent implements OnInit {
   esIncorporacion = signal(false);
   solicitud = signal<SolicitudIncorporacion | null>(null);
   dpaId = signal<number | null>(null);
-
-  archivoSeleccionado = signal<File | null>(null);
-  nombreArchivo = signal('');
-  tamanoArchivo = signal('');
-  previewUrl = signal('');
-  esPdf = signal(false);
-  subiendoDocId = signal<number | null>(null);
-  pendingDocId = signal<number | null>(null);
 
   descuentosDisponibles = computed(() => {
     const modId = this.selectedModalidad();
@@ -332,54 +327,32 @@ export class InscribirComponent implements OnInit {
     });
   }
 
-  onFileSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    if (!input.files || !input.files[0]) return;
+  abrirDocumento(doc: SolicitudDocumento): void {
+    const sol = this.solicitud();
+    if (!sol) return;
 
-    const file = input.files[0];
-    const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'];
-    if (!validTypes.includes(file.type)) {
-      this.snackBar.open('Formato no soportado. Use JPG, PNG, GIF, WebP o PDF.', 'Cerrar', { duration: 4000 });
-      input.value = '';
-      return;
-    }
+    const dialogRef = this.dialog.open(SolicitudDocumentoDialogComponent, {
+      width: '520px',
+      maxHeight: '80vh',
+      data: { solicitud: sol, documento: doc },
+      disableClose: true,
+    });
 
-    if (file.size > 10 * 1024 * 1024) {
-      this.snackBar.open('El archivo no puede superar 10 MB', 'Cerrar', { duration: 4000 });
-      input.value = '';
-      return;
-    }
-
-    this.archivoSeleccionado.set(file);
-    this.nombreArchivo.set(file.name);
-    this.tamanoArchivo.set(this._formatSize(file.size));
-    this.esPdf.set(file.type === 'application/pdf');
-
-    if (!this.esPdf()) {
-      const reader = new FileReader();
-      reader.onload = () => this.previewUrl.set(reader.result as string);
-      reader.readAsDataURL(file);
-    } else {
-      this.previewUrl.set('');
-    }
-
-    input.value = '';
-  }
-
-  limpiarArchivo(): void {
-    this.archivoSeleccionado.set(null);
-    this.nombreArchivo.set('');
-    this.tamanoArchivo.set('');
-    this.previewUrl.set('');
-    this.esPdf.set(false);
-    this.pendingDocId.set(null);
-  }
-
-  seleccionarDocumento(docId: number): void {
-    this.pendingDocId.set(docId);
-    this.archivoSeleccionado.set(null);
-    this.previewUrl.set('');
-    this.esPdf.set(false);
+    dialogRef.afterClosed().subscribe((updatedSol) => {
+      if (updatedSol) {
+        this.solicitud.set(updatedSol);
+        const progreso = this.documentosProgreso();
+        if (progreso.subidos === progreso.total) {
+          this.snackBar.open('¡Todos los documentos subidos!', 'Cerrar', { duration: 3000 });
+          const dpaId = this.dpaId();
+          if (dpaId) {
+            this.router.navigate(['/alumnos', 'inscripciones', dpaId]);
+          } else {
+            this.router.navigate(['/alumnos', 'inscripciones']);
+          }
+        }
+      }
+    });
   }
 
   private _crearSolicitud(idEdicion: number): void {
@@ -398,49 +371,6 @@ export class InscribirComponent implements OnInit {
     });
   }
 
-  subirDocumento(): void {
-    const file = this.archivoSeleccionado();
-    const docId = this.pendingDocId();
-    const sol = this.solicitud();
-    if (!file || !docId || !sol) return;
-
-    this.subiendoDocId.set(docId);
-    const reader = new FileReader();
-    reader.onload = () => {
-      const base64 = reader.result as string;
-      this.detalleService.subirDocumentoSolicitud(sol.id_solicitud, docId, base64)
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe({
-          next: (updatedSol) => {
-            this.subiendoDocId.set(null);
-            this.solicitud.set(updatedSol);
-            this.limpiarArchivo();
-            this.snackBar.open('Documento subido correctamente', 'Cerrar', { duration: 2000 });
-
-            const progreso = this.documentosProgreso();
-            if (progreso.subidos === progreso.total) {
-              this.snackBar.open('¡Todos los documentos subidos!', 'Cerrar', { duration: 3000 });
-              const dpaId = this.dpaId();
-              if (dpaId) {
-                this.router.navigate(['/alumnos', 'inscripciones', dpaId]);
-              } else {
-                this.router.navigate(['/alumnos', 'inscripciones']);
-              }
-            }
-          },
-          error: (err) => {
-            this.subiendoDocId.set(null);
-            this.snackBar.open(err.error?.detail || 'Error al subir documento', 'Cerrar', { duration: 4000 });
-          },
-        });
-    };
-    reader.onerror = () => {
-      this.subiendoDocId.set(null);
-      this.snackBar.open('Error al leer el archivo', 'Cerrar', { duration: 4000 });
-    };
-    reader.readAsDataURL(file);
-  }
-
   getBannerColor(edicion: ProgramaVersionEdicion): string {
     switch (edicion.estado) {
       case 'en_curso': return 'linear-gradient(135deg, #0d9488, #0f766e)';
@@ -455,11 +385,5 @@ export class InscribirComponent implements OnInit {
     if (!fecha) return '—';
     const d = new Date(fecha + 'T12:00:00');
     return d.toLocaleDateString('es-BO', { day: '2-digit', month: '2-digit', year: 'numeric' });
-  }
-
-  private _formatSize(bytes: number): string {
-    if (bytes < 1024) return bytes + ' B';
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
   }
 }

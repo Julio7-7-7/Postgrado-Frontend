@@ -635,68 +635,24 @@
   font-weight: 600;
 }
 
-/* ─── Pending upload bar ─── */
-.pending-upload-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 12px 16px;
-  background: var(--fich-primary-light);
-  border: 1px solid var(--fich-primary);
-  border-radius: var(--fich-radius-sm);
-  margin-bottom: 16px;
+.doc-clickable {
+  cursor: pointer;
+  transition: all 0.15s ease;
 }
-
-.pending-file-info {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  min-width: 0;
+.doc-clickable:hover {
+  background: var(--fich-bg-card, #fff);
+  border-color: #0d9488;
 }
-
-.pending-file-info .file-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-}
-
-.pending-file-info .file-icon.pdf {
-  background: #fef2f2;
-  color: #dc2626;
-}
-
-.pending-file-info .file-icon.img {
-  background: #eff6ff;
-  color: #2563eb;
-}
-
-.pending-file-info .file-name {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--fich-text);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: block;
-}
-
-.pending-file-info .file-size {
-  font-size: 0.75rem;
-  color: var(--fich-text-muted);
-  display: block;
-}
-
-.pending-actions {
-  display: flex;
-  gap: 8px;
+.doc-arrow {
+  color: #94a3b8;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
   flex-shrink: 0;
+  transition: color 0.15s;
 }
-
-.pending-actions button {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
+.doc-clickable:hover .doc-arrow {
+  color: #0d9488;
 }
 
 .uploading-state {
@@ -839,75 +795,6 @@
   font-size: 0.75rem;
   color: #94a3b8;
   margin-top: 4px;
-}
-
-/* ─── Inline upload (per-doc) ─── */
-.inline-drop-area {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 16px;
-  margin-left: 48px;
-  margin-bottom: 8px;
-  border: 1.5px dashed #0d9488;
-  border-radius: var(--fich-radius-sm);
-  background: #f0fdfa;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  color: #0d9488;
-  font-size: 0.82rem;
-  font-weight: 600;
-}
-
-.inline-drop-area:hover {
-  background: #ccfbf1;
-  border-color: #0f766e;
-}
-
-.inline-drop-area mat-icon {
-  font-size: 20px;
-  width: 20px;
-  height: 20px;
-}
-
-.inline-drop-area .formats {
-  font-size: 0.7rem;
-  color: #94a3b8;
-  margin: 0;
-}
-
-.inline-upload-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 10px 14px;
-  margin-left: 48px;
-  margin-bottom: 8px;
-  background: var(--fich-primary-light);
-  border: 1px solid var(--fich-primary);
-  border-radius: var(--fich-radius-sm);
-}
-
-.inline-upload-bar .file-icon {
-  width: 28px;
-  height: 28px;
-  font-size: 16px;
-  border-radius: 6px;
-}
-
-.inline-upload-bar .file-name {
-  font-size: 0.8rem;
-}
-
-.inline-upload-bar .file-size {
-  font-size: 0.7rem;
-}
-
-.inline-upload-bar .pending-actions {
-  display: flex;
-  gap: 4px;
-  flex-shrink: 0;
 }
 
 .upload-actions-bottom {

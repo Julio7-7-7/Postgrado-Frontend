@@ -2,7 +2,7 @@ export interface SolicitudDocumento {
   id_solicitud_documento: number;
   id_requisito: number;
   nombre_requisito: string;
-  url_documento: string;
+  url_documento: string | null;
   estado: string;
   fecha_entrega: string;
 }

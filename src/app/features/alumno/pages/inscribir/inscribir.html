@@ -293,7 +293,7 @@
             <mat-icon [style.color]="'#0d9488'">description</mat-icon>
             <h3>Documentos de incorporación</h3>
           </div>
-          <p class="upload-subtitle">Subí cada documento requerido. Cuando completes todos, serás redirigido a tu inscripción.</p>
+          <p class="upload-subtitle">Hacé click en cada documento para verlo o subirlo. Cuando completes todos, serás redirigido a tu inscripción.</p>
 
           <div class="progress-section">
             <div class="progress-header">
@@ -306,12 +306,11 @@
           @if (solicitud(); as sol) {
             <div class="docs-list">
               @for (doc of sol.documentos; track doc.id_solicitud_documento) {
-                <div class="doc-item" [class.doc-uploaded]="!!doc.url_documento" [class.doc-uploading]="subiendoDocId() === doc.id_solicitud_documento" [class.doc-pending]="!doc.url_documento && subiendoDocId() !== doc.id_solicitud_documento">
+                <div class="doc-item doc-clickable" [class.doc-uploaded]="!!doc.url_documento"
+                     (click)="abrirDocumento(doc)">
                   <div class="doc-status">
                     @if (doc.url_documento) {
                       <mat-icon class="status-icon done">check_circle</mat-icon>
-                    } @else if (subiendoDocId() === doc.id_solicitud_documento) {
-                      <mat-spinner diameter="20"></mat-spinner>
                     } @else {
                       <mat-icon class="status-icon pending">radio_button_unchecked</mat-icon>
                     }
@@ -320,52 +319,12 @@
                     <span class="doc-name">{{ doc.nombre_requisito }}</span>
                     @if (doc.url_documento) {
                       <span class="doc-status-label uploaded">Subido</span>
-                    } @else if (subiendoDocId() === doc.id_solicitud_documento) {
-                      <span class="doc-status-label uploading">Subiendo...</span>
                     } @else {
                       <span class="doc-status-label pending-label">Pendiente</span>
                     }
                   </div>
-                  @if (!doc.url_documento && subiendoDocId() !== doc.id_solicitud_documento) {
-                    <button mat-stroked-button color="primary" (click)="seleccionarDocumento(doc.id_solicitud_documento)" class="upload-btn">
-                      <mat-icon>upload</mat-icon> Subir
-                    </button>
-                  }
+                  <mat-icon class="doc-arrow">chevron_right</mat-icon>
                 </div>
-
-                @if (pendingDocId() === doc.id_solicitud_documento && !doc.url_documento) {
-                  @if (archivoSeleccionado()) {
-                    <div class="inline-upload-bar">
-                      <div class="pending-file-info">
-                        @if (esPdf()) {
-                          <mat-icon class="file-icon pdf">picture_as_pdf</mat-icon>
-                        } @else {
-                          <mat-icon class="file-icon img">image</mat-icon>
-                        }
-                        <div>
-                          <span class="file-name">{{ nombreArchivo() }}</span>
-                          <span class="file-size">{{ tamanoArchivo() }}</span>
-                        </div>
-                      </div>
-                      <div class="pending-actions">
-                        <button mat-button (click)="limpiarArchivo()">
-                          <mat-icon>close</mat-icon>
-                        </button>
-                        <button mat-flat-button color="primary" (click)="subirDocumento()">
-                          <mat-icon>send</mat-icon> Subir
-                        </button>
-                      </div>
-                    </div>
-                  } @else {
-                    <label class="inline-drop-area" [for]="'fileInputDoc-' + doc.id_solicitud_documento">
-                      <mat-icon>cloud_upload</mat-icon>
-                      <span>Seleccioná el archivo</span>
-                      <span class="formats">PDF, JPG, PNG, GIF o WebP — máx. 10 MB</span>
-                      <input [id]="'fileInputDoc-' + doc.id_solicitud_documento" type="file" accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
-                             hidden (change)="onFileSelected($event)">
-                    </label>
-                  }
-                }
               }
             </div>
           }
