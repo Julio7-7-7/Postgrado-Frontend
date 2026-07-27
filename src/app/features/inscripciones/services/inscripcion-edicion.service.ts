@@ -3,7 +3,7 @@ import { Observable, map } from 'rxjs';
 import { ApiService } from '../../../core/services/api.service';
 import { PaginatedInscripciones, TransferirRequest, TranscriptResponse, EdicionBasica } from '../models/inscripcion-edicion.model';
 import { DetalleProgramaAlumno } from '../../alumno/models/detalle-programa-alumno.model';
-import { SolicitudIncorporacionConDetalle } from '../../alumno/models/solicitud-incorporacion.model';
+import { SolicitudIncorporacionConDetalle, PreviewMigracion } from '../../alumno/models/solicitud-incorporacion.model';
 
 @Injectable({ providedIn: 'root' })
 export class InscripcionEdicionService extends ApiService {
@@ -48,15 +48,21 @@ export class InscripcionEdicionService extends ApiService {
     return this.http.get<SolicitudIncorporacionConDetalle[]>(url);
   }
 
-  aprobarSolicitud(idSolicitud: number): Observable<SolicitudIncorporacionConDetalle> {
+  aprobarSolicitud(idSolicitud: number, data?: { id_programa_version_edicion?: number; id_modalidad_academica?: number; id_tipo_descuento?: number; modulo_inicio?: number; motivo?: string }): Observable<SolicitudIncorporacionConDetalle> {
     return this.http.patch<SolicitudIncorporacionConDetalle>(
-      `${this.baseUrl}/solicitud-incorporacion/${idSolicitud}/aprobar`, null
+      `${this.baseUrl}/solicitud-incorporacion/${idSolicitud}/aprobar`, data || null
     );
   }
 
   rechazarSolicitud(idSolicitud: number, observaciones: string): Observable<SolicitudIncorporacionConDetalle> {
     return this.http.patch<SolicitudIncorporacionConDetalle>(
       `${this.baseUrl}/solicitud-incorporacion/${idSolicitud}/rechazar?observaciones=${encodeURIComponent(observaciones)}`, null
+    );
+  }
+
+  previewMigracion(idSolicitud: number, idEdicion: number, idModalidad: number): Observable<PreviewMigracion> {
+    return this.http.get<PreviewMigracion>(
+      `${this.baseUrl}/solicitud-incorporacion/${idSolicitud}/preview-migracion?id_programa_version_edicion=${idEdicion}&id_modalidad_academica=${idModalidad}`
     );
   }
 }

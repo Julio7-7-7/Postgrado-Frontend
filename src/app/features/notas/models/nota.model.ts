@@ -128,6 +128,7 @@ export interface DocenteModuloDetalle {
 
 export interface HistorialTransferencia {
   id_historial: number;
+  tipo_movimiento: string;
   origen: {
     id_detalle_programa_alumno: number;
     edicion_numero: number;

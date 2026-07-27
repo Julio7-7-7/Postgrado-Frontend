@@ -153,15 +153,22 @@ export class TranscriptComponent implements OnInit {
     }
     if (mod.nota !== null) {
       const cal = mod.calificacion ? mod.calificacion.charAt(0).toUpperCase() + mod.calificacion.slice(1) : '';
-      return `${mod.modulo_nombre}: ${Math.floor(mod.nota + 0.5)} (${cal})`;
+      const base = `${mod.modulo_nombre}: ${Math.floor(mod.nota + 0.5)} (${cal})`;
+      const parts = [base];
+      if (mod.es_migrada && mod.edicion_origen_numero !== null) {
+        parts.push(`Migrada de Ed. ${mod.edicion_origen_numero} (${mod.edicion_origen_semestre}-${mod.edicion_origen_anio})`);
+      }
+      if (mod.migrado_a_edicion_numero !== null) {
+        parts.push(`Migrada a Ed. ${mod.migrado_a_edicion_numero} (${mod.migrado_a_edicion_semestre}-${mod.migrado_a_edicion_anio})`);
+      }
+      return parts.join('\n');
     }
     return `${mod.modulo_nombre} — pendiente`;
   }
 
   snakeWidth(ins: InscripcionTranscript): string {
     if (ins.modulos.length === 0) return '0%';
-    const lastIdx = ins.modulos.reduce((max, m, i) => (m.nota !== null ? i : max), -1);
-    if (lastIdx < 0) return '0%';
-    return `${((lastIdx + 1) / ins.modulos.length) * 100}%`;
+    const completed = ins.modulos.filter(m => m.nota !== null).length;
+    return `${(completed / ins.modulos.length) * 100}%`;
   }
 }

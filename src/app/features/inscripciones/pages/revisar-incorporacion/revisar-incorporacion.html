@@ -1,0 +1,248 @@
+<div class="page-container">
+  <div class="header-section">
+    <div class="header-left">
+      <button mat-icon-button (click)="volver()" class="back-btn" matTooltip="Volver">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div>
+        <h1><mat-icon>rate_review</mat-icon> Revisar Solicitud de Incorporaci&oacute;n</h1>
+        <p class="subtitle">Revisar documentos, configurar migraci&oacute;n y aprobar</p>
+      </div>
+    </div>
+    @if (solicitud(); as sol) {
+      <span class="estado-pill" [class]="estadoClass(sol.estado)">{{ sol.estado }}</span>
+    }
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading-state">
+      <mat-spinner diameter="40"></mat-spinner>
+      <span>Cargando solicitud...</span>
+    </div>
+  } @else if (solicitud(); as sol) {
+    <div class="content-grid">
+      <div class="left-column">
+        <div class="section-card alumno-card">
+          <div class="alumno-header">
+            <div class="avatar-lg">{{ iniciales }}</div>
+            <div class="alumno-info">
+              <h3>{{ nombreCompleto }}</h3>
+              <span class="meta-chip" *ngIf="sol.alumno_ci"><mat-icon>badge</mat-icon> CI: {{ sol.alumno_ci }}</span>
+            </div>
+          </div>
+          <div class="programa-info">
+            <mat-icon>school</mat-icon>
+            <span>{{ sol.programa_nombre }} &mdash; Ed. {{ sol.edicion_numero }} ({{ semestreLabel(sol.edicion_semestre) }}-{{ sol.edicion_anio }})</span>
+          </div>
+        </div>
+
+        <div class="section-card documentos-card">
+          <div class="section-header">
+            <mat-icon>description</mat-icon>
+            <h3>Documentos</h3>
+            <span class="doc-count-badge">{{ docsSubidos() }}/{{ sol.documentos?.length || 0 }}</span>
+          </div>
+          @if (sol.documentos && sol.documentos.length > 0) {
+            <div class="doc-list">
+              @for (doc of sol.documentos; track doc.id_solicitud_documento) {
+                <div class="doc-row" [class.doc-uploaded]="!!doc.url_documento">
+                  <mat-icon class="doc-status-icon" [class]="doc.url_documento ? 'icon-ok' : 'icon-pending'">
+                    {{ doc.url_documento ? 'check_circle' : 'radio_button_unchecked' }}
+                  </mat-icon>
+                  <div class="doc-info">
+                    <span class="doc-name">{{ doc.nombre_requisito }}</span>
+                    @if (doc.fecha_entrega) {
+                      <span class="doc-date">{{ doc.fecha_entrega | date:'dd/MM/yy HH:mm' }}</span>
+                    }
+                  </div>
+                  @if (doc.url_documento) {
+                    <button mat-stroked-button class="doc-view-btn" (click)="verDocumento(doc.url_documento!)">
+                      <mat-icon>visibility</mat-icon> Ver
+                    </button>
+                  }
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="no-docs">
+              <mat-icon>info_outline</mat-icon>
+              <span>No se adjuntaron documentos</span>
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="right-column">
+        @if (esMigracion()) {
+          <div class="section-card migration-config">
+            <div class="section-header">
+              <mat-icon>swap_horiz</mat-icon>
+              <h3>Configuraci&oacute;n de Migraci&oacute;n</h3>
+            </div>
+            <div class="config-form">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Edici&oacute;n destino</mat-label>
+                <mat-select [value]="edicionSeleccionada()" (selectionChange)="onEdicionChange($event.value)">
+                  @for (ed of ediciones(); track ed.id_programa_version_edicion) {
+                    <mat-option [value]="ed.id_programa_version_edicion">
+                      {{ ed.programa_nombre }} &mdash; Ed. {{ ed.edicion }} ({{ semestreLabel(ed.semestre) }}-{{ ed.anio }})
+                    </mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+
+              @if (preview(); as p) {
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Modalidad acad&eacute;mica</mat-label>
+                  <mat-select [value]="modalidadSeleccionada()" (selectionChange)="onModalidadChange($event.value)">
+                    @for (mod of p.destino.modalidades; track mod.id) {
+                      <mat-option [value]="mod.id">{{ mod.nombre }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+              }
+
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Motivo de migraci&oacute;n</mat-label>
+                <textarea matInput [ngModel]="motivo()" (ngModelChange)="motivo.set($event)"
+                          rows="3" placeholder="Describe el motivo de la migraci&oacute;n..."></textarea>
+              </mat-form-field>
+            </div>
+          </div>
+        }
+
+        @if (isPreviewLoading()) {
+          <div class="section-card preview-loading">
+            <mat-spinner diameter="32"></mat-spinner>
+            <span>Cargando preview de migraci&oacute;n...</span>
+          </div>
+        }
+
+        @if (preview(); as p) {
+          <div class="section-card preview-card">
+            <div class="section-header">
+              <mat-icon>compare_arrows</mat-icon>
+              <h3>Vista Previa de Migraci&oacute;n</h3>
+            </div>
+
+            <div class="comparison-grid">
+              <div class="origin-col">
+                <div class="col-header origen">
+                  <mat-icon>arrow_back</mat-icon>
+                  <span>Origen: Ed. {{ p.origen.edicion_numero }} ({{ semestreLabel(p.origen.edicion_semestre) }}-{{ p.origen.edicion_anio }})</span>
+                </div>
+
+                <div class="sub-section">
+                  <div class="sub-label">Notas ({{ p.origen.total_notas }} m&oacute;dulos)</div>
+                  @if (p.origen.notas.length > 0) {
+                    @for (nota of p.origen.notas; track nota.modulo_nombre) {
+                      <div class="data-row nota-row">
+                        <span class="row-name">{{ nota.modulo_nombre }}</span>
+                        <span class="row-value"><span class="nota-badge" [class]="notaClass(nota.nota)">{{ round(nota.nota) }}</span></span>
+                        <mat-icon class="migrate-icon">arrow_forward</mat-icon>
+                      </div>
+                    }
+                  } @else {
+                    <div class="empty-msg">Sin notas registradas</div>
+                  }
+                </div>
+
+                <div class="sub-section">
+                  <div class="sub-label">Pagos ({{ p.origen.total_pagos }})</div>
+                  @if (p.origen.pagos.length > 0) {
+                    @for (pago of p.origen.pagos; track pago.concepto) {
+                      <div class="data-row pago-row">
+                        <span class="row-name">{{ pago.concepto }}</span>
+                        <span class="row-value">{{ formatMonto(pago.monto) }}</span>
+                        <mat-icon class="migrate-icon">arrow_forward</mat-icon>
+                      </div>
+                    }
+                    <div class="total-row">
+                      <span>Total aprobado:</span>
+                      <span class="total-value">{{ formatMonto(p.origen.monto_total_pagos) }}</span>
+                    </div>
+                  } @else {
+                    <div class="empty-msg">Sin pagos registrados</div>
+                  }
+                </div>
+              </div>
+
+              <div class="dest-col">
+                <div class="col-header destino">
+                  <span>Destino: Ed. {{ p.destino.edicion_numero }} ({{ semestreLabel(p.destino.edicion_semestre) }}-{{ p.destino.edicion_anio }})</span>
+                  <mat-icon>arrow_forward</mat-icon>
+                </div>
+
+                <div class="sub-section">
+                  <div class="sub-label">M&oacute;dulos ({{ p.destino.modulos.length }} total)</div>
+                  @for (mod of p.destino.modulos; track mod.modulo_nombre) {
+                    <div class="data-row modulo-row" [class.match]="mod.match" [class.no-match]="!mod.match">
+                      <span class="row-name">{{ mod.modulo_nombre }}</span>
+                      @if (mod.match) {
+                        <span class="match-badge">Se migra</span>
+                      } @else {
+                        <span class="new-badge">Nuevo</span>
+                      }
+                    </div>
+                  }
+                </div>
+
+                @if (p.destino.precio) {
+                  <div class="destino-meta">
+                    <span class="meta-item"><mat-icon>payments</mat-icon> Precio: {{ formatMonto(p.destino.precio) }}</span>
+                    @if (p.destino.cupo_disponible !== null) {
+                      <span class="meta-item"><mat-icon>group</mat-icon> Cupo: {{ p.destino.cupo_disponible }}</span>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+
+            <div class="resumen-bar">
+              <div class="resumen-item">
+                <mat-icon>grading</mat-icon>
+                <span>{{ p.resumen.notas_a_migrar }} nota{{ p.resumen.notas_a_migrar !== 1 ? 's' : '' }} a migrar</span>
+              </div>
+              <div class="resumen-item">
+                <mat-icon>payments</mat-icon>
+                <span>{{ p.resumen.pagos_a_migrar }} pago{{ p.resumen.pagos_a_migrar !== 1 ? 's' : '' }} ({{ formatMonto(p.resumen.monto_a_migrar) }})</span>
+              </div>
+            </div>
+          </div>
+        }
+
+        @if (!esMigracion()) {
+          <div class="section-card info-card">
+            <div class="section-header">
+              <mat-icon>info</mat-icon>
+              <h3>Primera Incorporaci&oacute;n</h3>
+            </div>
+            <p class="info-text">Esta es la primera vez que este alumno se incorpora a una edici&oacute;n. Al aprobar, se crear&aacute; su inscripci&oacute;n como <strong>postulante</strong> en la edici&oacute;n actual.</p>
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="actions-bar">
+      @if (sol.estado === 'pendiente') {
+        <button mat-stroked-button class="action-btn reject-btn" (click)="rechazar()" [disabled]="isApproving()">
+          <mat-icon>close</mat-icon> Rechazar
+        </button>
+        <button mat-flat-button color="primary" class="action-btn" (click)="aprobar()" [disabled]="!puedeAprobar()">
+          @if (isApproving()) {
+            <mat-icon class="spin">sync</mat-icon>
+          } @else {
+            <mat-icon>check</mat-icon>
+          }
+          Aprobar
+        </button>
+      }
+      @if (sol.estado === 'aceptado') {
+        <span class="approved-label"><mat-icon>verified</mat-icon> Solicitud ya aprobada</span>
+      }
+      @if (sol.estado === 'rechazado') {
+        <span class="rejected-label"><mat-icon>block</mat-icon> Solicitud rechazada</span>
+      }
+    </div>
+  }
+</div>

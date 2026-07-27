@@ -197,6 +197,50 @@ Nombre del usuario: **Julio** (no "julius" — eso es solo el system user)
 - Backend: 25 routers (antes 26)
 - Frontend compila OK (solo warning de bundle size pre-existente)
 
+## Hecho reciente (2026-07-26) — historial_inscripcion + revisión de incorporación
+
+### `historial_inscripcion` como columna vertebral del journey
+- **SQL**: `ALTER TABLE historial_inscripcion ADD COLUMN tipo_movimiento VARCHAR(20) NOT NULL DEFAULT 'transferencia'`
+- **Modelo**: `HistorialInscripcion.tipo_movimiento` (String(20), default='transferencia')
+- **Schema**: `tipo_movimiento` agregado a `HistorialInscripcionCreate`, `HistorialInscripcionResponse`, `HistorialInscripcionConDetalle`
+- **Transferencia** (`POST /{id}/transferir`): crea `HistorialInscripcion(tipo_movimiento='transferencia')`
+- **Incorporación** (`PATCH /{id}/aprobar` en solicitud_incorporacion): crea `HistorialInscripcion(tipo_movimiento='incorporacion')` cuando hay DPA origen en mismo programa
+- **Endpoint preview**: `GET /solicitud-incorporacion/{id}/preview-migracion?id_programa_version_edicion=X&id_modalidad_academica=Y` retorna comparativa origen vs destino (notas, pagos, módulos, match por nombre)
+- **Schema preview**: `PreviewMigracionResponse` con `alumno`, `origen` (notas + pagos), `destino` (módulos + match), `resumen`
+- **Transcript enriquecido**: `ModuloTranscriptItem` ahora incluye `es_migrada`, `edicion_origen_numero`, `edicion_origen_anio`, `edicion_origen_semestre`. El endpoint `GET /transcript/{id_alumno}` merge notas del DPA origen cuando existe `historial_inscripcion` apuntando al DPA destino, match por nombre de módulo
+
+### Página dedicada de revisión (reemplaza dialog)
+- **Nueva ruta**: `/admin/solicitudes-incorporacion/:idSolicitud/revisar`
+- **Componente**: `RevisarIncorporacionComponent` con 3 secciones:
+  1. Datos del alumno + documentos (cards)
+  2. Configuración de migración (dropdown edición destino, modalidad, textarea motivo)
+  3. Preview de migración (comparativa visual origen vs destino con notas/pagos/módulos)
+- **Tabla admin**: `abrirDetalle()` ahora navega a la página en vez de abrir dialog
+- **Service**: `aprobarSolicitud(id, data?)` ahora acepta data opcional con `id_programa_version_edicion`, `id_modalidad_academica`, `motivo`; nuevo método `previewMigracion(idSolicitud, idEdicion, idModalidad)`
+- **Modelos frontend**: `PreviewMigracion`, `PreviewOrigen`, `PreviewDestino`, `NotaPreviewItem`, `PagoPreviewItem`, `ModuloDestinoItem` en `solicitud-incorporacion.model.ts`; `ModuloTranscript` actualizado con `es_migrada`, `edicion_origen_*`
+- **Transcript**: notas migradas muestran fondo ambar sutil + punto naranja indicador + tooltip con info de edición origen
+
+### Archivos tocados Backend
+- `models/historial_inscripcion.py` — nueva columna `tipo_movimiento`
+- `schemas/historial_inscripcion.py` — `tipo_movimiento` en 3 schemas
+- `schemas/solicitud_incorporacion.py` — `motivo` en `AprobarSolicitudRequest`, nuevos schemas `PreviewMigracionResponse` y sub-schemas
+- `schemas/nota.py` — `es_migrada`, `edicion_origen_*` en `ModuloTranscriptItem`
+- `routers/detalle_programa_alumno.py` — `tipo_movimiento='transferencia'` en `transferir()`, `tipo_movimiento` en respuesta de `historial_transferencias`
+- `routers/solicitud_incorporacion.py` — `aprobar_solicitud` crea `HistorialInscripcion(tipo_movimiento='incorporacion')` en migración; nuevo endpoint `preview-migracion`
+- `routers/nota.py` — `transcript_alumno` merge notas migradas desde DPA origen vía `historial_inscripcion`
+
+### Archivos tocados Frontend
+- `features/inscripciones/models/inscripcion-edicion.model.ts` — `ModuloTranscript` con `es_migrada`, `edicion_origen_*`
+- `features/alumno/models/solicitud-incorporacion.model.ts` — nuevos interfaces `PreviewMigracion`, `NotaPreviewItem`, `PagoPreviewItem`, `ModuloDestinoItem`, `PreviewOrigen`, `PreviewDestino`
+- `features/notas/models/nota.model.ts` — `HistorialTransferencia` con `tipo_movimiento`
+- `features/inscripciones/services/inscripcion-edicion.service.ts` — `aprobarSolicitud(id, data?)`, `previewMigracion()`
+- `features/inscripciones/pages/revisar-incorporacion/` — NUEVO componente completo (ts + html + css)
+- `features/admin/routes/admin.routes.ts` — nueva ruta `solicitudes-incorporacion/:idSolicitud/revisar`
+- `features/inscripciones/pages/solicitudes-incorporacion/solicitudes-incorporacion.ts` — `abrirDetalle()` navega a página
+- `features/transcript/pages/transcript/transcript.ts` — tooltip enriquecido para notas migradas
+- `features/transcript/pages/transcript/transcript.html` — `.nota-migrada` + `.migrated-dot` en grade cells
+- `features/transcript/pages/transcript/transcript.css` — estilos `.nota-migrada` (fondo ambar) y `.migrated-dot` (punto naranja)
+
 ## Historial
 
 Para logs de sesión detallados, ver `git log --oneline` en ambos repos. Cada feature relevante tiene su commit message descriptivo.

@@ -16,7 +16,6 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { InscripcionEdicionService } from '../../services/inscripcion-edicion.service';
 import { SolicitudIncorporacionConDetalle } from '../../../alumno/models/solicitud-incorporacion.model';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog';
-import { SolicitudIncorporacionDialogComponent } from './solicitud-incorporacion-dialog';
 import { environment } from '../../../../../environments/environment';
 
 @Component({
@@ -254,18 +253,7 @@ export class SolicitudesIncorporacionComponent implements OnInit {
   }
 
   abrirDetalle(item: SolicitudIncorporacionConDetalle): void {
-    const dialogRef = this.dialog.open(SolicitudIncorporacionDialogComponent, {
-      width: '560px',
-      maxHeight: '80vh',
-      data: { solicitud: item },
-      disableClose: true,
-    });
-
-    dialogRef.afterClosed().subscribe(updated => {
-      if (updated) {
-        this.cargarTodas();
-      }
-    });
+    this.router.navigate(['/admin/solicitudes-incorporacion', item.id_solicitud, 'revisar']);
   }
 
   aprobar(item: SolicitudIncorporacionConDetalle): void {

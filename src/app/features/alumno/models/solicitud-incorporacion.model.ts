@@ -39,3 +39,53 @@ export interface SolicitudIncorporacionConDetalle {
   es_migracion: boolean;
   documentos: SolicitudDocumento[];
 }
+
+export interface NotaPreviewItem {
+  modulo_nombre: string;
+  modulo_orden: number;
+  nota: number;
+  calificacion: string | null;
+}
+
+export interface PagoPreviewItem {
+  concepto: string;
+  monto: number;
+  estado: string;
+  fecha_pago: string;
+}
+
+export interface ModuloDestinoItem {
+  modulo_nombre: string;
+  modulo_orden: number;
+  match: boolean;
+}
+
+export interface PreviewOrigen {
+  id_detalle_programa_alumno: number;
+  edicion_numero: number | null;
+  edicion_anio: number | null;
+  edicion_semestre: number | null;
+  notas: NotaPreviewItem[];
+  pagos: PagoPreviewItem[];
+  total_notas: number;
+  total_pagos: number;
+  monto_total_pagos: number;
+}
+
+export interface PreviewDestino {
+  id_programa_version_edicion: number;
+  edicion_numero: number | null;
+  edicion_anio: number | null;
+  edicion_semestre: number | null;
+  modulos: ModuloDestinoItem[];
+  precio: number | null;
+  cupo_disponible: number | null;
+  modalidades: { id: number; nombre: string }[];
+}
+
+export interface PreviewMigracion {
+  alumno: { id_alumno: number; nombre: string; apellido: string; ci: string | null };
+  origen: PreviewOrigen;
+  destino: PreviewDestino;
+  resumen: { notas_a_migrar: number; pagos_a_migrar: number; monto_a_migrar: number };
+}
