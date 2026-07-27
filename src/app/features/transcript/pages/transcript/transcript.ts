@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject, DestroyRef } from '@angular/core';
+import { Component, OnInit, signal, computed, inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -36,6 +36,17 @@ export class TranscriptComponent implements OnInit {
   transferencias = signal<HistorialTransferencia[]>([]);
   isLoading = signal(true);
   idAlumno = 0;
+
+  hasMigrations = computed(() => {
+    const t = this.transcript();
+    return t !== null && t.inscripciones.length > 1;
+  });
+
+  lastInscripcion = computed<InscripcionTranscript | null>(() => {
+    const t = this.transcript();
+    if (!t || t.inscripciones.length === 0) return null;
+    return t.inscripciones[t.inscripciones.length - 1];
+  });
 
   ngOnInit(): void {
     this.idAlumno = Number(this.route.snapshot.paramMap.get('idAlumno'));
@@ -121,11 +132,6 @@ export class TranscriptComponent implements OnInit {
     return clasificarNota(nota);
   }
 
-  blockClass(idx: number, total: number): string {
-    if (total <= 1) return '';
-    return `block-${Math.min(idx + 1, 3)}`;
-  }
-
   currentModIdx(ins: InscripcionTranscript): number {
     return ins.modulos.findIndex(
       m => m.nota === null && m.modulo_orden >= ins.modulo_inicio
@@ -137,14 +143,14 @@ export class TranscriptComponent implements OnInit {
   }
 
   modTypeClass(mod: ModuloTranscript, ins: InscripcionTranscript): string {
-    if (mod.nota === null && mod.modulo_orden < ins.modulo_inicio) return 'gc-skipped';
+    if (mod.nota === null && mod.modulo_orden < ins.modulo_inicio) return 'g-skipped';
     if (mod.nota === null) {
       const firstNull = this.currentModIdx(ins);
       const mi = ins.modulos.indexOf(mod);
-      if (mi === firstNull) return 'gc-current';
-      return 'gc-future';
+      if (mi === firstNull) return 'g-current';
+      return 'g-future';
     }
-    return 'gc-done';
+    return '';
   }
 
   cellTooltip(mod: ModuloTranscript, ins: InscripcionTranscript): string {
@@ -168,7 +174,50 @@ export class TranscriptComponent implements OnInit {
 
   snakeWidth(ins: InscripcionTranscript): string {
     if (ins.modulos.length === 0) return '0%';
-    const completed = ins.modulos.filter(m => m.nota !== null).length;
-    return `${(completed / ins.modulos.length) * 100}%`;
+    const ownCompleted = ins.modulos.filter(m => m.nota !== null && !m.es_migrada).length;
+    if (ownCompleted === 0) return '0%';
+    return `${(ownCompleted / ins.modulos.length) * 100}%`;
+  }
+
+  snakeOffset(ins: InscripcionTranscript): string {
+    const total = ins.modulos.length;
+    if (total === 0) return '0%';
+    const firstDone = ins.modulos.findIndex(m => m.nota !== null && !m.es_migrada);
+    if (firstDone < 0) return '0%';
+    return `${(firstDone / total) * 100}%`;
+  }
+
+  filteredInscripcion(ins: InscripcionTranscript): InscripcionTranscript {
+    return {
+      ...ins,
+      modulos: ins.modulos.map(m =>
+        m.es_migrada ? { ...m, nota: null, calificacion: null, es_migrada: false } : m
+      ),
+    };
+  }
+
+  totalSnakeWidth(ins: InscripcionTranscript): string {
+    if (ins.modulos.length === 0) return '0%';
+    const allCompleted = ins.modulos.filter(m => m.nota !== null).length;
+    if (allCompleted === 0) return '0%';
+    return `${(allCompleted / ins.modulos.length) * 100}%`;
+  }
+
+  totalSnakeOffset(ins: InscripcionTranscript): string {
+    const total = ins.modulos.length;
+    if (total === 0) return '0%';
+    const firstDone = ins.modulos.findIndex(m => m.nota !== null);
+    if (firstDone < 0) return '0%';
+    return `${(firstDone / total) * 100}%`;
+  }
+
+  tipoMovimientoLabel(tipo: string): string {
+    const labels: Record<string, string> = {
+      reincorporacion: 'Reincorporación',
+      migracion: 'Migración',
+      transferencia: 'Transferencia',
+      incorporacion: 'Incorporación',
+    };
+    return labels[tipo] || tipo;
   }
 }

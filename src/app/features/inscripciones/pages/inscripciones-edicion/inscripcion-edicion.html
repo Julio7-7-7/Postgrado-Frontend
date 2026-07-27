@@ -107,12 +107,6 @@
                             (click)="verTranscript(item)" matTooltip="Ver transcript del alumno">
                       <mat-icon>school</mat-icon>
                     </button>
-                    @if (canTransferir(item)) {
-                      <button mat-icon-button class="action-btn transfer-btn"
-                              (click)="abrirTransferir(item)" matTooltip="Transferir a otra edición">
-                        <mat-icon>swap_horiz</mat-icon>
-                      </button>
-                    }
                   </div>
                 </td>
               </tr>

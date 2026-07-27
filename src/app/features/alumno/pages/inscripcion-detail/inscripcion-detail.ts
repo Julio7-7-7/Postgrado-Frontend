@@ -13,7 +13,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { DetalleProgramaAlumnoService } from '../../services/detalle-programa-alumno.service';
 import { DetalleProgramaAlumno, ControlDocumentacionAlumno, EstadoDetalleAlumno } from '../../models/detalle-programa-alumno.model';
-import { SolicitudIncorporacion, SolicitudDocumento } from '../../models/solicitud-incorporacion.model';
+import { SolicitudIncorporacion, SolicitudDocumento, SolicitudReincorporacion } from '../../models/solicitud-incorporacion.model';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog';
 import { environment } from '../../../../../environments/environment';
 
@@ -65,7 +65,11 @@ export class InscripcionDetailComponent implements OnInit {
 
   inscripcion = signal<DetalleProgramaAlumno | null>(null);
   solicitud = signal<SolicitudIncorporacion | null>(null);
+  solicitudReincorporacion = signal<SolicitudReincorporacion | null>(null);
   cargando = signal(true);
+  showMotivoForm = signal(false);
+  motivoReincorporacion = signal('');
+  enviandoReincorporacion = signal(false);
 
   uploadingDocId = signal<number | null>(null);
   uploadState = signal<'ninguno' | 'leyendo' | 'subiendo' | 'completado'>('ninguno');
@@ -138,6 +142,9 @@ export class InscripcionDetailComponent implements OnInit {
           this._cargarSolicitud(data.id_programa_version_edicion);
         } else {
           this.cargando.set(false);
+          if (data.estado === 'retirado') {
+            this._cargarSolicitudReincorporacion();
+          }
         }
       },
       error: () => {
@@ -266,6 +273,63 @@ export class InscripcionDetailComponent implements OnInit {
     const ins = this.inscripcion();
     if (!ins) return false;
     return !['retirado', 'finalizado', 'graduado'].includes(ins.estado);
+  }
+
+  solicitarReincorporacion(): void {
+    const ins = this.inscripcion();
+    if (!ins) return;
+    this.showMotivoForm.set(true);
+  }
+
+  confirmarReincorporacion(): void {
+    const ins = this.inscripcion();
+    if (!ins) return;
+
+    this.enviandoReincorporacion.set(true);
+    this.detalleService.solicitarReincorporacion(
+      ins.id_detalle_programa_alumno,
+      this.motivoReincorporacion() || undefined
+    ).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (sol) => {
+        this.solicitudReincorporacion.set(sol);
+        this.showMotivoForm.set(false);
+        this.motivoReincorporacion.set('');
+        this.enviandoReincorporacion.set(false);
+        this.snackBar.open('Solicitud enviada. Esperá la respuesta del administrador.', 'Cerrar', { duration: 4000 });
+      },
+      error: (err) => {
+        this.enviandoReincorporacion.set(false);
+        this.snackBar.open(err.error?.detail || 'Error al enviar solicitud', 'Cerrar', { duration: 4000 });
+      },
+    });
+  }
+
+  cancelarReincorporacion(): void {
+    this.showMotivoForm.set(false);
+    this.motivoReincorporacion.set('');
+  }
+
+  tieneSolicitudPendiente(): boolean {
+    return this.solicitudReincorporacion()?.estado === 'pendiente';
+  }
+
+  tieneSolicitudRechazada(): boolean {
+    return this.solicitudReincorporacion()?.estado === 'rechazada';
+  }
+
+  private _cargarSolicitudReincorporacion(): void {
+    this.detalleService.getMisSolicitudesReincorporacion().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (solicitudes) => {
+        const ins = this.inscripcion();
+        if (ins) {
+          const sol = solicitudes.find(
+            s => s.id_detalle_programa_alumno === ins.id_detalle_programa_alumno
+          );
+          if (sol) this.solicitudReincorporacion.set(sol);
+        }
+      },
+      error: () => {},
+    });
   }
 
   verRequisito(id: number): void {

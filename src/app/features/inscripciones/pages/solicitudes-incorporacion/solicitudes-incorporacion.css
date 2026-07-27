@@ -140,6 +140,73 @@
 .empty-state h4 { margin: 0; font-size: 1rem; color: #64748b; }
 .empty-state p { margin: 0; font-size: 0.85rem; color: #94a3b8; }
 
+.stat-chip.incorporacion {
+  background: #dbeafe;
+  color: #1e40af;
+  border-color: #93c5fd;
+}
+.stat-chip.incorporacion:hover,
+.stat-chip.incorporacion.active {
+  background: #bfdbfe;
+  box-shadow: 0 0 0 2px #3b82f6;
+}
+
+.stat-chip.reincorporacion {
+  background: #eef2ff;
+  color: #4338ca;
+  border-color: #c7d2fe;
+}
+.stat-chip.reincorporacion:hover,
+.stat-chip.reincorporacion.active {
+  background: #c7d2fe;
+  box-shadow: 0 0 0 2px #6366f1;
+}
+
+.filter-sep {
+  color: #cbd5e1;
+  font-size: 1.2rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* Tipo chip */
+.tipo-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+.tipo-chip mat-icon { font-size: 13px; width: 13px; height: 13px; }
+
+.tipo-incorporacion { background: #dbeafe; color: #1e40af; }
+.tipo-reincorporacion { background: #eef2ff; color: #4338ca; }
+
+/* Avatar by tipo */
+.avatar-inc { background: linear-gradient(135deg, #3b82f6, #60a5fa); }
+.avatar-reinc { background: linear-gradient(135deg, #6366f1, #818cf8); }
+
+/* Motivo pill */
+.motivo-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  background: #eef2ff;
+  color: #4338ca;
+}
+
+/* Aprobada/rechazada pill normalization */
+.pill-aprobada { background: #d1fae5; color: #065f46; }
+.pill-rechazada { background: #fee2e2; color: #991b1b; }
+
 /* Table */
 .table-container {
   background: var(--fich-bg-card, white);

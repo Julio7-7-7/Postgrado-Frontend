@@ -89,3 +89,54 @@ export interface PreviewMigracion {
   destino: PreviewDestino;
   resumen: { notas_a_migrar: number; pagos_a_migrar: number; monto_a_migrar: number };
 }
+
+export interface SolicitudReincorporacion {
+  id_solicitud_reincorporacion: number;
+  id_detalle_programa_alumno: number;
+  estado: string;
+  motivo: string | null;
+  motivo_rechazo: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface SolicitudReincorporacionConDetalle {
+  id_solicitud_reincorporacion: number;
+  estado: string;
+  motivo: string | null;
+  motivo_rechazo: string | null;
+  created_at: string;
+  id_alumno: number | null;
+  alumno_nombre: string | null;
+  alumno_apellido: string | null;
+  alumno_ci: string | null;
+  id_detalle_programa_alumno: number;
+  dpa_estado: string | null;
+  edicion_numero: number | null;
+  edicion_anio: number | null;
+  edicion_semestre: number | null;
+  programa_nombre: string | null;
+}
+
+export type TipoSolicitud = 'incorporacion' | 'reincorporacion';
+
+export interface SolicitudAdminItem {
+  tipo: TipoSolicitud;
+  id: number;
+  estado: string;
+  created_at: string;
+  id_alumno: number | null;
+  alumno_nombre: string | null;
+  alumno_apellido: string | null;
+  alumno_ci: string | null;
+  id_detalle_programa_alumno: number | null;
+  dpa_estado: string | null;
+  edicion_numero: number | null;
+  edicion_anio: number | null;
+  edicion_semestre: number | null;
+  programa_nombre: string | null;
+  documentos?: SolicitudDocumento[];
+  motivo?: string | null;
+  motivo_rechazo?: string | null;
+  es_migracion?: boolean;
+}

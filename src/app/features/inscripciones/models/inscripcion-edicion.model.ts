@@ -28,14 +28,6 @@ export interface PaginatedInscripciones {
   pages: number;
 }
 
-export interface TransferirRequest {
-  id_programa_version_edicion_destino: number;
-  motivo: string;
-  id_modalidad_academica: number;
-  id_tipo_descuento: number | null;
-  modulo_inicio: number;
-}
-
 export interface ModuloTranscript {
   id_detalle_programa_modulo: number;
   modulo_nombre: string;

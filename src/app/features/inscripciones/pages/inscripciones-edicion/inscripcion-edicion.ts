@@ -11,10 +11,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { InscripcionEdicionService } from '../../services/inscripcion-edicion.service';
 import { InscripcionEdicionItem } from '../../models/inscripcion-edicion.model';
-import { TransferDialogComponent } from '../../dialogs/transfer-dialog/transfer-dialog';
 
 @Component({
   selector: 'app-inscripciones-edicion',
@@ -23,7 +21,7 @@ import { TransferDialogComponent } from '../../dialogs/transfer-dialog/transfer-
     CommonModule, FormsModule,
     MatIconModule, MatButtonModule, MatTooltipModule,
     MatProgressSpinnerModule, MatSelectModule, MatFormFieldModule, MatInputModule,
-    MatSnackBarModule, MatDialogModule,
+    MatSnackBarModule,
   ],
   templateUrl: './inscripcion-edicion.html',
   styleUrl: './inscripcion-edicion.css',
@@ -34,7 +32,6 @@ export class InscripcionesEdicionComponent implements OnInit {
   private router = inject(Router);
   private snackbar = inject(MatSnackBar);
   private destroyRef = inject(DestroyRef);
-  private dialog = inject(MatDialog);
 
   items = signal<InscripcionEdicionItem[]>([]);
   isLoading = signal(true);
@@ -141,21 +138,6 @@ export class InscripcionesEdicionComponent implements OnInit {
       graduado: 'Graduado',
     };
     return map[estado] || estado;
-  }
-
-  canTransferir(item: InscripcionEdicionItem): boolean {
-    return item.estado === 'inscrito' || item.estado === 'incorporado';
-  }
-
-  abrirTransferir(item: InscripcionEdicionItem): void {
-    const dialogRef = this.dialog.open(TransferDialogComponent, {
-      width: '520px',
-      data: { inscripcion: item },
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) this.cargarDatos();
-    });
   }
 
   verTranscript(item: InscripcionEdicionItem): void {

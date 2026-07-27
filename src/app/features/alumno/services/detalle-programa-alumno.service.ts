@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from '../../../core/services/api.service';
 import { DetalleProgramaAlumno, AutoInscribirRequest, ControlDocumentacionAlumno } from '../models/detalle-programa-alumno.model';
-import { SolicitudIncorporacion } from '../models/solicitud-incorporacion.model';
+import { SolicitudIncorporacion, SolicitudReincorporacion } from '../models/solicitud-incorporacion.model';
 
 @Injectable({ providedIn: 'root' })
 export class DetalleProgramaAlumnoService extends ApiService {
@@ -54,5 +54,16 @@ export class DetalleProgramaAlumnoService extends ApiService {
 
   getMisSolicitudes(): Observable<SolicitudIncorporacion[]> {
     return this.http.get<SolicitudIncorporacion[]>(`${this.baseUrl}/solicitud-incorporacion/mis-solicitudes`);
+  }
+
+  solicitarReincorporacion(idDpa: number, motivo?: string): Observable<SolicitudReincorporacion> {
+    return this.http.post<SolicitudReincorporacion>(
+      `${this.baseUrl}/solicitud-reincorporacion/solicitar/${idDpa}`,
+      { motivo: motivo || '' }
+    );
+  }
+
+  getMisSolicitudesReincorporacion(): Observable<SolicitudReincorporacion[]> {
+    return this.http.get<SolicitudReincorporacion[]>(`${this.baseUrl}/solicitud-reincorporacion/mis-solicitudes`);
   }
 }

@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { ApiService } from '../../../core/services/api.service';
-import { PaginatedInscripciones, TransferirRequest, TranscriptResponse, EdicionBasica } from '../models/inscripcion-edicion.model';
+import { PaginatedInscripciones, TranscriptResponse, EdicionBasica } from '../models/inscripcion-edicion.model';
 import { DetalleProgramaAlumno } from '../../alumno/models/detalle-programa-alumno.model';
-import { SolicitudIncorporacionConDetalle, PreviewMigracion } from '../../alumno/models/solicitud-incorporacion.model';
+import { SolicitudIncorporacionConDetalle, PreviewMigracion, SolicitudReincorporacionConDetalle } from '../../alumno/models/solicitud-incorporacion.model';
 
 @Injectable({ providedIn: 'root' })
 export class InscripcionEdicionService extends ApiService {
@@ -13,12 +13,6 @@ export class InscripcionEdicionService extends ApiService {
     if (estado) url += `&estado=${estado}`;
     if (search) url += `&search=${encodeURIComponent(search)}`;
     return this.http.get<PaginatedInscripciones>(url);
-  }
-
-  transferir(idDetalle: number, data: TransferirRequest): Observable<DetalleProgramaAlumno> {
-    return this.http.post<DetalleProgramaAlumno>(
-      `${this.baseUrl}/detalle-programa-alumno/${idDetalle}/transferir`, data
-    );
   }
 
   getTranscript(idAlumno: number): Observable<TranscriptResponse> {
@@ -64,5 +58,27 @@ export class InscripcionEdicionService extends ApiService {
     return this.http.get<PreviewMigracion>(
       `${this.baseUrl}/solicitud-incorporacion/${idSolicitud}/preview-migracion?id_programa_version_edicion=${idEdicion}&id_modalidad_academica=${idModalidad}`
     );
+  }
+
+  getSolicitudesReincorporacion(estado?: string): Observable<SolicitudReincorporacionConDetalle[]> {
+    let url = `${this.baseUrl}/solicitud-reincorporacion/`;
+    if (estado) url += `?estado=${estado}`;
+    return this.http.get<SolicitudReincorporacionConDetalle[]>(url);
+  }
+
+  aprobarReincorporacion(idSolicitud: number): Observable<SolicitudReincorporacionConDetalle> {
+    return this.http.patch<SolicitudReincorporacionConDetalle>(
+      `${this.baseUrl}/solicitud-reincorporacion/${idSolicitud}/aprobar`, null
+    );
+  }
+
+  rechazarReincorporacion(idSolicitud: number, motivo: string): Observable<SolicitudReincorporacionConDetalle> {
+    return this.http.patch<SolicitudReincorporacionConDetalle>(
+      `${this.baseUrl}/solicitud-reincorporacion/${idSolicitud}/rechazar?motivo_rechazo=${encodeURIComponent(motivo)}`, null
+    );
+  }
+
+  getReincorporacionesPendientesCount(): Observable<{ count: number }> {
+    return this.http.get<{ count: number }>(`${this.baseUrl}/solicitud-reincorporacion/pendientes-count`);
   }
 }
