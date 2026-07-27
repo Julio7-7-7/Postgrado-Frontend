@@ -175,6 +175,7 @@
 }
 
 .table-row { transition: background 0.15s; }
+.table-row.clickable-row { cursor: pointer; }
 .table-row:hover { background: #f8fafc; }
 .table-row:last-child td { border-bottom: none; }
 .table-row.row-pendiente { background: #fffdf7; }
@@ -233,33 +234,17 @@
   align-items: center;
   gap: 6px;
 }
-.doc-chip {
+
+.doc-count {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 3px 8px;
-  border-radius: 6px;
+  padding: 3px 10px;
+  border-radius: 12px;
   font-size: 0.75rem;
-  font-weight: 500;
-  background: #f0fdfa;
-  color: #0d9488;
-  border: 1px solid #99f6e4;
+  font-weight: 600;
 }
-.doc-chip .doc-icon { font-size: 14px; width: 14px; height: 14px; color: #0d9488; }
-
-.doc-view-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  color: #64748b;
-  text-decoration: none;
-  transition: all 0.2s;
-}
-.doc-view-btn mat-icon { font-size: 18px; width: 18px; height: 18px; }
-.doc-view-btn:hover { background: #f1f5f9; color: #1e293b; }
+.doc-count.uploaded { background: #d1fae5; color: #065f46; }
+.doc-count.pending { background: #fef3c7; color: #92400e; }
 
 .no-docs { font-size: 0.78rem; color: #94a3b8; font-style: italic; }
 

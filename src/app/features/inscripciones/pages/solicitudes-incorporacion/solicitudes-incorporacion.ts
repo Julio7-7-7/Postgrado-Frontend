@@ -16,6 +16,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { InscripcionEdicionService } from '../../services/inscripcion-edicion.service';
 import { SolicitudIncorporacionConDetalle } from '../../../alumno/models/solicitud-incorporacion.model';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog';
+import { SolicitudIncorporacionDialogComponent } from './solicitud-incorporacion-dialog';
 import { environment } from '../../../../../environments/environment';
 
 @Component({
@@ -97,7 +98,8 @@ import { environment } from '../../../../../environments/environment';
             </thead>
             <tbody>
               @for (item of items(); track item.id_solicitud) {
-                <tr class="table-row" [class.row-pendiente]="item.estado === 'pendiente'">
+                <tr class="table-row clickable-row" [class.row-pendiente]="item.estado === 'pendiente'"
+                    (click)="abrirDetalle(item)">
                   <td class="col-alumno">
                     <div class="alumno-cell">
                       <div class="avatar-sm">{{ iniciales(item) }}</div>
@@ -116,20 +118,13 @@ import { environment } from '../../../../../environments/environment';
                   <td class="col-documento">
                     <div class="doc-cell">
                       @if (item.documentos && item.documentos.length > 0) {
-                        @for (doc of item.documentos; track doc.id_solicitud_documento) {
-                          <div class="doc-chip">
-                            <mat-icon class="doc-icon">description</mat-icon>
-                            <span>{{ doc.nombre_requisito }}</span>
-                          </div>
-                          @if (doc.url_documento) {
-                            <a class="doc-view-btn" [href]="getDocUrl(doc.url_documento)" target="_blank"
-                               matTooltip="Ver documento">
-                              <mat-icon>visibility</mat-icon>
-                            </a>
-                          }
+                        @if (docsSubidos(item) > 0) {
+                          <span class="doc-count uploaded">{{ docsSubidos(item) }}/{{ item.documentos.length }}</span>
+                        } @else {
+                          <span class="doc-count pending">{{ item.documentos.length }} pendiente{{ item.documentos.length !== 1 ? 's' : '' }}</span>
                         }
                       } @else {
-                        <span class="no-docs">Sin documentos</span>
+                        <span class="no-docs">Sin docs</span>
                       }
                     </div>
                   </td>
@@ -252,6 +247,25 @@ export class SolicitudesIncorporacionComponent implements OnInit {
 
   getDocUrl(url: string | null): string {
     return url ? `${this.apiUrl}${url}` : '#';
+  }
+
+  docsSubidos(item: SolicitudIncorporacionConDetalle): number {
+    return item.documentos?.filter(d => !!d.url_documento).length || 0;
+  }
+
+  abrirDetalle(item: SolicitudIncorporacionConDetalle): void {
+    const dialogRef = this.dialog.open(SolicitudIncorporacionDialogComponent, {
+      width: '560px',
+      maxHeight: '80vh',
+      data: { solicitud: item },
+      disableClose: true,
+    });
+
+    dialogRef.afterClosed().subscribe(updated => {
+      if (updated) {
+        this.cargarTodas();
+      }
+    });
   }
 
   aprobar(item: SolicitudIncorporacionConDetalle): void {
