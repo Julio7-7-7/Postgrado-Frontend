@@ -89,6 +89,13 @@ export class InscripcionDetailComponent implements OnInit {
   uploadReincState = signal<'ninguno' | 'leyendo' | 'subiendo' | 'completado'>('ninguno');
   uploadReincProgress = signal(0);
 
+  puedeMigrar = signal<boolean | null>(null);
+  motivoMigrar = signal<string | null>(null);
+  showMigracionForm = signal(false);
+  motivoMigracion = signal('');
+  enviandoMigracion = signal(false);
+  solicitudMigracion = signal<SolicitudIncorporacion | null>(null);
+
   stepperSteps = computed(() => {
     const ins = this.inscripcion();
     if (!ins) return [];
@@ -154,6 +161,8 @@ export class InscripcionDetailComponent implements OnInit {
             this._cargarSolicitudReincorporacion();
           }
         }
+        this._cargarPuedeMigrar(data.id_detalle_programa_alumno);
+        this._cargarSolicitudMigracion();
       },
       error: () => {
         this.cargando.set(false);
@@ -346,6 +355,68 @@ export class InscripcionDetailComponent implements OnInit {
       },
       error: () => {},
     });
+  }
+
+  private _cargarPuedeMigrar(idDpa: number): void {
+    this.detalleService.puedeMigrar(idDpa).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (res) => {
+        this.puedeMigrar.set(res.puede);
+        this.motivoMigrar.set(res.motivo);
+      },
+      error: () => {
+        this.puedeMigrar.set(false);
+      },
+    });
+  }
+
+  private _cargarSolicitudMigracion(): void {
+    this.detalleService.getMisSolicitudes().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (solicitudes) => {
+        const sol = solicitudes.find(s => s.id_programa_version_edicion === null && s.estado === 'pendiente');
+        if (sol) this.solicitudMigracion.set(sol);
+      },
+      error: () => {},
+    });
+  }
+
+  showMigracionCard = computed(() => {
+    return this.puedeMigrar() === true && !this.solicitudMigracion();
+  });
+
+  showMigracionPendiente = computed(() => {
+    return this.solicitudMigracion()?.estado === 'pendiente';
+  });
+
+  showMigracionRechazada = computed(() => {
+    return this.solicitudMigracion()?.estado === 'rechazado';
+  });
+
+  solicitarMigracion(): void {
+    this.showMigracionForm.set(true);
+  }
+
+  confirmarMigracion(): void {
+    this.enviandoMigracion.set(true);
+    this.detalleService.solicitarMigracion(undefined, this.motivoMigracion() || undefined)
+      .pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+        next: (sol) => {
+          this.solicitudMigracion.set(sol);
+          this.showMigracionForm.set(false);
+          this.motivoMigracion.set('');
+          this.enviandoMigracion.set(false);
+          this.puedeMigrar.set(false);
+          this.snackBar.open('Solicitud de migración enviada. Esperá la respuesta del administrador.', 'Cerrar', { duration: 4000 });
+        },
+        error: (err) => {
+          this.enviandoMigracion.set(false);
+          this.snackBar.open(err.error?.detail || 'Error al enviar solicitud', 'Cerrar', { duration: 4000 });
+        },
+      });
+  }
+
+  cancelarMigracion(): void {
+    this.showMigracionForm.set(false);
+    this.motivoMigracion.set('');
   }
 
   verRequisito(id: number): void {

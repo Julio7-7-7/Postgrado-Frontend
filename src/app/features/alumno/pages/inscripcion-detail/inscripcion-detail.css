@@ -272,3 +272,17 @@
 .doc-upload-progress {
   margin-top: 8px;
 }
+
+/* Migración */
+.migracion-card { border: 1px solid #bae6fd; background: #f0f9ff; }
+.migracion-card.pendiente { border-color: #fde68a; background: #fffbeb; }
+.migracion-card.rechazada { border-color: #fecaca; background: #fef2f2; }
+.migracion-card.disabled { border-color: #e2e8f0; background: #f8fafc; }
+.migracion-card .reincorporacion-text h3 { color: #0369a1; }
+.migracion-card.pendiente .reincorporacion-text h3 { color: #92400e; }
+.migracion-card.rechazada .reincorporacion-text h3 { color: #991b1b; }
+.migracion-card.disabled .reincorporacion-text h3 { color: #64748b; }
+.migracion-card .reincorporacion-text p { color: #0284c7; }
+.migracion-card.pendiente .reincorporacion-text p { color: #d97706; }
+.migracion-card.rechazada .reincorporacion-text p { color: #dc2626; }
+.migracion-card.disabled .reincorporacion-text p { color: #94a3b8; }

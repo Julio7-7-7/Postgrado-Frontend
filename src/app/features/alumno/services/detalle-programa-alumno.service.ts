@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from '../../../core/services/api.service';
 import { DetalleProgramaAlumno, AutoInscribirRequest, ControlDocumentacionAlumno } from '../models/detalle-programa-alumno.model';
-import { SolicitudIncorporacion, SolicitudReincorporacion, SolicitudReincorporacionDocumento } from '../models/solicitud-incorporacion.model';
+import { SolicitudIncorporacion, SolicitudReincorporacion, SolicitudReincorporacionDocumento, PuedeMigrarResponse } from '../models/solicitud-incorporacion.model';
 
 @Injectable({ providedIn: 'root' })
 export class DetalleProgramaAlumnoService extends ApiService {
@@ -71,6 +71,20 @@ export class DetalleProgramaAlumnoService extends ApiService {
     return this.http.post<{ ok: boolean; url: string }>(
       `${this.baseUrl}/solicitud-reincorporacion/${idSolicitud}/documentos/${idDoc}/subir`,
       { url_documento: urlDocumento }
+    );
+  }
+
+  puedeMigrar(idDpa: number): Observable<PuedeMigrarResponse> {
+    return this.http.get<PuedeMigrarResponse>(
+      `${this.baseUrl}/solicitud-incorporacion/puede-migrar`,
+      { params: { id_detalle_programa_alumno: idDpa } }
+    );
+  }
+
+  solicitarMigracion(idDpa?: number, motivo?: string): Observable<SolicitudIncorporacion> {
+    return this.http.post<SolicitudIncorporacion>(
+      `${this.baseUrl}/solicitud-incorporacion/solicitar`,
+      { motivo: motivo || '' }
     );
   }
 }

@@ -151,3 +151,8 @@ export interface SolicitudAdminItem {
   motivo_rechazo?: string | null;
   es_migracion?: boolean;
 }
+
+export interface PuedeMigrarResponse {
+  puede: boolean;
+  motivo: string | null;
+}

@@ -655,6 +655,96 @@
             </mat-card>
           }
         }
+
+        @if (showMigracionCard()) {
+          <mat-card class="section-card migracion-card">
+            @if (!showMigracionForm()) {
+              <div class="reincorporacion-content">
+                <mat-icon [style.color]="'#0ea5e9'">swap_horiz</mat-icon>
+                <div class="reincorporacion-text">
+                  <h3>Solicitar migración</h3>
+                  <p>Esta edición finalizó. Solicitá migrar a una nueva edición para continuar tu plan de estudios.</p>
+                </div>
+                <button mat-flat-button color="primary" (click)="solicitarMigracion()">
+                  <mat-icon>send</mat-icon>
+                  Solicitar
+                </button>
+              </div>
+            } @else {
+              <div class="reincorporacion-form">
+                <div class="reincorporacion-form-header">
+                  <mat-icon [style.color]="'#0ea5e9'">edit_note</mat-icon>
+                  <h3>¿Algo que quieras indicar al admin?</h3>
+                </div>
+                <p class="reincorporacion-form-hint">Opcional — el admin elegirá la edición destino.</p>
+                <textarea class="motivo-textarea" rows="3"
+                          [value]="motivoMigracion()"
+                          (input)="motivoMigracion.set($any($event.target).value)"
+                          placeholder="Ej: Quisiera continuar en la edición más reciente..."></textarea>
+                <div class="reincorporacion-form-actions">
+                  <button mat-button (click)="cancelarMigracion()" [disabled]="enviandoMigracion()">
+                    Cancelar
+                  </button>
+                  <button mat-flat-button color="primary" (click)="confirmarMigracion()"
+                          [disabled]="enviandoMigracion()">
+                    @if (enviandoMigracion()) {
+                      <mat-spinner diameter="16"></mat-spinner>
+                    } @else {
+                      <mat-icon>send</mat-icon>
+                      Enviar solicitud
+                    }
+                  </button>
+                </div>
+              </div>
+            }
+          </mat-card>
+        }
+
+        @if (showMigracionPendiente()) {
+          <mat-card class="section-card migracion-card pendiente">
+            <div class="reincorporacion-content">
+              <mat-icon [style.color]="'#f59e0b'">schedule</mat-icon>
+              <div class="reincorporacion-text">
+                <h3>Solicitud de migración pendiente</h3>
+                <p>Tu solicitud está siendo revisada por el administrador.</p>
+              </div>
+              <span class="carta-status-badge pendiente">Pendiente</span>
+            </div>
+          </mat-card>
+        }
+
+        @if (showMigracionRechazada()) {
+          <mat-card class="section-card migracion-card rechazada">
+            <div class="reincorporacion-content">
+              <mat-icon [style.color]="'#ef4444'">cancel</mat-icon>
+              <div class="reincorporacion-text">
+                <h3>Solicitud rechazada</h3>
+                <p>Tu solicitud de migración fue rechazada.</p>
+                @if (solicitudMigracion()?.observaciones) {
+                  <p class="rechazo-reason">{{ solicitudMigracion()?.observaciones }}</p>
+                }
+              </div>
+              <button mat-flat-button color="primary" (click)="solicitarMigracion()">
+                <mat-icon>replay</mat-icon>
+                Volver a solicitar
+              </button>
+            </div>
+          </mat-card>
+        }
+
+        @if (puedeMigrar() === false && motivoMigrar()) {
+          @if (!showMigracionPendiente() && !showMigracionRechazada() && !showMigracionCard()) {
+            <mat-card class="section-card migracion-card disabled">
+              <div class="reincorporacion-content">
+                <mat-icon [style.color]="'#94a3b8'">info</mat-icon>
+                <div class="reincorporacion-text">
+                  <h3>Migración no disponible</h3>
+                  <p>{{ motivoMigrar() }}</p>
+                </div>
+              </div>
+            </mat-card>
+          }
+        }
       </div>
     </div>
   }
