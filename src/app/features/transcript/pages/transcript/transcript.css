@@ -242,36 +242,35 @@
   padding: 16px 24px; color: var(--fich-text-faint); font-size: 13px;
 }
 
-/* ─── Transferencias ─── */
-.transferencias-card {
+/* ─── Movimientos ─── */
+.movimientos-card {
   background: var(--fich-bg-card); border-radius: var(--fich-radius-md);
   padding: 18px 24px; margin-top: 20px;
   border: 1px solid var(--fich-border-light);
 }
-.transferencias-header { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
-.transferencias-header mat-icon { color: var(--fich-feature-tipo-programa); font-size: 20px; width: 20px; height: 20px; }
-.transferencias-header h3 { margin: 0; font-size: 15px; font-weight: 600; color: var(--fich-text-secondary); }
-.transferencia-item { padding: 14px 0; border-bottom: 1px solid var(--fich-border-light); }
-.transferencia-item:last-child { border-bottom: none; }
-.transferencia-fecha { font-size: 11px; color: var(--fich-text-faint); margin-bottom: 6px; }
-.transferencia-tipo-badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 8px; }
+.movimientos-header { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
+.movimientos-header mat-icon { color: var(--fich-feature-tipo-programa); font-size: 20px; width: 20px; height: 20px; }
+.movimientos-header h3 { margin: 0; font-size: 15px; font-weight: 600; color: var(--fich-text-secondary); }
+.movimiento-item { padding: 14px 0; border-bottom: 1px solid var(--fich-border-light); }
+.movimiento-item:last-child { border-bottom: none; }
+.movimiento-fecha { font-size: 11px; color: var(--fich-text-faint); margin-bottom: 6px; }
+.movimiento-tipo-badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 8px; }
 .tipo-migracion { background: #fef3c7; color: #92400e; }
 .tipo-reincorporacion { background: #e0e7ff; color: #3730a3; }
-.tipo-transferencia { background: #f3e8ff; color: #6b21a8; }
 .tipo-incorporacion { background: #d1fae5; color: #065f46; }
-.transferencia-flow { display: flex; align-items: stretch; gap: 10px; }
-.transferencia-edicion { flex: 1; padding: 10px 12px; border-radius: var(--fich-radius-xs); }
-.transferencia-edicion.origen { background: var(--fich-bg-subtle); border: 1px solid var(--fich-border); }
-.transferencia-edicion.destino { background: var(--fich-success-light); border: 1px solid var(--fich-success-lighter); }
+.movimiento-flow { display: flex; align-items: stretch; gap: 10px; }
+.movimiento-edicion { flex: 1; padding: 10px 12px; border-radius: var(--fich-radius-xs); }
+.movimiento-edicion.origen { background: var(--fich-bg-subtle); border: 1px solid var(--fich-border); }
+.movimiento-edicion.destino { background: var(--fich-success-light); border: 1px solid var(--fich-success-lighter); }
 .ed-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; color: var(--fich-text-faint); display: block; margin-bottom: 3px; }
 .ed-nombre { font-size: 13px; font-weight: 600; color: var(--fich-text-secondary); display: block; }
 .ed-info { font-size: 11px; color: var(--fich-text-muted); display: block; margin-top: 2px; }
 .ed-estado { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 3px; margin-top: 4px; }
-.transferencia-arrow { display: flex; align-items: center; color: var(--fich-text-faint); flex-shrink: 0; font-size: 20px; width: 20px; height: 20px; }
-.transferencia-motivo { display: flex; align-items: flex-start; gap: 6px; margin-top: 6px; font-size: 12px; color: var(--fich-text-muted); }
-.transferencia-motivo mat-icon { font-size: 14px; width: 14px; height: 14px; margin-top: 1px; color: var(--fich-text-faint); }
-.transferencia-solicitud { display: flex; align-items: center; gap: 6px; margin-top: 4px; font-size: 11px; color: var(--fich-primary); font-weight: 500; }
-.transferencia-solicitud mat-icon { font-size: 13px; width: 13px; height: 13px; }
+.movimiento-arrow { display: flex; align-items: center; color: var(--fich-text-faint); flex-shrink: 0; font-size: 20px; width: 20px; height: 20px; }
+.movimiento-motivo { display: flex; align-items: flex-start; gap: 6px; margin-top: 6px; font-size: 12px; color: var(--fich-text-muted); }
+.movimiento-motivo mat-icon { font-size: 14px; width: 14px; height: 14px; margin-top: 1px; color: var(--fich-text-faint); }
+.movimiento-solicitud { display: flex; align-items: center; gap: 6px; margin-top: 4px; font-size: 11px; color: var(--fich-primary); font-weight: 500; }
+.movimiento-solicitud mat-icon { font-size: 13px; width: 13px; height: 13px; }
 
 /* ═══════════════════════════════════════════════════════════════
    CALIFICACIÓN — 6 niveles de nota

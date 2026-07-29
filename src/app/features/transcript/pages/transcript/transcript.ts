@@ -10,7 +10,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { InscripcionEdicionService } from '../../../inscripciones/services/inscripcion-edicion.service';
 import { NotaService } from '../../../notas/services/nota.service';
 import { TranscriptResponse, InscripcionTranscript, ModuloTranscript } from '../../../inscripciones/models/inscripcion-edicion.model';
-import { HistorialTransferencia } from '../../../notas/models/nota.model';
+import { HistorialMovimiento } from '../../../notas/models/nota.model';
 import { clasificarNota } from '../../../../core/utils/nota-utils';
 
 @Component({
@@ -33,7 +33,7 @@ export class TranscriptComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
 
   transcript = signal<TranscriptResponse | null>(null);
-  transferencias = signal<HistorialTransferencia[]>([]);
+  movimientos = signal<HistorialMovimiento[]>([]);
   isLoading = signal(true);
   idAlumno = 0;
 
@@ -74,15 +74,15 @@ export class TranscriptComponent implements OnInit {
   }
 
   private loadHistorial(idAlumno: number): void {
-    this.notaService.getHistorialTransferencias(idAlumno)
+    this.notaService.getHistorialMovimientos(idAlumno)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: data => {
-          this.transferencias.set(data.transferencias);
+          this.movimientos.set(data.movimientos);
           this.isLoading.set(false);
         },
         error: () => {
-          this.transferencias.set([]);
+          this.movimientos.set([]);
           this.isLoading.set(false);
         },
       });
@@ -215,7 +215,6 @@ export class TranscriptComponent implements OnInit {
     const labels: Record<string, string> = {
       reincorporacion: 'Reincorporación',
       migracion: 'Migración',
-      transferencia: 'Transferencia',
       incorporacion: 'Incorporación',
     };
     return labels[tipo] || tipo;

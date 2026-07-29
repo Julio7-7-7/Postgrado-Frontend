@@ -126,7 +126,7 @@ export interface DocenteModuloDetalle {
   }[];
 }
 
-export interface HistorialTransferencia {
+export interface HistorialMovimiento {
   id_historial: number;
   tipo_movimiento: string;
   id_solicitud: number | null;
@@ -152,6 +152,12 @@ export interface HistorialTransferencia {
   fecha: string;
 }
 
+export interface HistorialMovimientosResponse {
+  id_alumno: number;
+  inscripciones: InscripcionBasica[];
+  movimientos: HistorialMovimiento[];
+}
+
 export interface InscripcionBasica {
   id_detalle_programa_alumno: number;
   id_programa_version_edicion: number;
@@ -161,10 +167,4 @@ export interface InscripcionBasica {
   programa_nombre: string;
   estado: string;
   modulo_inicio: number;
-}
-
-export interface HistorialTransferenciasResponse {
-  id_alumno: number;
-  inscripciones: InscripcionBasica[];
-  transferencias: HistorialTransferencia[];
 }

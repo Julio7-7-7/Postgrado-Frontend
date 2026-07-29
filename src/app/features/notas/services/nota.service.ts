@@ -3,7 +3,7 @@ import { Observable } from 'rxjs';
 import { ApiService } from '../../../core/services/api.service';
 import {
   AlumnoNotas, NotaCreate, NotaUpdate, NotaResponse,
-  DocenteEdicionCompleta, DocenteModuloDetalle, HistorialTransferenciasResponse,
+  DocenteEdicionCompleta, DocenteModuloDetalle, HistorialMovimientosResponse,
 } from '../models/nota.model';
 import { ProgramaVersionEdicionResponse } from '../../documentacion/models/documentacion.model';
 
@@ -34,7 +34,7 @@ export class NotaService extends ApiService {
     return this.http.patch<NotaResponse>(`${this.baseUrl}/notas/${id}`, data);
   }
 
-  getHistorialTransferencias(idAlumno: number): Observable<HistorialTransferenciasResponse> {
-    return this.http.get<HistorialTransferenciasResponse>(`${this.baseUrl}/detalle-programa-alumno/historial-transferencias/${idAlumno}`);
+  getHistorialMovimientos(idAlumno: number): Observable<HistorialMovimientosResponse> {
+    return this.http.get<HistorialMovimientosResponse>(`${this.baseUrl}/detalle-programa-alumno/historial-movimientos/${idAlumno}`);
   }
 }

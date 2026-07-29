@@ -232,40 +232,40 @@
       }
     }
 
-    @if (transferencias().length > 0) {
-      <div class="transferencias-card">
-        <div class="transferencias-header">
+    @if (movimientos().length > 0) {
+      <div class="movimientos-card">
+        <div class="movimientos-header">
           <mat-icon>swap_horiz</mat-icon>
           <h3>Historial de Movimientos</h3>
         </div>
-        <div class="transferencias-timeline">
-          @for (tr of transferencias(); track tr.id_historial) {
-            <div class="transferencia-item">
-              <div class="transferencia-fecha">{{ tr.fecha | date:'dd/MM/yyyy HH:mm' }}</div>
-              <div class="transferencia-tipo-badge" [class]="'tipo-' + tr.tipo_movimiento">
+        <div class="movimientos-timeline">
+          @for (tr of movimientos(); track tr.id_historial) {
+            <div class="movimiento-item">
+              <div class="movimiento-fecha">{{ tr.fecha | date:'dd/MM/yyyy HH:mm' }}</div>
+              <div class="movimiento-tipo-badge" [class]="'tipo-' + tr.tipo_movimiento">
                 {{ tipoMovimientoLabel(tr.tipo_movimiento) }}
               </div>
-              <div class="transferencia-flow">
-                <div class="transferencia-edicion origen">
+              <div class="movimiento-flow">
+                <div class="movimiento-edicion origen">
                   <span class="ed-label">Origen</span>
                   <span class="ed-nombre">{{ tr.origen.programa_nombre }}</span>
                   <span class="ed-info">Ed. {{ tr.origen.edicion_numero }} &middot; {{ semestreLabel(tr.origen.semestre) }} {{ tr.origen.anio }}</span>
                   <span class="ed-estado" [class]="estadoClass(tr.origen.estado)">{{ estadoLabel(tr.origen.estado) }}</span>
                 </div>
-                <mat-icon class="transferencia-arrow">arrow_forward</mat-icon>
-                <div class="transferencia-edicion destino">
+                <mat-icon class="movimiento-arrow">arrow_forward</mat-icon>
+                <div class="movimiento-edicion destino">
                   <span class="ed-label">Destino</span>
                   <span class="ed-nombre">{{ tr.destino.programa_nombre }}</span>
                   <span class="ed-info">Ed. {{ tr.destino.edicion_numero }} &middot; {{ semestreLabel(tr.destino.semestre) }} {{ tr.destino.anio }}</span>
                   <span class="ed-estado" [class]="estadoClass(tr.destino.estado)">{{ estadoLabel(tr.destino.estado) }}</span>
                 </div>
               </div>
-              <div class="transferencia-motivo">
+              <div class="movimiento-motivo">
                 <mat-icon>description</mat-icon>
                 <span>{{ tr.motivo }}</span>
               </div>
               @if (tr.id_solicitud) {
-                <div class="transferencia-solicitud">
+                <div class="movimiento-solicitud">
                   <mat-icon>receipt_long</mat-icon>
                   <span>Solicitud #{{ tr.id_solicitud }}</span>
                 </div>
