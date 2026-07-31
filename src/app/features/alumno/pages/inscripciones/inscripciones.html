@@ -21,7 +21,7 @@
   @if (!cargando() && inscripciones().length > 0) {
     <div class="inscripciones-list">
       @for (ins of inscripciones(); track ins.id_detalle_programa_alumno) {
-        <mat-card class="inscripcion-card" (click)="verDetalle(ins.id_detalle_programa_alumno)">
+        <mat-card class="inscripcion-card" (click)="verDetalle(ins)">
           <mat-card-content>
             <div class="card-top">
               <div class="programa-info">

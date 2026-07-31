@@ -4,9 +4,14 @@
       <h1><mat-icon>how_to_reg</mat-icon> Gestión de Inscripciones</h1>
       <p class="subtitle">Seleccione una edición para ver y gestionar las inscripciones de sus alumnos</p>
     </div>
-    <button mat-stroked-button class="solicitudes-btn" (click)="irASolicitudes()">
-      <mat-icon>inbox</mat-icon> Solicitudes de Incorporación
-    </button>
+    <div class="header-actions">
+      <button mat-stroked-button class="action-btn-secondary" (click)="irARequisitos()">
+        <mat-icon>settings</mat-icon> Documentos de Incorporación
+      </button>
+      <button mat-stroked-button class="solicitudes-btn" (click)="irASolicitudes()">
+        <mat-icon>inbox</mat-icon> Solicitudes
+      </button>
+    </div>
   </div>
 
   @if (isLoading()) {
@@ -26,7 +31,7 @@
         @for (ed of ediciones(); track ed.id_programa_version_edicion) {
           <div class="edicion-card" (click)="irAInscripciones(ed)">
             <div class="card-foto">
-              @if (ed.programa_version?.foto) {
+              @if (ed.programa_version.foto) {
                 <img [src]="getFotoUrl(ed.programa_version.foto)" (error)="onImgError($event)" alt="Foto" />
               } @else {
                 <div class="card-foto-placeholder">

@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { ApiService } from '../../../core/services/api.service';
-import { PaginatedInscripciones, TransferirRequest, TranscriptResponse, EdicionBasica } from '../models/inscripcion-edicion.model';
+import { PaginatedInscripciones, TranscriptResponse, EdicionBasica } from '../models/inscripcion-edicion.model';
 import { DetalleProgramaAlumno } from '../../alumno/models/detalle-programa-alumno.model';
-import { SolicitudIncorporacionConDetalle } from '../../alumno/models/solicitud-incorporacion.model';
+import { SolicitudConDetalle, PreviewMigracion } from '../../alumno/models/solicitud-incorporacion.model';
 
 @Injectable({ providedIn: 'root' })
 export class InscripcionEdicionService extends ApiService {
@@ -13,12 +13,6 @@ export class InscripcionEdicionService extends ApiService {
     if (estado) url += `&estado=${estado}`;
     if (search) url += `&search=${encodeURIComponent(search)}`;
     return this.http.get<PaginatedInscripciones>(url);
-  }
-
-  transferir(idDetalle: number, data: TransferirRequest): Observable<DetalleProgramaAlumno> {
-    return this.http.post<DetalleProgramaAlumno>(
-      `${this.baseUrl}/detalle-programa-alumno/${idDetalle}/transferir`, data
-    );
   }
 
   getTranscript(idAlumno: number): Observable<TranscriptResponse> {
@@ -42,21 +36,40 @@ export class InscripcionEdicionService extends ApiService {
     return this.http.get<DetalleProgramaAlumno>(`${this.baseUrl}/detalle-programa-alumno/${idDetalle}`);
   }
 
-  getSolicitudesIncorporacion(estado?: string): Observable<SolicitudIncorporacionConDetalle[]> {
-    let url = `${this.baseUrl}/solicitud-incorporacion/`;
-    if (estado) url += `?estado=${estado}`;
-    return this.http.get<SolicitudIncorporacionConDetalle[]>(url);
+  getSolicitudes(tipo?: string, estado?: string): Observable<SolicitudConDetalle[]> {
+    let url = `${this.baseUrl}/solicitud/`;
+    const params: string[] = [];
+    if (tipo) params.push(`tipo=${tipo}`);
+    if (estado) params.push(`estado=${estado}`);
+    if (params.length) url += '?' + params.join('&');
+    return this.http.get<SolicitudConDetalle[]>(url);
   }
 
-  aprobarSolicitud(idSolicitud: number): Observable<SolicitudIncorporacionConDetalle> {
-    return this.http.patch<SolicitudIncorporacionConDetalle>(
-      `${this.baseUrl}/solicitud-incorporacion/${idSolicitud}/aprobar`, null
+  getSolicitudesIncorporacion(estado?: string): Observable<SolicitudConDetalle[]> {
+    return this.getSolicitudes('incorporacion', estado);
+  }
+
+  aprobarSolicitud(idSolicitud: number, data?: { id_programa_version_edicion?: number; id_tipo_descuento?: number; id_modulo_inicio?: number | null; motivo?: string }): Observable<SolicitudConDetalle> {
+    return this.http.patch<SolicitudConDetalle>(
+      `${this.baseUrl}/solicitud/${idSolicitud}/aprobar`, data || null
     );
   }
 
-  rechazarSolicitud(idSolicitud: number, observaciones: string): Observable<SolicitudIncorporacionConDetalle> {
-    return this.http.patch<SolicitudIncorporacionConDetalle>(
-      `${this.baseUrl}/solicitud-incorporacion/${idSolicitud}/rechazar?observaciones=${encodeURIComponent(observaciones)}`, null
+  rechazarSolicitud(idSolicitud: number, motivoRechazo: string = ''): Observable<SolicitudConDetalle> {
+    return this.http.patch<SolicitudConDetalle>(
+      `${this.baseUrl}/solicitud/${idSolicitud}/rechazar`, motivoRechazo
     );
+  }
+
+  previewMigracion(idSolicitud: number, idEdicion: number): Observable<PreviewMigracion> {
+    return this.http.get<PreviewMigracion>(
+      `${this.baseUrl}/solicitud/${idSolicitud}/preview-migracion?id_programa_version_edicion=${idEdicion}`
+    );
+  }
+
+  getPendientesCount(tipo?: string): Observable<{ count: number }> {
+    let url = `${this.baseUrl}/solicitud/pendientes-count`;
+    if (tipo) url += `?tipo=${tipo}`;
+    return this.http.get<{ count: number }>(url);
   }
 }

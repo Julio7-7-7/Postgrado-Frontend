@@ -222,10 +222,6 @@
   color: var(--fich-primary, #4f46e5);
 }
 
-.transfer-btn {
-  color: #d97706;
-}
-
 .col-acciones {
   width: 80px;
   text-align: center;

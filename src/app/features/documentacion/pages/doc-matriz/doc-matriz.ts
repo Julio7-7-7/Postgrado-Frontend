@@ -98,7 +98,9 @@ export class DocMatrizComponent implements OnInit {
       result.push({
         id_modalidad: id,
         nombre: grupo.nombre,
-        requisitos: Array.from(seen.entries()).map(([rid, nombre]) => ({ id: rid, nombre })),
+        requisitos: Array.from(seen.entries())
+          .filter(([, nombre]) => nombre !== 'Carta de Solicitud de Incorporación')
+          .map(([rid, nombre]) => ({ id: rid, nombre })),
         postulantes: grupo.postulantes,
       });
     }

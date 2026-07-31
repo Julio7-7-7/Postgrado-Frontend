@@ -28,14 +28,6 @@ export interface PaginatedInscripciones {
   pages: number;
 }
 
-export interface TransferirRequest {
-  id_programa_version_edicion_destino: number;
-  motivo: string;
-  id_modalidad_academica: number;
-  id_tipo_descuento: number | null;
-  modulo_inicio: number;
-}
-
 export interface ModuloTranscript {
   id_detalle_programa_modulo: number;
   modulo_nombre: string;
@@ -45,6 +37,13 @@ export interface ModuloTranscript {
   edicion_numero: number | null;
   edicion_anio: number | null;
   edicion_semestre: number | null;
+  es_migrada: boolean;
+  edicion_origen_numero: number | null;
+  edicion_origen_anio: number | null;
+  edicion_origen_semestre: number | null;
+  migrado_a_edicion_numero: number | null;
+  migrado_a_edicion_anio: number | null;
+  migrado_a_edicion_semestre: number | null;
 }
 
 export interface InscripcionTranscript {
@@ -59,6 +58,9 @@ export interface InscripcionTranscript {
   modulo_inicio: number;
   modulos: ModuloTranscript[];
   promedio: number | null;
+  migrado_a_edicion_numero: number | null;
+  migrado_a_edicion_anio: number | null;
+  migrado_a_edicion_semestre: number | null;
 }
 
 export interface EdicionInfo {

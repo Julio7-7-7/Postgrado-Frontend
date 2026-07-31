@@ -170,21 +170,24 @@ Nombre del usuario: **Julio** (no "julius" — eso es solo el system user)
   - **Aprobación admin**: Primera incorporación → DPA va a `postulante`; Migración → DPA va directo a `inscrito`
   - **Rechazo admin**: Solicitud → `rechazado`, DPA queda `postulante`
 - **Backend simplificado**: `autoInscribir()` ya no acepta `es_incorporacion`/`id_solicitud` (esas funciones las maneja `solicitarIncorporacion`). `transferir()` ya no crea solicitud.
-- **Frontend unificado**: `inscribir` es ahora un wizard de 3 pasos para ediciones `en_curso` (situación → formulario → carta). Para ediciones `programado`, formulario directo sin wizard. Componente `solicitar-incorporacion` eliminado (funcionalidad integrada en `inscribir`).
+- **Frontend unificado**: `inscribir` es ahora un wizard de 3 pasos para ediciones `en_curso` (situación → formulario → documentos de incorporación). Para ediciones `programado`, formulario directo sin wizard. Componente `solicitar-incorporacion` eliminado (funcionalidad integrada en `inscribir`).
 - **Ruta**: Solo `/alumnos/inscribir/:idEdicion` (eliminadas rutas `solicitar-incorporacion`)
-- **Wizard persistence**: El paso actual se deriva del backend (DPA + solicitud existentes). Si el usuario sale y vuelve, retoma donde se quedó.
+- **Wizard persistence**: El paso actual se deriva del backend (DPA + solicitud existentes). Si el usuario sale y vuelve, retoma donde se quedó. Si la solicitud tiene todos los documentos subidos, redirige al detalle automáticamente.
 - **Carta status en inscripcion-detail**: `needsCartaUpload()` verifica tanto `es_incorporacion` como la existencia de solicitud. `cartaEnRevision()`, `cartaAprobada()`, `cartaRechazada()` muestran badges de estado.
 - Renombrado `documento_incorporacion` → `solicitud_incorporacion`
 - Nuevo campo `es_incorporacion` BOOLEAN en `detalle_programa_alumno`
 - Requisito "Carta de Solicitud de Incorporación" (id=6) creado
-- **Backend**: modelo `SolicitudIncorporacion`, 6 endpoints (solicitar, listar, mis-solicitudes, detalle, aprobar, rechazar)
-- **Frontend**: `inscribir` (wizard 3 pasos para en_curso, formulario directo para programado), `solicitudes-incorporacion` (admin), badge "Incorporación" en inscripciones, inscripcion-detail, inscripciones-edicion
+- **Backend**: modelo `SolicitudIncorporacion`, 7 endpoints (solicitar, listar, mis-solicitudes, detalle, aprobar, rechazar, subir-documento)
+- **Frontend**: `inscribir` (wizard 3 pasos para en_curso: situación → formulario → documentos multi-upload con progress bar, formulario directo para programado), `solicitudes-incorporacion` (admin), badge "Incorporación" en inscripciones, inscripcion-detail, inscripciones-edicion
 - **Doc-matriz bugfix**: dialog refresh — botones "Cerrar" y X ahora usan `(click)="close()"` en vez de `mat-dialog-close`, `disableClose: true` para ESC/backdrop. Parent `afterClosed()` siempre recibe el postulante actualizado.
 - **Doc-matriz filter chips**: stats-bar reemplazada por chips clickeables (sin avance, en revisión, aprobados) con botón "Limpiar". `allPostulantes` signal mantiene el dataset completo, `postulantes` se filtra según `filtroEstado`.
 - **Solicitudes curado**: fix IDOR en `GET /{id_solicitud}` (alumno solo ve las suyas, admin necesita `alumnos.ver`), `login.goToRegister()` ahora forward el param `?incorporar=` a registro, registros legacy con `estado='aprobado'` corregidos a `'aceptado'`, schema `SolicitudIncorporacionUpdate` eliminado (dead code), texto "arrastra tu archivo" corregido a "seleccionar tu archivo", método renombrado `getSolicitudesPendientes` → `getSolicitudesIncorporacion`, botón "Solicitudes de Incorporación" agregado al header de inscripciones-landing.
 - **Subida de documentos global en dos pasos**: Todos los uploads de archivos ahora siguen el patrón select → preview/confirm → upload. Componentes afectados:
   - `inscripcion-detail`: barra de confirmación con nombre, tamaño, cancelar/confirmar. Botón "Subir carta" solo se muestra si no existe solicitud. Badges de estado para carta: Pendiente, Aprobada, Rechazada (con opción de re-enviar).
   - `contratacion-detalle`: barra de confirmación para subir y reemplazar PDFs de contratación.
+- **solicitud_incorporacion junction table restructure**: `solicitud_documento` junction table created linking solicitud → requisito with individual doc URLs/states. `id_alumno` FK removed from `solicitud_incorporacion` (redundant — accessible via DPA). Frontend models updated: `SolicitudDocumento` interface, `SolicitudIncorporacion.documentos[]`, `SolicitudIncorporacionConDetalle.documentos[]`. Admin table shows document chips. Carda status uses `cartaDoc()` computed (last document). Backend approve/rechazar returns `SolicitudIncorporacionConDetalle`.
+- **solicitud_requisito config**: Admin-configurable list of which documents are required for incorporation solicitudes. Backend: model + schema + router (`solicitud_requisito`). DB table with `id_requisito`, `obligatorio`, `estado`. Admin page at `/admin/requisitos-incorporacion`. `_crear_documentos_solicitud()` reads this config when creating solicitudes.
+- **Step 3 multi-document wizard**: Rewritten to show all solicitud documents with individual uploads and progress bar. Flow: create solicitud (without file) → list docs → upload each → auto-redirect when all done. Backend: `url_documento` optional in schema, new `PATCH /{id_solicitud}/documentos/{id_doc}/subir` endpoint. Backend sync: `aprobar_solicitud` copies solicitud docs → `control_documentacion` to avoid duplicate uploads.
 
 ## Hecho reciente (2026-07-25)
 - Eliminación de `avance_modulo` y `nota.id_programa_version_edicion` — simplificación del modelo de datos
@@ -193,6 +196,88 @@ Nombre del usuario: **Julio** (no "julius" — eso es solo el system user)
 - SQL ejecutado: `DROP TABLE avance_modulo` + `ALTER TABLE notas DROP COLUMN id_programa_version_edicion`
 - Backend: 25 routers (antes 26)
 - Frontend compila OK (solo warning de bundle size pre-existente)
+
+## Hecho reciente (2026-07-26) — historial_inscripcion + revisión de incorporación
+
+### `historial_inscripcion` como columna vertebral del journey
+- **SQL**: `ALTER TABLE historial_inscripcion ADD COLUMN tipo_movimiento VARCHAR(20) NOT NULL DEFAULT 'transferencia'`
+- **Modelo**: `HistorialInscripcion.tipo_movimiento` (String(20), default='transferencia')
+- **Schema**: `tipo_movimiento` agregado a `HistorialInscripcionCreate`, `HistorialInscripcionResponse`, `HistorialInscripcionConDetalle`
+- **Transferencia** (`POST /{id}/transferir`): crea `HistorialInscripcion(tipo_movimiento='transferencia')`
+- **Incorporación** (`PATCH /{id}/aprobar` en solicitud_incorporacion): crea `HistorialInscripcion(tipo_movimiento='incorporacion')` cuando hay DPA origen en mismo programa
+- **Endpoint preview**: `GET /solicitud-incorporacion/{id}/preview-migracion?id_programa_version_edicion=X&id_modalidad_academica=Y` retorna comparativa origen vs destino (notas, pagos, módulos, match por nombre)
+- **Schema preview**: `PreviewMigracionResponse` con `alumno`, `origen` (notas + pagos), `destino` (módulos + match), `resumen`
+- **Transcript enriquecido**: `ModuloTranscriptItem` ahora incluye `es_migrada`, `edicion_origen_numero`, `edicion_origen_anio`, `edicion_origen_semestre`. El endpoint `GET /transcript/{id_alumno}` merge notas del DPA origen cuando existe `historial_inscripcion` apuntando al DPA destino, match por nombre de módulo
+
+### Página dedicada de revisión (reemplaza dialog)
+- **Nueva ruta**: `/admin/solicitudes-incorporacion/:idSolicitud/revisar`
+- **Componente**: `RevisarIncorporacionComponent` con 3 secciones:
+  1. Datos del alumno + documentos (cards)
+  2. Configuración de migración (dropdown edición destino, modalidad, textarea motivo)
+  3. Preview de migración (comparativa visual origen vs destino con notas/pagos/módulos)
+- **Tabla admin**: `abrirDetalle()` ahora navega a la página en vez de abrir dialog
+- **Service**: `aprobarSolicitud(id, data?)` ahora acepta data opcional con `id_programa_version_edicion`, `id_modalidad_academica`, `motivo`; nuevo método `previewMigracion(idSolicitud, idEdicion, idModalidad)`
+- **Modelos frontend**: `PreviewMigracion`, `PreviewOrigen`, `PreviewDestino`, `NotaPreviewItem`, `PagoPreviewItem`, `ModuloDestinoItem` en `solicitud-incorporacion.model.ts`; `ModuloTranscript` actualizado con `es_migrada`, `edicion_origen_*`
+- **Transcript**: notas migradas muestran fondo ambar sutil + punto naranja indicador + tooltip con info de edición origen
+
+### Archivos tocados Backend
+- `models/historial_inscripcion.py` — nueva columna `tipo_movimiento`
+- `schemas/historial_inscripcion.py` — `tipo_movimiento` en 3 schemas
+- `schemas/solicitud_incorporacion.py` — `motivo` en `AprobarSolicitudRequest`, nuevos schemas `PreviewMigracionResponse` y sub-schemas
+- `schemas/nota.py` — `es_migrada`, `edicion_origen_*` en `ModuloTranscriptItem`
+- `routers/detalle_programa_alumno.py` — `tipo_movimiento='transferencia'` en `transferir()`, `tipo_movimiento` en respuesta de `historial_transferencias`
+- `routers/solicitud_incorporacion.py` — `aprobar_solicitud` crea `HistorialInscripcion(tipo_movimiento='incorporacion')` en migración; nuevo endpoint `preview-migracion`
+- `routers/nota.py` — `transcript_alumno` merge notas migradas desde DPA origen vía `historial_inscripcion`
+
+### Archivos tocados Frontend
+- `features/inscripciones/models/inscripcion-edicion.model.ts` — `ModuloTranscript` con `es_migrada`, `edicion_origen_*`
+- `features/alumno/models/solicitud-incorporacion.model.ts` — nuevos interfaces `PreviewMigracion`, `NotaPreviewItem`, `PagoPreviewItem`, `ModuloDestinoItem`, `PreviewOrigen`, `PreviewDestino`
+- `features/notas/models/nota.model.ts` — `HistorialTransferencia` con `tipo_movimiento`
+- `features/inscripciones/services/inscripcion-edicion.service.ts` — `aprobarSolicitud(id, data?)`, `previewMigracion()`
+- `features/inscripciones/pages/revisar-incorporacion/` — NUEVO componente completo (ts + html + css)
+- `features/admin/routes/admin.routes.ts` — nueva ruta `solicitudes-incorporacion/:idSolicitud/revisar`
+- `features/inscripciones/pages/solicitudes-incorporacion/solicitudes-incorporacion.ts` — `abrirDetalle()` navega a página
+- `features/transcript/pages/transcript/transcript.ts` — tooltip enriquecido para notas migradas
+- `features/transcript/pages/transcript/transcript.html` — `.nota-migrada` + `.migrated-dot` en grade cells
+- `features/transcript/pages/transcript/transcript.css` — estilos `.nota-migrada` (fondo ambar) y `.migrated-dot` (punto naranja)
+
+## Hecho reciente (2026-07-29) — Model consistency fixes
+
+### A.1 — `solicitud_requisito.tipo VARCHAR` → `id_tipo_solicitud FK`
+- **Migration**: `005_solicitud_requisito_id_tipo_fk.sql` — adds FK column, populates from `tipo_solicitud`, drops `tipo`
+- **Model `solicitud_requisito.py`**: `tipo` → `id_tipo_solicitud FK`, added `tipo_solicitud` relationship
+- **Schema `solicitud_requisito.py`**: `tipo` → `id_tipo_solicitud`, added `tipo_codigo` (derived via join)
+- **Router `solicitud_requisito.py`**: GET/POST use `id_tipo_solicitud` instead of `tipo` string, added TipoSolicitud import/batch query
+- **Router `solicitud.py`**: `_crear_documentos()` and `_sincronizar_documentos()` accept `id_tipo_solicitud` instead of string; all callers updated
+
+### A.1.b — Tab Migración
+- **gestionar-requisitos-incorporacion.ts**: Added third tab "Migración" (`swap_horiz` icon) alongside Incorporación/Reincorporación. Tabs rendered via `@for` loop. `tipo` signal changed from string union to `number`.
+
+### C.3 — `documento_solicitud.fecha_entrega` nullable
+- **Migration**: `ALTER TABLE documento_solicitud ALTER COLUMN fecha_entrega DROP NOT NULL, DROP DEFAULT`
+- **Model `documento_solicitud.py`**: `fecha_entrega` nullable, no `server_default`
+
+### C.4 — Estado intermedio "entregado"
+- **Router `solicitud.py` `subir_documento()`**: sets `doc.estado = "entregado"` on upload
+- **Router `solicitud.py` `rechazar()`**: covers both `"pendiente"` and `"entregado"` states
+
+### Frontend alignment
+- **`solicitud-requisito.model.ts`**: `tipo` → `id_tipo_solicitud: number`, added `tipo_codigo: string | null`
+- **`solicitud-requisito.service.ts`**: `tipo: string` → `idTipoSolicitud: number` in both `getRequisitosConfigurados()` and `agregarRequisito()`
+- **`gestionar-requisitos-incorporacion.ts`**: `tipo` signal → `signal<number>(1)`, `TIPOS` const with id/codigo/label/icon, `tipoLabelMap` for display labels, template dynamic tabs via `@for`
+
+### Archivos tocados Backend
+- `migrations/005_solicitud_requisito_id_tipo_fk.sql` — NUEVA migration
+- `models/solicitud_requisito.py` — `tipo` → `id_tipo_solicitud FK`
+- `models/documento_solicitud.py` — `fecha_entrega` nullable
+- `schemas/solicitud_requisito.py` — `tipo` → `id_tipo_solicitud`
+- `routers/solicitud_requisito.py` — `tipo` → `id_tipo_solicitud` en GET/POST
+- `routers/solicitud.py` — `_crear_documentos`/`_sincronizar_documentos` signature, subir_documento (estado="entregado"), rechazar (cubre entregado)
+
+### Archivos tocados Frontend
+- `features/inscripciones/models/solicitud-requisito.model.ts` — `tipo` → `id_tipo_solicitud`
+- `features/inscripciones/services/solicitud-requisito.service.ts` — `tipo` → `idTipoSolicitud`
+- `features/inscripciones/pages/gestionar-requisitos-incorporacion/gestionar-requisitos-incorporacion.ts` — tabs dinámicos + número
 
 ## Historial
 

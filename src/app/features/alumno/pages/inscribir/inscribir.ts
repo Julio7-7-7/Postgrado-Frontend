@@ -27,7 +27,7 @@ import { TipoDescuento } from '../../models/tipo-descuento.model';
 import { RequisitoResumen } from '../../models/modalidad-academica.model';
 import { ProgramaVersionEdicion } from '../../../edicion/models/edicion.model';
 import { DetalleProgramaAlumno } from '../../models/detalle-programa-alumno.model';
-import { SolicitudIncorporacion } from '../../models/solicitud-incorporacion.model';
+import { Solicitud, DocumentoSolicitud } from '../../models/solicitud-incorporacion.model';
 import { environment } from '../../../../../environments/environment';
 
 @Component({
@@ -73,15 +73,8 @@ export class InscribirComponent implements OnInit {
 
   currentStep = signal(1);
   esIncorporacion = signal(false);
-  solicitud = signal<SolicitudIncorporacion | null>(null);
+  solicitud = signal<Solicitud | null>(null);
   dpaId = signal<number | null>(null);
-
-  archivoSeleccionado = signal<File | null>(null);
-  nombreArchivo = signal('');
-  tamanoArchivo = signal('');
-  previewUrl = signal('');
-  esPdf = signal(false);
-  subiendoCarta = signal(false);
 
   descuentosDisponibles = computed(() => {
     const modId = this.selectedModalidad();
@@ -89,6 +82,29 @@ export class InscribirComponent implements OnInit {
     return this.tiposDescuento().filter(d =>
       d.modalidades.some(m => m.id_modalidad_academica === modId)
     );
+  });
+
+  solicitudAceptada = computed(() => this.solicitud()?.estado === 'aprobado' || this.solicitud()?.estado === 'aceptado');
+  solicitudRechazada = computed(() => {
+    const sol = this.solicitud();
+    return sol?.estado === 'rechazado' ? sol.motivo_rechazo : null;
+  });
+
+  expandedDocId = signal<number | null>(null);
+  uploadFile = signal<File | null>(null);
+  uploadFileName = signal('');
+  uploadFileSize = signal('');
+  uploadPreviewUrl = signal('');
+  uploadIsPdf = signal(false);
+  uploadDragOver = signal(false);
+  subiendoDoc = signal(false);
+
+  documentosProgreso = computed(() => {
+    const sol = this.solicitud();
+    if (!sol || !sol.documentos) return { subidos: 0, total: 0, pct: 0 };
+    const subidos = sol.documentos.filter(d => !!d.url_documento).length;
+    const total = sol.documentos.length;
+    return { subidos, total, pct: total > 0 ? Math.round((subidos / total) * 100) : 0 };
   });
 
   descuentosUsados = computed(() => {
@@ -184,36 +200,26 @@ export class InscribirComponent implements OnInit {
 
     this.esIncorporacion.set(true);
 
-    const inscExistente = this.inscripciones().find(
-      i => i.id_programa_version_edicion === idEdicion
-    );
-
-    if (inscExistente) {
-      this.dpaId.set(inscExistente.id_detalle_programa_alumno);
-
-      this.detalleService.getMisSolicitudes().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-        next: (solicitudes) => {
-          const sol = solicitudes.find(
-            s => s.id_programa_version_edicion === idEdicion
-          );
-          if (sol) {
-            this.solicitud.set(sol);
-            if (sol.url_documento) {
-              this.router.navigate(['/alumnos', 'inscripciones', inscExistente.id_detalle_programa_alumno]);
-              return;
-            }
-            this.currentStep.set(3);
+    this.detalleService.getMisSolicitudes().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (solicitudes) => {
+        const sol = solicitudes.find(
+          s => s.incorporacion?.id_programa_version_edicion === idEdicion
+        );
+        if (sol) {
+          this.solicitud.set(sol);
+          const allUploaded = sol.documentos && sol.documentos.length > 0 && sol.documentos.every(d => !!d.url_documento);
+          if (allUploaded || sol.estado !== 'pendiente') {
+            this.currentStep.set(4);
           } else {
             this.currentStep.set(3);
           }
-          this.cargando.set(false);
-        },
-        error: () => { this.cargando.set(false); },
-      });
-    } else {
-      this.currentStep.set(1);
-      this.cargando.set(false);
-    }
+        } else {
+          this.currentStep.set(1);
+        }
+        this.cargando.set(false);
+      },
+      error: () => { this.cargando.set(false); },
+    });
   }
 
   avANextStep(): void {
@@ -299,111 +305,152 @@ export class InscribirComponent implements OnInit {
   }
 
   private _confirmarInscripcion(ed: ProgramaVersionEdicion): void {
-    this.detalleService.autoInscribir({
-      id_programa_version_edicion: ed.id_programa_version_edicion,
-      id_modalidad_academica: this.selectedModalidad()!,
-      id_tipo_descuento: this.selectedDescuento(),
-    }).subscribe({
-      next: (dpa) => {
-        this.guardando.set(false);
-        this.dpaId.set(dpa.id_detalle_programa_alumno);
-        if (ed.estado === 'en_curso') {
-          this.snackBar.open('¡Inscripción exitosa! Ahora subí tu carta de solicitud.', 'Cerrar', { duration: 5000 });
+    if (ed.estado === 'en_curso') {
+      this.detalleService.solicitar({
+        id_programa_version_edicion: ed.id_programa_version_edicion,
+        id_modalidad_academica: this.selectedModalidad()!,
+        id_tipo_descuento: this.selectedDescuento(),
+      }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+        next: (sol) => {
+          this.guardando.set(false);
+          this.solicitud.set(sol);
           this.currentStep.set(3);
-        } else {
+        },
+        error: (err) => {
+          this.guardando.set(false);
+          const msg = err.error?.detail || 'Error al crear solicitud';
+          this.snackBar.open(msg, 'Cerrar', { duration: 5000 });
+        },
+      });
+    } else {
+      this.detalleService.autoInscribir({
+        id_programa_version_edicion: ed.id_programa_version_edicion,
+        id_modalidad_academica: this.selectedModalidad()!,
+        id_tipo_descuento: this.selectedDescuento(),
+      }).subscribe({
+        next: (dpa) => {
+          this.guardando.set(false);
           this.snackBar.open('¡Inscripción exitosa! Revisá la documentación pendiente.', 'Cerrar', { duration: 5000 });
           this.router.navigate(['/alumnos', 'inscripciones']);
-        }
-      },
-      error: (err) => {
-        this.guardando.set(false);
-        const msg = err.error?.detail || 'Error al inscribirte';
-        this.snackBar.open(msg, 'Cerrar', { duration: 5000 });
-      },
-    });
+        },
+        error: (err) => {
+          this.guardando.set(false);
+          const msg = err.error?.detail || 'Error al inscribirte';
+          this.snackBar.open(msg, 'Cerrar', { duration: 5000 });
+        },
+      });
+    }
   }
 
-  onFileSelected(event: Event): void {
+  toggleDocExpand(docId: number): void {
+    this.expandedDocId.update(v => v === docId ? null : docId);
+    this.limpiarUpload();
+  }
+
+  onDocUploadDragOver(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.uploadDragOver.set(true);
+  }
+
+  onDocUploadDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.uploadDragOver.set(false);
+  }
+
+  onDocUploadDrop(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.uploadDragOver.set(false);
+    const file = event.dataTransfer?.files?.[0];
+    if (file) this._procesarDocUpload(file);
+  }
+
+  onDocUploadFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
-    if (!input.files || !input.files[0]) return;
+    const file = input.files?.[0];
+    input.value = '';
+    if (file) this._procesarDocUpload(file);
+  }
 
-    const file = input.files[0];
-    const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'];
-    if (!validTypes.includes(file.type)) {
-      this.snackBar.open('Formato no soportado. Use JPG, PNG, GIF, WebP o PDF.', 'Cerrar', { duration: 4000 });
-      input.value = '';
-      return;
-    }
-
+  private _procesarDocUpload(file: File): void {
     if (file.size > 10 * 1024 * 1024) {
-      this.snackBar.open('El archivo no puede superar 10 MB', 'Cerrar', { duration: 4000 });
-      input.value = '';
+      this.snackBar.open('El archivo no puede superar 10 MB', 'Cerrar', { duration: 3000 });
+      return;
+    }
+    const allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'];
+    if (!allowed.includes(file.type)) {
+      this.snackBar.open('Formato no permitido', 'Cerrar', { duration: 3000 });
       return;
     }
 
-    this.archivoSeleccionado.set(file);
-    this.nombreArchivo.set(file.name);
-    this.tamanoArchivo.set(this._formatSize(file.size));
-    this.esPdf.set(file.type === 'application/pdf');
+    this.uploadFile.set(file);
+    this.uploadFileName.set(file.name);
+    this.uploadFileSize.set(this._formatSize(file.size));
+    this.uploadIsPdf.set(file.type === 'application/pdf');
 
-    if (!this.esPdf()) {
+    if (!this.uploadIsPdf()) {
       const reader = new FileReader();
-      reader.onload = () => this.previewUrl.set(reader.result as string);
+      reader.onload = () => this.uploadPreviewUrl.set(reader.result as string);
       reader.readAsDataURL(file);
     } else {
-      this.previewUrl.set('');
+      this.uploadPreviewUrl.set('');
     }
-
-    input.value = '';
   }
 
-  limpiarArchivo(): void {
-    this.archivoSeleccionado.set(null);
-    this.nombreArchivo.set('');
-    this.tamanoArchivo.set('');
-    this.previewUrl.set('');
-    this.esPdf.set(false);
+  limpiarUpload(): void {
+    this.uploadFile.set(null);
+    this.uploadFileName.set('');
+    this.uploadFileSize.set('');
+    this.uploadPreviewUrl.set('');
+    this.uploadIsPdf.set(false);
+    this.uploadDragOver.set(false);
+    this.subiendoDoc.set(false);
   }
 
-  enviarCarta(): void {
-    const file = this.archivoSeleccionado();
-    if (!file) return;
+  confirmarSubida(): void {
+    const file = this.uploadFile();
+    const docId = this.expandedDocId();
+    const sol = this.solicitud();
+    if (!file || !docId || !sol) return;
 
-    this.subiendoCarta.set(true);
+    this.subiendoDoc.set(true);
     const reader = new FileReader();
     reader.onload = () => {
       const base64 = reader.result as string;
-      const payload: any = { url_documento: base64 };
-
-      const idEdicion = this.edicion()?.id_programa_version_edicion;
-      if (idEdicion) {
-        payload.id_programa_version_edicion = idEdicion;
-      }
-
-      this.detalleService.solicitarIncorporacion(payload)
+      this.detalleService.subirDocumentoSolicitud(sol.id_solicitud, docId, base64)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
-          next: () => {
-            this.subiendoCarta.set(false);
-            this.snackBar.open('¡Carta enviada! Esperá la aprobación del administrador.', 'Cerrar', { duration: 5000 });
-            const dpaId = this.dpaId();
-            if (dpaId) {
-              this.router.navigate(['/alumnos', 'inscripciones', dpaId]);
-            } else {
-              this.router.navigate(['/alumnos', 'inscripciones']);
+          next: (updatedSol) => {
+            this.subiendoDoc.set(false);
+            this.solicitud.set(updatedSol);
+            this.expandedDocId.set(null);
+            this.limpiarUpload();
+            this.snackBar.open('Documento subido correctamente', 'Cerrar', { duration: 2000 });
+            const pct = this.documentosProgreso();
+            if (pct.subidos === pct.total) {
+              this.snackBar.open('¡Todos los documentos subidos!', 'Cerrar', { duration: 3000 });
+              this.currentStep.set(4);
             }
           },
           error: (err) => {
-            this.subiendoCarta.set(false);
-            this.snackBar.open(err.error?.detail || 'Error al enviar la carta', 'Cerrar', { duration: 5000 });
+            this.subiendoDoc.set(false);
+            this.snackBar.open(err.error?.detail || 'Error al subir documento', 'Cerrar', { duration: 4000 });
           },
         });
     };
     reader.onerror = () => {
-      this.subiendoCarta.set(false);
+      this.subiendoDoc.set(false);
       this.snackBar.open('Error al leer el archivo', 'Cerrar', { duration: 4000 });
     };
     reader.readAsDataURL(file);
+  }
+
+  private _formatSize(bytes: number): string {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
   }
 
   getBannerColor(edicion: ProgramaVersionEdicion): string {
@@ -420,11 +467,5 @@ export class InscribirComponent implements OnInit {
     if (!fecha) return '—';
     const d = new Date(fecha + 'T12:00:00');
     return d.toLocaleDateString('es-BO', { day: '2-digit', month: '2-digit', year: 'numeric' });
-  }
-
-  private _formatSize(bytes: number): string {
-    if (bytes < 1024) return bytes + ' B';
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
   }
 }

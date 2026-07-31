@@ -13,7 +13,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { DetalleProgramaAlumnoService } from '../../services/detalle-programa-alumno.service';
 import { DetalleProgramaAlumno, ControlDocumentacionAlumno, EstadoDetalleAlumno } from '../../models/detalle-programa-alumno.model';
-import { SolicitudIncorporacion } from '../../models/solicitud-incorporacion.model';
+import { Solicitud, DocumentoSolicitud } from '../../models/solicitud-incorporacion.model';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog';
 import { environment } from '../../../../../environments/environment';
 
@@ -64,8 +64,12 @@ export class InscripcionDetailComponent implements OnInit {
   apiUrl = environment.apiUrl;
 
   inscripcion = signal<DetalleProgramaAlumno | null>(null);
-  solicitud = signal<SolicitudIncorporacion | null>(null);
+  solicitud = signal<Solicitud | null>(null);
+  solicitudReincorporacion = signal<Solicitud | null>(null);
   cargando = signal(true);
+  showMotivoForm = signal(false);
+  motivoReincorporacion = signal('');
+  enviandoReincorporacion = signal(false);
 
   uploadingDocId = signal<number | null>(null);
   uploadState = signal<'ninguno' | 'leyendo' | 'subiendo' | 'completado'>('ninguno');
@@ -76,6 +80,21 @@ export class InscripcionDetailComponent implements OnInit {
   pendingDocId = signal<number | null>(null);
   pendingFileName = signal('');
   pendingFileSize = signal('');
+
+  pendingReincFile = signal<File | null>(null);
+  pendingReincDocId = signal<number | null>(null);
+  pendingReincFileName = signal('');
+  pendingReincFileSize = signal('');
+  uploadingReincDocId = signal<number | null>(null);
+  uploadReincState = signal<'ninguno' | 'leyendo' | 'subiendo' | 'completado'>('ninguno');
+  uploadReincProgress = signal(0);
+
+  puedeMigrar = signal<boolean | null>(null);
+  motivoMigrar = signal<string | null>(null);
+  showMigracionForm = signal(false);
+  motivoMigracion = signal('');
+  enviandoMigracion = signal(false);
+  solicitudMigracion = signal<Solicitud | null>(null);
 
   stepperSteps = computed(() => {
     const ins = this.inscripcion();
@@ -94,7 +113,11 @@ export class InscripcionDetailComponent implements OnInit {
   docsObligatorios = computed(() => {
     const ins = this.inscripcion();
     if (!ins) return [];
-    return ins.control_documentacion.filter(c => c.obligatorio);
+    return ins.control_documentacion.filter(c => {
+      if (!c.obligatorio) return false;
+      if (!ins.es_incorporacion && c.requisito?.nombre === 'Carta de Solicitud de Incorporación') return false;
+      return true;
+    });
   });
 
   docsExtras = computed(() => {
@@ -108,6 +131,12 @@ export class InscripcionDetailComponent implements OnInit {
     if (obligatorios.length === 0) return { total: 0, aceptados: 0, pct: 0 };
     const aceptados = obligatorios.filter(c => c.estado === 'aceptado').length;
     return { total: obligatorios.length, aceptados, pct: Math.round((aceptados / obligatorios.length) * 100) };
+  });
+
+  cartaDoc = computed((): DocumentoSolicitud | null => {
+    const sol = this.solicitud();
+    if (!sol || !sol.documentos || sol.documentos.length === 0) return null;
+    return sol.documentos[sol.documentos.length - 1];
   });
 
   ngOnInit(): void {
@@ -128,7 +157,12 @@ export class InscripcionDetailComponent implements OnInit {
           this._cargarSolicitud(data.id_programa_version_edicion);
         } else {
           this.cargando.set(false);
+          if (data.estado === 'retirado') {
+            this._cargarSolicitudReincorporacion();
+          }
         }
+        this._cargarPuedeMigrar(data.id_detalle_programa_alumno);
+        this._cargarSolicitudMigracion();
       },
       error: () => {
         this.cargando.set(false);
@@ -141,7 +175,7 @@ export class InscripcionDetailComponent implements OnInit {
   private _cargarSolicitud(idEdicion: number): void {
     this.detalleService.getMisSolicitudes().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (solicitudes) => {
-        const sol = solicitudes.find(s => s.id_programa_version_edicion === idEdicion);
+        const sol = solicitudes.find(s => s.incorporacion?.id_programa_version_edicion === idEdicion);
         if (sol) {
           this.solicitud.set(sol);
         }
@@ -258,6 +292,137 @@ export class InscripcionDetailComponent implements OnInit {
     return !['retirado', 'finalizado', 'graduado'].includes(ins.estado);
   }
 
+  solicitarReincorporacion(): void {
+    const ins = this.inscripcion();
+    if (!ins) return;
+    this.showMotivoForm.set(true);
+  }
+
+  confirmarReincorporacion(): void {
+    const ins = this.inscripcion();
+    if (!ins) return;
+
+    this.enviandoReincorporacion.set(true);
+    this.detalleService.solicitar({
+      id_programa_version_edicion: ins.id_programa_version_edicion,
+      motivo: this.motivoReincorporacion() || undefined,
+    }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (sol) => {
+        this.solicitudReincorporacion.set(sol);
+        this.showMotivoForm.set(false);
+        this.motivoReincorporacion.set('');
+        this.enviandoReincorporacion.set(false);
+        this.snackBar.open('Solicitud enviada. Esperá la respuesta del administrador.', 'Cerrar', { duration: 4000 });
+      },
+      error: (err) => {
+        this.enviandoReincorporacion.set(false);
+        this.snackBar.open(err.error?.detail || 'Error al enviar solicitud', 'Cerrar', { duration: 4000 });
+      },
+    });
+  }
+
+  cancelarReincorporacion(): void {
+    this.showMotivoForm.set(false);
+    this.motivoReincorporacion.set('');
+  }
+
+  tieneSolicitudPendiente(): boolean {
+    return this.solicitudReincorporacion()?.estado === 'pendiente';
+  }
+
+  tieneSolicitudRechazada(): boolean {
+    return this.solicitudReincorporacion()?.estado === 'rechazado';
+  }
+
+  reincDocs = computed((): DocumentoSolicitud[] => {
+    return this.solicitudReincorporacion()?.documentos || [];
+  });
+
+  reincDocsPendientes = computed(() => {
+    return this.reincDocs().filter(d => d.estado === 'pendiente').length;
+  });
+
+  private _cargarSolicitudReincorporacion(): void {
+    this.detalleService.getMisSolicitudes().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (solicitudes) => {
+        const ins = this.inscripcion();
+        if (ins) {
+          const sol = solicitudes.find(
+            s => s.tipo_codigo === 'reincorporacion' && s.id_detalle_origen === ins.id_detalle_programa_alumno
+          );
+          if (sol) this.solicitudReincorporacion.set(sol);
+        }
+      },
+      error: () => {},
+    });
+  }
+
+  private _cargarPuedeMigrar(idDpa: number): void {
+    this.detalleService.puedeMigrar(idDpa).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (res) => {
+        this.puedeMigrar.set(res.puede);
+        this.motivoMigrar.set(res.motivo);
+      },
+      error: () => {
+        this.puedeMigrar.set(false);
+      },
+    });
+  }
+
+  private _cargarSolicitudMigracion(): void {
+    this.detalleService.getMisSolicitudes().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (solicitudes) => {
+        const sol = solicitudes.find(s => s.tipo_codigo === 'migracion' && s.estado === 'pendiente');
+        if (sol) this.solicitudMigracion.set(sol);
+      },
+      error: () => {},
+    });
+  }
+
+  showMigracionCard = computed(() => {
+    return this.puedeMigrar() === true && !this.solicitudMigracion();
+  });
+
+  showMigracionPendiente = computed(() => {
+    return this.solicitudMigracion()?.estado === 'pendiente';
+  });
+
+  showMigracionRechazada = computed(() => {
+    return this.solicitudMigracion()?.estado === 'rechazado';
+  });
+
+  getSolicitudRechazoMotivo(): string | null {
+    return this.solicitudMigracion()?.motivo_rechazo || null;
+  }
+
+  solicitarMigracion(): void {
+    this.showMigracionForm.set(true);
+  }
+
+  confirmarMigracion(): void {
+    this.enviandoMigracion.set(true);
+    this.detalleService.solicitar({ motivo: this.motivoMigracion() || undefined })
+      .pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+        next: (sol) => {
+          this.solicitudMigracion.set(sol);
+          this.showMigracionForm.set(false);
+          this.motivoMigracion.set('');
+          this.enviandoMigracion.set(false);
+          this.puedeMigrar.set(false);
+          this.snackBar.open('Solicitud de migración enviada. Esperá la respuesta del administrador.', 'Cerrar', { duration: 4000 });
+        },
+        error: (err) => {
+          this.enviandoMigracion.set(false);
+          this.snackBar.open(err.error?.detail || 'Error al enviar solicitud', 'Cerrar', { duration: 4000 });
+        },
+      });
+  }
+
+  cancelarMigracion(): void {
+    this.showMigracionForm.set(false);
+    this.motivoMigracion.set('');
+  }
+
   verRequisito(id: number): void {
     window.open(`/requisitos/${id}`, '_blank');
   }
@@ -275,17 +440,18 @@ export class InscripcionDetailComponent implements OnInit {
     const sol = this.solicitud();
     if (!sol) return true;
     if (sol.estado === 'rechazado') return false;
-    return !sol.url_documento;
+    if (!sol.documentos || sol.documentos.length === 0) return true;
+    return !sol.documentos.every(d => !!d.url_documento);
   }
 
   cartaEnRevision(): boolean {
-    const sol = this.solicitud();
-    return !!sol && !!sol.url_documento && sol.estado === 'pendiente';
+    const doc = this.cartaDoc();
+    return !!doc && !!doc.url_documento && doc.estado === 'pendiente';
   }
 
   cartaAprobada(): boolean {
     const sol = this.solicitud();
-    return !!sol && sol.estado === 'aceptado';
+    return !!sol && sol.estado === 'aprobado';
   }
 
   cartaRechazada(): boolean {
@@ -378,5 +544,94 @@ export class InscripcionDetailComponent implements OnInit {
     this.pendingDocId.set(null);
     this.pendingFileName.set('');
     this.pendingFileSize.set('');
+  }
+
+  isReincUploading(docId: number): boolean {
+    return this.uploadingReincDocId() === docId;
+  }
+
+  onReincFileSelected(event: Event, doc: DocumentoSolicitud): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || !input.files[0]) return;
+    const file = input.files[0];
+    const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'];
+    if (!validTypes.includes(file.type)) {
+      this.snackBar.open('Solo se aceptan imágenes (JPG, PNG, GIF, WebP) o PDF', 'Cerrar', { duration: 4000 });
+      input.value = '';
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      this.snackBar.open('El archivo no puede superar 10 MB', 'Cerrar', { duration: 4000 });
+      input.value = '';
+      return;
+    }
+    this.pendingReincFile.set(file);
+    this.pendingReincDocId.set(doc.id_solicitud_documento);
+    this.pendingReincFileName.set(file.name);
+    this.pendingReincFileSize.set(this.formatSize(file.size));
+    input.value = '';
+  }
+
+  confirmReincUpload(): void {
+    const file = this.pendingReincFile();
+    const docId = this.pendingReincDocId();
+    const sol = this.solicitudReincorporacion();
+    if (!file || !docId || !sol) return;
+
+    this.pendingReincFile.set(null);
+    this.pendingReincDocId.set(null);
+    this.pendingReincFileName.set('');
+    this.pendingReincFileSize.set('');
+
+    this.uploadingReincDocId.set(docId);
+    this.uploadReincState.set('leyendo');
+    this.uploadReincProgress.set(0);
+
+    const reader = new FileReader();
+    reader.onprogress = (e) => {
+      if (e.lengthComputable) {
+        this.uploadReincProgress.set(Math.round((e.loaded / e.total) * 30));
+      }
+    };
+    reader.onload = () => {
+      this.uploadReincProgress.set(30);
+      this.uploadReincState.set('subiendo');
+      const base64 = reader.result as string;
+      this.detalleService.subirDocumentoSolicitud(
+        sol.id_solicitud, docId, base64
+      ).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+        next: (updatedSol) => {
+          this.uploadReincProgress.set(100);
+          this.uploadReincState.set('completado');
+          this.solicitudReincorporacion.set(updatedSol);
+          this.snackBar.open('Documento subido correctamente', 'Cerrar', { duration: 3000 });
+          setTimeout(() => {
+            this.uploadingReincDocId.set(null);
+            this.uploadReincState.set('ninguno');
+            this.uploadReincProgress.set(0);
+          }, 1200);
+        },
+        error: (err) => {
+          this.uploadingReincDocId.set(null);
+          this.uploadReincState.set('ninguno');
+          this.uploadReincProgress.set(0);
+          this.snackBar.open(err.error?.detail || 'Error al subir documento', 'Cerrar', { duration: 4000 });
+        },
+      });
+    };
+    reader.onerror = () => {
+      this.uploadingReincDocId.set(null);
+      this.uploadReincState.set('ninguno');
+      this.uploadReincProgress.set(0);
+      this.snackBar.open('Error al leer el archivo', 'Cerrar', { duration: 4000 });
+    };
+    reader.readAsDataURL(file);
+  }
+
+  cancelReincUpload(): void {
+    this.pendingReincFile.set(null);
+    this.pendingReincDocId.set(null);
+    this.pendingReincFileName.set('');
+    this.pendingReincFileSize.set('');
   }
 }

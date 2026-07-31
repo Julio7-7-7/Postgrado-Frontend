@@ -10,6 +10,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { DetalleProgramaAlumnoService } from '../../services/detalle-programa-alumno.service';
 import { DetalleProgramaAlumno, EstadoDetalleAlumno } from '../../models/detalle-programa-alumno.model';
+import { Solicitud } from '../../models/solicitud-incorporacion.model';
 
 @Component({
   selector: 'app-inscripciones',
@@ -28,6 +29,7 @@ export class InscripcionesComponent implements OnInit {
   private router = inject(Router);
 
   inscripciones = signal<DetalleProgramaAlumno[]>([]);
+  solicitudes = signal<Solicitud[]>([]);
   cargando = signal(true);
 
   ngOnInit(): void {
@@ -36,20 +38,33 @@ export class InscripcionesComponent implements OnInit {
 
   private cargarInscripciones(): void {
     this.cargando.set(true);
+    let completadas = 0;
+    const total = 2;
+    const onComplete = () => {
+      if (++completadas >= total) this.cargando.set(false);
+    };
+
     this.detalleService.getMisInscripciones().subscribe({
-      next: (data) => {
-        this.inscripciones.set(data);
-        this.cargando.set(false);
-      },
-      error: () => {
-        this.cargando.set(false);
-        this.snackBar.open('Error al cargar inscripciones', 'Cerrar', { duration: 4000 });
-      },
+      next: (data) => { this.inscripciones.set(data); onComplete(); },
+      error: () => { this.cargando.set(false); this.snackBar.open('Error al cargar inscripciones', 'Cerrar', { duration: 4000 }); },
+    });
+
+    this.detalleService.getMisSolicitudes().subscribe({
+      next: (data) => { this.solicitudes.set(data); onComplete(); },
+      error: onComplete,
     });
   }
 
-  verDetalle(id: number): void {
-    this.router.navigate(['/alumnos/inscripciones', id]);
+  verDetalle(ins: DetalleProgramaAlumno): void {
+    if (ins.es_incorporacion && ins.estado === 'postulante') {
+      const sol = this.solicitudes().find(s => s.incorporacion?.id_programa_version_edicion === ins.id_programa_version_edicion);
+      const allUploaded = sol && sol.documentos && sol.documentos.length > 0 && sol.documentos.every(d => !!d.url_documento);
+      if (!allUploaded) {
+        this.router.navigate(['/alumnos', 'inscribir', ins.id_programa_version_edicion]);
+        return;
+      }
+    }
+    this.router.navigate(['/alumnos/inscripciones', ins.id_detalle_programa_alumno]);
   }
 
   estadoColor(estado: EstadoDetalleAlumno): string {

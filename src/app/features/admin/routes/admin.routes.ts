@@ -80,6 +80,18 @@ export const ADMIN_ROUTES: Routes = [
         canActivate: [permisoGuard('alumnos.ver')],
       },
       {
+        path: 'solicitudes-incorporacion/:idSolicitud/revisar',
+        loadComponent: () =>
+          import('../../inscripciones/pages/revisar-incorporacion/revisar-incorporacion').then(m => m.RevisarIncorporacionComponent),
+        canActivate: [permisoGuard('alumnos.editar')],
+      },
+      {
+        path: 'requisitos-incorporacion',
+        loadComponent: () =>
+          import('../../inscripciones/pages/gestionar-requisitos-incorporacion/gestionar-requisitos-incorporacion').then(m => m.GestionarRequisitosIncorporacionComponent),
+        canActivate: [permisoGuard('alumnos.editar')],
+      },
+      {
         path: 'transcript/:idAlumno',
         loadComponent: () =>
           import('../../transcript/pages/transcript/transcript').then(m => m.TranscriptComponent),
