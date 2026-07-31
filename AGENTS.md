@@ -241,6 +241,44 @@ Nombre del usuario: **Julio** (no "julius" — eso es solo el system user)
 - `features/transcript/pages/transcript/transcript.html` — `.nota-migrada` + `.migrated-dot` en grade cells
 - `features/transcript/pages/transcript/transcript.css` — estilos `.nota-migrada` (fondo ambar) y `.migrated-dot` (punto naranja)
 
+## Hecho reciente (2026-07-29) — Model consistency fixes
+
+### A.1 — `solicitud_requisito.tipo VARCHAR` → `id_tipo_solicitud FK`
+- **Migration**: `005_solicitud_requisito_id_tipo_fk.sql` — adds FK column, populates from `tipo_solicitud`, drops `tipo`
+- **Model `solicitud_requisito.py`**: `tipo` → `id_tipo_solicitud FK`, added `tipo_solicitud` relationship
+- **Schema `solicitud_requisito.py`**: `tipo` → `id_tipo_solicitud`, added `tipo_codigo` (derived via join)
+- **Router `solicitud_requisito.py`**: GET/POST use `id_tipo_solicitud` instead of `tipo` string, added TipoSolicitud import/batch query
+- **Router `solicitud.py`**: `_crear_documentos()` and `_sincronizar_documentos()` accept `id_tipo_solicitud` instead of string; all callers updated
+
+### A.1.b — Tab Migración
+- **gestionar-requisitos-incorporacion.ts**: Added third tab "Migración" (`swap_horiz` icon) alongside Incorporación/Reincorporación. Tabs rendered via `@for` loop. `tipo` signal changed from string union to `number`.
+
+### C.3 — `documento_solicitud.fecha_entrega` nullable
+- **Migration**: `ALTER TABLE documento_solicitud ALTER COLUMN fecha_entrega DROP NOT NULL, DROP DEFAULT`
+- **Model `documento_solicitud.py`**: `fecha_entrega` nullable, no `server_default`
+
+### C.4 — Estado intermedio "entregado"
+- **Router `solicitud.py` `subir_documento()`**: sets `doc.estado = "entregado"` on upload
+- **Router `solicitud.py` `rechazar()`**: covers both `"pendiente"` and `"entregado"` states
+
+### Frontend alignment
+- **`solicitud-requisito.model.ts`**: `tipo` → `id_tipo_solicitud: number`, added `tipo_codigo: string | null`
+- **`solicitud-requisito.service.ts`**: `tipo: string` → `idTipoSolicitud: number` in both `getRequisitosConfigurados()` and `agregarRequisito()`
+- **`gestionar-requisitos-incorporacion.ts`**: `tipo` signal → `signal<number>(1)`, `TIPOS` const with id/codigo/label/icon, `tipoLabelMap` for display labels, template dynamic tabs via `@for`
+
+### Archivos tocados Backend
+- `migrations/005_solicitud_requisito_id_tipo_fk.sql` — NUEVA migration
+- `models/solicitud_requisito.py` — `tipo` → `id_tipo_solicitud FK`
+- `models/documento_solicitud.py` — `fecha_entrega` nullable
+- `schemas/solicitud_requisito.py` — `tipo` → `id_tipo_solicitud`
+- `routers/solicitud_requisito.py` — `tipo` → `id_tipo_solicitud` en GET/POST
+- `routers/solicitud.py` — `_crear_documentos`/`_sincronizar_documentos` signature, subir_documento (estado="entregado"), rechazar (cubre entregado)
+
+### Archivos tocados Frontend
+- `features/inscripciones/models/solicitud-requisito.model.ts` — `tipo` → `id_tipo_solicitud`
+- `features/inscripciones/services/solicitud-requisito.service.ts` — `tipo` → `idTipoSolicitud`
+- `features/inscripciones/pages/gestionar-requisitos-incorporacion/gestionar-requisitos-incorporacion.ts` — tabs dinámicos + número
+
 ## Historial
 
 Para logs de sesión detallados, ver `git log --oneline` en ambos repos. Cada feature relevante tiene su commit message descriptivo.
