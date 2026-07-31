@@ -10,12 +10,17 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { SolicitudRequisitoService } from '../../services/solicitud-requisito.service';
 import { SolicitudRequisito, Requisito } from '../../models/solicitud-requisito.model';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog';
+
+const TIPOS = [
+  { id: 1, codigo: 'incorporacion', label: 'Incorporación', icon: 'how_to_reg' },
+  { id: 2, codigo: 'migracion', label: 'Migración', icon: 'swap_horiz' },
+  { id: 3, codigo: 'reincorporacion', label: 'Reincorporación', icon: 'replay' },
+] as const;
 
 @Component({
   selector: 'app-gestionar-requisitos-incorporacion',
@@ -24,7 +29,7 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
     CommonModule, FormsModule,
     MatIconModule, MatButtonModule, MatTooltipModule,
     MatProgressSpinnerModule, MatSelectModule, MatFormFieldModule, MatInputModule,
-    MatCheckboxModule, MatSnackBarModule, MatDialogModule,
+    MatSnackBarModule, MatDialogModule,
   ],
   template: `
     <div class="page-container">
@@ -41,14 +46,12 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
       </div>
 
       <div class="tabs-bar">
-        <button class="tab-btn" [class.active]="tipo() === 'incorporacion'" (click)="cambiarTipo('incorporacion')">
-          <mat-icon>how_to_reg</mat-icon>
-          <span>Incorporación</span>
-        </button>
-        <button class="tab-btn" [class.active]="tipo() === 'reincorporacion'" (click)="cambiarTipo('reincorporacion')">
-          <mat-icon>replay</mat-icon>
-          <span>Reincorporación</span>
-        </button>
+        @for (t of tipos; track t.id) {
+          <button class="tab-btn" [class.active]="tipo() === t.id" (click)="cambiarTipo(t.id)">
+            <mat-icon>{{ t.icon }}</mat-icon>
+            <span>{{ t.label }}</span>
+          </button>
+        }
       </div>
 
       @if (isLoading()) {
@@ -82,7 +85,6 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
               <thead>
                 <tr>
                   <th class="col-nombre">Requisito</th>
-                  <th class="col-obligatorio">Obligatorio</th>
                   <th class="col-acciones">Acciones</th>
                 </tr>
               </thead>
@@ -94,13 +96,6 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
                         <mat-icon class="req-icon">description</mat-icon>
                         <span class="req-name">{{ item.requisito_nombre }}</span>
                       </div>
-                    </td>
-                    <td class="col-obligatorio">
-                      <mat-checkbox
-                        [checked]="item.obligatorio"
-                        (change)="toggleObligatorio(item, $event.checked)"
-                        color="primary">
-                      </mat-checkbox>
                     </td>
                     <td class="col-acciones">
                       <div class="acciones-cell">
@@ -118,7 +113,7 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
 
           <div class="info-note">
             <mat-icon>info</mat-icon>
-            <span>Cuando un alumno crea una solicitud de {{ tipo() === 'incorporacion' ? 'incorporación' : 'reincorporación' }}, se generarán automáticamente los documentos configurados aquí.</span>
+            <span>Cuando un alumno crea una solicitud de {{ tipoLabelMap[tipo()] }}, se generarán automáticamente los documentos configurados aquí.</span>
           </div>
         }
       }
@@ -207,7 +202,14 @@ export class GestionarRequisitosIncorporacionComponent implements OnInit {
   private dialog = inject(MatDialog);
   private destroyRef = inject(DestroyRef);
 
-  tipo = signal<'incorporacion' | 'reincorporacion'>('incorporacion');
+  readonly tipos = TIPOS;
+  readonly tipoLabelMap: Record<number, string> = {
+    1: 'incorporación',
+    2: 'migración',
+    3: 'reincorporación',
+  };
+
+  tipo = signal<number>(1);
   items = signal<SolicitudRequisito[]>([]);
   allRequisitos = signal<Requisito[]>([]);
   isLoading = signal(true);
@@ -221,7 +223,7 @@ export class GestionarRequisitosIncorporacionComponent implements OnInit {
     this.cargarDatos();
   }
 
-  cambiarTipo(nuevo: 'incorporacion' | 'reincorporacion'): void {
+  cambiarTipo(nuevo: number): void {
     if (this.tipo() === nuevo) return;
     this.tipo.set(nuevo);
     this.cargarDatos();
@@ -253,7 +255,7 @@ export class GestionarRequisitosIncorporacionComponent implements OnInit {
   }
 
   onRequisitoSelected(idRequisito: number): void {
-    this.service.agregarRequisito(idRequisito, true, this.tipo()).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    this.service.agregarRequisito(idRequisito, this.tipo()).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (nuevo) => {
         this.items.update(items => [...items, nuevo]);
         this.snackBar.open('Requisito agregado', 'Cerrar', { duration: 2000 });
@@ -264,21 +266,8 @@ export class GestionarRequisitosIncorporacionComponent implements OnInit {
     });
   }
 
-  toggleObligatorio(item: SolicitudRequisito, obligatorio: boolean): void {
-    this.service.actualizarObligatorio(item.id_solicitud_requisito, obligatorio).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: () => {
-        this.items.update(items =>
-          items.map(i => i.id_solicitud_requisito === item.id_solicitud_requisito ? { ...i, obligatorio } : i)
-        );
-      },
-      error: () => {
-        this.snackBar.open('Error al actualizar', 'Cerrar', { duration: 3000 });
-      },
-    });
-  }
-
   desactivar(item: SolicitudRequisito): void {
-    const tipoLabel = this.tipo() === 'incorporacion' ? 'incorporación' : 'reincorporación';
+    const tipoLabel = this.tipoLabelMap[this.tipo()] || 'incorporación';
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: {
         titulo: 'Quitar requisito',

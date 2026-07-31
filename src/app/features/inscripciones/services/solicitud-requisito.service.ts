@@ -6,16 +6,16 @@ import { SolicitudRequisito, Requisito } from '../models/solicitud-requisito.mod
 @Injectable({ providedIn: 'root' })
 export class SolicitudRequisitoService extends ApiService {
 
-  getRequisitosConfigurados(tipo: string = 'incorporacion'): Observable<SolicitudRequisito[]> {
+  getRequisitosConfigurados(idTipoSolicitud: number): Observable<SolicitudRequisito[]> {
     return this.http.get<SolicitudRequisito[]>(`${this.baseUrl}/solicitud-requisitos/`, {
-      params: { tipo },
+      params: { id_tipo_solicitud: idTipoSolicitud.toString() },
     });
   }
 
-  agregarRequisito(idRequisito: number, obligatorio: boolean = true, tipo: string = 'incorporacion'): Observable<SolicitudRequisito> {
+  agregarRequisito(idRequisito: number, idTipoSolicitud: number = 1): Observable<SolicitudRequisito> {
     return this.http.post<SolicitudRequisito>(
       `${this.baseUrl}/solicitud-requisitos/`,
-      { id_requisito: idRequisito, obligatorio, tipo }
+      { id_requisito: idRequisito, id_tipo_solicitud: idTipoSolicitud }
     );
   }
 
@@ -23,13 +23,6 @@ export class SolicitudRequisitoService extends ApiService {
     return this.http.patch(
       `${this.baseUrl}/solicitud-requisitos/${id}/cambiar-estado`,
       { estado: activo ? 'activo' : 'inactivo' }
-    );
-  }
-
-  actualizarObligatorio(id: number, obligatorio: boolean): Observable<any> {
-    return this.http.patch(
-      `${this.baseUrl}/solicitud-requisitos/${id}`,
-      { obligatorio }
     );
   }
 
