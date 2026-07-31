@@ -1,4 +1,4 @@
-export interface SolicitudDocumento {
+export interface DocumentoSolicitud {
   id_solicitud_documento: number;
   id_requisito: number;
   nombre_requisito: string;
@@ -9,35 +9,54 @@ export interface SolicitudDocumento {
 
 export interface SolicitudIncorporacion {
   id_solicitud: number;
-  id_detalle_programa_alumno: number;
   id_programa_version_edicion: number;
-  estado: string;
-  observaciones: string | null;
-  fecha_revision: string | null;
-  created_at: string;
-  updated_at: string;
-  documentos: SolicitudDocumento[];
+  id_modalidad_academica: number;
+  id_tipo_descuento: number | null;
 }
 
-export interface SolicitudIncorporacionConDetalle {
+export interface SolicitudMigracion {
   id_solicitud: number;
+  id_edicion_destino: number;
+  motivo: string;
+}
+
+export interface Solicitud {
+  id_solicitud: number;
+  id_tipo_solicitud: number;
+  tipo_codigo: string;
+  id_alumno: number;
+  id_detalle_origen: number | null;
   estado: string;
-  observaciones: string | null;
-  fecha_revision: string | null;
+  motivo: string | null;
+  motivo_rechazo: string | null;
   created_at: string;
+  updated_at: string;
+  documentos: DocumentoSolicitud[];
+  incorporacion: SolicitudIncorporacion | null;
+  migracion: SolicitudMigracion | null;
+}
+
+export interface SolicitudConDetalle {
+  id_solicitud: number;
+  id_tipo_solicitud: number;
+  tipo_codigo: string;
   id_alumno: number | null;
   alumno_nombre: string | null;
   alumno_apellido: string | null;
   alumno_ci: string | null;
-  id_programa_version_edicion: number | null;
+  estado: string;
+  motivo: string | null;
+  motivo_rechazo: string | null;
+  id_detalle_origen: number | null;
   edicion_numero: number | null;
   edicion_anio: number | null;
   edicion_semestre: number | null;
   programa_nombre: string | null;
-  id_detalle_programa_alumno: number | null;
   dpa_estado: string | null;
-  es_migracion: boolean;
-  documentos: SolicitudDocumento[];
+  created_at: string;
+  documentos: DocumentoSolicitud[];
+  incorporacion: SolicitudIncorporacion | null;
+  migracion: SolicitudMigracion | null;
 }
 
 export interface NotaPreviewItem {
@@ -80,7 +99,6 @@ export interface PreviewDestino {
   modulos: ModuloDestinoItem[];
   precio: number | null;
   cupo_disponible: number | null;
-  modalidades: { id: number; nombre: string }[];
 }
 
 export interface PreviewMigracion {
@@ -90,46 +108,7 @@ export interface PreviewMigracion {
   resumen: { notas_a_migrar: number; pagos_a_migrar: number; monto_a_migrar: number };
 }
 
-export interface SolicitudReincorporacion {
-  id_solicitud_reincorporacion: number;
-  id_detalle_programa_alumno: number;
-  estado: string;
-  motivo: string | null;
-  motivo_rechazo: string | null;
-  created_at: string;
-  updated_at: string;
-  documentos: SolicitudReincorporacionDocumento[];
-}
-
-export interface SolicitudReincorporacionDocumento {
-  id_solicitud_reincorporacion_documento: number;
-  id_requisito: number;
-  nombre_requisito: string;
-  url_documento: string;
-  estado: string;
-  fecha_entrega: string;
-}
-
-export interface SolicitudReincorporacionConDetalle {
-  id_solicitud_reincorporacion: number;
-  estado: string;
-  motivo: string | null;
-  motivo_rechazo: string | null;
-  created_at: string;
-  id_alumno: number | null;
-  alumno_nombre: string | null;
-  alumno_apellido: string | null;
-  alumno_ci: string | null;
-  id_detalle_programa_alumno: number;
-  dpa_estado: string | null;
-  edicion_numero: number | null;
-  edicion_anio: number | null;
-  edicion_semestre: number | null;
-  programa_nombre: string | null;
-  documentos: SolicitudReincorporacionDocumento[];
-}
-
-export type TipoSolicitud = 'incorporacion' | 'reincorporacion';
+export type TipoSolicitud = 'incorporacion' | 'migracion' | 'reincorporacion';
 
 export interface SolicitudAdminItem {
   tipo: TipoSolicitud;
@@ -146,8 +125,7 @@ export interface SolicitudAdminItem {
   edicion_anio: number | null;
   edicion_semestre: number | null;
   programa_nombre: string | null;
-  documentos?: SolicitudDocumento[];
-  motivo?: string | null;
+  documentos?: DocumentoSolicitud[];
   motivo_rechazo?: string | null;
   es_migracion?: boolean;
 }

@@ -86,25 +86,18 @@
             <mat-icon>info</mat-icon>
           </div>
           <h3>Situación de incorporación</h3>
-          <p>Al inscribirte en una edición <strong>en curso</strong>, tené en cuenta lo siguiente:</p>
+          <p>Al solicitar tu incorporación a una edición <strong>en curso</strong>, el administrador revisará tu caso y decidirá:</p>
           <ul class="gate-list">
             <li>
-              <mat-icon>school</mat-icon>
-              <span>Los módulos ya comenzaron. Deberás cursar los módulos restantes de esta edición.</span>
+              <mat-icon>check_circle</mat-icon>
+              <span><strong>Incorporarte al módulo en curso</strong> &mdash; si considera que aún hay tiempo para ponerte al día.</span>
             </li>
             <li>
-              <mat-icon>description</mat-icon>
-              <span>Necesitarás presentar una carta de solicitud de incorporación dirigida al director de la escuela de postgrado.</span>
-            </li>
-            <li>
-              <mat-icon>swap_horiz</mat-icon>
-              <span>Si la edición siguiente está disponible, podrás migrar tu inscripción cuando finalice esta edición.</span>
-            </li>
-            <li>
-              <mat-icon>schedule</mat-icon>
-              <span>La aprobación está sujeta a revisión del administrador.</span>
+              <mat-icon>skip_next</mat-icon>
+              <span><strong>Iniciar desde el módulo siguiente</strong> &mdash; si no, empezarás cuando comience el próximo módulo.</span>
             </li>
           </ul>
+          <p class="gate-note">En ambos casos, deberás presentar los documentos requeridos y la solicitud quedará pendiente hasta que el administrador la apruebe.</p>
           <div class="gate-actions">
             <button mat-button routerLink="/">
               <mat-icon>arrow_back</mat-icon> Volver
@@ -293,7 +286,7 @@
             <mat-icon [style.color]="'#0d9488'">description</mat-icon>
             <h3>Documentos de incorporación</h3>
           </div>
-          <p class="upload-subtitle">Hacé click en cada documento para verlo o subirlo. Cuando completes todos, serás redirigido a tu inscripción.</p>
+          <p class="upload-subtitle">Hac&eacute; click en cada documento para expandir el &aacute;rea de subida o arrastr&aacute; el archivo directamente.</p>
 
           <div class="progress-section">
             <div class="progress-header">
@@ -307,7 +300,7 @@
             <div class="docs-list">
               @for (doc of sol.documentos; track doc.id_solicitud_documento) {
                 <div class="doc-item doc-clickable" [class.doc-uploaded]="!!doc.url_documento"
-                     (click)="abrirDocumento(doc)">
+                     (click)="toggleDocExpand(doc.id_solicitud_documento)">
                   <div class="doc-status">
                     @if (doc.url_documento) {
                       <mat-icon class="status-icon done">check_circle</mat-icon>
@@ -323,8 +316,58 @@
                       <span class="doc-status-label pending-label">Pendiente</span>
                     }
                   </div>
-                  <mat-icon class="doc-arrow">chevron_right</mat-icon>
+                  <mat-icon class="doc-arrow" [class.expanded]="expandedDocId() === doc.id_solicitud_documento">
+                    {{ expandedDocId() === doc.id_solicitud_documento ? 'expand_less' : 'chevron_right' }}
+                  </mat-icon>
                 </div>
+
+                @if (expandedDocId() === doc.id_solicitud_documento) {
+                  <div class="doc-upload-area">
+                    @if (subiendoDoc()) {
+                      <div class="uploading-state">
+                        <mat-spinner diameter="28"></mat-spinner>
+                        <span>Subiendo documento...</span>
+                      </div>
+                    } @else if (uploadFile()) {
+                      <div class="confirm-preview">
+                        <div class="confirm-file">
+                          @if (uploadIsPdf()) {
+                            <mat-icon class="file-icon pdf">picture_as_pdf</mat-icon>
+                          } @else if (uploadPreviewUrl()) {
+                            <img [src]="uploadPreviewUrl()" class="preview-thumb" />
+                          } @else {
+                            <mat-icon class="file-icon img">image</mat-icon>
+                          }
+                          <div class="confirm-info">
+                            <span class="file-name">{{ uploadFileName() }}</span>
+                            <span class="file-size">{{ uploadFileSize() }}</span>
+                          </div>
+                        </div>
+                        <div class="confirm-actions">
+                          <button mat-button (click)="limpiarUpload()">
+                            <mat-icon>close</mat-icon> Cancelar
+                          </button>
+                          <button mat-flat-button color="primary" (click)="confirmarSubida()">
+                            <mat-icon>send</mat-icon> Subir
+                          </button>
+                        </div>
+                      </div>
+                    } @else {
+                      <div class="drop-zone" [class.drag-over]="uploadDragOver()"
+                           (dragover)="onDocUploadDragOver($event)" (dragleave)="onDocUploadDragLeave($event)"
+                           (drop)="onDocUploadDrop($event)" (click)="docFileInput.click()">
+                        <div class="drop-icon">
+                          <mat-icon>cloud_upload</mat-icon>
+                        </div>
+                        <h4>Seleccion&aacute; o arrastr&aacute; el archivo</h4>
+                        <p>PDF, JPG, PNG, GIF o WebP &mdash; m&aacute;x. 10 MB</p>
+                        <input #docFileInput type="file"
+                               accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
+                               hidden (change)="onDocUploadFileSelected($event)">
+                      </div>
+                    }
+                  </div>
+                }
               }
             </div>
           }
@@ -332,6 +375,35 @@
           <div class="upload-actions-bottom">
             <button mat-button (click)="currentStep.set(2)">
               <mat-icon>arrow_back</mat-icon> Volver al formulario
+            </button>
+          </div>
+        </div>
+      }
+
+      @if (esIncorporacion() && currentStep() === 4) {
+        <div class="section-card success-card">
+          <div class="success-icon">
+            <mat-icon>send</mat-icon>
+          </div>
+          @if (solicitudRechazada(); as motivo) {
+            <h3>Solicitud rechazada</h3>
+            <p class="info-text">{{ motivo }}</p>
+            <button mat-flat-button color="primary" (click)="currentStep.set(2)">
+              <mat-icon>edit</mat-icon> Reintentar
+            </button>
+          } @else if (solicitudAceptada()) {
+            <h3>Solicitud aprobada</h3>
+            <p class="info-text">Tu solicitud fue aprobada. Revis&aacute; tu inscripci&oacute;n para m&aacute;s detalles.</p>
+          } @else {
+            <h3>Solicitud enviada</h3>
+            <p class="info-text">Todos los documentos fueron subidos correctamente. Tu solicitud queda pendiente de aprobaci&oacute;n por parte del administrador. Te notificaremos cuando sea revisada.</p>
+          }
+          <div class="upload-actions-bottom">
+            <button mat-stroked-button routerLink="/alumnos/inscripciones">
+              <mat-icon>list</mat-icon> Mis inscripciones
+            </button>
+            <button mat-button routerLink="/">
+              <mat-icon>home</mat-icon> Volver al inicio
             </button>
           </div>
         </div>

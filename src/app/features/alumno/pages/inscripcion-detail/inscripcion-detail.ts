@@ -13,7 +13,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { DetalleProgramaAlumnoService } from '../../services/detalle-programa-alumno.service';
 import { DetalleProgramaAlumno, ControlDocumentacionAlumno, EstadoDetalleAlumno } from '../../models/detalle-programa-alumno.model';
-import { SolicitudIncorporacion, SolicitudDocumento, SolicitudReincorporacion, SolicitudReincorporacionDocumento } from '../../models/solicitud-incorporacion.model';
+import { Solicitud, DocumentoSolicitud } from '../../models/solicitud-incorporacion.model';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog';
 import { environment } from '../../../../../environments/environment';
 
@@ -64,8 +64,8 @@ export class InscripcionDetailComponent implements OnInit {
   apiUrl = environment.apiUrl;
 
   inscripcion = signal<DetalleProgramaAlumno | null>(null);
-  solicitud = signal<SolicitudIncorporacion | null>(null);
-  solicitudReincorporacion = signal<SolicitudReincorporacion | null>(null);
+  solicitud = signal<Solicitud | null>(null);
+  solicitudReincorporacion = signal<Solicitud | null>(null);
   cargando = signal(true);
   showMotivoForm = signal(false);
   motivoReincorporacion = signal('');
@@ -94,7 +94,7 @@ export class InscripcionDetailComponent implements OnInit {
   showMigracionForm = signal(false);
   motivoMigracion = signal('');
   enviandoMigracion = signal(false);
-  solicitudMigracion = signal<SolicitudIncorporacion | null>(null);
+  solicitudMigracion = signal<Solicitud | null>(null);
 
   stepperSteps = computed(() => {
     const ins = this.inscripcion();
@@ -133,7 +133,7 @@ export class InscripcionDetailComponent implements OnInit {
     return { total: obligatorios.length, aceptados, pct: Math.round((aceptados / obligatorios.length) * 100) };
   });
 
-  cartaDoc = computed((): SolicitudDocumento | null => {
+  cartaDoc = computed((): DocumentoSolicitud | null => {
     const sol = this.solicitud();
     if (!sol || !sol.documentos || sol.documentos.length === 0) return null;
     return sol.documentos[sol.documentos.length - 1];
@@ -175,7 +175,7 @@ export class InscripcionDetailComponent implements OnInit {
   private _cargarSolicitud(idEdicion: number): void {
     this.detalleService.getMisSolicitudes().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (solicitudes) => {
-        const sol = solicitudes.find(s => s.id_programa_version_edicion === idEdicion);
+        const sol = solicitudes.find(s => s.incorporacion?.id_programa_version_edicion === idEdicion);
         if (sol) {
           this.solicitud.set(sol);
         }
@@ -303,10 +303,10 @@ export class InscripcionDetailComponent implements OnInit {
     if (!ins) return;
 
     this.enviandoReincorporacion.set(true);
-    this.detalleService.solicitarReincorporacion(
-      ins.id_detalle_programa_alumno,
-      this.motivoReincorporacion() || undefined
-    ).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    this.detalleService.solicitar({
+      id_programa_version_edicion: ins.id_programa_version_edicion,
+      motivo: this.motivoReincorporacion() || undefined,
+    }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (sol) => {
         this.solicitudReincorporacion.set(sol);
         this.showMotivoForm.set(false);
@@ -331,10 +331,10 @@ export class InscripcionDetailComponent implements OnInit {
   }
 
   tieneSolicitudRechazada(): boolean {
-    return this.solicitudReincorporacion()?.estado === 'rechazada';
+    return this.solicitudReincorporacion()?.estado === 'rechazado';
   }
 
-  reincDocs = computed((): SolicitudReincorporacionDocumento[] => {
+  reincDocs = computed((): DocumentoSolicitud[] => {
     return this.solicitudReincorporacion()?.documentos || [];
   });
 
@@ -343,12 +343,12 @@ export class InscripcionDetailComponent implements OnInit {
   });
 
   private _cargarSolicitudReincorporacion(): void {
-    this.detalleService.getMisSolicitudesReincorporacion().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    this.detalleService.getMisSolicitudes().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (solicitudes) => {
         const ins = this.inscripcion();
         if (ins) {
           const sol = solicitudes.find(
-            s => s.id_detalle_programa_alumno === ins.id_detalle_programa_alumno
+            s => s.tipo_codigo === 'reincorporacion' && s.id_detalle_origen === ins.id_detalle_programa_alumno
           );
           if (sol) this.solicitudReincorporacion.set(sol);
         }
@@ -372,7 +372,7 @@ export class InscripcionDetailComponent implements OnInit {
   private _cargarSolicitudMigracion(): void {
     this.detalleService.getMisSolicitudes().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (solicitudes) => {
-        const sol = solicitudes.find(s => s.id_programa_version_edicion === null && s.estado === 'pendiente');
+        const sol = solicitudes.find(s => s.tipo_codigo === 'migracion' && s.estado === 'pendiente');
         if (sol) this.solicitudMigracion.set(sol);
       },
       error: () => {},
@@ -391,13 +391,17 @@ export class InscripcionDetailComponent implements OnInit {
     return this.solicitudMigracion()?.estado === 'rechazado';
   });
 
+  getSolicitudRechazoMotivo(): string | null {
+    return this.solicitudMigracion()?.motivo_rechazo || null;
+  }
+
   solicitarMigracion(): void {
     this.showMigracionForm.set(true);
   }
 
   confirmarMigracion(): void {
     this.enviandoMigracion.set(true);
-    this.detalleService.solicitarMigracion(undefined, this.motivoMigracion() || undefined)
+    this.detalleService.solicitar({ motivo: this.motivoMigracion() || undefined })
       .pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: (sol) => {
           this.solicitudMigracion.set(sol);
@@ -447,7 +451,7 @@ export class InscripcionDetailComponent implements OnInit {
 
   cartaAprobada(): boolean {
     const sol = this.solicitud();
-    return !!sol && sol.estado === 'aceptado';
+    return !!sol && sol.estado === 'aprobado';
   }
 
   cartaRechazada(): boolean {
@@ -546,7 +550,7 @@ export class InscripcionDetailComponent implements OnInit {
     return this.uploadingReincDocId() === docId;
   }
 
-  onReincFileSelected(event: Event, doc: SolicitudReincorporacionDocumento): void {
+  onReincFileSelected(event: Event, doc: DocumentoSolicitud): void {
     const input = event.target as HTMLInputElement;
     if (!input.files || !input.files[0]) return;
     const file = input.files[0];
@@ -562,7 +566,7 @@ export class InscripcionDetailComponent implements OnInit {
       return;
     }
     this.pendingReincFile.set(file);
-    this.pendingReincDocId.set(doc.id_solicitud_reincorporacion_documento);
+    this.pendingReincDocId.set(doc.id_solicitud_documento);
     this.pendingReincFileName.set(file.name);
     this.pendingReincFileSize.set(this.formatSize(file.size));
     input.value = '';
@@ -593,23 +597,13 @@ export class InscripcionDetailComponent implements OnInit {
       this.uploadReincProgress.set(30);
       this.uploadReincState.set('subiendo');
       const base64 = reader.result as string;
-      this.detalleService.subirDocumentoReincorporacion(
-        sol.id_solicitud_reincorporacion, docId, base64
+      this.detalleService.subirDocumentoSolicitud(
+        sol.id_solicitud, docId, base64
       ).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-        next: () => {
+        next: (updatedSol) => {
           this.uploadReincProgress.set(100);
           this.uploadReincState.set('completado');
-          this.solicitudReincorporacion.update(s => {
-            if (!s) return s;
-            return {
-              ...s,
-              documentos: s.documentos.map(d =>
-                d.id_solicitud_reincorporacion_documento === docId
-                  ? { ...d, estado: 'entregado', url_documento: '/media/reincorporacion/uploaded' }
-                  : d
-              ),
-            };
-          });
+          this.solicitudReincorporacion.set(updatedSol);
           this.snackBar.open('Documento subido correctamente', 'Cerrar', { duration: 3000 });
           setTimeout(() => {
             this.uploadingReincDocId.set(null);

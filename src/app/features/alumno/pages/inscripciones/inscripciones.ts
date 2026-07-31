@@ -10,7 +10,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { DetalleProgramaAlumnoService } from '../../services/detalle-programa-alumno.service';
 import { DetalleProgramaAlumno, EstadoDetalleAlumno } from '../../models/detalle-programa-alumno.model';
-import { SolicitudIncorporacion } from '../../models/solicitud-incorporacion.model';
+import { Solicitud } from '../../models/solicitud-incorporacion.model';
 
 @Component({
   selector: 'app-inscripciones',
@@ -29,7 +29,7 @@ export class InscripcionesComponent implements OnInit {
   private router = inject(Router);
 
   inscripciones = signal<DetalleProgramaAlumno[]>([]);
-  solicitudes = signal<SolicitudIncorporacion[]>([]);
+  solicitudes = signal<Solicitud[]>([]);
   cargando = signal(true);
 
   ngOnInit(): void {
@@ -57,7 +57,7 @@ export class InscripcionesComponent implements OnInit {
 
   verDetalle(ins: DetalleProgramaAlumno): void {
     if (ins.es_incorporacion && ins.estado === 'postulante') {
-      const sol = this.solicitudes().find(s => s.id_programa_version_edicion === ins.id_programa_version_edicion);
+      const sol = this.solicitudes().find(s => s.incorporacion?.id_programa_version_edicion === ins.id_programa_version_edicion);
       const allUploaded = sol && sol.documentos && sol.documentos.length > 0 && sol.documentos.every(d => !!d.url_documento);
       if (!allUploaded) {
         this.router.navigate(['/alumnos', 'inscribir', ins.id_programa_version_edicion]);

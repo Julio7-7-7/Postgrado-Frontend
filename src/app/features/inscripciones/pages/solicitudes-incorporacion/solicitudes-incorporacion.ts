@@ -11,7 +11,7 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { InscripcionEdicionService } from '../../services/inscripcion-edicion.service';
-import { SolicitudIncorporacionConDetalle, SolicitudReincorporacionConDetalle, SolicitudAdminItem, TipoSolicitud } from '../../../alumno/models/solicitud-incorporacion.model';
+import { SolicitudConDetalle, SolicitudAdminItem, TipoSolicitud } from '../../../alumno/models/solicitud-incorporacion.model';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog';
 
 @Component({
@@ -31,14 +31,18 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
           </button>
           <div>
             <h1><mat-icon>school</mat-icon> Solicitudes</h1>
-            <p class="subtitle">Gestionar solicitudes de incorporación y reincorporación de alumnos</p>
+            <p class="subtitle">Gestionar solicitudes de incorporación, migración y reincorporación</p>
           </div>
         </div>
         <div class="header-right">
           <button mat-stroked-button class="config-btn" (click)="irARequisitos()" matTooltip="Configurar documentos requeridos">
             <mat-icon>settings</mat-icon> Documentos
           </button>
-          <span class="total-count">{{ total() }} solicitud{{ total() !== 1 ? 'es' : '' }}</span>
+          @if (total() > 0) {
+            <span class="total-count">{{ startIndex() }}&ndash;{{ endIndex() }} de {{ total() }} solicitud{{ total() !== 1 ? 'es' : '' }}</span>
+          } @else {
+            <span class="total-count">0 solicitudes</span>
+          }
         </div>
       </div>
 
@@ -47,6 +51,11 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
              [class.active]="filtroTipo() === 'incorporacion'">
           <mat-icon>school</mat-icon>
           <span>{{ countIncorporaciones() }} incorporación</span>
+        </div>
+        <div class="stat-chip migracion" (click)="onFiltroTipo('migracion')"
+             [class.active]="filtroTipo() === 'migracion'">
+          <mat-icon>swap_horiz</mat-icon>
+          <span>{{ countMigraciones() }} migración</span>
         </div>
         <div class="stat-chip reincorporacion" (click)="onFiltroTipo('reincorporacion')"
              [class.active]="filtroTipo() === 'reincorporacion'">
@@ -59,8 +68,8 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
           <mat-icon>schedule</mat-icon>
           <span>{{ countPendientes() }} pendientes</span>
         </div>
-        <div class="stat-chip aceptado" (click)="onFiltroEstado('aceptado')"
-             [class.active]="filtroEstado() === 'aceptado'">
+        <div class="stat-chip aceptado" (click)="onFiltroEstado('aprobado')"
+             [class.active]="filtroEstado() === 'aprobado'">
           <mat-icon>check_circle</mat-icon>
           <span>{{ countAprobados() }} aprobadas</span>
         </div>
@@ -90,105 +99,110 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
         </div>
       } @else {
         <div class="table-container">
-          <table class="fich-table solicitudes-table">
+          <table class="solicitudes-table">
             <thead>
               <tr>
                 <th class="col-alumno">Alumno</th>
-                <th class="col-tipo">Tipo</th>
-                <th class="col-programa">Programa / Edición</th>
-                <th class="col-documento">Documentos</th>
-                <th class="col-fecha">Fecha</th>
+                <th class="col-solicitud">Solicitud</th>
+                <th class="col-docs">Docs</th>
                 <th class="col-estado">Estado</th>
-                <th class="col-acciones">Acciones</th>
               </tr>
             </thead>
             <tbody>
-              @for (item of items(); track item.id) {
-                <tr class="table-row clickable-row" [class.row-pendiente]="item.estado === 'pendiente'"
+              @for (item of paginatedItems(); track item.id) {
+                <tr class="table-row" [class.pending-row]="item.estado === 'pendiente'"
                     (click)="abrirDetalle(item)">
                   <td class="col-alumno">
                     <div class="alumno-cell">
-                      <div class="avatar-sm" [class.avatar-inc]="item.tipo === 'incorporacion'"
-                           [class.avatar-reinc]="item.tipo === 'reincorporacion'">
-                        {{ iniciales(item) }}
-                      </div>
-                      <div class="alumno-text">
-                        <span class="alumno-nombre">{{ item.alumno_nombre }} {{ item.alumno_apellido }}</span>
-                        <span class="alumno-ci">{{ item.alumno_ci || 'Sin CI' }}</span>
+                      <div class="avatar-sm" [class]="'avatar-' + item.tipo">{{ iniciales(item) }}</div>
+                      <div class="alumno-info">
+                        <span class="alumno-name">{{ item.alumno_nombre }} {{ item.alumno_apellido }}</span>
+                        <span class="alumno-ci">{{ item.alumno_ci || '&mdash;' }}</span>
                       </div>
                     </div>
                   </td>
-                  <td class="col-tipo">
-                    <span class="tipo-chip" [class]="'tipo-' + item.tipo">
-                      @if (item.tipo === 'incorporacion') {
-                        <mat-icon>school</mat-icon>
-                        Incorporación
+                  <td class="col-solicitud">
+                    <div class="solicitud-cell">
+                      <div class="solicitud-top">
+                        <span class="tipo-badge" [class]="'tipo-' + item.tipo">{{ tipoLabel(item) }}</span>
+                        <span class="prog-name">{{ item.programa_nombre || 'Sin programa' }}</span>
+                      </div>
+                      <span class="solicitud-meta">
+                        @if (item.edicion_numero) { Ed. {{ item.edicion_numero }} &mdash; {{ item.edicion_semestre }}-{{ item.edicion_anio }} &middot; }
+                        {{ convertirFecha(item.created_at) }}
+                      </span>
+                    </div>
+                  </td>
+                  <td class="col-docs">
+                    <div class="docs-cell">
+                      @if (item.documentos && item.documentos.length > 0) {
+                        <div class="doc-dots">
+                          @for (doc of item.documentos; track $index) {
+                            <span class="doc-dot" [class.uploaded]="!!doc.url_documento"
+                                  [matTooltip]="(doc.nombre_requisito || 'Documento') + (doc.url_documento ? ' — recibido' : ' — pendiente')"></span>
+                          }
+                        </div>
+                        <span class="doc-text">{{ docsSubidos(item) }}/{{ item.documentos.length }}</span>
                       } @else {
-                        <mat-icon>restart_alt</mat-icon>
-                        Reincorporación
-                      }
-                    </span>
-                  </td>
-                  <td class="col-programa">
-                    <div class="programa-cell">
-                      <span class="programa-name">{{ item.programa_nombre }}</span>
-                      <span class="edicion-label">Ed. {{ item.edicion_numero }} — {{ item.edicion_semestre }}-{{ item.edicion_anio }}</span>
-                    </div>
-                  </td>
-                  <td class="col-documento">
-                    <div class="doc-cell">
-                      @if (item.tipo === 'incorporacion' && item.documentos && item.documentos.length > 0) {
-                        @if (docsSubidos(item) > 0) {
-                          <span class="doc-count uploaded">{{ docsSubidos(item) }}/{{ item.documentos!.length }}</span>
-                        } @else {
-                          <span class="doc-count pending">{{ item.documentos!.length }} pendiente{{ item.documentos!.length !== 1 ? 's' : '' }}</span>
-                        }
-                      } @else if (item.tipo === 'reincorporacion') {
-                        @if (item.motivo) {
-                          <span class="motivo-pill" [matTooltip]="item.motivo">Con motivo</span>
-                        } @else {
-                          <span class="no-docs">Sin motivo</span>
-                        }
-                      } @else {
-                        <span class="no-docs">Sin docs</span>
+                        <span class="no-docs">&mdash;</span>
                       }
                     </div>
                   </td>
-                  <td class="col-fecha">{{ convertirFecha(item.created_at) }}</td>
-                  <td class="col-estado">
-                    <span class="estado-pill" [class]="estadoClass(item.estado)">{{ item.estado }}</span>
-                  </td>
-                  <td class="col-acciones">
-                    <div class="acciones-cell">
-                      @if (item.estado === 'pendiente') {
-                        <button mat-icon-button class="action-icon reject-icon"
-                                (click)="rechazar(item); $event.stopPropagation()" matTooltip="Rechazar solicitud">
-                          <mat-icon>close</mat-icon>
-                        </button>
-                        <button mat-icon-button class="action-icon approve-icon"
-                                (click)="aprobar(item); $event.stopPropagation()"
-                                [matTooltip]="item.tipo === 'incorporacion' ? 'Revisar y aprobar' : 'Aprobar — restaurar a inscrito'">
-                          <mat-icon>check</mat-icon>
-                        </button>
-                      }
-                      @if (item.estado === 'aceptado' || item.estado === 'aprobada') {
-                        <span class="approved-badge">
-                          <mat-icon>verified</mat-icon>
-                          Aprobada
+                  <td class="col-estado" (click)="$event.stopPropagation()">
+                    @if (item.estado === 'pendiente') {
+                      <div class="estado-actions">
+                        <span class="estado-badge badge-pendiente">
+                          <mat-icon>schedule</mat-icon>
+                          <span>pendiente</span>
                         </span>
-                      }
-                      @if (item.estado === 'rechazado' || item.estado === 'rechazada') {
-                        <span class="rejected-badge">
-                          <mat-icon>block</mat-icon>
-                          Rechazada
-                        </span>
-                      }
-                    </div>
+                        <div class="action-btns">
+                          <button class="btn-icon btn-reject" (click)="rechazar(item)" matTooltip="Rechazar solicitud">
+                            <mat-icon>close</mat-icon>
+                          </button>
+                          <button class="btn-icon btn-approve" (click)="aprobar(item)" matTooltip="Revisar y aprobar">
+                            <mat-icon>check</mat-icon>
+                          </button>
+                        </div>
+                      </div>
+                    } @else if (item.estado === 'aprobado') {
+                      <span class="estado-badge badge-aprobado">
+                        <mat-icon>check_circle</mat-icon>
+                        <span>aprobado</span>
+                      </span>
+                    } @else {
+                      <span class="estado-badge badge-rechazado">
+                        <mat-icon>cancel</mat-icon>
+                        <span>rechazado</span>
+                      </span>
+                    }
                   </td>
                 </tr>
               }
             </tbody>
           </table>
+          <div class="paginator">
+            <div class="paginator-info">
+              {{ startIndex() }}&ndash;{{ endIndex() }} de {{ total() }}
+            </div>
+            <div class="paginator-controls">
+              <button class="paginator-btn" (click)="prevPage()" [disabled]="page() === 0" matTooltip="Anterior">
+                <mat-icon>chevron_left</mat-icon>
+              </button>
+              @for (p of pagesArr(); track $index) {
+                <button class="paginator-page" [class.active]="p === page()" (click)="page.set(p)">
+                  {{ p + 1 }}
+                </button>
+              }
+              <button class="paginator-btn" (click)="nextPage()" [disabled]="page() >= totalPages() - 1" matTooltip="Siguiente">
+                <mat-icon>chevron_right</mat-icon>
+              </button>
+              <select class="paginator-perpage" [ngModel]="perPage()" (ngModelChange)="cambiarPerPage($event)">
+                @for (opt of perPageOptions; track opt) {
+                  <option [value]="opt">{{ opt }} por p&aacute;g.</option>
+                }
+              </select>
+            </div>
+          </div>
         </div>
       }
     </div>
@@ -208,12 +222,26 @@ export class SolicitudesIncorporacionComponent implements OnInit {
   filtroEstado = signal('');
   filtroTipo = signal<TipoSolicitud | ''>('');
 
+  page = signal(0);
+  perPage = signal(20);
+  perPageOptions = [10, 20, 50];
+
   total = computed(() => this.items().length);
+  totalPages = computed(() => Math.max(1, Math.ceil(this.items().length / this.perPage())));
+  paginatedItems = computed(() => {
+    const start = this.page() * this.perPage();
+    return this.items().slice(start, start + this.perPage());
+  });
+  startIndex = computed(() => this.items().length === 0 ? 0 : this.page() * this.perPage() + 1);
+  endIndex = computed(() => Math.min((this.page() + 1) * this.perPage(), this.items().length));
+  pagesArr = computed(() => Array.from({ length: this.totalPages() }, (_, i) => i));
+
   countIncorporaciones = computed(() => this.allItems().filter(i => i.tipo === 'incorporacion').length);
+  countMigraciones = computed(() => this.allItems().filter(i => i.tipo === 'migracion').length);
   countReincorporaciones = computed(() => this.allItems().filter(i => i.tipo === 'reincorporacion').length);
   countPendientes = computed(() => this.allItems().filter(i => i.estado === 'pendiente').length);
-  countAprobados = computed(() => this.allItems().filter(i => i.estado === 'aceptado' || i.estado === 'aprobada').length);
-  countRechazadas = computed(() => this.allItems().filter(i => i.estado === 'rechazado' || i.estado === 'rechazada').length);
+  countAprobados = computed(() => this.allItems().filter(i => i.estado === 'aprobado').length);
+  countRechazadas = computed(() => this.allItems().filter(i => i.estado === 'rechazado').length);
 
   ngOnInit(): void {
     this.cargarTodas();
@@ -221,45 +249,25 @@ export class SolicitudesIncorporacionComponent implements OnInit {
 
   cargarTodas(): void {
     this.isLoading.set(true);
-    let loaded = 0;
-    const all: SolicitudAdminItem[] = [];
-    const done = () => {
-      loaded++;
-      if (loaded < 2) return;
-      all.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-      this.allItems.set(all);
-      this.aplicarFiltros();
-      this.isLoading.set(false);
-    };
-
-    this.service.getSolicitudesIncorporacion()
+    this.service.getSolicitudes()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: data => {
-          for (const s of data) {
-            all.push(this.mapIncorporacion(s));
-          }
-          done();
+          const all: SolicitudAdminItem[] = data.map(s => this.mapSolicitud(s));
+          all.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+          this.allItems.set(all);
+          this.aplicarFiltros();
+          this.isLoading.set(false);
         },
-        error: () => done(),
-      });
-
-    this.service.getSolicitudesReincorporacion()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: data => {
-          for (const s of data) {
-            all.push(this.mapReincorporacion(s));
-          }
-          done();
+        error: () => {
+          this.isLoading.set(false);
         },
-        error: () => done(),
       });
   }
 
-  mapIncorporacion(s: SolicitudIncorporacionConDetalle): SolicitudAdminItem {
+  mapSolicitud(s: SolicitudConDetalle): SolicitudAdminItem {
     return {
-      tipo: 'incorporacion',
+      tipo: s.tipo_codigo as TipoSolicitud,
       id: s.id_solicitud,
       estado: s.estado,
       created_at: s.created_at,
@@ -267,34 +275,13 @@ export class SolicitudesIncorporacionComponent implements OnInit {
       alumno_nombre: s.alumno_nombre,
       alumno_apellido: s.alumno_apellido,
       alumno_ci: s.alumno_ci,
-      id_detalle_programa_alumno: s.id_detalle_programa_alumno,
+      id_detalle_programa_alumno: s.id_detalle_origen,
       dpa_estado: s.dpa_estado,
       edicion_numero: s.edicion_numero,
       edicion_anio: s.edicion_anio,
       edicion_semestre: s.edicion_semestre,
       programa_nombre: s.programa_nombre,
       documentos: s.documentos,
-      es_migracion: s.es_migracion,
-    };
-  }
-
-  mapReincorporacion(s: SolicitudReincorporacionConDetalle): SolicitudAdminItem {
-    return {
-      tipo: 'reincorporacion',
-      id: s.id_solicitud_reincorporacion,
-      estado: s.estado,
-      created_at: s.created_at,
-      id_alumno: s.id_alumno,
-      alumno_nombre: s.alumno_nombre,
-      alumno_apellido: s.alumno_apellido,
-      alumno_ci: s.alumno_ci,
-      id_detalle_programa_alumno: s.id_detalle_programa_alumno,
-      dpa_estado: s.dpa_estado,
-      edicion_numero: s.edicion_numero,
-      edicion_anio: s.edicion_anio,
-      edicion_semestre: s.edicion_semestre,
-      programa_nombre: s.programa_nombre,
-      motivo: s.motivo,
       motivo_rechazo: s.motivo_rechazo,
     };
   }
@@ -304,16 +291,9 @@ export class SolicitudesIncorporacionComponent implements OnInit {
     const tipo = this.filtroTipo();
     const estado = this.filtroEstado();
     if (tipo) result = result.filter(i => i.tipo === tipo);
-    if (estado) {
-      if (estado === 'aceptado') {
-        result = result.filter(i => i.estado === 'aceptado' || i.estado === 'aprobada');
-      } else if (estado === 'rechazado') {
-        result = result.filter(i => i.estado === 'rechazado' || i.estado === 'rechazada');
-      } else {
-        result = result.filter(i => i.estado === estado);
-      }
-    }
+    if (estado) result = result.filter(i => i.estado === estado);
     this.items.set(result);
+    this.page.set(0);
   }
 
   onFiltroTipo(value: TipoSolicitud | ''): void {
@@ -332,6 +312,19 @@ export class SolicitudesIncorporacionComponent implements OnInit {
     this.aplicarFiltros();
   }
 
+  nextPage(): void {
+    if (this.page() < this.totalPages() - 1) this.page.update(p => p + 1);
+  }
+
+  prevPage(): void {
+    if (this.page() > 0) this.page.update(p => p - 1);
+  }
+
+  cambiarPerPage(n: number): void {
+    this.perPage.set(n);
+    this.page.set(0);
+  }
+
   volver(): void {
     this.router.navigate(['/admin/inscripciones']);
   }
@@ -340,16 +333,19 @@ export class SolicitudesIncorporacionComponent implements OnInit {
     this.router.navigate(['/admin/requisitos-incorporacion']);
   }
 
+  tipoLabel(item: SolicitudAdminItem): string {
+    switch (item.tipo) {
+      case 'incorporacion': return 'Incorporación';
+      case 'migracion': return 'Migración';
+      case 'reincorporacion': return 'Reincorporación';
+      default: return item.tipo;
+    }
+  }
+
   iniciales(item: SolicitudAdminItem): string {
     const n = item.alumno_nombre || '?';
     const a = item.alumno_apellido || '';
     return (n[0] + a[0]).toUpperCase();
-  }
-
-  estadoClass(estado: string): string {
-    if (estado === 'aprobada') return 'pill-aceptado';
-    if (estado === 'rechazada') return 'pill-rechazado';
-    return 'pill-' + estado;
   }
 
   convertirFecha(fecha: string): string {
@@ -363,75 +359,47 @@ export class SolicitudesIncorporacionComponent implements OnInit {
   }
 
   abrirDetalle(item: SolicitudAdminItem): void {
-    if (item.tipo === 'incorporacion') {
-      this.router.navigate(['/admin/solicitudes-incorporacion', item.id, 'revisar']);
-    }
+    this.router.navigate(['/admin/solicitudes-incorporacion', item.id, 'revisar']);
   }
 
   aprobar(item: SolicitudAdminItem): void {
-    if (item.tipo === 'incorporacion') {
-      this.router.navigate(['/admin/solicitudes-incorporacion', item.id, 'revisar']);
-      return;
-    }
-
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      data: {
-        titulo: 'Aprobar reincorporación',
-        mensaje: `¿Aprobar la reincorporación de ${item.alumno_nombre} ${item.alumno_apellido}? El alumno volverá al estado "Inscrito" en la edición.`,
-      },
-    });
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.service.aprobarReincorporacion(item.id)
-          .pipe(takeUntilDestroyed(this.destroyRef))
-          .subscribe({
-            next: () => {
-              this.snackBar.open('Reincorporación aprobada', 'Cerrar', { duration: 3000 });
-              this.cargarTodas();
-            },
-            error: (err) => {
-              this.snackBar.open(err.error?.detail || 'Error al aprobar', 'Cerrar', { duration: 4000 });
-            },
-          });
-      }
-    });
-  }
-
-  rechazar(item: SolicitudAdminItem): void {
-    if (item.tipo === 'incorporacion') {
+    if (item.tipo === 'reincorporacion') {
       const dialogRef = this.dialog.open(ConfirmDialogComponent, {
         data: {
-          titulo: 'Rechazar solicitud',
-          mensaje: `¿Rechazar la solicitud de incorporación de ${item.alumno_nombre} ${item.alumno_apellido}?`,
+          titulo: 'Aprobar reincorporación',
+          mensaje: `¿Aprobar la reincorporación de ${item.alumno_nombre} ${item.alumno_apellido}? El alumno volverá al estado "Inscrito" en la edición.`,
         },
       });
       dialogRef.afterClosed().subscribe(result => {
         if (result) {
-          this.service.rechazarSolicitud(item.id, 'Solicitud rechazada por el administrador')
+          this.service.aprobarSolicitud(item.id)
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({
               next: () => {
-                this.snackBar.open('Solicitud rechazada', 'Cerrar', { duration: 3000 });
+                this.snackBar.open('Reincorporación aprobada', 'Cerrar', { duration: 3000 });
                 this.cargarTodas();
               },
               error: (err) => {
-                this.snackBar.open(err.error?.detail || 'Error al rechazar', 'Cerrar', { duration: 4000 });
+                this.snackBar.open(err.error?.detail || 'Error al aprobar', 'Cerrar', { duration: 4000 });
               },
             });
         }
       });
       return;
     }
+    this.router.navigate(['/admin/solicitudes-incorporacion', item.id, 'revisar']);
+  }
 
+  rechazar(item: SolicitudAdminItem): void {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: {
-        titulo: 'Rechazar reincorporación',
-        mensaje: `¿Rechazar la solicitud de reincorporación de ${item.alumno_nombre} ${item.alumno_apellido}? El alumno permanecerá en estado "Retirado".`,
+        titulo: 'Rechazar solicitud',
+        mensaje: `¿Rechazar la solicitud de ${item.tipo} de ${item.alumno_nombre} ${item.alumno_apellido}?`,
       },
     });
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.service.rechazarReincorporacion(item.id, 'Solicitud rechazada por el administrador')
+        this.service.rechazarSolicitud(item.id, 'Solicitud rechazada por el administrador')
           .pipe(takeUntilDestroyed(this.destroyRef))
           .subscribe({
             next: () => {

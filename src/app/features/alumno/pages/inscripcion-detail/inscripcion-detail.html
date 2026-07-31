@@ -415,8 +415,8 @@
                       <mat-spinner diameter="16"></mat-spinner>
                     } @else {
                       <mat-icon>send</mat-icon>
-                      Enviar solicitud
                     }
+                    Enviar solicitud
                   </button>
                 </div>
               </div>
@@ -446,10 +446,10 @@
                 </div>
               </div>
               <div class="docs-list">
-                @for (doc of reincDocs(); track doc.id_solicitud_reincorporacion_documento) {
+                @for (doc of reincDocs(); track doc.id_solicitud_documento) {
                   <div class="doc-item"
                        [class.doc-aceptado]="doc.estado === 'entregado'"
-                       [class.doc-pending-confirm]="pendingReincDocId() === doc.id_solicitud_reincorporacion_documento">
+                       [class.doc-pending-confirm]="pendingReincDocId() === doc.id_solicitud_documento">
                     <div class="doc-row-main">
                       <div class="doc-left">
                         <div class="doc-status-icon" [style.background]="doc.estado === 'entregado' ? '#10b98115' : '#94a3b815'"
@@ -473,12 +473,12 @@
                           </a>
                         }
                         @if (doc.estado === 'pendiente') {
-                          @if (pendingReincDocId() === doc.id_solicitud_reincorporacion_documento) {
+                          @if (pendingReincDocId() === doc.id_solicitud_documento) {
                             <div class="pending-confirm-inline">
                               <span class="pending-filename-inline">{{ pendingReincFileName() }}</span>
                               <span class="pending-size-inline">{{ pendingReincFileSize() }}</span>
                             </div>
-                          } @else if (isReincUploading(doc.id_solicitud_reincorporacion_documento)) {
+                          } @else if (isReincUploading(doc.id_solicitud_documento)) {
                             <div class="upload-progress-inline">
                               @if (uploadReincState() === 'completado') {
                                 <mat-icon class="upload-done">check_circle</mat-icon>
@@ -509,7 +509,7 @@
                       </div>
                     </div>
 
-                    @if (pendingReincDocId() === doc.id_solicitud_reincorporacion_documento && uploadReincState() === 'ninguno') {
+                    @if (pendingReincDocId() === doc.id_solicitud_documento && uploadReincState() === 'ninguno') {
                       <div class="doc-pending-actions">
                         <mat-progress-bar mode="determinate" [value]="0" class="pending-progress"></mat-progress-bar>
                         <div class="doc-pending-buttons">
@@ -525,7 +525,7 @@
                       </div>
                     }
 
-                    @if (isReincUploading(doc.id_solicitud_reincorporacion_documento) && uploadReincState() !== 'completado') {
+                    @if (isReincUploading(doc.id_solicitud_documento) && uploadReincState() !== 'completado') {
                       <div class="doc-upload-progress">
                         <mat-progress-bar mode="determinate" [value]="uploadReincProgress()"></mat-progress-bar>
                       </div>
@@ -565,10 +565,10 @@
                 </div>
               </div>
               <div class="docs-list">
-                @for (doc of reincDocs(); track doc.id_solicitud_reincorporacion_documento) {
+                @for (doc of reincDocs(); track doc.id_solicitud_documento) {
                   <div class="doc-item"
                        [class.doc-aceptado]="doc.estado === 'entregado'"
-                       [class.doc-pending-confirm]="pendingReincDocId() === doc.id_solicitud_reincorporacion_documento">
+                       [class.doc-pending-confirm]="pendingReincDocId() === doc.id_solicitud_documento">
                     <div class="doc-row-main">
                       <div class="doc-left">
                         <div class="doc-status-icon" [style.background]="doc.estado === 'entregado' ? '#10b98115' : '#94a3b815'"
@@ -592,12 +592,12 @@
                           </a>
                         }
                         @if (doc.estado === 'pendiente') {
-                          @if (pendingReincDocId() === doc.id_solicitud_reincorporacion_documento) {
+                          @if (pendingReincDocId() === doc.id_solicitud_documento) {
                             <div class="pending-confirm-inline">
                               <span class="pending-filename-inline">{{ pendingReincFileName() }}</span>
                               <span class="pending-size-inline">{{ pendingReincFileSize() }}</span>
                             </div>
-                          } @else if (isReincUploading(doc.id_solicitud_reincorporacion_documento)) {
+                          } @else if (isReincUploading(doc.id_solicitud_documento)) {
                             <div class="upload-progress-inline">
                               @if (uploadReincState() === 'completado') {
                                 <mat-icon class="upload-done">check_circle</mat-icon>
@@ -628,7 +628,7 @@
                       </div>
                     </div>
 
-                    @if (pendingReincDocId() === doc.id_solicitud_reincorporacion_documento && uploadReincState() === 'ninguno') {
+                    @if (pendingReincDocId() === doc.id_solicitud_documento && uploadReincState() === 'ninguno') {
                       <div class="doc-pending-actions">
                         <mat-progress-bar mode="determinate" [value]="0" class="pending-progress"></mat-progress-bar>
                         <div class="doc-pending-buttons">
@@ -644,7 +644,7 @@
                       </div>
                     }
 
-                    @if (isReincUploading(doc.id_solicitud_reincorporacion_documento) && uploadReincState() !== 'completado') {
+                    @if (isReincUploading(doc.id_solicitud_documento) && uploadReincState() !== 'completado') {
                       <div class="doc-upload-progress">
                         <mat-progress-bar mode="determinate" [value]="uploadReincProgress()"></mat-progress-bar>
                       </div>
@@ -691,8 +691,8 @@
                       <mat-spinner diameter="16"></mat-spinner>
                     } @else {
                       <mat-icon>send</mat-icon>
-                      Enviar solicitud
                     }
+                    Enviar solicitud
                   </button>
                 </div>
               </div>
@@ -720,8 +720,8 @@
               <div class="reincorporacion-text">
                 <h3>Solicitud rechazada</h3>
                 <p>Tu solicitud de migración fue rechazada.</p>
-                @if (solicitudMigracion()?.observaciones) {
-                  <p class="rechazo-reason">{{ solicitudMigracion()?.observaciones }}</p>
+                @if (solicitudMigracion()?.motivo_rechazo) {
+                  <p class="rechazo-reason">{{ solicitudMigracion()?.motivo_rechazo }}</p>
                 }
               </div>
               <button mat-flat-button color="primary" (click)="solicitarMigracion()">

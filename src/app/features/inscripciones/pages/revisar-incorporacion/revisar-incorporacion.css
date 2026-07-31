@@ -47,6 +47,7 @@
 
 .pill-pendiente { background: #fef3c7; color: #92400e; }
 .pill-aceptado { background: #d1fae5; color: #065f46; }
+.pill-aprobado { background: #d1fae5; color: #065f46; }
 .pill-rechazado { background: #fee2e2; color: #991b1b; }
 
 .loading-state {
@@ -542,4 +543,16 @@
 
 .spin {
   animation: spin 1s linear infinite;
+}
+
+.incorporar-checkbox {
+  display: flex;
+  margin-bottom: 4px;
+}
+
+.checkbox-hint {
+  margin: 4px 0 0;
+  font-size: 0.82rem;
+  color: var(--fich-text-muted);
+  line-height: 1.4;
 }

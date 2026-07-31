@@ -7,11 +7,11 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { InscripcionEdicionService } from '../../services/inscripcion-edicion.service';
-import { SolicitudIncorporacionConDetalle } from '../../../alumno/models/solicitud-incorporacion.model';
+import { SolicitudConDetalle } from '../../../alumno/models/solicitud-incorporacion.model';
 import { environment } from '../../../../../environments/environment';
 
 export interface SolicitudIncorporacionDialogData {
-  solicitud: SolicitudIncorporacionConDetalle;
+  solicitud: SolicitudConDetalle;
 }
 
 @Component({
@@ -135,6 +135,7 @@ export interface SolicitudIncorporacionDialogData {
     }
     .pill-pendiente { background: #fef3c7; color: #92400e; }
     .pill-aceptado { background: #d1fae5; color: #065f46; }
+    .pill-aprobado { background: #d1fae5; color: #065f46; }
     .pill-rechazado { background: #fee2e2; color: #991b1b; }
 
     .dialog-programa {
@@ -213,7 +214,7 @@ export class SolicitudIncorporacionDialogComponent {
   private destroyRef = inject(DestroyRef);
 
   apiUrl = environment.apiUrl;
-  sol: SolicitudIncorporacionConDetalle;
+  sol: SolicitudConDetalle;
   procesando = signal(false);
 
   constructor(

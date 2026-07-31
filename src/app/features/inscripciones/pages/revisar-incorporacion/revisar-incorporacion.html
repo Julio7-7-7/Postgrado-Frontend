@@ -40,7 +40,7 @@
           <div class="section-header">
             <mat-icon>description</mat-icon>
             <h3>Documentos</h3>
-            <span class="doc-count-badge">{{ docsSubidos() }}/{{ sol.documentos?.length || 0 }}</span>
+            <span class="doc-count-badge">{{ docsSubidos() }}/{{ sol.documentos.length || 0 }}</span>
           </div>
           @if (sol.documentos && sol.documentos.length > 0) {
             <div class="doc-list">
@@ -90,17 +90,6 @@
                   }
                 </mat-select>
               </mat-form-field>
-
-              @if (preview(); as p) {
-                <mat-form-field appearance="outline" class="full-width">
-                  <mat-label>Modalidad acad&eacute;mica</mat-label>
-                  <mat-select [value]="modalidadSeleccionada()" (selectionChange)="onModalidadChange($event.value)">
-                    @for (mod of p.destino.modalidades; track mod.id) {
-                      <mat-option [value]="mod.id">{{ mod.nombre }}</mat-option>
-                    }
-                  </mat-select>
-                </mat-form-field>
-              }
 
               <mat-form-field appearance="outline" class="full-width">
                 <mat-label>Motivo de migraci&oacute;n</mat-label>
@@ -217,7 +206,28 @@
               <mat-icon>info</mat-icon>
               <h3>Primera Incorporaci&oacute;n</h3>
             </div>
-            <p class="info-text">Esta es la primera vez que este alumno se incorpora a una edici&oacute;n. Al aprobar, se crear&aacute; su inscripci&oacute;n como <strong>postulante</strong> en la edici&oacute;n actual.</p>
+            <p class="info-text">Es la primera vez que el alumno se incorpora a esta edici&oacute;n. Al aprobar, se crear&aacute; su inscripci&oacute;n como <strong>postulante</strong> en la edici&oacute;n actual.</p>
+          </div>
+        }
+
+        @if (modulosEdicion().length > 0) {
+          <div class="section-card modulo-config">
+            <div class="section-header">
+              <mat-icon>play_circle</mat-icon>
+              <h3>M&oacute;dulo de inicio</h3>
+            </div>
+            <mat-checkbox
+              [checked]="incorporarModuloActual()"
+              (change)="incorporarModuloActual.set($event.checked)"
+              color="primary"
+              class="incorporar-checkbox">
+              Incorporar al m&oacute;dulo en curso
+            </mat-checkbox>
+            @if (!incorporarModuloActual()) {
+              <p class="checkbox-hint">El alumno iniciar&aacute; desde el siguiente m&oacute;dulo disponible.</p>
+            } @else {
+              <p class="checkbox-hint">El alumno se incorporar&aacute; al m&oacute;dulo que se est&aacute; cursando actualmente (si hay tiempo para ponerse al d&iacute;a).</p>
+            }
           </div>
         }
       </div>

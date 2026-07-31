@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -28,15 +27,14 @@ import { TipoDescuento } from '../../models/tipo-descuento.model';
 import { RequisitoResumen } from '../../models/modalidad-academica.model';
 import { ProgramaVersionEdicion } from '../../../edicion/models/edicion.model';
 import { DetalleProgramaAlumno } from '../../models/detalle-programa-alumno.model';
-import { SolicitudIncorporacion, SolicitudDocumento } from '../../models/solicitud-incorporacion.model';
+import { Solicitud, DocumentoSolicitud } from '../../models/solicitud-incorporacion.model';
 import { environment } from '../../../../../environments/environment';
-import { SolicitudDocumentoDialogComponent } from './solicitud-documento-dialog';
 
 @Component({
   selector: 'app-inscribir',
   standalone: true,
   imports: [
-    CommonModule, FormsModule, RouterModule, MatDialogModule,
+    CommonModule, FormsModule, RouterModule,
     MatCardModule, MatButtonModule, MatIconModule, MatFormFieldModule,
     MatInputModule, MatSelectModule, MatDatepickerModule, MatNativeDateModule,
     MatDividerModule, MatTooltipModule, MatProgressSpinnerModule, MatProgressBarModule,
@@ -55,7 +53,6 @@ export class InscribirComponent implements OnInit {
   private detalleService = inject(DetalleProgramaAlumnoService);
   private snackBar = inject(MatSnackBar);
   private destroyRef = inject(DestroyRef);
-  private dialog = inject(MatDialog);
 
   edicion = signal<ProgramaVersionEdicion | null>(null);
   alumno = signal<Alumno | null>(null);
@@ -76,7 +73,7 @@ export class InscribirComponent implements OnInit {
 
   currentStep = signal(1);
   esIncorporacion = signal(false);
-  solicitud = signal<SolicitudIncorporacion | null>(null);
+  solicitud = signal<Solicitud | null>(null);
   dpaId = signal<number | null>(null);
 
   descuentosDisponibles = computed(() => {
@@ -86,6 +83,21 @@ export class InscribirComponent implements OnInit {
       d.modalidades.some(m => m.id_modalidad_academica === modId)
     );
   });
+
+  solicitudAceptada = computed(() => this.solicitud()?.estado === 'aprobado' || this.solicitud()?.estado === 'aceptado');
+  solicitudRechazada = computed(() => {
+    const sol = this.solicitud();
+    return sol?.estado === 'rechazado' ? sol.motivo_rechazo : null;
+  });
+
+  expandedDocId = signal<number | null>(null);
+  uploadFile = signal<File | null>(null);
+  uploadFileName = signal('');
+  uploadFileSize = signal('');
+  uploadPreviewUrl = signal('');
+  uploadIsPdf = signal(false);
+  uploadDragOver = signal(false);
+  subiendoDoc = signal(false);
 
   documentosProgreso = computed(() => {
     const sol = this.solicitud();
@@ -188,37 +200,26 @@ export class InscribirComponent implements OnInit {
 
     this.esIncorporacion.set(true);
 
-    const inscExistente = this.inscripciones().find(
-      i => i.id_programa_version_edicion === idEdicion
-    );
-
-    if (inscExistente) {
-      this.dpaId.set(inscExistente.id_detalle_programa_alumno);
-
-      this.detalleService.getMisSolicitudes().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-        next: (solicitudes) => {
-          const sol = solicitudes.find(
-            s => s.id_programa_version_edicion === idEdicion
-          );
-          if (sol) {
-            this.solicitud.set(sol);
-            const allUploaded = sol.documentos && sol.documentos.length > 0 && sol.documentos.every(d => !!d.url_documento);
-            if (allUploaded) {
-              this.router.navigate(['/alumnos', 'inscripciones', inscExistente.id_detalle_programa_alumno]);
-              return;
-            }
-            this.currentStep.set(3);
+    this.detalleService.getMisSolicitudes().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (solicitudes) => {
+        const sol = solicitudes.find(
+          s => s.incorporacion?.id_programa_version_edicion === idEdicion
+        );
+        if (sol) {
+          this.solicitud.set(sol);
+          const allUploaded = sol.documentos && sol.documentos.length > 0 && sol.documentos.every(d => !!d.url_documento);
+          if (allUploaded || sol.estado !== 'pendiente') {
+            this.currentStep.set(4);
           } else {
-            this._crearSolicitud(idEdicion);
+            this.currentStep.set(3);
           }
-          this.cargando.set(false);
-        },
-        error: () => { this.cargando.set(false); },
-      });
-    } else {
-      this.currentStep.set(1);
-      this.cargando.set(false);
-    }
+        } else {
+          this.currentStep.set(1);
+        }
+        this.cargando.set(false);
+      },
+      error: () => { this.cargando.set(false); },
+    });
   }
 
   avANextStep(): void {
@@ -304,71 +305,152 @@ export class InscribirComponent implements OnInit {
   }
 
   private _confirmarInscripcion(ed: ProgramaVersionEdicion): void {
-    this.detalleService.autoInscribir({
-      id_programa_version_edicion: ed.id_programa_version_edicion,
-      id_modalidad_academica: this.selectedModalidad()!,
-      id_tipo_descuento: this.selectedDescuento(),
-    }).subscribe({
-      next: (dpa) => {
-        this.guardando.set(false);
-        this.dpaId.set(dpa.id_detalle_programa_alumno);
-        if (ed.estado === 'en_curso') {
-          this._crearSolicitud(ed.id_programa_version_edicion);
-        } else {
+    if (ed.estado === 'en_curso') {
+      this.detalleService.solicitar({
+        id_programa_version_edicion: ed.id_programa_version_edicion,
+        id_modalidad_academica: this.selectedModalidad()!,
+        id_tipo_descuento: this.selectedDescuento(),
+      }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+        next: (sol) => {
+          this.guardando.set(false);
+          this.solicitud.set(sol);
+          this.currentStep.set(3);
+        },
+        error: (err) => {
+          this.guardando.set(false);
+          const msg = err.error?.detail || 'Error al crear solicitud';
+          this.snackBar.open(msg, 'Cerrar', { duration: 5000 });
+        },
+      });
+    } else {
+      this.detalleService.autoInscribir({
+        id_programa_version_edicion: ed.id_programa_version_edicion,
+        id_modalidad_academica: this.selectedModalidad()!,
+        id_tipo_descuento: this.selectedDescuento(),
+      }).subscribe({
+        next: (dpa) => {
+          this.guardando.set(false);
           this.snackBar.open('¡Inscripción exitosa! Revisá la documentación pendiente.', 'Cerrar', { duration: 5000 });
           this.router.navigate(['/alumnos', 'inscripciones']);
-        }
-      },
-      error: (err) => {
-        this.guardando.set(false);
-        const msg = err.error?.detail || 'Error al inscribirte';
-        this.snackBar.open(msg, 'Cerrar', { duration: 5000 });
-      },
-    });
+        },
+        error: (err) => {
+          this.guardando.set(false);
+          const msg = err.error?.detail || 'Error al inscribirte';
+          this.snackBar.open(msg, 'Cerrar', { duration: 5000 });
+        },
+      });
+    }
   }
 
-  abrirDocumento(doc: SolicitudDocumento): void {
+  toggleDocExpand(docId: number): void {
+    this.expandedDocId.update(v => v === docId ? null : docId);
+    this.limpiarUpload();
+  }
+
+  onDocUploadDragOver(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.uploadDragOver.set(true);
+  }
+
+  onDocUploadDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.uploadDragOver.set(false);
+  }
+
+  onDocUploadDrop(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.uploadDragOver.set(false);
+    const file = event.dataTransfer?.files?.[0];
+    if (file) this._procesarDocUpload(file);
+  }
+
+  onDocUploadFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = '';
+    if (file) this._procesarDocUpload(file);
+  }
+
+  private _procesarDocUpload(file: File): void {
+    if (file.size > 10 * 1024 * 1024) {
+      this.snackBar.open('El archivo no puede superar 10 MB', 'Cerrar', { duration: 3000 });
+      return;
+    }
+    const allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'];
+    if (!allowed.includes(file.type)) {
+      this.snackBar.open('Formato no permitido', 'Cerrar', { duration: 3000 });
+      return;
+    }
+
+    this.uploadFile.set(file);
+    this.uploadFileName.set(file.name);
+    this.uploadFileSize.set(this._formatSize(file.size));
+    this.uploadIsPdf.set(file.type === 'application/pdf');
+
+    if (!this.uploadIsPdf()) {
+      const reader = new FileReader();
+      reader.onload = () => this.uploadPreviewUrl.set(reader.result as string);
+      reader.readAsDataURL(file);
+    } else {
+      this.uploadPreviewUrl.set('');
+    }
+  }
+
+  limpiarUpload(): void {
+    this.uploadFile.set(null);
+    this.uploadFileName.set('');
+    this.uploadFileSize.set('');
+    this.uploadPreviewUrl.set('');
+    this.uploadIsPdf.set(false);
+    this.uploadDragOver.set(false);
+    this.subiendoDoc.set(false);
+  }
+
+  confirmarSubida(): void {
+    const file = this.uploadFile();
+    const docId = this.expandedDocId();
     const sol = this.solicitud();
-    if (!sol) return;
+    if (!file || !docId || !sol) return;
 
-    const dialogRef = this.dialog.open(SolicitudDocumentoDialogComponent, {
-      width: '520px',
-      maxHeight: '80vh',
-      data: { solicitud: sol, documento: doc },
-      disableClose: true,
-    });
-
-    dialogRef.afterClosed().subscribe((updatedSol) => {
-      if (updatedSol) {
-        this.solicitud.set(updatedSol);
-        const progreso = this.documentosProgreso();
-        if (progreso.subidos === progreso.total) {
-          this.snackBar.open('¡Todos los documentos subidos!', 'Cerrar', { duration: 3000 });
-          const dpaId = this.dpaId();
-          if (dpaId) {
-            this.router.navigate(['/alumnos', 'inscripciones', dpaId]);
-          } else {
-            this.router.navigate(['/alumnos', 'inscripciones']);
-          }
-        }
-      }
-    });
+    this.subiendoDoc.set(true);
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64 = reader.result as string;
+      this.detalleService.subirDocumentoSolicitud(sol.id_solicitud, docId, base64)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (updatedSol) => {
+            this.subiendoDoc.set(false);
+            this.solicitud.set(updatedSol);
+            this.expandedDocId.set(null);
+            this.limpiarUpload();
+            this.snackBar.open('Documento subido correctamente', 'Cerrar', { duration: 2000 });
+            const pct = this.documentosProgreso();
+            if (pct.subidos === pct.total) {
+              this.snackBar.open('¡Todos los documentos subidos!', 'Cerrar', { duration: 3000 });
+              this.currentStep.set(4);
+            }
+          },
+          error: (err) => {
+            this.subiendoDoc.set(false);
+            this.snackBar.open(err.error?.detail || 'Error al subir documento', 'Cerrar', { duration: 4000 });
+          },
+        });
+    };
+    reader.onerror = () => {
+      this.subiendoDoc.set(false);
+      this.snackBar.open('Error al leer el archivo', 'Cerrar', { duration: 4000 });
+    };
+    reader.readAsDataURL(file);
   }
 
-  private _crearSolicitud(idEdicion: number): void {
-    this.detalleService.solicitarIncorporacion({
-      id_programa_version_edicion: idEdicion,
-    }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (sol) => {
-        this.solicitud.set(sol);
-        this.currentStep.set(3);
-        this.cargando.set(false);
-      },
-      error: (err) => {
-        this.cargando.set(false);
-        this.snackBar.open(err.error?.detail || 'Error al crear solicitud', 'Cerrar', { duration: 4000 });
-      },
-    });
+  private _formatSize(bytes: number): string {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
   }
 
   getBannerColor(edicion: ProgramaVersionEdicion): string {

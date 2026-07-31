@@ -10,13 +10,16 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { InscripcionEdicionService } from '../../services/inscripcion-edicion.service';
+import { DetalleService } from '../../../detalle-programa-modulo/services/detalle.service';
 import {
-  SolicitudIncorporacionConDetalle,
+  SolicitudConDetalle,
   PreviewMigracion,
 } from '../../../alumno/models/solicitud-incorporacion.model';
 import { EdicionBasica } from '../../models/inscripcion-edicion.model';
+import { DetalleProgramaModulo } from '../../../detalle-programa-modulo/models/detalle.model';
 import { environment } from '../../../../../environments/environment';
 
 @Component({
@@ -26,13 +29,14 @@ import { environment } from '../../../../../environments/environment';
     CommonModule, FormsModule,
     MatIconModule, MatButtonModule, MatTooltipModule,
     MatProgressSpinnerModule, MatSelectModule, MatFormFieldModule, MatInputModule,
-    MatSnackBarModule,
+    MatCheckboxModule, MatSnackBarModule,
   ],
   templateUrl: './revisar-incorporacion.html',
   styleUrl: './revisar-incorporacion.css',
 })
 export class RevisarIncorporacionComponent implements OnInit {
   private service = inject(InscripcionEdicionService);
+  private detalleService = inject(DetalleService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private snackBar = inject(MatSnackBar);
@@ -40,19 +44,22 @@ export class RevisarIncorporacionComponent implements OnInit {
 
   apiUrl = environment.apiUrl;
 
-  solicitud = signal<SolicitudIncorporacionConDetalle | null>(null);
+  solicitud = signal<SolicitudConDetalle | null>(null);
   isLoading = signal(true);
   isPreviewLoading = signal(false);
   isApproving = signal(false);
 
   ediciones = signal<EdicionBasica[]>([]);
   edicionSeleccionada = signal<number | null>(null);
-  modalidadSeleccionada = signal<number | null>(null);
   motivo = signal('');
+
+  modulosEdicion = signal<DetalleProgramaModulo[]>([]);
+  idModuloInicio = signal<number | null>(null);
+  incorporarModuloActual = signal(true);
 
   preview = signal<PreviewMigracion | null>(null);
 
-  esMigracion = computed(() => this.solicitud()?.es_migracion ?? false);
+  esMigracion = computed(() => this.solicitud()?.tipo_codigo === 'migracion');
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('idSolicitud'));
@@ -66,13 +73,16 @@ export class RevisarIncorporacionComponent implements OnInit {
 
   cargarSolicitud(id: number): void {
     this.isLoading.set(true);
-    this.service.getSolicitudesIncorporacion()
+    this.service.getSolicitudes()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (items) => {
           const sol = items.find(s => s.id_solicitud === id);
           if (sol) {
             this.solicitud.set(sol);
+            if (sol.incorporacion?.id_programa_version_edicion) {
+              this.cargarModulos(sol.incorporacion.id_programa_version_edicion);
+            }
           } else {
             this.snackBar.open('Solicitud no encontrada', 'Cerrar', { duration: 3000 });
             this.router.navigate(['/admin/solicitudes-incorporacion']);
@@ -94,6 +104,20 @@ export class RevisarIncorporacionComponent implements OnInit {
       });
   }
 
+  cargarModulos(edicionId: number): void {
+    this.detalleService.getAll(edicionId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (modulos) => {
+          const sorted = [...modulos].sort((a, b) => a.orden - b.orden);
+          this.modulosEdicion.set(sorted);
+          if (sorted.length > 0 && !this.idModuloInicio()) {
+            this.idModuloInicio.set(sorted[0].id_detalle_programa_modulo);
+          }
+        },
+      });
+  }
+
   get nombreCompleto(): string {
     const sol = this.solicitud();
     return sol ? `${sol.alumno_nombre || ''} ${sol.alumno_apellido || ''}`.trim() : '';
@@ -110,34 +134,13 @@ export class RevisarIncorporacionComponent implements OnInit {
   onEdicionChange(idEdicion: number): void {
     this.edicionSeleccionada.set(idEdicion);
     this.preview.set(null);
-    this.modalidadSeleccionada.set(null);
+    this.idModuloInicio.set(null);
+    this.cargarModulos(idEdicion);
 
     const ed = this.ediciones().find(e => e.id_programa_version_edicion === idEdicion);
     if (ed && this.solicitud()) {
       this.isPreviewLoading.set(true);
-      this.service.previewMigracion(this.solicitud()!.id_solicitud, idEdicion, 1)
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe({
-          next: (p) => {
-            this.preview.set(p);
-            if (p.destino.modalidades.length > 0) {
-              this.modalidadSeleccionada.set(p.destino.modalidades[0].id);
-            }
-            this.isPreviewLoading.set(false);
-          },
-          error: (err) => {
-            this.isPreviewLoading.set(false);
-            this.snackBar.open(err.error?.detail || 'Error al cargar preview', 'Cerrar', { duration: 4000 });
-          },
-        });
-    }
-  }
-
-  onModalidadChange(idModalidad: number): void {
-    this.modalidadSeleccionada.set(idModalidad);
-    if (this.edicionSeleccionada() && this.solicitud()) {
-      this.isPreviewLoading.set(true);
-      this.service.previewMigracion(this.solicitud()!.id_solicitud, this.edicionSeleccionada()!, idModalidad)
+      this.service.previewMigracion(this.solicitud()!.id_solicitud, idEdicion)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: (p) => {
@@ -192,7 +195,7 @@ export class RevisarIncorporacionComponent implements OnInit {
     const sol = this.solicitud();
     if (!sol || sol.estado !== 'pendiente') return false;
     if (this.esMigracion()) {
-      return !!(this.edicionSeleccionada() && this.modalidadSeleccionada() && this.motivo().trim());
+      return !!(this.edicionSeleccionada() && this.motivo().trim());
     }
     return true;
   }
@@ -202,10 +205,19 @@ export class RevisarIncorporacionComponent implements OnInit {
     const sol = this.solicitud()!;
     this.isApproving.set(true);
 
-    const data: any = {};
+    const modulos = this.modulosEdicion();
+    let idModuloInicio: number | null = null;
+    if (this.incorporarModuloActual()) {
+      idModuloInicio = modulos.length > 0 ? modulos[0].id_detalle_programa_modulo : null;
+    } else {
+      idModuloInicio = modulos.length > 1 ? modulos[1].id_detalle_programa_modulo
+                     : modulos.length > 0 ? modulos[0].id_detalle_programa_modulo
+                     : null;
+    }
+
+    const data: any = { id_modulo_inicio: idModuloInicio };
     if (this.esMigracion()) {
       data.id_programa_version_edicion = this.edicionSeleccionada();
-      data.id_modalidad_academica = this.modalidadSeleccionada();
       data.motivo = this.motivo();
     }
 

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from '../../../core/services/api.service';
 import { DetalleProgramaAlumno, AutoInscribirRequest, ControlDocumentacionAlumno } from '../models/detalle-programa-alumno.model';
-import { SolicitudIncorporacion, SolicitudReincorporacion, SolicitudReincorporacionDocumento, PuedeMigrarResponse } from '../models/solicitud-incorporacion.model';
+import { Solicitud, PuedeMigrarResponse } from '../models/solicitud-incorporacion.model';
 
 @Injectable({ providedIn: 'root' })
 export class DetalleProgramaAlumnoService extends ApiService {
@@ -31,60 +31,32 @@ export class DetalleProgramaAlumnoService extends ApiService {
     );
   }
 
-  solicitarIncorporacion(data: {
+  solicitar(data: {
     id_programa_version_edicion?: number | null;
     id_modalidad_academica?: number | null;
     id_tipo_descuento?: number | null;
     modulo_inicio?: number;
     url_documento?: string;
-    id_requisito?: number | null;
-  }): Observable<SolicitudIncorporacion> {
-    return this.http.post<SolicitudIncorporacion>(
-      `${this.baseUrl}/solicitud-incorporacion/solicitar`,
-      data
-    );
+    motivo?: string;
+  }): Observable<Solicitud> {
+    return this.http.post<Solicitud>(`${this.baseUrl}/solicitud/solicitar`, data);
   }
 
-  subirDocumentoSolicitud(idSolicitud: number, idDoc: number, urlDocumento: string): Observable<SolicitudIncorporacion> {
-    return this.http.patch<SolicitudIncorporacion>(
-      `${this.baseUrl}/solicitud-incorporacion/${idSolicitud}/documentos/${idDoc}/subir`,
+  subirDocumentoSolicitud(idSolicitud: number, idDoc: number, urlDocumento: string): Observable<Solicitud> {
+    return this.http.patch<Solicitud>(
+      `${this.baseUrl}/solicitud/${idSolicitud}/documentos/${idDoc}/subir`,
       { url_documento: urlDocumento }
     );
   }
 
-  getMisSolicitudes(): Observable<SolicitudIncorporacion[]> {
-    return this.http.get<SolicitudIncorporacion[]>(`${this.baseUrl}/solicitud-incorporacion/mis-solicitudes`);
-  }
-
-  solicitarReincorporacion(idDpa: number, motivo?: string): Observable<SolicitudReincorporacion> {
-    return this.http.post<SolicitudReincorporacion>(
-      `${this.baseUrl}/solicitud-reincorporacion/solicitar/${idDpa}`,
-      { motivo: motivo || '' }
-    );
-  }
-
-  getMisSolicitudesReincorporacion(): Observable<SolicitudReincorporacion[]> {
-    return this.http.get<SolicitudReincorporacion[]>(`${this.baseUrl}/solicitud-reincorporacion/mis-solicitudes`);
-  }
-
-  subirDocumentoReincorporacion(idSolicitud: number, idDoc: number, urlDocumento: string): Observable<{ ok: boolean; url: string }> {
-    return this.http.post<{ ok: boolean; url: string }>(
-      `${this.baseUrl}/solicitud-reincorporacion/${idSolicitud}/documentos/${idDoc}/subir`,
-      { url_documento: urlDocumento }
-    );
+  getMisSolicitudes(): Observable<Solicitud[]> {
+    return this.http.get<Solicitud[]>(`${this.baseUrl}/solicitud/mis-solicitudes`);
   }
 
   puedeMigrar(idDpa: number): Observable<PuedeMigrarResponse> {
     return this.http.get<PuedeMigrarResponse>(
-      `${this.baseUrl}/solicitud-incorporacion/puede-migrar`,
+      `${this.baseUrl}/solicitud/puede-migrar`,
       { params: { id_detalle_programa_alumno: idDpa } }
-    );
-  }
-
-  solicitarMigracion(idDpa?: number, motivo?: string): Observable<SolicitudIncorporacion> {
-    return this.http.post<SolicitudIncorporacion>(
-      `${this.baseUrl}/solicitud-incorporacion/solicitar`,
-      { motivo: motivo || '' }
     );
   }
 }
