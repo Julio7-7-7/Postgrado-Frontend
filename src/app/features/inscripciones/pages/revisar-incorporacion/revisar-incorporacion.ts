@@ -20,6 +20,7 @@ import {
 } from '../../../alumno/models/solicitud-incorporacion.model';
 import { EdicionBasica } from '../../models/inscripcion-edicion.model';
 import { DetalleProgramaModulo } from '../../../detalle-programa-modulo/models/detalle.model';
+import { HistorialMovimiento, InscripcionBasica } from '../../../notas/models/nota.model';
 import { environment } from '../../../../../environments/environment';
 
 @Component({
@@ -59,7 +60,12 @@ export class RevisarIncorporacionComponent implements OnInit {
 
   preview = signal<PreviewMigracion | null>(null);
 
+  historial = signal<HistorialMovimiento[]>([]);
+  inscripcionesHistorial = signal<InscripcionBasica[]>([]);
+  isLoadingHistorial = signal(false);
+
   esMigracion = computed(() => this.solicitud()?.tipo_codigo === 'migracion');
+  esReincorporacion = computed(() => this.solicitud()?.tipo_codigo === 'reincorporacion');
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('idSolicitud'));
@@ -83,6 +89,9 @@ export class RevisarIncorporacionComponent implements OnInit {
             if (sol.incorporacion?.id_programa_version_edicion) {
               this.cargarModulos(sol.incorporacion.id_programa_version_edicion);
             }
+            if (sol.id_alumno) {
+              this.cargarHistorial(sol.id_alumno);
+            }
           } else {
             this.snackBar.open('Solicitud no encontrada', 'Cerrar', { duration: 3000 });
             this.router.navigate(['/admin/solicitudes-incorporacion']);
@@ -92,6 +101,22 @@ export class RevisarIncorporacionComponent implements OnInit {
         error: () => {
           this.isLoading.set(false);
           this.snackBar.open('Error al cargar solicitud', 'Cerrar', { duration: 3000 });
+        },
+      });
+  }
+
+  cargarHistorial(idAlumno: number): void {
+    this.isLoadingHistorial.set(true);
+    this.service.getHistorialMovimientos(idAlumno)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (h) => {
+          this.historial.set(h.movimientos);
+          this.inscripcionesHistorial.set(h.inscripciones);
+          this.isLoadingHistorial.set(false);
+        },
+        error: () => {
+          this.isLoadingHistorial.set(false);
         },
       });
   }
@@ -172,6 +197,26 @@ export class RevisarIncorporacionComponent implements OnInit {
 
   estadoClass(estado: string): string {
     return 'pill-' + estado;
+  }
+
+  movimientoLabel(tipo: string): string {
+    switch (tipo) {
+      case 'reincorporacion': return 'Reincorporación';
+      case 'incorporacion': return 'Incorporación';
+      case 'migracion': return 'Migración';
+      case 'transferencia': return 'Transferencia';
+      default: return tipo;
+    }
+  }
+
+  formatFecha(fecha: string): string {
+    if (!fecha) return '—';
+    return new Date(fecha).toLocaleDateString('es-BO', { day: '2-digit', month: 'short', year: 'numeric' });
+  }
+
+  esUltimoMovimiento(mov: HistorialMovimiento): boolean {
+    const movs = this.historial();
+    return movs.length > 0 && mov.id_historial === movs[movs.length - 1].id_historial;
   }
 
   notaClass(nota: number): string {
