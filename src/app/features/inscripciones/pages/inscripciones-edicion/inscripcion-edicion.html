@@ -10,29 +10,36 @@
       </div>
     </div>
     <div class="header-right">
-      <span class="total-count">{{ total() }} inscripción{{ total() !== 1 ? 'es' : '' }}</span>
+      @if (total() > 0) {
+        <span class="total-count">{{ startIndex() }}&ndash;{{ endIndex() }} de {{ total() }} inscripción{{ total() !== 1 ? 'es' : '' }}</span>
+      } @else {
+        <span class="total-count">0 inscripciones</span>
+      }
     </div>
+  </div>
+
+  <div class="stats-row">
+    @for (estado of estados; track estado.codigo) {
+      <div class="stat-chip" [class]="chipClass(estado.codigo)" [class.active]="filtroEstado() === estado.codigo"
+           (click)="onFiltroEstado(estado.codigo)">
+        <mat-icon>{{ estadoIcon(estado.codigo) }}</mat-icon>
+        <span>{{ countPorEstado()[estado.codigo] || 0 }} {{ estado.label }}</span>
+      </div>
+    }
+    @if (filtroEstado() || busqueda()) {
+      <button class="clear-filter" (click)="limpiarFiltros()">
+        <mat-icon>close</mat-icon>
+        Limpiar
+      </button>
+    }
   </div>
 
   <div class="filters-bar">
     <mat-form-field appearance="outline" class="search-field">
       <mat-icon matPrefix>search</mat-icon>
-      <input matInput placeholder="Buscar por nombre, apellido o CI..."
+      <input matInput placeholder="Buscar por nombre, apellido, CI o correo..."
              [value]="busqueda()"
              (input)="onBusqueda($any($event.target).value)" />
-    </mat-form-field>
-    <mat-form-field appearance="outline" class="estado-field">
-      <mat-label>Estado</mat-label>
-      <mat-select [value]="filtroEstado()" (selectionChange)="onFiltroEstado($event.value)">
-        <mat-option value="">Todos</mat-option>
-        <mat-option value="postulante">Postulante</mat-option>
-        <mat-option value="observado">Observado</mat-option>
-        <mat-option value="inscrito">Inscrito</mat-option>
-        <mat-option value="incorporado">Incorporado</mat-option>
-        <mat-option value="finalizado">Finalizado</mat-option>
-        <mat-option value="graduado">Graduado</mat-option>
-        <mat-option value="retirado">Retirado</mat-option>
-      </mat-select>
     </mat-form-field>
   </div>
 
@@ -50,21 +57,21 @@
       </div>
     } @else {
       <div class="table-container">
-        <table class="fich-table inscripciones-table">
+        <table class="inscripciones-table">
           <thead>
             <tr>
-              <th class="col-alumno">Alumno</th>
-              <th class="col-ci">CI</th>
-              <th class="col-estado">Estado</th>
-              <th class="col-modalidad">Modalidad</th>
-              <th class="col-docs">Documentos</th>
-              <th class="col-modulo">Mód. Inicio</th>
-              <th class="col-descuento">Descuento</th>
+              <th class="col-alumno"><button class="sort-btn" [class.active]="sortKey() === 'alumno'" (click)="onSort('alumno')">Alumno <mat-icon>{{ sortIcon('alumno') }}</mat-icon></button></th>
+              <th class="col-ci"><button class="sort-btn" [class.active]="sortKey() === 'ci'" (click)="onSort('ci')">CI <mat-icon>{{ sortIcon('ci') }}</mat-icon></button></th>
+              <th class="col-estado"><button class="sort-btn" [class.active]="sortKey() === 'estado'" (click)="onSort('estado')">Estado <mat-icon>{{ sortIcon('estado') }}</mat-icon></button></th>
+              <th class="col-modalidad"><button class="sort-btn" [class.active]="sortKey() === 'modalidad'" (click)="onSort('modalidad')">Modalidad <mat-icon>{{ sortIcon('modalidad') }}</mat-icon></button></th>
+              <th class="col-docs"><button class="sort-btn" [class.active]="sortKey() === 'docs'" (click)="onSort('docs')">Documentos <mat-icon>{{ sortIcon('docs') }}</mat-icon></button></th>
+              <th class="col-modulo"><button class="sort-btn" [class.active]="sortKey() === 'modulo'" (click)="onSort('modulo')">Mód. Inicio <mat-icon>{{ sortIcon('modulo') }}</mat-icon></button></th>
+              <th class="col-descuento"><button class="sort-btn" [class.active]="sortKey() === 'descuento'" (click)="onSort('descuento')">Descuento <mat-icon>{{ sortIcon('descuento') }}</mat-icon></button></th>
               <th class="col-acciones">Acciones</th>
             </tr>
           </thead>
           <tbody>
-            @for (item of items(); track item.id_detalle_programa_alumno) {
+            @for (item of paginatedItems(); track item.id_detalle_programa_alumno) {
               <tr class="table-row">
                 <td class="col-alumno">
                   <div class="alumno-cell">
@@ -113,23 +120,30 @@
             }
           </tbody>
         </table>
-      </div>
-
-      @if (pages() > 1) {
-        <div class="pagination">
-          <button mat-icon-button (click)="irAPagina(page() - 1)" [disabled]="page() === 1" matTooltip="Anterior">
-            <mat-icon>chevron_left</mat-icon>
-          </button>
-          @for (p of paginasVisibles(); track p) {
-            <button mat-icon-button [class.active]="p === page()" (click)="irAPagina(p)" class="page-btn">
-              {{ p }}
+        <div class="paginator">
+          <div class="paginator-info">
+            {{ startIndex() }}&ndash;{{ endIndex() }} de {{ total() }}
+          </div>
+          <div class="paginator-controls">
+            <button class="paginator-btn" (click)="prevPage()" [disabled]="page() === 0" matTooltip="Anterior">
+              <mat-icon>chevron_left</mat-icon>
             </button>
-          }
-          <button mat-icon-button (click)="irAPagina(page() + 1)" [disabled]="page() === pages()" matTooltip="Siguiente">
-            <mat-icon>chevron_right</mat-icon>
-          </button>
+            @for (p of pagesArr(); track $index) {
+              <button class="paginator-page" [class.active]="p === page()" (click)="page.set(p)">
+                {{ p + 1 }}
+              </button>
+            }
+            <button class="paginator-btn" (click)="nextPage()" [disabled]="page() >= totalPages() - 1" matTooltip="Siguiente">
+              <mat-icon>chevron_right</mat-icon>
+            </button>
+            <select class="paginator-perpage" [ngModel]="perPage()" (ngModelChange)="cambiarPerPage($event)">
+              @for (opt of perPageOptions; track opt) {
+                <option [value]="opt">{{ opt }} por p&aacute;g.</option>
+              }
+            </select>
+          </div>
         </div>
-      }
+      </div>
     }
   }
 </div>
