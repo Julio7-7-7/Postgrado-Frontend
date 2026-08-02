@@ -1,7 +1,6 @@
 .page-container {
   padding: var(--fich-space-xl) var(--fich-space-xl) 40px;
-  max-width: 920px;
-  margin: 0 auto;
+  width: 90%; max-width: 1440px;  margin: 0 auto;
 }
 .header-section {
   display: flex;

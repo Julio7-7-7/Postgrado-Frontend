@@ -1,6 +1,5 @@
 .dashboard {
-  max-width: 1200px;
-  margin: 0 auto;
+  width: 90%; max-width: 1920px;  margin: 0 auto;
   padding: 28px 28px 56px;
   display: flex;
   flex-direction: column;
