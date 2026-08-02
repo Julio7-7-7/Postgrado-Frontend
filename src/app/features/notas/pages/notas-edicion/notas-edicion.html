@@ -9,6 +9,14 @@
         <p class="subtitle">Gestión de notas de los alumnos</p>
       </div>
     </div>
+    <div class="header-right">
+      @if (alumnos().length > 0) {
+        <button mat-stroked-button class="sort-toggle" (click)="toggleOrden()" matTooltip="Alternar orden alfabético">
+          <mat-icon>{{ nombreDir() === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
+          Orden alfabético
+        </button>
+      }
+    </div>
   </div>
 
   @if (isLoading()) {

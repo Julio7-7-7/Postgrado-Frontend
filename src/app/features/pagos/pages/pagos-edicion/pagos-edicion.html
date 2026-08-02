@@ -9,6 +9,14 @@
         <p class="subtitle">Gestión de pagos de los postulantes</p>
       </div>
     </div>
+    <div class="header-right">
+      @if (alumnos().length > 0) {
+        <button mat-stroked-button class="sort-toggle" (click)="toggleOrden()" matTooltip="Alternar orden alfabético">
+          <mat-icon>{{ nombreDir() === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
+          Orden alfabético
+        </button>
+      }
+    </div>
   </div>
 
   @if (isLoading()) {
@@ -25,7 +33,7 @@
       </div>
     } @else {
       <div class="alumnos-list">
-        @for (a of alumnos(); track a.id_detalle_programa_alumno) {
+        @for (a of alumnosOrdenados(); track a.id_detalle_programa_alumno) {
           <div class="alumno-card" [class.expanded]="expandedId() === a.id_detalle_programa_alumno"
                (click)="toggleExpand(a)">
             <div class="alumno-header">

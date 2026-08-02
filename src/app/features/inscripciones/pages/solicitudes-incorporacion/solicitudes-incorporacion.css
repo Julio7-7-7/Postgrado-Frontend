@@ -1,6 +1,5 @@
 .page-container {
-  max-width: 1200px;
-  margin: 0 auto;
+  width: 90%; max-width: 1920px;  margin: 0 auto;
   padding: 24px;
 }
 
@@ -216,6 +215,37 @@
   border-bottom: 1px solid var(--fich-border-light, #e2e8f0);
 }
 
+.sort-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  color: inherit;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.sort-btn:hover,
+.sort-btn.active { color: var(--fich-primary, #1e3a8a); }
+
+.sort-btn mat-icon {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+  line-height: 14px;
+}
+
+.sort-btn:not(.active) mat-icon {
+  opacity: 0.45;
+}
+
 .solicitudes-table td {
   padding: 10px 10px;
   font-size: 0.84rem;
@@ -227,7 +257,7 @@
 .col-alumno { width: 30%; }
 .col-solicitud { width: auto; }
 .col-docs { width: 72px; text-align: center; }
-.col-estado { width: 140px; }
+.col-estado { width: 150px; text-align: center; }
 
 .table-row {
   transition: background 0.12s;
@@ -381,10 +411,6 @@
 .estado-badge mat-icon { font-size: 13px; width: 13px; height: 13px; }
 .estado-badge span { text-transform: capitalize; }
 
-.badge-pendiente {
-  background: #fef3c7;
-  color: #92400e;
-}
 .badge-aprobado {
   background: #d1fae5;
   color: #065f46;
@@ -394,18 +420,10 @@
   color: #991b1b;
 }
 
-/* Estado row: badge + actions inline */
-.estado-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  justify-content: flex-end;
-}
-
 .action-btns {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 3px;
+  gap: 4px;
 }
 
 .btn-icon {

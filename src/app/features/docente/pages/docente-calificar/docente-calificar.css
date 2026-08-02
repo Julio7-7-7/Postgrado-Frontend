@@ -1,6 +1,5 @@
 .page-container {
-  max-width: 1100px;
-  margin: 0 auto;
+  width: 90%; max-width: 1920px;  margin: 0 auto;
   padding: 24px;
 }
 
@@ -38,6 +37,21 @@
 }
 
 .back-btn { margin-top: 2px; }
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 4px;
+}
+
+.sort-toggle { font-size: 0.8rem; }
+
+.sort-toggle mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
 
 .loading-state, .empty-state {
   display: flex;
