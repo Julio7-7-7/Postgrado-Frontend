@@ -1,7 +1,6 @@
 .page-container {
   padding: var(--fich-space-lg) var(--fich-space-lg) 30px;
-  max-width: 1100px;
-  margin: 0 auto;
+  width: 90%; max-width: 1920px;  margin: 0 auto;
 }
 
 .header-section {

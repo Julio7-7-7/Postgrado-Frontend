@@ -14,11 +14,17 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { DetalleProgramaAlumnoService } from '../../services/detalle-programa-alumno.service';
 import { DetalleProgramaAlumno, ControlDocumentacionAlumno, EstadoDetalleAlumno } from '../../models/detalle-programa-alumno.model';
 import { Solicitud, DocumentoSolicitud } from '../../models/solicitud-incorporacion.model';
+import { SolicitudRequisitoService } from '../../../inscripciones/services/solicitud-requisito.service';
+import { SolicitudRequisito } from '../../../inscripciones/models/solicitud-requisito.model';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog';
 import { environment } from '../../../../../environments/environment';
 
-const ESTADO_ORDEN: EstadoDetalleAlumno[] = [
-  'postulante', 'observado', 'inscrito', 'incorporado', 'finalizado', 'graduado'
+const ESTADO_HITOS: { estado: EstadoDetalleAlumno; titulo: string; descripcion: string; icono: string }[] = [
+  { estado: 'postulante', titulo: 'Postulación', descripcion: 'Tu solicitud fue recibida', icono: 'how_to_reg' },
+  { estado: 'inscrito', titulo: 'Admisión', descripcion: 'Documentación aprobada, estás cursando', icono: 'verified' },
+  { estado: 'incorporado', titulo: 'Incorporación', descripcion: 'Ingresaste por transferencia', icono: 'swap_horiz' },
+  { estado: 'finalizado', titulo: 'Finalización', descripcion: 'Completaste el plan de estudios', icono: 'flag' },
+  { estado: 'graduado', titulo: 'Egreso', descripcion: 'Recibiste tu título de postgrado', icono: 'workspaces' },
 ];
 
 const ESTADO_LABELS: Record<string, string> = {
@@ -36,9 +42,23 @@ const ESTADO_COLORS: Record<string, string> = {
   observado: '#f97316',
   inscrito: '#3b82f6',
   incorporado: '#0ea5e9',
-  finalizado: '#6b7280',
+  finalizado: '#10b981',
   graduado: '#8b5cf6',
   retirado: '#ef4444',
+};
+
+const EDICION_ESTADO_LABELS: Record<string, string> = {
+  programado: 'Programada',
+  en_curso: 'En curso',
+  reprogramado: 'Reprogramada',
+  finalizado: 'Finalizada',
+};
+
+const EDICION_ESTADO_COLORS: Record<string, string> = {
+  programado: '#64748b',
+  en_curso: '#10b981',
+  reprogramado: '#d97706',
+  finalizado: '#6366f1',
 };
 
 @Component({
@@ -56,6 +76,7 @@ const ESTADO_COLORS: Record<string, string> = {
 export class InscripcionDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private detalleService = inject(DetalleProgramaAlumnoService);
+  private solicitudRequisitoService = inject(SolicitudRequisitoService);
   private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
   private destroyRef = inject(DestroyRef);
@@ -67,7 +88,6 @@ export class InscripcionDetailComponent implements OnInit {
   solicitud = signal<Solicitud | null>(null);
   solicitudReincorporacion = signal<Solicitud | null>(null);
   cargando = signal(true);
-  showMotivoForm = signal(false);
   motivoReincorporacion = signal('');
   enviandoReincorporacion = signal(false);
 
@@ -89,25 +109,63 @@ export class InscripcionDetailComponent implements OnInit {
   uploadReincState = signal<'ninguno' | 'leyendo' | 'subiendo' | 'completado'>('ninguno');
   uploadReincProgress = signal(0);
 
+  requisitosReincorporacion = signal<SolicitudRequisito[]>([]);
+  reincReqFiles = signal<Record<number, { file: File; name: string; size: string }>>({});
+  reincorporacionExpandida = signal(false);
+
   puedeMigrar = signal<boolean | null>(null);
-  motivoMigrar = signal<string | null>(null);
   showMigracionForm = signal(false);
   motivoMigracion = signal('');
   enviandoMigracion = signal(false);
   solicitudMigracion = signal<Solicitud | null>(null);
 
-  stepperSteps = computed(() => {
+  hitos = computed(() => {
     const ins = this.inscripcion();
     if (!ins) return [];
-    const currentIdx = ESTADO_ORDEN.indexOf(ins.estado);
-    return ESTADO_ORDEN.map((estado, idx) => ({
-      estado,
-      label: ESTADO_LABELS[estado],
-      color: ESTADO_COLORS[estado],
-      completado: currentIdx > idx && ins.estado !== 'retirado',
-      actual: ins.estado === estado,
-      pendiente: currentIdx < idx && ins.estado !== 'retirado',
+    const base = ins.es_incorporacion
+      ? ESTADO_HITOS
+      : ESTADO_HITOS.filter(h => h.estado !== 'incorporado');
+    const actual = ins.estado === 'observado' ? 'postulante' : ins.estado;
+    const currentIdx = base.findIndex(h => h.estado === actual);
+    if (ins.estado === 'retirado') {
+      return base.map(h => ({ ...h, completado: false, actual: false, pendiente: false }));
+    }
+    return base.map((hito, idx) => ({
+      ...hito,
+      completado: currentIdx > idx,
+      actual: currentIdx === idx,
+      pendiente: currentIdx < idx,
     }));
+  });
+
+  esObservado = computed(() => this.inscripcion()?.estado === 'observado');
+  esRetirado = computed(() => this.inscripcion()?.estado === 'retirado');
+
+  edicionEstado = computed(() => this.inscripcion()?.programa_version_edicion.estado ?? null);
+  edicionActiva = computed(() => {
+    const e = this.edicionEstado();
+    return e === 'en_curso' || e === 'reprogramado';
+  });
+
+  mostrarReincorporacion = computed(() => {
+    return this.esRetirado() && this.edicionActiva()
+      && !this.tieneSolicitudPendiente() && !this.tieneSolicitudRechazada()
+      && !this.tieneSolicitudAprobada();
+  });
+
+  rangoFechas = computed(() => {
+    const pve = this.inscripcion()?.programa_version_edicion;
+    if (!pve?.fecha_inicio && !pve?.fecha_fin) return '—';
+    const ini = pve.fecha_inicio ? this.convertirFecha(pve.fecha_inicio) : '?';
+    const fin = pve.fecha_fin ? this.convertirFecha(pve.fecha_fin) : 'en curso';
+    return `${ini} — ${fin}`;
+  });
+
+  textoMigracion = computed(() => {
+    if (this.esRetirado()) {
+      return 'La edición finalizó y no pudiste completarla. Solicitá migrar a una nueva edición para continuar tu plan de estudios.';
+    }
+    return 'Esta edición finalizó. Solicitá migrar a una nueva edición para continuar tu plan de estudios.';
   });
 
   docsObligatorios = computed(() => {
@@ -159,6 +217,7 @@ export class InscripcionDetailComponent implements OnInit {
           this.cargando.set(false);
           if (data.estado === 'retirado') {
             this._cargarSolicitudReincorporacion();
+            this._cargarRequisitosReincorporacion();
           }
         }
         this._cargarPuedeMigrar(data.id_detalle_programa_alumno);
@@ -191,6 +250,16 @@ export class InscripcionDetailComponent implements OnInit {
 
   estadoLabel(estado: string): string {
     return ESTADO_LABELS[estado] || estado;
+  }
+
+  edicionEstadoLabel(estado: string | null): string {
+    if (!estado) return '—';
+    return EDICION_ESTADO_LABELS[estado] || estado;
+  }
+
+  edicionEstadoColor(estado: string | null): string {
+    if (!estado) return '#64748b';
+    return EDICION_ESTADO_COLORS[estado] || '#64748b';
   }
 
   convertirFecha(fecha: string | null): string {
@@ -293,10 +362,42 @@ export class InscripcionDetailComponent implements OnInit {
   }
 
   solicitarReincorporacion(): void {
-    const ins = this.inscripcion();
-    if (!ins) return;
-    this.showMotivoForm.set(true);
+    this.solicitudReincorporacion.set(null);
+    this.reincReqFiles.set({});
+    this.reincorporacionExpandida.set(true);
   }
+
+  onReincReqFileSelected(event: Event, idRequisito: number): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || !input.files[0]) return;
+    const file = input.files[0];
+    const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'];
+    if (!validTypes.includes(file.type)) {
+      this.snackBar.open('Solo se aceptan imágenes (JPG, PNG, GIF, WebP) o PDF', 'Cerrar', { duration: 4000 });
+      input.value = '';
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      this.snackBar.open('El archivo no puede superar 10 MB', 'Cerrar', { duration: 4000 });
+      input.value = '';
+      return;
+    }
+    this.reincReqFiles.update(files => ({
+      ...files,
+      [idRequisito]: { file, name: file.name, size: this.formatSize(file.size) },
+    }));
+    input.value = '';
+  }
+
+  quitarReincReqFile(idRequisito: number): void {
+    this.reincReqFiles.update(files => {
+      const copy = { ...files };
+      delete copy[idRequisito];
+      return copy;
+    });
+  }
+
+  reincReqSubidos = computed(() => Object.keys(this.reincReqFiles()).length);
 
   confirmarReincorporacion(): void {
     const ins = this.inscripcion();
@@ -309,10 +410,8 @@ export class InscripcionDetailComponent implements OnInit {
     }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (sol) => {
         this.solicitudReincorporacion.set(sol);
-        this.showMotivoForm.set(false);
         this.motivoReincorporacion.set('');
-        this.enviandoReincorporacion.set(false);
-        this.snackBar.open('Solicitud enviada. Esperá la respuesta del administrador.', 'Cerrar', { duration: 4000 });
+        this._subirReincReqFiles(sol);
       },
       error: (err) => {
         this.enviandoReincorporacion.set(false);
@@ -321,9 +420,45 @@ export class InscripcionDetailComponent implements OnInit {
     });
   }
 
-  cancelarReincorporacion(): void {
-    this.showMotivoForm.set(false);
-    this.motivoReincorporacion.set('');
+  private _subirReincReqFiles(sol: Solicitud): void {
+    const pending = this.reincReqFiles();
+    const entries = Object.entries(pending);
+    if (entries.length === 0) {
+      this.enviandoReincorporacion.set(false);
+      this.snackBar.open('Solicitud enviada. Esperá la respuesta del administrador.', 'Cerrar', { duration: 4000 });
+      return;
+    }
+
+    const uploadNext = (idx: number): void => {
+      if (idx >= entries.length) {
+        this.reincReqFiles.set({});
+        this.enviandoReincorporacion.set(false);
+        this.snackBar.open('Solicitud enviada con documentos. Esperá la respuesta del administrador.', 'Cerrar', { duration: 4000 });
+        return;
+      }
+      const [idReqStr, entry] = entries[idx];
+      const doc = sol.documentos?.find(d => d.id_requisito === Number(idReqStr));
+      if (!doc) {
+        uploadNext(idx + 1);
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = () => {
+        const base64 = reader.result as string;
+        this.detalleService.subirDocumentoSolicitud(sol.id_solicitud, doc.id_solicitud_documento, base64)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe({
+            next: (updatedSol) => {
+              this.solicitudReincorporacion.set(updatedSol);
+              uploadNext(idx + 1);
+            },
+            error: () => uploadNext(idx + 1),
+          });
+      };
+      reader.onerror = () => uploadNext(idx + 1);
+      reader.readAsDataURL(entry.file);
+    };
+    uploadNext(0);
   }
 
   tieneSolicitudPendiente(): boolean {
@@ -332,6 +467,10 @@ export class InscripcionDetailComponent implements OnInit {
 
   tieneSolicitudRechazada(): boolean {
     return this.solicitudReincorporacion()?.estado === 'rechazado';
+  }
+
+  tieneSolicitudAprobada(): boolean {
+    return this.solicitudReincorporacion()?.estado === 'aprobado';
   }
 
   reincDocs = computed((): DocumentoSolicitud[] => {
@@ -357,11 +496,17 @@ export class InscripcionDetailComponent implements OnInit {
     });
   }
 
+  private _cargarRequisitosReincorporacion(): void {
+    this.solicitudRequisitoService.getRequisitosConfigurados(3).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (reqs) => this.requisitosReincorporacion.set(reqs),
+      error: () => {},
+    });
+  }
+
   private _cargarPuedeMigrar(idDpa: number): void {
     this.detalleService.puedeMigrar(idDpa).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res) => {
         this.puedeMigrar.set(res.puede);
-        this.motivoMigrar.set(res.motivo);
       },
       error: () => {
         this.puedeMigrar.set(false);
@@ -380,7 +525,8 @@ export class InscripcionDetailComponent implements OnInit {
   }
 
   showMigracionCard = computed(() => {
-    return this.puedeMigrar() === true && !this.solicitudMigracion();
+    return this.puedeMigrar() === true
+      && (!this.solicitudMigracion() || this.showMigracionForm());
   });
 
   showMigracionPendiente = computed(() => {
@@ -388,7 +534,7 @@ export class InscripcionDetailComponent implements OnInit {
   });
 
   showMigracionRechazada = computed(() => {
-    return this.solicitudMigracion()?.estado === 'rechazado';
+    return this.solicitudMigracion()?.estado === 'rechazado' && !this.showMigracionForm();
   });
 
   getSolicitudRechazoMotivo(): string | null {

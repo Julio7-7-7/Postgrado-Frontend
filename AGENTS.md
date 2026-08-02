@@ -279,6 +279,153 @@ Nombre del usuario: **Julio** (no "julius" — eso es solo el system user)
 - `features/inscripciones/services/solicitud-requisito.service.ts` — `tipo` → `idTipoSolicitud`
 - `features/inscripciones/pages/gestionar-requisitos-incorporacion/gestionar-requisitos-incorporacion.ts` — tabs dinámicos + número
 
+## Hecho reciente (2026-07-31) — Inscripciones por edición estilo "menú de solicitudes"
+
+- **Página `inscripciones-edicion`** migrada de paginación/filtrado server-side a **client-side completo** (espejo del patrón `solicitudes-incorporacion`):
+  - Un solo request `getPorEdicion(idEdicion, 1, 500)` carga todo; `allItems` guarda el dataset completo, `items` es el resultado filtrado
+  - Stats-row con **chips clickeables por estado** (postulantes/observados/inscritos/incorporados/finalizados/graduados/retirados) con conteos vía `countPorEstado()` computed; click togglea el filtro, botón "Limpiar" aparece con filtros activos
+  - Búsqueda client-side (nombre, apellido, CI, correo) sin debounce — reemplaza al `mat-select` de estado (eliminado junto con `MatSelectModule` y `.estado-field`)
+  - Paginador custom estilo solicitudes: `paginator-info` (rango), controles anterior/siguiente + números, y selector "N por pág." (`perPageOptions = [10, 20, 50, 100]`), page 0-based
+- **Backend**: límite `per_page` subido `le=100` → `le=500` en `routers/detalle_programa_alumno.py` (único consumidor de `por-edicion` es esta página)
+- Métodos eliminados: `irAPagina`, `paginasVisibles`, `onFiltroEstado` (server-side), `busquedaTimeout`; agregados: `aplicarFiltros`, `limpiarFiltros`, `nextPage`, `prevPage`, `cambiarPerPage`, `chipClass`, `estadoIcon`
+- Estados chips usan colores propios (`chip-postulante` azul, `chip-observado` rojo, `chip-inscrito` verde, `chip-incorporado` ámbar, `chip-finalizado` índigo, `chip-graduado` esmeralda oscuro, `chip-retirado` gris)
+- Frontend verificado con `npx tsc --noEmit` limpio
+
+## Hecho reciente (2026-08-01) — Refactor de inscripcion-detail (página del alumno)
+
+- **Stepper "caminito de serpiente" → hitos horizontales** en la card "Tu recorrido en el programa":
+  - `ESTADO_HITOS` (5 hitos: Postulación → Admisión → Incorporación → Finalización → Egreso) con icono + descripción. El hito "Incorporación" se filtra si `!es_incorporacion`
+  - El hito "Admisión" ahora arranca en `inscrito` (no `observado`) — "Observado" ya NO es etapa superable del camino, se muestra como aviso aparte (tarjeta ámbar "Tus documentos fueron observados") al igual que "Retirado" (tarjeta roja)
+  - `hitos()` computed: `completado`/`actual`/`pendiente` por índice; retirado marca todo pendiente
+  - CSS: `.hitos`, `.hito`, `.hito-linea` (conector con `.filled`), `.estado-aviso` (variantes `.observado`/`.retirado`)
+- **Info card lateral "Tu inscripción" enriquecida** (`.info-card-header` con `.info-avatar` + `.edicion-estado-badge`):
+  - Badge de estado de la edición (`programado`/`en_curso`/`reprogramado`/`finalizado` con `EDICION_ESTADO_LABELS`/`EDICION_ESTADO_COLORS`)
+  - Filas: edición, periodo (`rangoFechas()` computed con `fecha_inicio`/`fecha_fin`), modalidad, módulo de inicio, fecha de inscripción, tipo (incorporación), descuento, inversión (Bs)
+- **Zona de peligro estilo GitHub** al final de la página (full-width): header rojo con warning + body con texto y botón "Retirarse de esta inscripción". Solo si `puedeRetirarse()` (no retirado/finalizado/graduado). CSS `.danger-zone*`, `.retirar-btn`
+- **Lógica migración/reincorporación contextual** (reglas de negocio acordadas):
+  - `edicionActiva()` = `en_curso` | `reprogramado`. Retirado + edición activa → card reincorporación (`mostrarReincorporacion`)
+  - Retirado + edición finalizada → card migración (texto distinto en `textoMigracion()`)
+  - Edición finalizada sin retiro → card migración normal
+  - Edición en curso sin retiro → NO se muestra nada de migración (eliminada la card gris "Migración no disponible" y sus estilos `.migracion-card.disabled`)
+  - `puedeMigrar` señal (backend) decide `showMigracionCard()`; `motivoMigrar` señal eliminada (muerto)
+- **Bugfix "Volver a solicitar"**: cuando una solicitud estaba rechazada, el botón abría el form pero la card quedaba oculta. Ahora `mostrarReincorporacion()` acepta `showMotivoForm()` y `showMigracionCard()` acepta `showMigracionForm()`; la card rechazada se oculta mientras el form está abierto (`tieneSolicitudRechazada() && !showMotivoForm()`, `showMigracionRechazada() && !showMigracionForm()`)
+- **Reincorporación unificada en un solo apartado (2026-08-01)**: eliminada la "tarjetita" de solicitar que separaba el envío del motivo de la subida de documentos. Ahora:
+  - Un apartado grande `.reincorporacion-apartado` en la main-col (justo debajo de la card de recorrido) con header, textarea de motivo y la **lista de documentos requeridos** (configurados por admin para el tipo `reincorporacion`) con selección de archivo individual (chip con nombre + quitar). Un único botón "Enviar solicitud" crea la solicitud y sube todos los archivos en secuencia.
+  - **El apartado es un desplegable** (patrón contratación docente): el header es clickeable (con chevron `expand_more` rotativo), el contenido (motivo + docs + botón) está en `@if (reincorporacionExpandida())`. Se abre por defecto en su primera aparición; `solicitarReincorporacion()` (botón "Volver a solicitar") lo reabre con `reincorporacionExpandida.set(true)`.
+  - Señales nuevas: `requisitosReincorporacion` (SolicitudRequisito[]), `reincReqFiles` (Record<id_requisito, {file,name,size}>), `reincorporacionExpandida` (boolean), computed `reincReqSubidos()`. Métodos: `onReincReqFileSelected(event, idRequisito)`, `quitarReincReqFile(idRequisito)`, `_subirReincReqFiles(sol)` (sube en secuencia mapeando `id_requisito` → `id_solicitud_documento`).
+  - Los estados pendiente/rechazada + card de docs de reincorporación se **movieron de la side-col a la main-col** (después del apartado) para que todo el flujo viva junto. Side-col queda solo con info-card y migración.
+  - `showMotivoForm` y `cancelarReincorporacion` eliminados (el apartado es persistente, no tiene estado cerrado). `solicitarReincorporacion()` ahora limpia la solicitud rechazada para reabrir el apartado.
+- **Backend**: `GET /solicitud-requisitos/` relajado de `require_permiso("alumnos.editar")` a `Depends(get_current_user)` para que el alumno pueda consultar los requisitos configurados de reincorporación (solo lectura; POST/PATCH siguen admin-only).
+
+## Bugfixes admin de solicitudes (2026-08-01)
+
+- **"Solicitud sin programa" en reincorporación**: `_load_con_detalle()` (backend) solo derivaba la edición/programa desde `incorporacion`/`migracion`. Para reincorporación la edición vive en el DPA origen retirado → ahora el DPA origen se carga primero y su `id_programa_version_edicion` se suma a `pve_ids`; si `_pve_from_solicitud()` no da edición, se usa la del DPA. El listado admin ya muestra programa + edición para reincorporaciones.
+- **Página de revisión distinguía solo migración**: para reincorporación caía en el bloque genérico "Primera Incorporación... se creará como postulante". Ahora hay un bloque propio `.info-reincorporacion` (azul índigo): "el alumno ya tenía inscripción y se retiró; al aprobar se reactiva como **inscrito** en la misma edición, conservando notas, pagos y documentos". Título del header dinámico según tipo.
+- **Historial del alumno en la página de revisión**: nueva card `.historial-card` con inscripciones (badges por estado, resaltada la que corresponde al `id_detalle_origen` de la solicitud) y movimientos (`historial-movimientos` endpoint). Se carga vía `InscripcionEdicionService.getHistorialMovimientos(idAlumno)`.
+- **Tabla de solicitudes**: `.estado-actions` ahora es `flex-direction: column` (badge pendiente arriba, botones aprobar/rechazar debajo) para que no se solapen; `col-estado` ancho 150px.
+- **Aprobar reincorporación conserva módulo de inicio**: antes `resolver_modulo_inicio()` se llamaba siempre y reasignaba `dpa.modulo_inicio` al primer módulo. Ahora solo se reasigna si el admin envía `id_modulo_inicio`; si no, el alumno vuelve al módulo donde quedó.
+- Frontend verificado con `npx tsc --noEmit` limpio
+
+## Anchado de páginas (2026-08-01)
+
+- Se subió el `max-width` de los contenedores principales de ~46 archivos CSS para aprovechar el ancho de pantalla y eliminar el exceso de espacio en blanco lateral. Mapeo aplicado (solo la primera ocurrencia = contenedor de página; NO se tocaron filtros/búsquedas/diálogos/login/`.search-field` de 880px):
+  - `1300/1320px → 1560px`: docente-list, programa-list, tipo-programa-list, programa-version-list, contratacion-list, footer
+  - `1200px → 1440px`: home, inscripcion-edicion, inscripcion-landing, revisar-incorporacion, solicitudes-incorporacion, notas-admin, notas-edicion, pagos-admin, pagos-edicion
+  - `1100px → 1340px`: admin-wrapper, inscripcion-detail, docente-calificar, docente-detalle, docente-mis-modulos, documentacion, modalidad-list, modulo-list, requisitos-list, tipo-descuento-list, transcript, requisito-detail
+  - `1000px → 1240px`: edicion-postulantes
+  - `960px → 1200px`: contratacion-detalle
+  - `920px → 1160px`: detalle-list, contratacion-create
+  - `900px → 1160px`: edicion-list
+  - `860px → 1100px`: inscribir, detalle-gestionar
+  - `820px → 1040px`: modulo-batch
+  - `800px → 1040px`: inscripciones, perfil, detalle-form, historial-page, historial-edicion-page
+  - `640px → 840px`: programa-version-form, modalidad-detail, requisito-detail
+  - `680px → 880px`: tipo-programa-form, programa-form, docente-form
+  - `720px → 920px`: edicion-form, modulo-form
+- `styles.css` `.form-card` global: `680px → 880px`
+- Grids con columna lateral fija (`1fr 320px` en inscripcion-detail, `380px 1fr` en revisar-incorporacion) escalan bien: la columna principal crece con el contenedor.
+- Frontend verificado con `npx tsc --noEmit` limpio
+
+## Segunda ronda de anchado — "todo el ancho" (2026-08-02)
+
+- Tras la primera ronda, Julio pidió aprovechar **todo** el ancho. Nueva ronda aplicada (misma técnica: solo la primera ocurrencia = contenedor de página; NO se tocaron filtros/búsquedas/diálogos/inputs internos ni `@media`):
+  - Listas/detalles/dashboards → **1920px**: docente-list, programa-list, programa-version-list, tipo-programa-list, contratacion-list, home, notas-admin, notas-edicion, pagos-admin, pagos-edicion, inscripcion-edicion, inscripcion-landing, revisar-incorporacion, solicitudes-incorporacion, admin-wrapper, docente-calificar, docente-detalle, docente-mis-modulos, documentacion, inscripcion-detail, modalidad-list, modulo-list, requisitos-list, tipo-descuento-list, transcript, footer
+  - Formularios/páginas de gestión → **1240-1440px**: contratacion-create (1440), edicion-list (1440), detalle-list (1440), detalle-gestionar (1360), inscribir (1360), detalle-form (1280), historial-page (1280), historial-edicion-page (1280), inscripciones (1280), modulo-batch (1280), perfil (1280), edicion-form (1240), modulo-form (1240), docente-form (1240), programa-form (1240), tipo-programa-form (1240), programa-version-form (1240), modalidad-detail (1240), requisito-detail (1240)
+  - `styles.css` `.form-card` global: `880px → 1240px`
+  - **No tocada** `public-home` (landing pública): sus secciones internas (680-1100px) son centradas a propósito.
+- Frontend verificado con `npx tsc --noEmit` limpio
+
+## Ajuste final del anchado — 10% de aire (2026-08-02)
+
+- 1920px era demasiado (quedaba pegado al borde). Se agregó `width: 90%` a los contenedores de página (todos los de la ronda anterior, 45 archivos + `.form-card` global): ahora el contenido ocupa el 90% del ancho del viewport y deja ~10% de aire, con el `max-width` como tope en pantallas ultra-anchas.
+- Técnica: primera ocurrencia de `max-width:` en cada archivo → prefijada con `width: 90%; `. NO se tocaron `@media`, filtros ni elementos internos. Con `box-sizing: border-box` global el padding queda dentro del 90%.
+- Frontend verificado con `npx tsc --noEmit` limpio
+
+## Ordenamiento de tablas de estudiantes (2026-08-01)
+
+- Nueva utilidad `core/utils/sort-utils.ts`: `SortDir`, `compareValues()` (null-safe, numérico o `localeCompare('es')`), `sortItems(items, keyAccessor, dir)` — devuelve copia ordenada sin mutar.
+- **Tablas con cabeceras clickeables** (patrón `sortKey`+`sortDir` signal, `onSort()` toggle asc/desc, `sortIcon()` → `unfold_more`/`arrow_upward`/`arrow_downward`, `.sort-btn` en el `<th>`):
+  - `inscripciones-edicion` — columnas: alumno (apellido+nombre), CI, estado, modalidad, docs (ratio completados/total), módulo inicio, descuento. `sortedItems` computed alimenta `paginatedItems`.
+  - `solicitudes-incorporacion` — columnas: alumno, tipo de solicitud, docs subidos, estado. Default orden por fecha desc.
+- **Cards (notas/pagos/docente) con toggle de orden alfabético A-Z/Z-A** (`nombreDir` signal + `sort-toggle` button en el header, patrón `alumnosOrdenados`/`sortAlumnos` computed con `sortItems` por `apellido nombre`):
+  - `notas-edicion` (activos + retirados)
+  - `pagos-edicion`
+  - `docente-calificar`
+- Frontend verificado con `npx tsc --noEmit` limpio
+
+## Bugfix: menú Documentos Requeridos vacío (2026-08-02)
+
+- **Síntoma**: `/admin/requisitos-incorporacion` no mostraba nada en ningún tab (Incorporación/Migración/Reincorporación), aunque la tabla `solicitud_requisito` tenía filas activas.
+- **Causa raíz**: `routers/solicitud_requisito.py::listar_requisitos` construía `SolicitudRequisitoResponse(obligatorio=i.obligatorio, ...)` pero la columna `obligatorio` fue eliminada del modelo y la BD en la migración `005_solicitud_requisito_id_tipo_fk.sql` (que convirtió `tipo` → `id_tipo_solicitud` FK). El acceso a un atributo inexistente del modelo → `AttributeError` → HTTP 500 → el frontend caía en el `error()` y quedaba el estado vacío.
+- **Fix**: eliminado el kwarg `obligatorio=i.obligatorio` del response builder en `listar_requisitos`. No existe `obligatorio` en `SolicitudRequisito` (los docs obligatorios son concepto de `documento_solicitud`/`control_documentacion`, no de `solicitud_requisito`).
+- **Verificación**: `GET /solicitud-requisitos/?id_tipo_solicitud={1,2,3}` responde 200 con las configs activas; `POST` para agregar requisito responde 201.
+- Archivos tocados: `PostgradoBackend/routers/solicitud_requisito.py` (1 línea).
+
+## Bugfix: solicitudes aprobadas mostraban el formulario de reincorporación (2026-08-02)
+
+- **Síntoma**: un alumno con solicitud de reincorporación ya `aprobado` seguía viendo el formulario de reincorporación y los requisitos configurados (config actual del admin) en `inscripcion-detail`, en vez de ver su solicitud aprobada con sus documentos reales.
+- **Regla de negocio fijada**: los requisitos configurados por el admin (`solicitud_requisito`, `modalidad_requisito`, etc.) solo aplican a **creaciones futuras**. Los registros pasados (solicitudes, `documento_solicitud`, `control_documentacion`) nunca se resincronizan contra la config actual. Cambiar la config del admin NO debe alterar solicitudes/inscripciones ya existentes.
+- **Causa raíz**: `mostrarReincorporacion()` (frontend) solo excluía `pendiente` y `rechazado` — `aprobado` caía en el formulario. Además el backend sincronizaba requisitos nuevos sobre solicitudes existentes.
+- **Backend** (`PostgradoBackend/routers/solicitud.py`): eliminada la función `_sincronizar_documentos()` y sus 2 llamadas en `_load_con_detalle()` y `mis_solicitudes()`. Ahora `_crear_documentos()` (se ejecuta al crear la solicitud) es el único generador de `DocumentoSolicitud` → futuros-only. Imports `DocumentoSolicitud`/`SolicitudRequisito` siguen en uso.
+- **Frontend** (`inscripcion-detail`):
+  - TS: `mostrarReincorporacion()` ahora también excluye `&& !this.tieneSolicitudAprobada()`; nuevo método `tieneSolicitudAprobada()` (`estado === 'aprobado'`).
+  - HTML: nuevo bloque `@if (tieneSolicitudAprobada())` antes de `needsCartaUpload()` — card `.reincorporacion-card.aprobada` (verde) + lista de docs con `reincDocs()` (usa los `documentos` reales de la solicitud, no la config) con estados `aceptado`/`pendiente`, badge `doc-approved-badge`, enlace `getDocUrl`.
+  - CSS: variantes `.reincorporacion-card.aprobada` (border #bbf7d0, bg #f0fdf4, h3 #166534, p #16a34a).
+- **Verificación**: `GET /solicitud/mis-solicitudes` y `GET /solicitud/{id}` con alumno 2 (usuario 6, solicitudes 1014/1001 `aprobado`) devuelven solo sus documentos reales (solicitud 1014 → solo requisito 7 "Carta de Solicitud de Reincorporación", estado `aceptado`); no se agregan los requisitos configurados (6, 9, 10). `npx tsc --noEmit` limpio.
+- Archivos tocados: `PostgradoBackend/routers/solicitud.py`, `inscripcion-detail.ts`, `inscripcion-detail.html`, `inscripcion-detail.css`.
+
+## Rediseño de revisar-incorporacion + bugfix historial/motivo (2026-08-02)
+
+- **Bugfix historial**: `GET /detalle-programa-alumno/historial-movimientos/{id}` daba 500 — `NameError: name 'ProgramaVersion' is not defined` en `routers/detalle_programa_alumno.py` (faltaba el import `from models.programa_version import ProgramaVersion`). Con eso el historial del alumno (inscripciones + movimientos) ya se carga en la página de revisión.
+- **Bugfix motivo del alumno**: el motivo que escribe el alumno (columna `solicitud.motivo`) ya viajaba en la API (`SolicitudConDetalle.motivo`) pero **no se renderizaba** en el HTML. Ahora se muestra en una tarjeta de cita (`.motivo-card`, ámbar).
+- **Rediseño completo de la página** (reemplaza el header plano + alumno-card por una composición más visual):
+  - `.page-toolbar` — toolbar simple con botón volver + título (sin el icono en el h1).
+  - `.hero-card` — banner full-width con gradiente según tipo (reincorporación = índigo/violeta, migración = teal, incorporación = azul), avatar grande con iniciales, eyebrow del tipo, nombre, chips (CI, programa, edición) y `.estado-pill` blanco flotante con icono.
+  - `.motivo-card` — cita del motivo del alumno (`format_quote` ámbar).
+  - `.stats-strip` — 3 stat-cards: documentos subidos x/y, inscripciones previas, movimientos.
+  - `.timeline` — movimientos del historial como línea de tiempo vertical con dots de color por `tipo_movimiento` (reincorporacion/incorporacion/migracion/transferencia), badge "último" (`esUltimoMovimiento()`), fecha, edición y motivo del movimiento.
+  - Inscripciones del historial con `.ins-marker` (dot de color por estado) + resaltado de la inscripción que corresponde al `id_detalle_origen`.
+- Eliminadas clases obsoletas del CSS: `.alumno-card/.alumno-header/.avatar-lg/.meta-chip/.programa-info`, `.historial-mov-row/.mov-icon/.mov-info`.
+- Archivos tocados: `PostgradoBackend/routers/detalle_programa_alumno.py` (import), `revisar-incorporacion.html`, `revisar-incorporacion.css`.
+
+## Config de entornos: Postgres local + Supabase (2026-08-02)
+
+- **Dos entornos vía una sola variable `DATABASE_URL`** (leída en `database.py:8`). El código no cambia entre entornos, solo el valor de la URL.
+- **Selección por `APP_ENV`**:
+  - `APP_ENV` no definida (o `local`) → carga `.env` → Postgres local (`julius:adminjt@localhost/postgrado`)
+  - `APP_ENV=production` → carga `.env.prod` → Supabase
+- `database.py`:
+  ```python
+  ENV = os.getenv("APP_ENV", "local")
+  load_dotenv(".env.prod" if ENV == "production" else ".env")
+  ```
+- **`.env.prod`** (gitignoreado, igual que `.env`):
+  - `DATABASE_URL=postgresql://postgres.fdrxfohyhzvlpxnhorva:J2AhZ_dtiSguJLX@aws-0-us-east-2.pooler.supabase.com:5432/postgres?sslmode=require`
+  - Usa puerto **5432** (session pooler), NO el 6543 (transaction pooler, para serverless) que viene por defecto en el enlace de Supabase. Requiere `?sslmode=require` para TLS con psycopg2.
+- **Para arrancar contra Supabase**: `APP_ENV=production` antes de `uvicorn`. Contra local: nada.
+- **Estado actual**: servidor corriendo contra Supabase (verificado — solicitud 1014 aparece `pendiente` en Supabase vs `aprobado` en local). Supabase ya tiene las 37 tablas con datos (35 alumnos, 18 solicitudes).
+- `.gitignore`: agregado `.env.prod`.
+
 ## Historial
 
 Para logs de sesión detallados, ver `git log --oneline` en ambos repos. Cada feature relevante tiene su commit message descriptivo.

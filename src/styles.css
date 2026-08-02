@@ -400,8 +400,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .form-card {
   width: 100%;
-  max-width: 680px;
-  border-radius: var(--fich-radius-xl) !important;
+  width: 90%; max-width: 1240px;  border-radius: var(--fich-radius-xl) !important;
   padding: 16px;
   background: var(--fich-bg-card);
   box-shadow: var(--fich-shadow-xl) !important;

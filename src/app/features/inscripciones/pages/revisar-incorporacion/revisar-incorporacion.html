@@ -1,17 +1,12 @@
 <div class="page-container">
-  <div class="header-section">
-    <div class="header-left">
-      <button mat-icon-button (click)="volver()" class="back-btn" matTooltip="Volver">
-        <mat-icon>arrow_back</mat-icon>
-      </button>
-      <div>
-        <h1><mat-icon>rate_review</mat-icon> Revisar Solicitud de Incorporaci&oacute;n</h1>
-        <p class="subtitle">Revisar documentos, configurar migraci&oacute;n y aprobar</p>
-      </div>
+  <div class="page-toolbar">
+    <button mat-icon-button (click)="volver()" class="back-btn" matTooltip="Volver">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div class="toolbar-titulo">
+      <h1>Revisar solicitud</h1>
+      <p class="subtitle">Revisa los documentos y aprueba la solicitud</p>
     </div>
-    @if (solicitud(); as sol) {
-      <span class="estado-pill" [class]="estadoClass(sol.estado)">{{ sol.estado }}</span>
-    }
   </div>
 
   @if (isLoading()) {
@@ -20,22 +15,75 @@
       <span>Cargando solicitud...</span>
     </div>
   } @else if (solicitud(); as sol) {
-    <div class="content-grid">
-      <div class="left-column">
-        <div class="section-card alumno-card">
-          <div class="alumno-header">
-            <div class="avatar-lg">{{ iniciales }}</div>
-            <div class="alumno-info">
-              <h3>{{ nombreCompleto }}</h3>
-              <span class="meta-chip" *ngIf="sol.alumno_ci"><mat-icon>badge</mat-icon> CI: {{ sol.alumno_ci }}</span>
-            </div>
-          </div>
-          <div class="programa-info">
-            <mat-icon>school</mat-icon>
-            <span>{{ sol.programa_nombre }} &mdash; Ed. {{ sol.edicion_numero }} ({{ semestreLabel(sol.edicion_semestre) }}-{{ sol.edicion_anio }})</span>
+    <div class="hero-card"
+         [class.hero-reincorporacion]="esReincorporacion()"
+         [class.hero-migracion]="esMigracion()"
+         [class.hero-incorporacion]="!esMigracion() && !esReincorporacion()">
+      <div class="hero-accent"></div>
+      <div class="hero-content">
+        <div class="hero-avatar">{{ iniciales }}</div>
+        <div class="hero-info">
+          <span class="hero-eyebrow">{{ esReincorporacion() ? 'Reincorporación' : (esMigracion() ? 'Migración' : 'Incorporación') }}</span>
+          <h2>{{ nombreCompleto }}</h2>
+          <div class="hero-chips">
+            @if (sol.alumno_ci) {
+              <span class="hero-chip"><mat-icon>badge</mat-icon> {{ sol.alumno_ci }}</span>
+            }
+            <span class="hero-chip"><mat-icon>school</mat-icon> {{ sol.programa_nombre }}</span>
+            @if (sol.edicion_numero) {
+              <span class="hero-chip"><mat-icon>event</mat-icon> Ed. {{ sol.edicion_numero }} &mdash; {{ semestreLabel(sol.edicion_semestre) }}-{{ sol.edicion_anio }}</span>
+            }
           </div>
         </div>
+        <span class="estado-pill" [class]="estadoClass(sol.estado)">
+          <mat-icon>{{ sol.estado === 'pendiente' ? 'schedule' : (sol.estado === 'aceptado' || sol.estado === 'aprobado' ? 'check_circle' : 'cancel') }}</mat-icon>
+          {{ sol.estado }}
+        </span>
+      </div>
+    </div>
 
+    @if (sol.motivo) {
+      <div class="motivo-card">
+        <mat-icon class="motivo-quote">format_quote</mat-icon>
+        <div class="motivo-body">
+          <span class="motivo-label">Motivo que escribió el alumno</span>
+          <p class="motivo-texto">"{{ sol.motivo }}"</p>
+        </div>
+      </div>
+    }
+
+    <div class="stats-strip">
+      <div class="stat-card">
+        <div class="stat-icon" [style.background]="'#6366f115'" [style.color]="'#6366f1'">
+          <mat-icon>description</mat-icon>
+        </div>
+        <div class="stat-info">
+          <strong>{{ docsSubidos() }}/{{ sol.documentos.length || 0 }}</strong>
+          <span>documentos subidos</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" [style.background]="'#0d948815'" [style.color]="'#0d9488'">
+          <mat-icon>school</mat-icon>
+        </div>
+        <div class="stat-info">
+          <strong>{{ inscripcionesHistorial().length }}</strong>
+          <span>inscripciones previas</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" [style.background]="'#f59e0b15'" [style.color]="'#d97706'">
+          <mat-icon>swap_horiz</mat-icon>
+        </div>
+        <div class="stat-info">
+          <strong>{{ historial().length }}</strong>
+          <span>movimientos</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="content-grid">
+      <div class="left-column">
         <div class="section-card documentos-card">
           <div class="section-header">
             <mat-icon>description</mat-icon>
@@ -67,6 +115,67 @@
             <div class="no-docs">
               <mat-icon>info_outline</mat-icon>
               <span>No se adjuntaron documentos</span>
+            </div>
+          }
+        </div>
+
+        <div class="section-card historial-card">
+          <div class="section-header">
+            <mat-icon>history</mat-icon>
+            <h3>Historial del alumno</h3>
+            @if (isLoadingHistorial()) {
+              <mat-spinner diameter="18"></mat-spinner>
+            }
+          </div>
+
+          @if (inscripcionesHistorial().length > 0) {
+            <div class="historial-subsection">
+              <div class="sub-label">Inscripciones ({{ inscripcionesHistorial().length }})</div>
+              <div class="historial-inscripciones">
+                @for (ins of inscripcionesHistorial(); track ins.id_detalle_programa_alumno) {
+                  <div class="historial-ins-row" [class.historial-ins-actual]="ins.id_detalle_programa_alumno === solicitud()?.id_detalle_origen">
+                    <div class="ins-marker" [class]="'ins-marker-' + ins.estado"></div>
+                    <span class="ins-edicion">Ed. {{ ins.edicion_numero }} ({{ semestreLabel(ins.semestre) }}-{{ ins.anio }})</span>
+                    <span class="ins-programa">{{ ins.programa_nombre }}</span>
+                    <span class="ins-estado" [class]="'ins-estado-' + ins.estado">{{ ins.estado }}</span>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
+          @if (historial().length > 0) {
+            <div class="historial-subsection">
+              <div class="sub-label">Movimientos ({{ historial().length }})</div>
+              <div class="timeline">
+                @for (mov of historial(); track mov.id_historial) {
+                  <div class="timeline-item" [class.timeline-actual]="esUltimoMovimiento(mov)">
+                    <div class="timeline-dot" [class]="'dot-' + mov.tipo_movimiento"></div>
+                    <div class="timeline-content">
+                      <div class="timeline-top">
+                        <span class="mov-label">{{ movimientoLabel(mov.tipo_movimiento) }}</span>
+                        @if (esUltimoMovimiento(mov)) {
+                          <span class="timeline-latest-badge">último</span>
+                        }
+                        <span class="mov-fecha">{{ formatFecha(mov.fecha) }}</span>
+                      </div>
+                      @if (mov.origen.edicion_numero) {
+                        <span class="mov-edicion">Ed. {{ mov.origen.edicion_numero }} ({{ semestreLabel(mov.origen.semestre) }}-{{ mov.origen.anio }}) &middot; {{ mov.origen.programa_nombre }}</span>
+                      }
+                      @if (mov.motivo) {
+                        <span class="mov-motivo">{{ mov.motivo }}</span>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
+          @if (!isLoadingHistorial() && inscripcionesHistorial().length === 0 && historial().length === 0) {
+            <div class="no-docs">
+              <mat-icon>info_outline</mat-icon>
+              <span>Sin historial registrado</span>
             </div>
           }
         </div>
@@ -200,7 +309,15 @@
           </div>
         }
 
-        @if (!esMigracion()) {
+        @if (esReincorporacion()) {
+          <div class="section-card info-card info-reincorporacion">
+            <div class="section-header">
+              <mat-icon>restart_alt</mat-icon>
+              <h3>Reincorporaci&oacute;n a la misma edici&oacute;n</h3>
+            </div>
+            <p class="info-text">El alumno <strong>ya ten&iacute;a una inscripci&oacute;n</strong> en esta edici&oacute;n y se retir&oacute;. Al aprobar, su inscripci&oacute;n se reactivar&aacute; como <strong>inscrito</strong> en la misma edici&oacute;n, conservando sus notas, pagos y documentos.</p>
+          </div>
+        } @else if (!esMigracion()) {
           <div class="section-card info-card">
             <div class="section-header">
               <mat-icon>info</mat-icon>
@@ -247,7 +364,7 @@
           Aprobar
         </button>
       }
-      @if (sol.estado === 'aceptado') {
+      @if (sol.estado === 'aceptado' || sol.estado === 'aprobado') {
         <span class="approved-label"><mat-icon>verified</mat-icon> Solicitud ya aprobada</span>
       }
       @if (sol.estado === 'rechazado') {

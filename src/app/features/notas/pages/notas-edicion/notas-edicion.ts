@@ -12,6 +12,7 @@ import { NotaService } from '../../services/nota.service';
 import { AlumnoNotas, NotaResponse } from '../../models/nota.model';
 import { NotaRegisterDialog } from '../nota-register-dialog/nota-register-dialog';
 import { clasificarNota } from '../../../../core/utils/nota-utils';
+import { SortDir, sortItems } from '../../../../core/utils/sort-utils';
 
 @Component({
   selector: 'app-notas-edicion',
@@ -38,8 +39,17 @@ export class NotasEdicionComponent implements OnInit {
   showRetirados = signal(false);
   idEdicion = 0;
 
-  activos = computed(() => this.alumnos().filter(a => a.estado !== 'retirado'));
-  retirados = computed(() => this.alumnos().filter(a => a.estado === 'retirado'));
+  activos = computed(() => this.sortAlumnos(this.alumnos().filter(a => a.estado !== 'retirado')));
+  retirados = computed(() => this.sortAlumnos(this.alumnos().filter(a => a.estado === 'retirado')));
+  nombreDir = signal<SortDir>('asc');
+
+  sortAlumnos(items: AlumnoNotas[]): AlumnoNotas[] {
+    return sortItems(items, a => `${a.alumno?.apellido || ''} ${a.alumno?.nombre || ''}`, this.nombreDir());
+  }
+
+  toggleOrden(): void {
+    this.nombreDir.set(this.nombreDir() === 'asc' ? 'desc' : 'asc');
+  }
 
   ngOnInit(): void {
     this.idEdicion = Number(this.route.snapshot.paramMap.get('idEdicion'));

@@ -14,6 +14,14 @@
         }
       </div>
     </div>
+    <div class="header-right">
+      @if (datos() && datos()!.alumnos.length > 0) {
+        <button mat-stroked-button class="sort-toggle" (click)="toggleOrden()" matTooltip="Alternar orden alfabético">
+          <mat-icon>{{ nombreDir() === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
+          Orden alfabético
+        </button>
+      }
+    </div>
   </div>
 
   @if (isLoading()) {
@@ -47,7 +55,7 @@
       </div>
     } @else {
       <div class="alumnos-list">
-        @for (a of d.alumnos; track a.id_detalle_programa_alumno) {
+        @for (a of alumnosOrdenados(); track a.id_detalle_programa_alumno) {
           <div class="alumno-card">
             <div class="alumno-main">
               <div class="alumno-left">

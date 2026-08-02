@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject, DestroyRef } from '@angular/core';
+import { Component, OnInit, signal, computed, inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -12,6 +12,7 @@ import { PagoService } from '../../services/pago.service';
 import { AlumnoPagos, PagoResponse } from '../../models/pago.model';
 import { PagoRegisterDialog } from '../pago-register-dialog/pago-register-dialog';
 import { environment } from '../../../../../environments/environment';
+import { SortDir, sortItems } from '../../../../core/utils/sort-utils';
 
 @Component({
   selector: 'app-pagos-edicion',
@@ -37,6 +38,15 @@ export class PagosEdicionComponent implements OnInit {
   expandedId = signal<number | null>(null);
   idEdicion = 0;
   apiUrl = environment.apiUrl;
+  nombreDir = signal<SortDir>('asc');
+
+  alumnosOrdenados = computed(() =>
+    sortItems(this.alumnos(), a => `${a.alumno?.apellido || ''} ${a.alumno?.nombre || ''}`, this.nombreDir())
+  );
+
+  toggleOrden(): void {
+    this.nombreDir.set(this.nombreDir() === 'asc' ? 'desc' : 'asc');
+  }
 
   ngOnInit(): void {
     this.idEdicion = Number(this.route.snapshot.paramMap.get('idEdicion'));

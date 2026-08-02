@@ -10,8 +10,7 @@
 
 .form-card {
   width: 100%;
-  max-width: 640px;
-  border-radius: var(--fich-radius-xl) !important;
+  width: 90%; max-width: 1240px;  border-radius: var(--fich-radius-xl) !important;
   padding: 16px;
   background: var(--fich-bg-card);
   box-shadow: var(--fich-shadow-xl) !important;

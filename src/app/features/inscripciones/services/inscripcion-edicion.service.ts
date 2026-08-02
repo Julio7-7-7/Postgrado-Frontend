@@ -4,6 +4,7 @@ import { ApiService } from '../../../core/services/api.service';
 import { PaginatedInscripciones, TranscriptResponse, EdicionBasica } from '../models/inscripcion-edicion.model';
 import { DetalleProgramaAlumno } from '../../alumno/models/detalle-programa-alumno.model';
 import { SolicitudConDetalle, PreviewMigracion } from '../../alumno/models/solicitud-incorporacion.model';
+import { HistorialMovimientosResponse } from '../../notas/models/nota.model';
 
 @Injectable({ providedIn: 'root' })
 export class InscripcionEdicionService extends ApiService {
@@ -71,5 +72,11 @@ export class InscripcionEdicionService extends ApiService {
     let url = `${this.baseUrl}/solicitud/pendientes-count`;
     if (tipo) url += `?tipo=${tipo}`;
     return this.http.get<{ count: number }>(url);
+  }
+
+  getHistorialMovimientos(idAlumno: number): Observable<HistorialMovimientosResponse> {
+    return this.http.get<HistorialMovimientosResponse>(
+      `${this.baseUrl}/detalle-programa-alumno/historial-movimientos/${idAlumno}`
+    );
   }
 }

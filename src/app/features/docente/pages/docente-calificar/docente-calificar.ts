@@ -12,6 +12,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { NotaService } from '../../../notas/services/nota.service';
 import { DocenteModuloDetalle, NotaItem } from '../../../notas/models/nota.model';
+import { SortDir, sortItems } from '../../../../core/utils/sort-utils';
 
 interface AlumnoCalificar {
   id_detalle_programa_alumno: number;
@@ -43,6 +44,17 @@ export class DocenteCalificarComponent implements OnInit {
   isLoading = signal(true);
   idDpm = 0;
   idDocente = 0;
+  nombreDir = signal<SortDir>('asc');
+
+  alumnosOrdenados = computed(() => {
+    const d = this.datos();
+    if (!d) return [];
+    return sortItems(d.alumnos, a => `${a.alumno?.apellido || ''} ${a.alumno?.nombre || ''}`, this.nombreDir());
+  });
+
+  toggleOrden(): void {
+    this.nombreDir.set(this.nombreDir() === 'asc' ? 'desc' : 'asc');
+  }
 
   promedioGeneral = computed(() => {
     const d = this.datos();

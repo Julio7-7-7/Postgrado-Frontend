@@ -1,6 +1,5 @@
 .inscribir-page {
-  max-width: 860px;
-  margin: 0 auto;
+  width: 90%; max-width: 1360px;  margin: 0 auto;
   padding: 24px;
 }
 

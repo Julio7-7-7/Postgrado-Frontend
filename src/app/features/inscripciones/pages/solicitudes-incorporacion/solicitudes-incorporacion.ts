@@ -13,6 +13,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { InscripcionEdicionService } from '../../services/inscripcion-edicion.service';
 import { SolicitudConDetalle, SolicitudAdminItem, TipoSolicitud } from '../../../alumno/models/solicitud-incorporacion.model';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog';
+import { SortDir, sortItems } from '../../../../core/utils/sort-utils';
 
 @Component({
   selector: 'app-solicitudes-incorporacion',
@@ -102,10 +103,10 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
           <table class="solicitudes-table">
             <thead>
               <tr>
-                <th class="col-alumno">Alumno</th>
-                <th class="col-solicitud">Solicitud</th>
-                <th class="col-docs">Docs</th>
-                <th class="col-estado">Estado</th>
+                <th class="col-alumno"><button class="sort-btn" [class.active]="sortKey() === 'alumno'" (click)="onSort('alumno')">Alumno <mat-icon>{{ sortIcon('alumno') }}</mat-icon></button></th>
+                <th class="col-solicitud"><button class="sort-btn" [class.active]="sortKey() === 'solicitud'" (click)="onSort('solicitud')">Solicitud <mat-icon>{{ sortIcon('solicitud') }}</mat-icon></button></th>
+                <th class="col-docs"><button class="sort-btn" [class.active]="sortKey() === 'docs'" (click)="onSort('docs')">Docs <mat-icon>{{ sortIcon('docs') }}</mat-icon></button></th>
+                <th class="col-estado"><button class="sort-btn" [class.active]="sortKey() === 'estado'" (click)="onSort('estado')">Estado <mat-icon>{{ sortIcon('estado') }}</mat-icon></button></th>
               </tr>
             </thead>
             <tbody>
@@ -150,19 +151,13 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
                   </td>
                   <td class="col-estado" (click)="$event.stopPropagation()">
                     @if (item.estado === 'pendiente') {
-                      <div class="estado-actions">
-                        <span class="estado-badge badge-pendiente">
-                          <mat-icon>schedule</mat-icon>
-                          <span>pendiente</span>
-                        </span>
-                        <div class="action-btns">
-                          <button class="btn-icon btn-reject" (click)="rechazar(item)" matTooltip="Rechazar solicitud">
-                            <mat-icon>close</mat-icon>
-                          </button>
-                          <button class="btn-icon btn-approve" (click)="aprobar(item)" matTooltip="Revisar y aprobar">
-                            <mat-icon>check</mat-icon>
-                          </button>
-                        </div>
+                      <div class="action-btns">
+                        <button class="btn-icon btn-reject" (click)="rechazar(item)" matTooltip="Rechazar solicitud">
+                          <mat-icon>close</mat-icon>
+                        </button>
+                        <button class="btn-icon btn-approve" (click)="aprobar(item)" matTooltip="Revisar y aprobar">
+                          <mat-icon>check</mat-icon>
+                        </button>
                       </div>
                     } @else if (item.estado === 'aprobado') {
                       <span class="estado-badge badge-aprobado">
@@ -225,12 +220,15 @@ export class SolicitudesIncorporacionComponent implements OnInit {
   page = signal(0);
   perPage = signal(20);
   perPageOptions = [10, 20, 50];
+  sortKey = signal<string>('fecha');
+  sortDir = signal<SortDir>('desc');
 
   total = computed(() => this.items().length);
   totalPages = computed(() => Math.max(1, Math.ceil(this.items().length / this.perPage())));
+  sortedItems = computed(() => this.sortItemsBy(this.items()));
   paginatedItems = computed(() => {
     const start = this.page() * this.perPage();
-    return this.items().slice(start, start + this.perPage());
+    return this.sortedItems().slice(start, start + this.perPage());
   });
   startIndex = computed(() => this.items().length === 0 ? 0 : this.page() * this.perPage() + 1);
   endIndex = computed(() => Math.min((this.page() + 1) * this.perPage(), this.items().length));
@@ -323,6 +321,34 @@ export class SolicitudesIncorporacionComponent implements OnInit {
   cambiarPerPage(n: number): void {
     this.perPage.set(n);
     this.page.set(0);
+  }
+
+  sortItemsBy(items: SolicitudAdminItem[]): SolicitudAdminItem[] {
+    const key = this.sortKey();
+    const dir = this.sortDir();
+    const accessors: Record<string, (i: SolicitudAdminItem) => unknown> = {
+      alumno: i => `${i.alumno_apellido} ${i.alumno_nombre}`,
+      solicitud: i => i.tipo,
+      fecha: i => new Date(i.created_at).getTime(),
+      docs: i => this.docsSubidos(i),
+      estado: i => i.estado,
+    };
+    return sortItems(items, accessors[key] || accessors['fecha'], dir);
+  }
+
+  onSort(key: string): void {
+    if (this.sortKey() === key) {
+      this.sortDir.set(this.sortDir() === 'asc' ? 'desc' : 'asc');
+    } else {
+      this.sortKey.set(key);
+      this.sortDir.set('asc');
+    }
+    this.page.set(0);
+  }
+
+  sortIcon(key: string): string {
+    if (this.sortKey() !== key) return 'unfold_more';
+    return this.sortDir() === 'asc' ? 'arrow_upward' : 'arrow_downward';
   }
 
   volver(): void {
