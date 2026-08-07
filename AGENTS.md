@@ -426,6 +426,91 @@ Nombre del usuario: **Julio** (no "julius" — eso es solo el system user)
 - **Estado actual**: servidor corriendo contra Supabase (verificado — solicitud 1014 aparece `pendiente` en Supabase vs `aprobado` en local). Supabase ya tiene las 37 tablas con datos (35 alumnos, 18 solicitudes).
 - `.gitignore`: agregado `.env.prod`.
 
+## Registro de cuenta en wizard 3 pasos (2026-08-07)
+
+- **Backend**: `POST /auth/registro` ahora crea el alumno completo de una sola vez. `RegistroRequest` extendido (`schemas/auth.py`): `ci` opcional + `pasaporte`, `nombre`, `apellido`, `fecha_nacimiento` (date, parsea ISO con `T`), `genero` (`GeneroEnum`), `celular`, `direccion`. Validadores: al menos CI o pasaporte; CI/pasaporte ≥5 (pasaporte `.upper()`); nombre/apellido ≥2 y ≤100 (`.title()`); celular ≥7; correo con `@` (normaliza lower/strip). `routers/auth.py`: duplicados de CI/pasaporte guardados según presencia, alumno con datos reales (fallback `"Pendiente"` solo si no se envían, compat API).
+- **Frontend `register.ts/html/css`**: wizard de 3 pasos con stepper visual (patrón `inscribir`): **Cuenta** (correo, contraseña, confirmar) → **Identidad** (nombre, apellido, CI, pasaporte) → **Contacto** (fecha nacimiento con datepicker, género select masculino/femenino, celular, dirección). Validación por paso con snackbar; botones Volver/Siguiente; en el último paso se hace el submit. Snackbar de éxito sin "completá tu perfil". Post-registro: `?incorporar=`/`?inscribir=` → `/alumnos/inscribir/:id`, si no → `/alumnos` (portal → perfil).
+- **Sentinel "Pendiente" eliminado del frontend**: `public-home` ya no consulta `getMiPerfil()` ni detecta `nombre === 'Pendiente'`; eliminado el banner "Completá tu perfil" (HTML + CSS) y la traba de inscripción en `inscribirse()`. `perfilIncompleto` y el import/inject de `AlumnoService` removidos.
+- `RegistroRequest` frontend (`auth.service.ts`): `ci`/`pasaporte`/`celular`/`direccion` opcionales + `nombre`, `apellido`, `fecha_nacimiento`, `genero`.
+- Archivos tocados: `PostgradoBackend/schemas/auth.py`, `PostgradoBackend/routers/auth.py`, `features/login/pages/register.ts|html|css`, `core/services/auth.service.ts`, `features/public-home/pages/public-home.ts|html|css`.
+- Verificación: `npx tsc --noEmit` limpio; `RegistroRequest` validado con pydantic (casos OK/error); `routers.auth` importa OK.
+
+## Rediseño gestionar-requisitos-incorporacion (2026-08-07, SIN commit)
+
+- Componente reescrito (single-file, sin plantilla externa): contenedor `90%/1240px`, toolbar con back-btn, tabs dinámicos con badge de conteo (`configs` map cargado de una vez), add-card con select de dos líneas (nombre + descripción), tabla `fich-table` con columna `#` y avatar por tipo (incorporación `#eef2ff/#1e3a8a`, migración `#f0fdfa/#0d9488`, reincorporación `#f5f3ff/#4f46e5`), estado "todos agregados" en verde, `delete_outline`, info-note. Descripción resuelta en cliente vía `requisitoById()` (el backend solo manda `requisito_nombre`). `npx tsc --noEmit` limpio. **Pendiente de commit.**
+
+## Aprobar incorporación: módulo de inicio con fechas y casos (2026-08-07)
+
+- **Selector inteligente en `revisar-incorporacion`**: reemplazado el `mat-checkbox` "Incorporar al módulo en curso" por un `mat-radio-group` de opciones con cards (nombre + orden, badge de estado y de recomendación, fechas Inicio → Fin, barra de % cursado). Decisiones de negocio confirmadas por Julio:
+  - **Caso A** (módulo `en_curso` con progreso ≥50%): se preselecciona **Siguiente módulo** como "Recomendado" pero queda editable.
+  - **Caso B** (`en_curso` con progreso <50%): se preselecciona el módulo en curso.
+  - **Caso C** (sin módulo en curso): opción única "Próximo módulo"; si está `programado` sin `fecha_inicio`, aviso ámbar "aún no tiene fecha de inicio asignada".
+  - Todos finalizados → aviso de error y sin selector.
+  - Progreso = `(hoy - fecha_inicio)/(fecha_fin - fecha_inicio)` clamp 0-100; si falta fecha_fin → null → se trata como recién empezado. Fechas parseadas con `aDate()` (sin bug de timezone).
+- `cargarModulos()` preselecciona la opción recomendada; `aprobar()` envía `id_modulo_inicio` directo del radio (ya no posición 0/1). Vale para incorporación y migración. Reincorporación sigue sin selector (conserva módulo).
+- **Transcript robusto ante reordenamiento**: `routers/nota.py` `transcript_alumno` ahora resuelve `modulo_inicio` desde `dpa.id_modulo_inicio` (FK) → orden **actual** del módulo anclado (nuevo map `dpm_by_id`), fallback al snapshot. Así los marcadores cursado/saltado del transcript sobreviven a cambios de orden de módulos.
+- Archivos tocados: `revisar-incorporacion.ts|html|css`, `PostgradoBackend/routers/nota.py`.
+- Verificación: `npx tsc --noEmit` limpio; `nota.py` compila e importa OK.
+
+## Módulo de inicio estático en solicitudes ya decididas (2026-08-07)
+
+- **Pedido de Julio**: en solicitudes `aceptado`/`rechazado` la sección de módulo de inicio seguía mostrando los radios movibles (daban falsa impresión de edición). Ahora esa sección es **estática** — un simple registro, no un control.
+- **Backend** (`PostgradoBackend/schemas/solicitud.py`, `routers/solicitud.py`): `SolicitudConDetalle` ahora expone `dpa_modulo_inicio` (snapshot numérico del DPA) y `dpa_id_modulo_inicio` (FK al DPM anclado) para que el frontend pueda resolver el módulo real asignado. `_load_con_detalle` los llena desde el DPA de origen.
+- **Frontend `revisar-incorporacion`**:
+  - `esPendiente()` computed (estado === 'pendiente') condiciona toda la interactividad.
+  - `moduloAsignado()` computed: resuelve el módulo por `dpa_id_modulo_inicio` (preferido) o por `dpa_modulo_inicio` sobre `modulosEdicion()`.
+  - **Módulo de inicio**: `@if (esPendiente())` muestra el radio-group actual; si no, renderiza `.modulo-registro` (icono flag, título "orden. nombre", fechas Inicio/Fin, badge de estado del módulo) + nota con candado "Solicitud aprobada/rechazada — módulo asignado al momento de la decisión". Si no hay módulo resoluble → `.modulo-aviso.aviso-muted` "Sin módulo asignado".
+  - **Configuración de Migración**: `@if (esPendiente())` muestra select + textarea; si no, `.migracion-registro` estático con filas "Edición destino" (via `edicionDestinoLabel()` computed: resuelve de `migracion.id_edicion_destino` sobre `ediciones()`, fallback a `programa_nombre`+`edicion_numero` del detalle) y "Motivo" (`sol.motivo`).
+  - CSS nuevo: `.modulo-registro`, `.registro-icon`, `.registro-info`, `.registro-titulo`, `.registro-fechas`, `.modulo-registro-note`, `.migracion-registro`, `.registro-fila`, `.registro-label`, `.aviso-muted`.
+- Modelo frontend `SolicitudConDetalle` (`solicitud-incorporacion.model.ts`): `dpa_modulo_inicio`/`dpa_id_modulo_inicio` agregados.
+- Verificación: `npx tsc --noEmit` limpio; `schemas/solicitud.py` + `routers/solicitud.py` compilan e importan OK.
+
+## Bugfix reordenar módulos: mensaje y efecto secundario (2026-08-07)
+
+- **Síntoma (Julio)**: al mover el módulo 2 (en curso) contra el 3, el diálogo "Cronología de módulos" fallaba con "No se puede reordenar: hay módulos finalizados en la edición" aunque no había finalizados. Reprogramado el módulo, seguía el mismo mensaje.
+- **Causa raíz**: `POST /detalle-programa-modulo/reordenar` corría `actualizar_estado_auto()` sobre todos los módulos **antes** de validar. Esa función muta estados como efecto secundario: un módulo `en_curso` con `fecha_fin` pasada → `finalizado` (de ahí el mensaje engañoso), y un `reprogramado` con `fecha_inicio <= hoy` vuelve a `en_curso` y de ahí a `finalizado` si la fecha fin ya pasó. Por eso reprogramar no destrababa nada. Además, el bloqueo era "global": bastaba **un** módulo finalizado (aunque estuviera anclado en su posición) para impedir reordenar los demás.
+- **Fix** (`PostgradoBackend/routers/detalle_programa_modulo.py` `reordenar`): se eliminó la llamada a `actualizar_estado_auto()` (el reorden no debe cambiar estados de módulos). La validación es **por módulo movido**, sobre el estado guardado:
+  - solo se bloquea si un módulo `en_curso` o `finalizado` **cambia de posición** → 400 "No se puede reordenar: no se puede mover un módulo en curso/finalizado"
+  - un finalizado que queda en su lugar NO impide reordenar módulos `programado`/`reprogramado` (caso de Julio: intercambiar orden 2 y 3 con el DCI-101 finalizado anclado en orden 1)
+- `actualizar_estado_auto` sigue usándose en `crear`, `listar` y `obtener` (no se tocó).
+- Verificación: `detalle_programa_modulo.py` compila e importa OK.
+
+## Recomendación de ediciones destino por afinidad en migración (2026-08-07, SIN commit)
+
+- **Endpoint nuevo** `GET /solicitud/{id_solicitud}/destinos-recomendados` (admin `alumnos.editar`, `PostgradoBackend/routers/solicitud.py`, final del archivo) con helpers `_motivo_destino`/`_motivo_recomendado`:
+  - **Pendientes del alumno**: DPMs del origen con `orden >= dpa.modulo_inicio` y **sin nota aprobatoria** (usa `clasificar_nota`: suficiente/bueno/distinguido/sobresaliente). Comparación **por `id_modulo`**, sin importar la posición (decisión confirmada por Julio).
+  - **Candidatas**: mismo `id_programa_version`, `es_historico=False`, `estado in {programado, en_curso, reprogramado}` (nunca `finalizado` como destino — consistente con `GET /programa-version-edicion/?activas=true`), distinta edición y no en las ediciones del alumno.
+  - **Afinidad** = módulos pendientes que existen en el destino y **no están `finalizado`**. `afinidad_pct = round(100*aprovechables/total)`, `cupo_disponible = cupo_maximo − DPA no retirado/observado`.
+  - **Sort**: `(-aprovechables, -afinidad, -cupo_disponible, fecha_inicio null-last asc, precio asc, id asc)`; el ganador se marca `recomendado=True`. Desempate documentado: cupo → fecha más próxima → menor precio → menor id.
+- **Schemas** (`schemas/solicitud.py`): `ModuloPendiente`, `ModuloCoincidencia`, `DestinoRecomendado`, `DestinosRecomendadosResponse`.
+- **Frontend `revisar-incorporacion`**: selector de edición destino en migración pendiente reemplazado por **cards radio rankeadas** (patrón `opcionesModulo()`: `.opcion-card`/`.opcion-recomendada`/badge `Recomendado`/`badge-afinidad` con %, estado, periodo, cupo, precio, modalidad, motivo de recomendación, aviso de no aprovechables). Señales `destinos`, `pendientesDestino`, `destinosLoading`; `cargarDestinosRecomendados()` se dispara al cargar la solicitud si `esMigracion() && esPendiente()` y preselecciona automáticamente la recomendada (`onEdicionChange`). Fallback al `<select>` si no hay destinos. Banner `.pendientes-note` con los módulos pendientes.
+- **Modelo frontend** (`solicitud-incorporacion.model.ts`): interfaces `ModuloPendiente`, `ModuloCoincidencia`, `DestinoRecomendado`, `DestinosRecomendadosResponse`. **Servicio**: `destinosRecomendados(idSolicitud)`.
+- **Seed de prueba aplicado** (`/tmp/opencode/seed_migracion.sql`): ed 3 → `finalizado` + DPMs 7-12 finalizados; ed 5 → DPM 24 (M6) `finalizado`; alumno **Obi Wan Kenobi** (`ci=8888888`, `obiwan@gmail.com`/`adminjt`, rol 7) con DPA 66 en ed 3 (`incorporado`, `modulo_inicio=5`), nota 54 en M5 (=78 aprobado), pago matrícula aprobado → pendiente = **{M6}**. Solicitud pendiente 1019 creada para el test.
+- ⚠️ **ERROR DE SESIÓN ANTERIOR CORREGIDO**: "ed 3" se interpretó como `id_programa_version_edicion=3`, que en realidad era la **edición 5 real del usuario** (pve 3, virtual, sem1/2027, cupo 80). El seed la marcó `finalizado` con fechas 2026-01→07 inventadas, igual que sus DPMs 7-12 y el DPM 24 (M6 de la edición 7). **Nunca se creó una edición 3.**
+- **Corrección aplicada** (`/tmp/opencode/seed_crear_ed3_real.sql`): restauró **ed 5** (pve 3) a `programado` sin fechas (y sus DPMs 7-12 a `programado` sin fechas) y el **DPM 24** (M6 ed 7) a `programado` sin fechas; creó la **EDICIÓN 3 REAL** (pve 6, `edicion=3`, `finalizado` 2026-01-01→07-01, presencial, sem1/2026, precio 6600, cupo 80, `es_historico=false`) con sus 6 DPMs 25-30 `finalizado` (fechas mensuales 2026, orden de `id_modulo` 2,1,3,4,5,6 igual al resto); movió los 7 DPAs de prueba (66 Obi + 67-72 completos) a la ed 3 y **re-mapeó sus notas** de los DPM viejos 7-12 → nuevos 25-30 (sino el pendiente computaba M4+M5+M6). `id_modulo_inicio` de los DPAs actualizado a los DPM nuevos (25 para completos, 28 para Obi).
+- **Ediciones finales (pv 1)**: Ed 3 (pve 6, `finalizado`), Ed 4 (pve 2, `en_curso`), Ed 5 (pve 3, `programado`), Ed 6 (pve 4, `programado`), Ed 7 (pve 5, `programado`). La ed 3 ya aparece en `edicion-list` (backend `listar` no filtra por estado).
+- **Seed ed 3 completa** (`/tmp/opencode/seed_ed3_completa.sql`, aplicado): limpió la basura de prueba de la ed 3 (7 DPAs viejos con sus notas/pagos/control_documentacion + solicitud 1002), creó **6 estudiantes completos** (Ana/Carlos/Daniela/Jorge/Verónica/Marcelo, DPA 67-72 `finalizado`, m_ini=1, 6 notas aprobadas M1-M6, matrícula 2500 + 6 cuotas, 3 docs aprobados) y **arregló a Obi**: `modulo_inicio=4` (incorporado en M4), notas solo en los últimos 3 módulos (M4=82, M5=78, M6=**54 insuficiente**) → pendiente = **{M6}**, necesita migrar. M4/M5/M6 de la ed 3 = `id_modulo` 4/5/6, consistentes entre ediciones.
+- **Verificación**: `npx tsc --noEmit` limpio; `solicitud.py`/`schemas/solicitud.py` compilan e importan OK; `GET /solicitud/1019/destinos-recomendados` responde el ranking esperado — con la ed 3 real, Obi (m_ini=4, notas M4/M5/M6, M6 insuficiente) tiene pendiente **{M6}** y el ranking es Ed 6 (pve 4, 100%, recomendada por cupo 94) > Ed 5 (pve 3, 100%, cupo 80) > Ed 7 (pve 5, 100%, cupo 50) > Ed 4 (pve 2, 100%, cupo 39).
+
+## Migración con documentos + botón retirar + test data afinidad (2026-08-07, SIN commit)
+
+### 1) Card de migración ahora pide los documentos (no solo el motivo)
+- **Pedido de Julio**: "cuando quiero hacer migración solo me deja mandar el motivo. no me pide los documentos." — el flujo de migración quedó espejo del de reincorporación (apartado con motivo + lista de requisitos configurados).
+- **Backend/DB**: requisito nuevo **"Carta de Solicitud de Migración"** (`requisitos` id 8, activo). `solicitud_requisito` del tipo 2 (migración) reconfigurado: se quitó el requisito 6 (Carta de Solicitud de Incorporación, quedó `inactivo` en `requisitos`) y se configuró **req 8**. Config activa: tipo 1 → req 6 + req 1; tipo 2 → req 8; tipo 3 → req 7 + req 3.
+- **Frontend `inscripcion-detail.ts`**: señales `requisitosMigracion` (SolicitudRequisito[]), `migrReqFiles` (Record<id_requisito,{file,name,size}>), computed `migrReqSubidos()`; métodos `onMigrReqFileSelected()`, `quitarMigrReqFile()`, `_cargarRequisitosMigracion()` (llamado en `cargarInscripcion()`), `_subirMigrReqFiles(sol)` (sube en secuencia mapeando `id_requisito` → `id_solicitud_documento`). `solicitarMigracion()` crea la solicitud y sube todos los archivos en secuencia; `confirmarMigracion()`/`cancelarMigracion()` limpian los archivos al confirmar/cancelar.
+- **HTML**: el form de migración muestra `.migracion-info-note` ("Al enviar la solicitud se adjuntarán los documentos requeridos...") + la lista de requisitos con botón de selección de archivo por requisito (chip con nombre + quitar), espejo de reincorporación.
+- **CSS**: `.migracion-info-note` agregado.
+
+### 2) Botón "Retirarse" oculto cuando la edición finalizó
+- **Pedido de Julio**: "una vez que la edición termina al alumno no tiene por qué aparecerle el botón de retirarse de esta edición".
+- **Fix**: `puedeRetirarse()` (TS) ahora retorna `false` cuando `edicion()?.estado === 'finalizado'` — la danger-zone con el botón de retiro se oculta al terminar la edición.
+
+### 3) Test data para verificar la detección de afinidad
+- **Pedido de Julio**: "crea otro alumno con el mismo caso de obi wan pero que no tenga afinidad con todos los módulos para que se note si sirve la detección".
+- **Aplicado** (`/tmp/opencode/seed_luke_migracion.sql`): se marcó **DPM 24 (M6 de la ed 7, pve 5) como `finalizado`** (diferenciador: ese módulo ya no es aprovechable como destino) y se creó **Luke Skywalker** (`luke.skywalker@gmail.com`/`adminjt`, rol 7, DPA 74 en ed 3) con el **mismo caso que Obi**: `incorporado`, `modulo_inicio=4`, `id_modulo_inicio=28`, notas M4=82, M5=78, **M6=54 insuficiente** → pendiente = **{M6}**. Pago matrícula aprobado. Solicitud de migración **pendiente 1021** creada para el test.
+- **Verificación**: `GET /solicitud/1021/destinos-recomendados` devuelve el ranking diferenciado — Ed 6 (pve 4, 100%, cupo 93, **recomendada**) > Ed 5 (pve 3, 100%, cupo 80) > Ed 4 (pve 2, 100%, cupo 39) > **Ed 7 (pve 5, 0%, "Cubre 0 de 1 módulo(s) pendiente(s)... No aprovechables: Gestión Estratégica...")**. La ed 7 cae al último porque su M6 está `finalizado`. La detección ahora se nota: antes todos los destinos daban 100% y no se distinguía.
+- Nota: Obi (solicitud 1019 `rechazado`) ya no es evaluable por `destinos-recomendados` (requiere `pendiente`); Luke es el caso vivo del test. Reversión comentada al final del seed.
+
 ## Historial
 
 Para logs de sesión detallados, ver `git log --oneline` en ambos repos. Cada feature relevante tiene su commit message descriptivo.
