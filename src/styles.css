@@ -539,12 +539,19 @@ h1, h2, h3, h4, h5, h6 {
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
+.btn-nuevo .mdc-button__label,
+.btn-nuevo .mat-mdc-button-persistent-ripple {
+  position: relative;
+  z-index: 1;
+}
+
 .btn-nuevo::before {
   content: '';
   position: absolute;
   inset: 0;
   background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, transparent 50%);
   pointer-events: none;
+  z-index: 0;
 }
 
 .btn-nuevo mat-icon {
@@ -631,7 +638,7 @@ h1, h2, h3, h4, h5, h6 {
   background: var(--fich-bg-hover) !important;
 }
 
-.page-container .mat-mdc-row .mat-mdc-cell button[color="primary"] {
+.page-container .mat-mdc-row .mat-mdc-cell button[color="primary"].mat-mdc-icon-button {
   color: var(--fich-primary) !important;
 }
 
