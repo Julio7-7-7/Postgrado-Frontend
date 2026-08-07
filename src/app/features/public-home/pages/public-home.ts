@@ -9,7 +9,6 @@ import { MatCardModule } from '@angular/material/card';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { EdicionService } from '../../edicion/services/edicion.service';
 import { DetalleProgramaAlumnoService } from '../../alumno/services/detalle-programa-alumno.service';
-import { AlumnoService } from '../../alumno/services/alumno.service';
 import { ProgramaVersionEdicion } from '../../edicion/models/edicion.model';
 import { environment } from '../../../../environments/environment';
 
@@ -33,7 +32,6 @@ interface Pilar {
 export class PublicHomeComponent implements OnInit, AfterViewInit {
   private edicionService = inject(EdicionService);
   private detalleService = inject(DetalleProgramaAlumnoService);
-  private alumnoService = inject(AlumnoService);
   private snackBar = inject(MatSnackBar);
   private router = inject(Router);
   private auth = inject(AuthService);
@@ -43,7 +41,6 @@ export class PublicHomeComponent implements OnInit, AfterViewInit {
 
   ediciones = signal<ProgramaVersionEdicion[]>([]);
   cargando = signal(true);
-  perfilIncompleto = signal(false);
 
   apiUrl = environment.apiUrl;
 
@@ -88,16 +85,6 @@ export class PublicHomeComponent implements OnInit, AfterViewInit {
         this.snackBar.open('Error al cargar oferta académica', 'Cerrar', { duration: 4000 });
       },
     });
-
-    if (this.auth.isLogged() && this.auth.user()?.rol === 'alumno') {
-      this.alumnoService.getMiPerfil().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-        next: (alumno) => {
-          if (alumno.nombre === 'Pendiente' || alumno.apellido === 'Pendiente') {
-            this.perfilIncompleto.set(true);
-          }
-        },
-      });
-    }
   }
 
   ngAfterViewInit(): void {
@@ -142,33 +129,19 @@ export class PublicHomeComponent implements OnInit, AfterViewInit {
     const esEnCurso = edicion.estado === 'en_curso';
 
     if (this.auth.isLogged()) {
-      this.alumnoService.getMiPerfil().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-        next: (alumno) => {
-          if (alumno.nombre === 'Pendiente' || alumno.apellido === 'Pendiente') {
-            this.perfilIncompleto.set(true);
-            this.snackBar.open('Completá tu perfil antes de inscribirte', 'Ir a perfil', { duration: 6000 })
-              .onAction().subscribe(() => this.router.navigate(['/alumnos/perfil']));
-            return;
+      this.detalleService.getMisInscripciones().subscribe({
+        next: (inscripciones) => {
+          const yaInscripto = inscripciones.some(
+            i => i.id_programa_version_edicion === edicion.id_programa_version_edicion
+          );
+          if (yaInscripto) {
+            this.router.navigate(['/alumnos/inscripciones']);
+          } else {
+            this.router.navigate(['/alumnos', 'inscribir', edicion.id_programa_version_edicion]);
           }
-
-          this.detalleService.getMisInscripciones().subscribe({
-            next: (inscripciones) => {
-              const yaInscripto = inscripciones.some(
-                i => i.id_programa_version_edicion === edicion.id_programa_version_edicion
-              );
-              if (yaInscripto) {
-                this.router.navigate(['/alumnos/inscripciones']);
-              } else {
-                this.router.navigate(['/alumnos', 'inscribir', edicion.id_programa_version_edicion]);
-              }
-            },
-            error: () => {
-              this.router.navigate(['/alumnos', 'inscribir', edicion.id_programa_version_edicion]);
-            },
-          });
         },
         error: () => {
-          this.snackBar.open('Error al verificar perfil', 'Cerrar', { duration: 3000 });
+          this.router.navigate(['/alumnos', 'inscribir', edicion.id_programa_version_edicion]);
         },
       });
     } else {

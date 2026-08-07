@@ -118,3 +118,116 @@ button.full-width[type="submit"] mat-icon {
   overflow: hidden;
   pointer-events: none;
 }
+
+/* ─── Wizard Stepper ─── */
+.wizard-stepper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin-bottom: 8px;
+  padding: 4px 0 16px;
+}
+
+.wizard-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.step-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+  background: #e2e8f0;
+  color: #94a3b8;
+  transition: all 0.3s ease;
+}
+
+.wizard-step.active .step-circle {
+  background: #0d9488;
+  color: white;
+  box-shadow: 0 0 0 4px rgba(13, 148, 136, 0.15);
+}
+
+.wizard-step.done .step-circle {
+  background: #0d9488;
+  color: white;
+}
+
+.step-circle mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.step-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.wizard-step.active .step-label {
+  color: #0d9488;
+}
+
+.wizard-step.done .step-label {
+  color: #0d9488;
+}
+
+.step-line {
+  width: 48px;
+  height: 2px;
+  background: #e2e8f0;
+  margin: 0 8px;
+  margin-bottom: 20px;
+  transition: background 0.3s ease;
+}
+
+.step-line.done {
+  background: #0d9488;
+}
+
+/* ─── Paneles del wizard ─── */
+.step-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 420px) {
+  .two-col {
+    grid-template-columns: 1fr;
+  }
+}
+
+.wizard-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.nav-btn {
+  height: 48px;
+  font-size: 1rem;
+  min-width: 140px;
+}
+
+.nav-btn mat-icon {
+  margin-right: 4px;
+}

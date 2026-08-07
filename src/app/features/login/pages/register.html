@@ -13,56 +13,166 @@
       <h2>Crear Cuenta</h2>
       <p class="role-desc">Registrate para inscribirte en programas de postgrado</p>
 
+      <div class="wizard-stepper">
+        <div class="wizard-step" [class.active]="currentStep() === 1" [class.done]="currentStep() > 1">
+          <div class="step-circle">
+            @if (currentStep() > 1) {
+              <mat-icon>check</mat-icon>
+            } @else {
+              <span>1</span>
+            }
+          </div>
+          <span class="step-label">Cuenta</span>
+        </div>
+        <div class="step-line" [class.done]="currentStep() > 1"></div>
+        <div class="wizard-step" [class.active]="currentStep() === 2" [class.done]="currentStep() > 2">
+          <div class="step-circle">
+            @if (currentStep() > 2) {
+              <mat-icon>check</mat-icon>
+            } @else {
+              <span>2</span>
+            }
+          </div>
+          <span class="step-label">Identidad</span>
+        </div>
+        <div class="step-line" [class.done]="currentStep() > 2"></div>
+        <div class="wizard-step" [class.active]="currentStep() === 3">
+          <div class="step-circle"><span>3</span></div>
+          <span class="step-label">Contacto</span>
+        </div>
+      </div>
+
       <form class="login-form" (ngSubmit)="register()">
         <div class="hp-field" aria-hidden="true">
           <input type="text" [(ngModel)]="honeypot" name="website"
                  tabindex="-1" autocomplete="off">
         </div>
 
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Correo electrónico</mat-label>
-          <input matInput type="email" [(ngModel)]="email" name="email"
-                 placeholder="tu@correo.com" required autocomplete="email">
-          <mat-icon matPrefix>email</mat-icon>
-        </mat-form-field>
+        @if (currentStep() === 1) {
+          <div class="step-panel">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Correo electrónico</mat-label>
+              <input matInput type="email" [(ngModel)]="email" name="email"
+                     placeholder="tu@correo.com" required autocomplete="email">
+              <mat-icon matPrefix>email</mat-icon>
+            </mat-form-field>
 
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Cédula de Identidad</mat-label>
-          <input matInput type="text" [(ngModel)]="ci" name="ci"
-                 placeholder="12345678" required>
-          <mat-icon matPrefix>badge</mat-icon>
-        </mat-form-field>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Contraseña</mat-label>
+              <input matInput [type]="showPassword ? 'text' : 'password'"
+                     [(ngModel)]="password" name="password"
+                     placeholder="Mínimo 6 caracteres" required autocomplete="new-password">
+              <mat-icon matPrefix>lock</mat-icon>
+              <button mat-icon-button matSuffix type="button" (click)="showPassword = !showPassword">
+                <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+              </button>
+            </mat-form-field>
 
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Contraseña</mat-label>
-          <input matInput [type]="showPassword ? 'text' : 'password'"
-                 [(ngModel)]="password" name="password"
-                 placeholder="Mínimo 6 caracteres" required autocomplete="new-password">
-          <mat-icon matPrefix>lock</mat-icon>
-          <button mat-icon-button matSuffix type="button" (click)="showPassword = !showPassword">
-            <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
-          </button>
-        </mat-form-field>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Confirmar contraseña</mat-label>
+              <input matInput [type]="showConfirmPassword ? 'text' : 'password'"
+                     [(ngModel)]="confirmPassword" name="confirmPassword"
+                     placeholder="Repetí tu contraseña" required autocomplete="new-password">
+              <mat-icon matPrefix>lock_outline</mat-icon>
+              <button mat-icon-button matSuffix type="button" (click)="showConfirmPassword = !showConfirmPassword">
+                <mat-icon>{{ showConfirmPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+              </button>
+            </mat-form-field>
+          </div>
+        }
 
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Confirmar contraseña</mat-label>
-          <input matInput [type]="showConfirmPassword ? 'text' : 'password'"
-                 [(ngModel)]="confirmPassword" name="confirmPassword"
-                 placeholder="Repetí tu contraseña" required autocomplete="new-password">
-          <mat-icon matPrefix>lock_outline</mat-icon>
-          <button mat-icon-button matSuffix type="button" (click)="showConfirmPassword = !showConfirmPassword">
-            <mat-icon>{{ showConfirmPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
-          </button>
-        </mat-form-field>
+        @if (currentStep() === 2) {
+          <div class="step-panel">
+            <div class="two-col">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Nombre</mat-label>
+                <input matInput type="text" [(ngModel)]="nombre" name="nombre"
+                       placeholder="Tu nombre" required autocomplete="given-name">
+                <mat-icon matPrefix>person</mat-icon>
+              </mat-form-field>
 
-        <button mat-raised-button color="primary" type="submit" class="full-width"
-                [disabled]="loading">
-          @if (loading) {
-            <ng-container><mat-icon>hourglass_top</mat-icon> Creando cuenta...</ng-container>
-          } @else {
-            <ng-container><mat-icon>person_add</mat-icon> Crear Cuenta</ng-container>
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Apellido</mat-label>
+                <input matInput type="text" [(ngModel)]="apellido" name="apellido"
+                       placeholder="Tu apellido" required autocomplete="family-name">
+                <mat-icon matPrefix>person_outline</mat-icon>
+              </mat-form-field>
+            </div>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Cédula de Identidad</mat-label>
+              <input matInput type="text" [(ngModel)]="ci" name="ci"
+                     placeholder="12345678">
+              <mat-icon matPrefix>badge</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Pasaporte</mat-label>
+              <input matInput type="text" [(ngModel)]="pasaporte" name="pasaporte"
+                     placeholder="Solo si no tenés CI">
+              <mat-icon matPrefix>flight</mat-icon>
+            </mat-form-field>
+          </div>
+        }
+
+        @if (currentStep() === 3) {
+          <div class="step-panel">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Fecha de nacimiento</mat-label>
+              <input matInput [matDatepicker]="picker" [(ngModel)]="fechaNacimiento" name="fechaNacimiento">
+              <mat-icon matPrefix>cake</mat-icon>
+              <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+              <mat-datepicker #picker></mat-datepicker>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Género</mat-label>
+              <mat-select [(ngModel)]="genero" name="genero">
+                <mat-option value="masculino">Masculino</mat-option>
+                <mat-option value="femenino">Femenino</mat-option>
+              </mat-select>
+              <mat-icon matPrefix>wc</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Celular</mat-label>
+              <input matInput type="tel" [(ngModel)]="celular" name="celular"
+                     placeholder="0981 123 456" autocomplete="tel">
+              <mat-icon matPrefix>phone</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Dirección</mat-label>
+              <input matInput type="text" [(ngModel)]="direccion" name="direccion"
+                     placeholder="Barrio, calle, n° de casa">
+              <mat-icon matPrefix>home</mat-icon>
+            </mat-form-field>
+          </div>
+        }
+
+        <div class="wizard-actions">
+          @if (currentStep() > 1) {
+            <button mat-stroked-button type="button" class="nav-btn" (click)="anterior()">
+              <mat-icon>arrow_back</mat-icon> Volver
+            </button>
           }
-        </button>
+
+          @if (currentStep() < 3) {
+            <button mat-raised-button color="primary" type="button" class="nav-btn"
+                    (click)="siguiente()">
+              Siguiente <mat-icon>arrow_forward</mat-icon>
+            </button>
+          } @else {
+            <button mat-raised-button color="primary" type="submit" class="nav-btn"
+                    [disabled]="loading">
+              @if (loading) {
+                <mat-icon>hourglass_top</mat-icon> Creando cuenta...
+              } @else {
+                <mat-icon>person_add</mat-icon> Crear Cuenta
+              }
+            </button>
+          }
+        </div>
       </form>
 
       <div class="login-link">

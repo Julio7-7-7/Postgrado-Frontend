@@ -42,7 +42,14 @@ export interface LoginStep1Response {
 export interface RegistroRequest {
   email: string;
   password: string;
-  ci: string;
+  ci?: string | null;
+  pasaporte?: string | null;
+  nombre?: string;
+  apellido?: string;
+  fecha_nacimiento?: string | null;
+  genero?: string | null;
+  celular?: string | null;
+  direccion?: string | null;
   honeypot?: string;
 }
 
