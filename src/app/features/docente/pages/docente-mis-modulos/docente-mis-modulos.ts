@@ -1,6 +1,6 @@
 import { Component, OnInit, signal, inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -11,6 +11,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { NotaService } from '../../../notas/services/nota.service';
+import { AuthService } from '../../../../core/services/auth.service';
 import { DocenteEdicionCompleta, DocenteModuloResumen } from '../../../notas/models/nota.model';
 
 @Component({
@@ -26,8 +27,8 @@ import { DocenteEdicionCompleta, DocenteModuloResumen } from '../../../notas/mod
 })
 export class DocenteMisModulosComponent implements OnInit {
   private service = inject(NotaService);
+  private auth = inject(AuthService);
   private router = inject(Router);
-  private route = inject(ActivatedRoute);
   private snackbar = inject(MatSnackBar);
   private destroyRef = inject(DestroyRef);
 
@@ -36,9 +37,9 @@ export class DocenteMisModulosComponent implements OnInit {
   idDocente = 0;
 
   ngOnInit(): void {
-    this.idDocente = Number(this.route.snapshot.paramMap.get('id'));
+    this.idDocente = Number(this.auth.user()?.id_profile) || 0;
     if (!this.idDocente) {
-      this.router.navigate(['/docentes']);
+      this.router.navigate(['/login']);
       return;
     }
     this.cargarDatos();
@@ -59,7 +60,7 @@ export class DocenteMisModulosComponent implements OnInit {
   }
 
   gestionarModulo(mod: DocenteModuloResumen): void {
-    this.router.navigate(['/docentes', this.idDocente, 'calificar', mod.id_detalle_programa_modulo]);
+    this.router.navigate(['/docente/calificar', mod.id_detalle_programa_modulo]);
   }
 
   semestreLabel(sem: number): string {
@@ -87,6 +88,6 @@ export class DocenteMisModulosComponent implements OnInit {
   }
 
   volver(): void {
-    this.router.navigate(['/docentes', this.idDocente]);
+    this.router.navigate(['/docente']);
   }
 }

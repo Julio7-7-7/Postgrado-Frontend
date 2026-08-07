@@ -17,16 +17,6 @@ export const DOCENTE_ROUTES: Routes = [
     component: DocenteFormComponent
   },
   {
-    path: ':id/calificar/:idDpm',
-    loadComponent: () =>
-      import('../pages/docente-calificar/docente-calificar').then(m => m.DocenteCalificarComponent),
-  },
-  {
-    path: ':id/mis-modulos',
-    loadComponent: () =>
-      import('../pages/docente-mis-modulos/docente-mis-modulos').then(m => m.DocenteMisModulosComponent),
-  },
-  {
     path: ':id',
     component: DocenteDetalleComponent
   },

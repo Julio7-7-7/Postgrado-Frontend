@@ -1,0 +1,222 @@
+.portal-container {
+  padding: var(--fich-space-lg);
+  width: 90%; max-width: 1920px;  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--fich-space-lg);
+}
+
+.perfil-card {
+  border-radius: var(--fich-radius-lg) !important;
+  overflow: hidden;
+  box-shadow: var(--fich-shadow-md) !important;
+  border-top: 4px solid var(--fich-primary) !important;
+}
+
+.perfil-header {
+  display: flex;
+  align-items: center;
+  gap: var(--fich-space-lg);
+  padding: var(--fich-space-xl) var(--fich-space-xl) 0;
+}
+
+.avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--fich-primary), var(--fich-primary-hover));
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.8rem;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(30, 58, 138, 0.25);
+}
+
+.header-info {
+  flex: 1;
+}
+
+.header-info h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--fich-text);
+}
+
+.header-actions {
+  flex-shrink: 0;
+}
+
+.header-badges {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.estado-badge {
+  display: inline-block;
+  padding: 4px 14px;
+  border-radius: 9999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.estado-activo {
+  background: #f0fdf4;
+  color: #16a34a;
+  border: 1px solid #bbf7d0;
+}
+
+.dictando-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: var(--fich-success-light);
+  color: var(--fich-success);
+  border: 1px solid #bbf7d0;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.perfil-body {
+  padding: var(--fich-space-xl);
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--fich-space-lg);
+}
+
+.info-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px;
+  border-radius: var(--fich-radius-sm);
+  transition: background var(--fich-transition);
+}
+
+.info-item:hover {
+  background: var(--fich-bg-subtle);
+}
+
+.info-item mat-icon {
+  font-size: 22px;
+  width: 22px;
+  height: 22px;
+  color: var(--fich-primary);
+  margin-top: 2px;
+  opacity: 0.7;
+}
+
+.info-item div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--fich-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.value {
+  font-size: 0.95rem;
+  color: var(--fich-text);
+  font-weight: 500;
+}
+
+.modulos-card {
+  border-radius: var(--fich-radius-lg) !important;
+  box-shadow: var(--fich-shadow-md) !important;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform var(--fich-transition), box-shadow var(--fich-transition);
+}
+
+.modulos-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--fich-shadow-lg) !important;
+}
+
+.modulos-card mat-card-header {
+  background: var(--fich-bg-subtle);
+  padding: 20px 24px;
+}
+
+.modulos-card mat-card-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.modulos-card mat-card-title mat-icon {
+  color: var(--fich-primary);
+}
+
+.modulos-card mat-card-subtitle {
+  margin-top: 4px;
+  font-size: 0.85rem;
+}
+
+.modulos-card mat-card-content {
+  padding: 20px 24px;
+}
+
+.modulos-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--fich-primary);
+  font-weight: 600;
+}
+
+.modulos-cta mat-icon {
+  transition: transform var(--fich-transition);
+}
+
+.modulos-card:hover .modulos-cta mat-icon {
+  transform: translateX(4px);
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 80px 20px;
+}
+
+@media (max-width: 640px) {
+  .portal-container {
+    padding: var(--fich-space-md);
+  }
+  .perfil-header {
+    flex-direction: column;
+    text-align: center;
+  }
+  .header-actions {
+    width: 100%;
+  }
+  .header-actions button {
+    width: 100%;
+  }
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+}

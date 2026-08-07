@@ -1,0 +1,97 @@
+<div class="portal-container">
+
+  @if (loading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="50" color="primary"></mat-spinner>
+      <p>Cargando tu perfil...</p>
+    </div>
+  }
+  @else if (docente()) {
+    @let d = docente()!;
+
+    <mat-card class="perfil-card">
+      <div class="perfil-header">
+        <div class="avatar">{{ iniciales() }}</div>
+        <div class="header-info">
+          <h1>{{ d.grado ? d.grado + '. ' : '' }}{{ d.nombre }} {{ d.apellido }}</h1>
+          <div class="header-badges">
+            <span class="estado-badge estado-activo">Docente</span>
+            @if (d.tiene_modulos_activos) {
+              <span class="dictando-badge">Dictando</span>
+            }
+          </div>
+        </div>
+        <div class="header-actions">
+          <button mat-raised-button color="primary" (click)="irAMisModulos()">
+            <mat-icon>menu_book</mat-icon> Mis Módulos
+          </button>
+        </div>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <div class="perfil-body">
+        <div class="info-grid">
+          <div class="info-item">
+            <mat-icon>badge</mat-icon>
+            <div>
+              <span class="label">Cédula de Identidad</span>
+              <span class="value">{{ d.ci }} {{ d.extension ? d.extension : '' }}</span>
+            </div>
+          </div>
+          <div class="info-item">
+            <mat-icon>email</mat-icon>
+            <div>
+              <span class="label">Correo</span>
+              <span class="value">{{ d.correo }}</span>
+            </div>
+          </div>
+          <div class="info-item">
+            <mat-icon>phone</mat-icon>
+            <div>
+              <span class="label">Celular</span>
+              <span class="value">{{ d.celular || '—' }}</span>
+            </div>
+          </div>
+          <div class="info-item">
+            <mat-icon>wc</mat-icon>
+            <div>
+              <span class="label">Género</span>
+              <span class="value">{{ d.genero === 'masculino' ? 'Masculino' : d.genero === 'femenino' ? 'Femenino' : '—' }}</span>
+            </div>
+          </div>
+          <div class="info-item">
+            <mat-icon>school</mat-icon>
+            <div>
+              <span class="label">Grado</span>
+              <span class="value">{{ d.grado || '—' }}</span>
+            </div>
+          </div>
+          <div class="info-item">
+            <mat-icon>workspace_premium</mat-icon>
+            <div>
+              <span class="label">Título</span>
+              <span class="value">{{ d.titulo || '—' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </mat-card>
+
+    <mat-card class="modulos-card" (click)="irAMisModulos()">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>play_circle</mat-icon> Mis Módulos
+        </mat-card-title>
+        <mat-card-subtitle>
+          Módulos que dictás por edición. Entrá para calificar los que están en curso.
+        </mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <span class="modulos-cta">
+          Ir a Mis Módulos <mat-icon>arrow_forward</mat-icon>
+        </span>
+      </mat-card-content>
+    </mat-card>
+  }
+</div>
