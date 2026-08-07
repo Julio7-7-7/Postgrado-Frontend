@@ -23,6 +23,7 @@ export interface UserInfo {
   id_rol: number;
   id_profile: number | null;
   profile_type: string | null;
+  must_change_password: boolean;
   permisos: PermisoInfo[];
   roles: RolInfo[];
 }
