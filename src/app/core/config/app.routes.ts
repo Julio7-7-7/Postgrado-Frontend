@@ -3,6 +3,7 @@ import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { authGuard, permisoGuard } from '../guards/auth.guard';
+import { buildNavRoutes } from './nav-routes';
 
 export function dashboardGuard(): CanActivateFn {
   return () => {
@@ -37,6 +38,12 @@ export const routes: Routes = [
       import('../../features/login/pages/register').then(m => m.RegisterComponent),
   },
   {
+    path: 'dashboard',
+    loadComponent: () =>
+      import('../../features/home/pages/home').then(m => m.HomeComponent),
+    canActivate: [dashboardGuard()],
+  },
+  {
     path: 'requisitos',
     loadChildren: () =>
       import('../../features/requisitos/routes/requisitos.routes')
@@ -49,40 +56,6 @@ export const routes: Routes = [
       .then(m => m.MODALIDAD_ROUTES),
   },
   {
-    path: 'dashboard',
-    loadComponent: () =>
-      import('../../features/home/pages/home').then(m => m.HomeComponent),
-    canActivate: [dashboardGuard()],
-  },
-  {
-    path: 'tipos-programa',
-    loadChildren: () =>
-      import('../../features/tipo-programa/routes/tipo-programa.routes')
-      .then(m => m.TIPO_PROGRAMA_ROUTES),
-    canActivate: [permisoGuard('tipos_programa.ver')],
-  },
-  {
-    path: 'programas',
-    loadChildren: () =>
-      import('../../features/programa/routes/programa.routes')
-      .then(m => m.PROGRAMA_ROUTES),
-    canActivate: [permisoGuard('programas.ver')],
-  },
-  {
-    path: 'docentes',
-    loadChildren: () =>
-      import('../../features/docente/routes/docente.routes')
-      .then(m => m.DOCENTE_ROUTES),
-    canActivate: [permisoGuard('docentes.ver')],
-  },
-  {
-    path: 'contrataciones',
-    loadChildren: () =>
-      import('../../features/contratacion/routes/contratacion.routes')
-      .then(m => m.CONTRATACION_ROUTES),
-    canActivate: [permisoGuard('contrataciones.ver')],
-  },
-  {
     path: 'alumnos',
     loadChildren: () =>
       import('../../features/alumno/routes/alumno.routes')
@@ -90,11 +63,29 @@ export const routes: Routes = [
     canActivate: [authGuard()],
   },
   {
-    path: 'admin',
+    path: 'docente',
     loadChildren: () =>
-      import('../../features/admin/routes/admin.routes')
-      .then(m => m.ADMIN_ROUTES),
-    canActivate: [authGuard()],
+      import('../../features/docente/routes/docente-portal.routes')
+      .then(m => m.DOCENTE_PORTAL_ROUTES),
   },
+  {
+    path: 'solicitudes/:idSolicitud/revisar',
+    loadComponent: () =>
+      import('../../features/inscripciones/pages/revisar-incorporacion/revisar-incorporacion').then(m => m.RevisarIncorporacionComponent),
+    canActivate: [permisoGuard('alumnos.editar')],
+  },
+  {
+    path: 'requisitos-incorporacion',
+    loadComponent: () =>
+      import('../../features/inscripciones/pages/gestionar-requisitos-incorporacion/gestionar-requisitos-incorporacion').then(m => m.GestionarRequisitosIncorporacionComponent),
+    canActivate: [permisoGuard('alumnos.editar')],
+  },
+  {
+    path: 'transcript/:idAlumno',
+    loadComponent: () =>
+      import('../../features/transcript/pages/transcript/transcript').then(m => m.TranscriptComponent),
+    canActivate: [permisoGuard('alumnos.ver')],
+  },
+  ...buildNavRoutes(),
   { path: '**', redirectTo: '' },
 ];

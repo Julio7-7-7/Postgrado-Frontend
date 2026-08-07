@@ -12,24 +12,47 @@
       </div>
     </div>
 
-    <div class="navbar-spacer"></div>
-
-    <nav class="navbar-nav">
-      @for (item of navItems(); track item.path) {
-        <a
-          mat-button
-          [routerLink]="item.path"
-          routerLinkActive="nav-active"
-          [routerLinkActiveOptions]="{ exact: item.exact ?? false }"
-          class="nav-link"
-          [class]="'nav-link nav-' + item.feature"
-          [matTooltip]="item.label"
+    <div class="nav-scroll-wrap" [class.has-overflow]="hasOverflow()">
+      @if (hasOverflow()) {
+        <button
+          mat-icon-button
+          class="nav-scroll-btn nav-scroll-prev"
+          (click)="scrollNav(-1)"
+          matTooltip="Anterior"
         >
-          <mat-icon>{{ item.icon }}</mat-icon>
-          <span class="nav-label">{{ item.label }}</span>
-        </a>
+          <mat-icon>chevron_left</mat-icon>
+        </button>
       }
-    </nav>
+      <nav #navScroll class="nav-scroll">
+        @for (row of navGroups(); track row.item.path) {
+          @if (row.sep) {
+            <span class="nav-sep"><span class="nav-sep-label">{{ row.sep }}</span></span>
+          }
+          <a
+            mat-button
+            [routerLink]="row.item.path"
+            routerLinkActive="nav-active"
+            [routerLinkActiveOptions]="{ exact: row.item.exact ?? false }"
+            class="nav-link"
+            [class]="'nav-link nav-' + row.item.feature"
+            [matTooltip]="row.item.label"
+          >
+            <mat-icon>{{ row.item.icon }}</mat-icon>
+            <span class="nav-label">{{ row.item.label }}</span>
+          </a>
+        }
+      </nav>
+      @if (hasOverflow()) {
+        <button
+          mat-icon-button
+          class="nav-scroll-btn nav-scroll-next"
+          (click)="scrollNav(1)"
+          matTooltip="Siguiente"
+        >
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      }
+    </div>
 
     <div class="navbar-actions">
       <button mat-icon-button [matMenuTriggerFor]="profileMenu" class="profile-btn" matTooltip="Usuario">

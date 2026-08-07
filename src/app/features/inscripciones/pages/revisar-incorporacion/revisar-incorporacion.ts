@@ -152,7 +152,7 @@ export class RevisarIncorporacionComponent implements OnInit {
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('idSolicitud'));
     if (!id) {
-      this.router.navigate(['/admin/solicitudes-incorporacion']);
+      this.router.navigate(['/solicitudes']);
       return;
     }
     this.cargarSolicitud(id);
@@ -177,7 +177,7 @@ export class RevisarIncorporacionComponent implements OnInit {
             this.cargarDestinosRecomendados();
           } else {
             this.snackBar.open('Solicitud no encontrada', 'Cerrar', { duration: 3000 });
-            this.router.navigate(['/admin/solicitudes-incorporacion']);
+            this.router.navigate(['/solicitudes']);
           }
           this.isLoading.set(false);
         },
@@ -412,7 +412,7 @@ export class RevisarIncorporacionComponent implements OnInit {
         next: () => {
           this.isApproving.set(false);
           this.snackBar.open('Solicitud aprobada correctamente', 'Cerrar', { duration: 3000 });
-          this.router.navigate(['/admin/solicitudes-incorporacion']);
+          this.router.navigate(['/solicitudes']);
         },
         error: (err) => {
           this.isApproving.set(false);
@@ -430,7 +430,7 @@ export class RevisarIncorporacionComponent implements OnInit {
         next: () => {
           this.isApproving.set(false);
           this.snackBar.open('Solicitud rechazada', 'Cerrar', { duration: 3000 });
-          this.router.navigate(['/admin/solicitudes-incorporacion']);
+          this.router.navigate(['/solicitudes']);
         },
         error: (err) => {
           this.isApproving.set(false);
@@ -440,6 +440,6 @@ export class RevisarIncorporacionComponent implements OnInit {
   }
 
   volver(): void {
-    this.router.navigate(['/admin/solicitudes-incorporacion']);
+    this.router.navigate(['/solicitudes']);
   }
 }

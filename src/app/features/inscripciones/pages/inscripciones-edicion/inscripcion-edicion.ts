@@ -82,7 +82,7 @@ export class InscripcionesEdicionComponent implements OnInit {
   ngOnInit(): void {
     this.idEdicion = Number(this.route.snapshot.paramMap.get('idEdicion'));
     if (!this.idEdicion) {
-      this.router.navigate(['/admin/inscripciones']);
+      this.router.navigate(['/inscripciones']);
       return;
     }
     this.cargarDatos();
@@ -182,7 +182,7 @@ export class InscripcionesEdicionComponent implements OnInit {
   }
 
   volver(): void {
-    this.router.navigate(['/admin/inscripciones']);
+    this.router.navigate(['/inscripciones']);
   }
 
   iniciales(item: InscripcionEdicionItem): string {
@@ -233,6 +233,6 @@ export class InscripcionesEdicionComponent implements OnInit {
   }
 
   verTranscript(item: InscripcionEdicionItem): void {
-    this.router.navigate(['/admin/transcript', item.alumno.id_alumno]);
+    this.router.navigate(['/transcript', item.alumno.id_alumno]);
   }
 }

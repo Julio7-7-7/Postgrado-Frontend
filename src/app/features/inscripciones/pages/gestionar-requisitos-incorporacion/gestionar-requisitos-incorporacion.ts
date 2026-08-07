@@ -380,6 +380,6 @@ export class GestionarRequisitosIncorporacionComponent implements OnInit {
   }
 
   volver(): void {
-    this.router.navigate(['/admin/inscripciones']);
+    this.router.navigate(['/inscripciones']);
   }
 }

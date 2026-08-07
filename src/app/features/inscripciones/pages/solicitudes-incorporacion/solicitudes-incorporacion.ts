@@ -352,11 +352,11 @@ export class SolicitudesIncorporacionComponent implements OnInit {
   }
 
   volver(): void {
-    this.router.navigate(['/admin/inscripciones']);
+    this.router.navigate(['/inscripciones']);
   }
 
   irARequisitos(): void {
-    this.router.navigate(['/admin/requisitos-incorporacion']);
+    this.router.navigate(['/requisitos-incorporacion']);
   }
 
   tipoLabel(item: SolicitudAdminItem): string {
@@ -385,7 +385,7 @@ export class SolicitudesIncorporacionComponent implements OnInit {
   }
 
   abrirDetalle(item: SolicitudAdminItem): void {
-    this.router.navigate(['/admin/solicitudes-incorporacion', item.id, 'revisar']);
+    this.router.navigate(['/solicitudes', item.id, 'revisar']);
   }
 
   aprobar(item: SolicitudAdminItem): void {
@@ -413,7 +413,7 @@ export class SolicitudesIncorporacionComponent implements OnInit {
       });
       return;
     }
-    this.router.navigate(['/admin/solicitudes-incorporacion', item.id, 'revisar']);
+    this.router.navigate(['/solicitudes', item.id, 'revisar']);
   }
 
   rechazar(item: SolicitudAdminItem): void {
