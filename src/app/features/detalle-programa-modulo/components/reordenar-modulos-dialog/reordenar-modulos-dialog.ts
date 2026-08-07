@@ -31,7 +31,8 @@ export interface ReordenarModulosData {
     </h2>
 
     <mat-dialog-content>
-      <p class="reorden-hint">Arrastre los módulos para cambiar su orden de ejecución</p>
+      <p class="reorden-hint">Arrastre los módulos para cambiar su orden. Al guardar, las fechas quedan
+        ancladas a la posición: cada módulo hereda la fecha del puesto donde cae.</p>
 
       <div cdkDropList class="reorden-list" (cdkDropListDropped)="onDrop($event)">
         @for (m of modulos(); track m.id_detalle_programa_modulo; let i = $index) {
@@ -41,6 +42,10 @@ export interface ReordenarModulosData {
             <span class="reorden-nombre">{{ m.modulo.nombre_modulo }}</span>
             <span class="reorden-estado reorden-badge" [class]="'r-estado-' + m.estado">
               {{ etiquetaEstado(m.estado) }}
+            </span>
+            <span class="reorden-fechas" [class.reorden-fechas-cambiada]="fechaCambia(i)">
+              <mat-icon>event</mat-icon>
+              {{ fechaHeredada(i) }}
             </span>
             <mat-icon class="reorden-handle" cdkDragHandle>drag_indicator</mat-icon>
           </div>
@@ -108,6 +113,19 @@ export interface ReordenarModulosData {
       font-family: 'Roboto Mono', monospace;
     }
     .reorden-nombre { font-weight: 600; font-size: 0.95rem; flex: 1; }
+    .reorden-fechas {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 0.78rem; font-weight: 600; color: var(--fich-text-muted);
+      background: var(--fich-bg-muted, #f8fafc);
+      padding: 3px 10px; border-radius: var(--fich-radius-sm);
+      font-family: 'Roboto Mono', monospace; white-space: nowrap;
+    }
+    .reorden-fechas mat-icon { font-size: 14px; width: 14px; height: 14px; color: var(--fich-text-faint); }
+    .reorden-fechas-cambiada {
+      color: var(--fich-primary-dark);
+      background: var(--fich-primary-light);
+    }
+    .reorden-fechas-cambiada mat-icon { color: var(--fich-primary); }
     .reorden-estado { font-size: 0.72rem; font-weight: 700; padding: 2px 10px; border-radius: var(--fich-radius-full); text-transform: uppercase; letter-spacing: 0.03em; }
     .r-estado-programado { background: #eff6ff; color: #2563eb; }
     .r-estado-en_curso { background: #f0fdf4; color: #16a34a; }
@@ -131,11 +149,13 @@ export class ReordenarModulosDialogComponent {
   modulos = signal<DetalleProgramaModulo[]>([]);
   saving = signal(false);
   ordenOriginal: number[];
+  fechasPorSlot: { inicio: string | null; fin: string | null }[] = [];
 
   constructor(@Inject(MAT_DIALOG_DATA) public data: ReordenarModulosData) {
     const ordenados = [...data.modulos].sort((a, b) => a.orden - b.orden);
     this.modulos.set(ordenados);
     this.ordenOriginal = ordenados.map(m => m.id_detalle_programa_modulo);
+    this.fechasPorSlot = ordenados.map(m => ({ inicio: m.fecha_inicio, fin: m.fecha_fin }));
   }
 
   hayCambios = computed(() => {
@@ -149,6 +169,49 @@ export class ReordenarModulosDialogComponent {
       reprogramado: 'Reprogramado', finalizado: 'Finalizado',
     };
     return map[estado] || estado;
+  }
+
+  private fmt(iso: string | null): string {
+    if (!iso) return '—';
+    const [y, m, d] = iso.split('-');
+    return `${d}/${m}/${y}`;
+  }
+
+  private desdeIso(iso: string): Date {
+    const [y, m, d] = iso.split('-').map(Number);
+    return new Date(y, (m ?? 1) - 1, d ?? 1);
+  }
+
+  fechaHeredada(index: number): string {
+    const slot = this.fechasPorSlot[index];
+    if (!slot) return '—';
+    const m = this.modulos()[index];
+    let inicio = slot.inicio;
+    let fin = slot.fin;
+
+    if ((m.estado === 'programado' || m.estado === 'reprogramado') && inicio) {
+      const ini = this.desdeIso(inicio);
+      const hoy = new Date();
+      hoy.setHours(0, 0, 0, 0);
+      if (ini.getTime() < hoy.getTime()) {
+        const finDate = fin ? this.desdeIso(fin) : null;
+        let duracion = finDate && !isNaN(finDate.getTime())
+          ? Math.round((finDate.getTime() - ini.getTime()) / 86400000) : 0;
+        duracion = Math.max(duracion, 30);
+        inicio = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}-${String(hoy.getDate()).padStart(2, '0')}`;
+        fin = new Date(hoy.getTime() + duracion * 86400000).toISOString().slice(0, 10);
+      }
+    }
+
+    if (!inicio && !fin) return 'Sin fecha';
+    return `${this.fmt(inicio)} → ${this.fmt(fin)}`;
+  }
+
+  fechaCambia(index: number): boolean {
+    const slot = this.fechasPorSlot[index];
+    if (!slot) return false;
+    const m = this.modulos()[index];
+    return m.fecha_inicio !== slot.inicio || m.fecha_fin !== slot.fin;
   }
 
   onNoClick() {
@@ -172,7 +235,7 @@ export class ReordenarModulosDialogComponent {
       .subscribe({
         next: () => {
           this.saving.set(false);
-          this.snackbar.open('Orden guardado con éxito', 'OK', { duration: 3000 });
+          this.snackbar.open('Orden y fechas actualizados con éxito', 'OK', { duration: 3000 });
           this.dialogRef.close(true);
         },
         error: (err) => {
