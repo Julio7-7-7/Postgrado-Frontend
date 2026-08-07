@@ -69,7 +69,7 @@ export class HomeComponent implements OnInit {
   cards: NavCard[] = [
     { path: '/programas', icon: 'menu_book', title: 'Programas', desc: 'Maestrías, diplomados y cursos', bg: 'linear-gradient(135deg, #eef2ff, #dbeafe)' },
     { path: '/docentes', icon: 'person_pin', title: 'Docentes', desc: 'Banco de docentes y asignaciones', bg: 'linear-gradient(135deg, #f0fdfa, #ccfbf1)' },
-    { path: '/alumnos', icon: 'people', title: 'Alumnos', desc: 'Inscripciones y perfiles', bg: 'linear-gradient(135deg, #ecfeff, #cffafe)' },
+    { path: '/estudiantes', icon: 'people', title: 'Alumnos', desc: 'Inscripciones y perfiles', bg: 'linear-gradient(135deg, #ecfeff, #cffafe)' },
     { path: '/tipos-programa', icon: 'category', title: 'Tipos de Programa', desc: 'Categorías académicas', bg: 'linear-gradient(135deg, #f5f3ff, #ede9fe)' },
   ];
 

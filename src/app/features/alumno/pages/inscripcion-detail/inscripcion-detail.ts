@@ -119,6 +119,9 @@ export class InscripcionDetailComponent implements OnInit {
   enviandoMigracion = signal(false);
   solicitudMigracion = signal<Solicitud | null>(null);
 
+  requisitosMigracion = signal<SolicitudRequisito[]>([]);
+  migrReqFiles = signal<Record<number, { file: File; name: string; size: string }>>({});
+
   hitos = computed(() => {
     const ins = this.inscripcion();
     if (!ins) return [];
@@ -222,6 +225,7 @@ export class InscripcionDetailComponent implements OnInit {
         }
         this._cargarPuedeMigrar(data.id_detalle_programa_alumno);
         this._cargarSolicitudMigracion();
+        this._cargarRequisitosMigracion();
       },
       error: () => {
         this.cargando.set(false);
@@ -358,6 +362,7 @@ export class InscripcionDetailComponent implements OnInit {
   puedeRetirarse(): boolean {
     const ins = this.inscripcion();
     if (!ins) return false;
+    if (this.edicionEstado() === 'finalizado') return false;
     return !['retirado', 'finalizado', 'graduado'].includes(ins.estado);
   }
 
@@ -524,6 +529,13 @@ export class InscripcionDetailComponent implements OnInit {
     });
   }
 
+  private _cargarRequisitosMigracion(): void {
+    this.solicitudRequisitoService.getRequisitosConfigurados(2).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (reqs) => this.requisitosMigracion.set(reqs),
+      error: () => {},
+    });
+  }
+
   showMigracionCard = computed(() => {
     return this.puedeMigrar() === true
       && (!this.solicitudMigracion() || this.showMigracionForm());
@@ -542,6 +554,7 @@ export class InscripcionDetailComponent implements OnInit {
   }
 
   solicitarMigracion(): void {
+    this.migrReqFiles.set({});
     this.showMigracionForm.set(true);
   }
 
@@ -551,11 +564,8 @@ export class InscripcionDetailComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: (sol) => {
           this.solicitudMigracion.set(sol);
-          this.showMigracionForm.set(false);
           this.motivoMigracion.set('');
-          this.enviandoMigracion.set(false);
-          this.puedeMigrar.set(false);
-          this.snackBar.open('Solicitud de migración enviada. Esperá la respuesta del administrador.', 'Cerrar', { duration: 4000 });
+          this._subirMigrReqFiles(sol);
         },
         error: (err) => {
           this.enviandoMigracion.set(false);
@@ -567,6 +577,84 @@ export class InscripcionDetailComponent implements OnInit {
   cancelarMigracion(): void {
     this.showMigracionForm.set(false);
     this.motivoMigracion.set('');
+    this.migrReqFiles.set({});
+  }
+
+  onMigrReqFileSelected(event: Event, idRequisito: number): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || !input.files[0]) return;
+    const file = input.files[0];
+    const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'];
+    if (!validTypes.includes(file.type)) {
+      this.snackBar.open('Solo se aceptan imágenes (JPG, PNG, GIF, WebP) o PDF', 'Cerrar', { duration: 4000 });
+      input.value = '';
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      this.snackBar.open('El archivo no puede superar 10 MB', 'Cerrar', { duration: 4000 });
+      input.value = '';
+      return;
+    }
+    this.migrReqFiles.update(files => ({
+      ...files,
+      [idRequisito]: { file, name: file.name, size: this.formatSize(file.size) },
+    }));
+    input.value = '';
+  }
+
+  quitarMigrReqFile(idRequisito: number): void {
+    this.migrReqFiles.update(files => {
+      const copy = { ...files };
+      delete copy[idRequisito];
+      return copy;
+    });
+  }
+
+  migrReqSubidos = computed(() => Object.keys(this.migrReqFiles()).length);
+
+  private _subirMigrReqFiles(sol: Solicitud): void {
+    const pending = this.migrReqFiles();
+    const entries = Object.entries(pending);
+    if (entries.length === 0) {
+      this.showMigracionForm.set(false);
+      this.enviandoMigracion.set(false);
+      this.puedeMigrar.set(false);
+      this.snackBar.open('Solicitud de migración enviada. Esperá la respuesta del administrador.', 'Cerrar', { duration: 4000 });
+      return;
+    }
+
+    const uploadNext = (idx: number): void => {
+      if (idx >= entries.length) {
+        this.migrReqFiles.set({});
+        this.showMigracionForm.set(false);
+        this.enviandoMigracion.set(false);
+        this.puedeMigrar.set(false);
+        this.snackBar.open('Solicitud de migración enviada con documentos. Esperá la respuesta del administrador.', 'Cerrar', { duration: 4000 });
+        return;
+      }
+      const [idReqStr, entry] = entries[idx];
+      const doc = sol.documentos?.find(d => d.id_requisito === Number(idReqStr));
+      if (!doc) {
+        uploadNext(idx + 1);
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = () => {
+        const base64 = reader.result as string;
+        this.detalleService.subirDocumentoSolicitud(sol.id_solicitud, doc.id_solicitud_documento, base64)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe({
+            next: (updatedSol) => {
+              this.solicitudMigracion.set(updatedSol);
+              uploadNext(idx + 1);
+            },
+            error: () => uploadNext(idx + 1),
+          });
+      };
+      reader.onerror = () => uploadNext(idx + 1);
+      reader.readAsDataURL(entry.file);
+    };
+    uploadNext(0);
   }
 
   verRequisito(id: number): void {

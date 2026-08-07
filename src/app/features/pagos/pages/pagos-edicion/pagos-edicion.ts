@@ -51,7 +51,7 @@ export class PagosEdicionComponent implements OnInit {
   ngOnInit(): void {
     this.idEdicion = Number(this.route.snapshot.paramMap.get('idEdicion'));
     if (!this.idEdicion) {
-      this.router.navigate(['/admin/pagos']);
+      this.router.navigate(['/pagos']);
       return;
     }
     this.cargarDatos();
@@ -139,6 +139,6 @@ export class PagosEdicionComponent implements OnInit {
   }
 
   volver(): void {
-    this.router.navigate(['/admin/pagos']);
+    this.router.navigate(['/pagos']);
   }
 }

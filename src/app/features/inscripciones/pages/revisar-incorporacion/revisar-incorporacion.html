@@ -188,24 +188,86 @@
               <mat-icon>swap_horiz</mat-icon>
               <h3>Configuraci&oacute;n de Migraci&oacute;n</h3>
             </div>
-            <div class="config-form">
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Edici&oacute;n destino</mat-label>
-                <mat-select [value]="edicionSeleccionada()" (selectionChange)="onEdicionChange($event.value)">
-                  @for (ed of ediciones(); track ed.id_programa_version_edicion) {
-                    <mat-option [value]="ed.id_programa_version_edicion">
-                      {{ ed.programa_nombre }} &mdash; Ed. {{ ed.edicion }} ({{ semestreLabel(ed.semestre) }}-{{ ed.anio }})
-                    </mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
 
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Motivo de migraci&oacute;n</mat-label>
-                <textarea matInput [ngModel]="motivo()" (ngModelChange)="motivo.set($event)"
-                          rows="3" placeholder="Describe el motivo de la migraci&oacute;n..."></textarea>
-              </mat-form-field>
-            </div>
+            @if (esPendiente()) {
+              <div class="config-form">
+                @if (pendientesDestino().length > 0) {
+                  <div class="pendientes-note">
+                    <mat-icon>fact_check</mat-icon>
+                    <span>M&oacute;dulo(s) pendiente(s) del alumno ({{ pendientesDestino().length }}): {{ pendientesDestino().map(p => p.nombre_modulo).join(', ') }}</span>
+                  </div>
+                }
+
+                @if (destinosLoading()) {
+                  <div class="destinos-loading">
+                    <mat-spinner diameter="20"></mat-spinner>
+                    <span>Evaluando ediciones destino...</span>
+                  </div>
+                } @else if (destinos().length > 0) {
+                  <p class="modulo-config-desc">Analizamos los m&oacute;dulos que le faltan al alumno contra las ediciones disponibles y marcamos la de mayor afinidad.</p>
+                  <mat-radio-group class="destino-opciones"
+                                   [value]="edicionSeleccionada()"
+                                   (change)="onEdicionChange($event.value)">
+                    @for (d of destinos(); track d.id_programa_version_edicion) {
+                      <mat-radio-button class="destino-radio" [value]="d.id_programa_version_edicion">
+                        <div class="opcion-card destino-card" [class.opcion-recomendada]="d.recomendado">
+                          <div class="opcion-head">
+                            <span class="opcion-titulo">{{ destinoTitulo(d) }}</span>
+                            <div class="opcion-badges">
+                              @if (d.recomendado) {
+                                <span class="opcion-badge badge-recomendado"><mat-icon>thumb_up</mat-icon> Recomendada</span>
+                              }
+                              <span class="opcion-badge" [class]="'badge-' + d.estado">{{ d.estado }}</span>
+                              <span class="opcion-badge badge-afinidad"><mat-icon>pie_chart</mat-icon> {{ d.afinidad_pct }}% afinidad</span>
+                            </div>
+                          </div>
+                          <div class="opcion-fechas">
+                            <span class="fecha-item"><mat-icon>event</mat-icon> {{ destinoPeriodo(d) }}</span>
+                            <span class="fecha-item"><mat-icon>groups</mat-icon> {{ destinoCupo(d) }}</span>
+                            <span class="fecha-item"><mat-icon>payments</mat-icon> {{ formatMonto(d.precio ?? 0) }}</span>
+                            @if (d.modalidad) {
+                              <span class="fecha-item"><mat-icon>school</mat-icon> {{ d.modalidad }}</span>
+                            }
+                          </div>
+                          <p class="destino-motivo"><mat-icon>{{ d.recomendado ? 'star' : 'info' }}</mat-icon> {{ d.motivo_recomendacion }}</p>
+                          @if (destinoNoAprovechables(d).length > 0) {
+                            <p class="opcion-aviso"><mat-icon>warning</mat-icon> No aprovechables: {{ destinoNoAprovechables(d).join(', ') }}</p>
+                          }
+                        </div>
+                      </mat-radio-button>
+                    }
+                  </mat-radio-group>
+                } @else {
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Edici&oacute;n destino</mat-label>
+                    <mat-select [value]="edicionSeleccionada()" (selectionChange)="onEdicionChange($event.value)">
+                      @for (ed of ediciones(); track ed.id_programa_version_edicion) {
+                        <mat-option [value]="ed.id_programa_version_edicion">
+                          {{ ed.programa_nombre }} &mdash; Ed. {{ ed.edicion }} ({{ semestreLabel(ed.semestre) }}-{{ ed.anio }})
+                        </mat-option>
+                      }
+                    </mat-select>
+                  </mat-form-field>
+                }
+
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Motivo de migraci&oacute;n</mat-label>
+                  <textarea matInput [ngModel]="motivo()" (ngModelChange)="motivo.set($event)"
+                            rows="3" placeholder="Describe el motivo de la migraci&oacute;n..."></textarea>
+                </mat-form-field>
+              </div>
+            } @else {
+              <div class="migracion-registro">
+                <div class="registro-fila">
+                  <span class="registro-label"><mat-icon>flag</mat-icon> Edici&oacute;n destino</span>
+                  <strong>{{ edicionDestinoLabel() }}</strong>
+                </div>
+                <div class="registro-fila">
+                  <span class="registro-label"><mat-icon>notes</mat-icon> Motivo</span>
+                  <strong>{{ sol.motivo || '—' }}</strong>
+                </div>
+              </div>
+            }
           </div>
         }
 
@@ -333,17 +395,68 @@
               <mat-icon>play_circle</mat-icon>
               <h3>M&oacute;dulo de inicio</h3>
             </div>
-            <mat-checkbox
-              [checked]="incorporarModuloActual()"
-              (change)="incorporarModuloActual.set($event.checked)"
-              color="primary"
-              class="incorporar-checkbox">
-              Incorporar al m&oacute;dulo en curso
-            </mat-checkbox>
-            @if (!incorporarModuloActual()) {
-              <p class="checkbox-hint">El alumno iniciar&aacute; desde el siguiente m&oacute;dulo disponible.</p>
+
+            @if (esPendiente()) {
+              <p class="modulo-config-desc">Eleg&iacute; desde qu&eacute; m&oacute;dulo iniciar&aacute; el alumno. Marcamos el recomendado seg&uacute;n el avance de la edici&oacute;n.</p>
+
+              @if (opcionesModulo().length === 0) {
+                <div class="modulo-aviso aviso-warning">
+                  <mat-icon>warning</mat-icon>
+                  <span>Todos los m&oacute;dulos de la edici&oacute;n finalizaron.</span>
+                </div>
+              } @else {
+                <mat-radio-group class="modulo-opciones"
+                                 [value]="idModuloInicio()"
+                                 (change)="idModuloInicio.set($event.value)">
+                  @for (op of opcionesModulo(); track op.mod.id_detalle_programa_modulo) {
+                    <mat-radio-button class="modulo-radio" [value]="op.mod.id_detalle_programa_modulo">
+                      <div class="opcion-card" [class.opcion-recomendada]="op.recomendado">
+                        <div class="opcion-head">
+                          <span class="opcion-titulo">{{ op.mod.orden }}. {{ op.mod.modulo.nombre_modulo }}</span>
+                          <div class="opcion-badges">
+                            @if (op.recomendado) {
+                              <span class="opcion-badge badge-recomendado"><mat-icon>thumb_up</mat-icon> Recomendado</span>
+                            }
+                            <span class="opcion-badge" [class]="'badge-' + op.mod.estado">{{ op.mod.estado }}</span>
+                          </div>
+                        </div>
+                        <div class="opcion-fechas">
+                          <span class="fecha-item"><mat-icon>flag</mat-icon> Inicio: {{ fechaModulo(op.mod.fecha_inicio) }}</span>
+                          <span class="fecha-item"><mat-icon>flag_outlined</mat-icon> Fin: {{ fechaModulo(op.mod.fecha_fin) }}</span>
+                        </div>
+                        @if (op.pct !== null) {
+                          <div class="opcion-avance">
+                            <div class="avance-bar">
+                              <div class="avance-fill" [style.width.%]="op.pct"></div>
+                            </div>
+                            <span class="avance-text">{{ op.pct }}% cursado</span>
+                          </div>
+                        }
+                        @if (op.aviso) {
+                          <p class="opcion-aviso"><mat-icon>info</mat-icon> {{ op.aviso }}</p>
+                        }
+                      </div>
+                    </mat-radio-button>
+                  }
+                </mat-radio-group>
+              }
             } @else {
-              <p class="checkbox-hint">El alumno se incorporar&aacute; al m&oacute;dulo que se est&aacute; cursando actualmente (si hay tiempo para ponerse al d&iacute;a).</p>
+              @if (moduloAsignado(); as mod) {
+                <div class="modulo-registro">
+                  <div class="registro-icon"><mat-icon>flag</mat-icon></div>
+                  <div class="registro-info">
+                    <span class="registro-titulo">{{ mod.orden }}. {{ mod.modulo.nombre_modulo }}</span>
+                    <span class="registro-fechas">Inicio: {{ fechaModulo(mod.fecha_inicio) }} &middot; Fin: {{ fechaModulo(mod.fecha_fin) }}</span>
+                  </div>
+                  <span class="opcion-badge" [class]="'badge-' + mod.estado">{{ mod.estado }}</span>
+                </div>
+                <p class="modulo-registro-note"><mat-icon>lock</mat-icon> Solicitud {{ sol.estado === 'aceptado' || sol.estado === 'aprobado' ? 'aprobada' : 'rechazada' }} &mdash; m&oacute;dulo asignado al momento de la decisi&oacute;n.</p>
+              } @else {
+                <div class="modulo-aviso aviso-muted">
+                  <mat-icon>info</mat-icon>
+                  <span>Sin m&oacute;dulo asignado para esta solicitud.</span>
+                </div>
+              }
             }
           </div>
         }

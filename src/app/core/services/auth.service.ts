@@ -23,6 +23,7 @@ export interface UserInfo {
   id_rol: number;
   id_profile: number | null;
   profile_type: string | null;
+  must_change_password: boolean;
   permisos: PermisoInfo[];
   roles: RolInfo[];
 }
@@ -42,7 +43,14 @@ export interface LoginStep1Response {
 export interface RegistroRequest {
   email: string;
   password: string;
-  ci: string;
+  ci?: string | null;
+  pasaporte?: string | null;
+  nombre?: string;
+  apellido?: string;
+  fecha_nacimiento?: string | null;
+  genero?: string | null;
+  celular?: string | null;
+  direccion?: string | null;
   honeypot?: string;
 }
 

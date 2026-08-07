@@ -1,4 +1,4 @@
-import { Component, inject, computed } from '@angular/core';
+import { Component, inject, computed, signal, effect, viewChild, ElementRef, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -8,14 +8,11 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { AuthService } from '../../../core/services/auth.service';
+import { NAV_ITEMS, NAV_GROUP_LABELS, NavItem } from '../../../core/config/nav.config';
 
-interface NavItem {
-  path: string;
-  label: string;
-  icon: string;
-  exact?: boolean;
-  feature: string;
-  permiso: string;
+interface NavRow {
+  item: NavItem;
+  sep: string | null;
 }
 
 @Component({
@@ -28,9 +25,29 @@ interface NavItem {
   templateUrl: './navbar.html',
   styleUrl: './navbar.css',
 })
-export class NavbarComponent {
+export class NavbarComponent implements OnDestroy {
   router = inject(Router);
   auth = inject(AuthService);
+
+  private resizeObs = new ResizeObserver(() => this.checkOverflow());
+  private navScrollRef = viewChild<ElementRef<HTMLDivElement>>('navScroll');
+  hasOverflow = signal(false);
+
+  constructor() {
+    effect(() => {
+      this.navGroups();
+      const el = this.navScrollRef()?.nativeElement;
+      if (el) {
+        this.resizeObs.disconnect();
+        this.resizeObs.observe(el);
+        requestAnimationFrame(() => this.checkOverflow());
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.resizeObs.disconnect();
+  }
 
   user = computed(() => this.auth.user());
   isLogged = computed(() => this.auth.isLogged());
@@ -40,52 +57,52 @@ export class NavbarComponent {
     const user = this.auth.user();
     if (!user) return null;
     if (user.rol === 'alumno') return '/alumnos/perfil';
-    if (user.rol === 'docente') return '/docentes';
+    if (user.rol === 'docente') return '/docente';
     return null;
   });
 
-  misModulosRoute = computed(() => {
-    const user = this.auth.user();
-    if (user?.rol === 'docente' && user.id_profile) {
-      return `/docentes/${user.id_profile}/mis-modulos`;
-    }
-    return '/docentes';
-  });
-
-  allNavItems: NavItem[] = [
-    { path: '/dashboard', label: 'Inicio', icon: 'home', exact: true, feature: 'home', permiso: 'programas.ver' },
-    { path: '/programas', label: 'Programas', icon: 'school', feature: 'programas', permiso: 'programas.ver' },
-    { path: '/tipos-programa', label: 'Tipos', icon: 'category', feature: 'tipos-programa', permiso: 'tipos_programa.ver' },
-    { path: '/admin/alumnos', label: 'Alumnos', icon: 'people', feature: 'alumno', permiso: 'alumnos.ver' },
-    { path: '/docentes', label: 'Docentes', icon: 'badge', feature: 'docente', permiso: 'docentes.ver' },
-    { path: '/contrataciones', label: 'Contrataciones', icon: 'assignment', feature: 'contratacion', permiso: 'contrataciones.ver' },
-    { path: '/admin', label: 'Admin', icon: 'admin_panel_settings', feature: 'admin', permiso: 'roles.gestionar' },
-  ];
-
   docenteItems: NavItem[] = [
-    { path: '/docentes', label: 'Mi Perfil', icon: 'badge', exact: true, feature: 'docente', permiso: 'docentes.ver' },
-    { path: '/docentes', label: 'Mis Módulos', icon: 'menu_book', feature: 'docente', permiso: 'notas.ver' },
-    { path: '/', label: 'Oferta Académica', icon: 'school', exact: true, feature: 'alumno', permiso: 'dashboard.ver' },
+    { path: '/docente', label: 'Mi Perfil', icon: 'badge', exact: true, feature: 'docente', permiso: 'notas.ver', group: 'docentes' },
+    { path: '/docente/mis-modulos', label: 'Mis Módulos', icon: 'menu_book', feature: 'docente', permiso: 'notas.ver', group: 'docentes' },
   ];
 
   studentItems: NavItem[] = [
-    { path: '/alumnos/inscripciones', label: 'Mis Inscripciones', icon: 'assignment_ind', feature: 'alumno', permiso: 'dashboard.ver' },
-    { path: '/', label: 'Oferta Académica', icon: 'school', exact: true, feature: 'alumno', permiso: 'dashboard.ver' },
+    { path: '/alumnos/inscripciones', label: 'Mis Inscripciones', icon: 'assignment_ind', feature: 'alumno', permiso: 'dashboard.ver', group: 'estudiantes' },
+    { path: '/', label: 'Oferta Académica', icon: 'school', exact: true, feature: 'alumno', permiso: 'dashboard.ver', group: 'catalogos' },
   ];
 
-  navItems = computed(() => {
+  private navItems = computed(() => {
     const user = this.auth.user();
     if (user?.rol === 'alumno') {
       return this.studentItems.filter(item => this.auth.hasPermiso(item.permiso));
     }
     if (user?.rol === 'docente') {
-      const modulosPath = this.misModulosRoute();
-      return this.docenteItems.map(item =>
-        item.label === 'Mis Módulos' ? { ...item, path: modulosPath } : item
-      ).filter(item => this.auth.hasPermiso(item.permiso));
+      return this.docenteItems.filter(item => this.auth.hasPermiso(item.permiso));
     }
-    return this.allNavItems.filter(item => this.auth.hasPermiso(item.permiso));
+    return NAV_ITEMS.filter(item => this.auth.hasPermiso(item.permiso));
   });
+
+  navGroups = computed<NavRow[]>(() => {
+    const items = this.navItems();
+    return items.map((item, i) => ({
+      item,
+      sep: i > 0 && items[i - 1].group !== item.group
+        ? NAV_GROUP_LABELS[item.group ?? 'inicio']
+        : null,
+    }));
+  });
+
+  private checkOverflow(): void {
+    const el = this.navScrollRef()?.nativeElement;
+    this.hasOverflow.set(!!el && el.scrollWidth > el.clientWidth + 1);
+  }
+
+  scrollNav(dir: number): void {
+    const el = this.navScrollRef()?.nativeElement;
+    if (el) {
+      el.scrollBy({ left: dir * 260, behavior: 'smooth' });
+    }
+  }
 
   isActive(path: string, exact: boolean = false): boolean {
     if (exact) return this.router.url === path;

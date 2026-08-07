@@ -67,5 +67,37 @@
         </div>
       </div>  
     }
+
+    @if (step() === 'cambio') {
+      <div class="form-step">
+        <h2>Cambiá tu contraseña</h2>
+        <p class="role-desc">Por seguridad, creá una nueva contraseña antes de continuar</p>
+
+        <form class="login-form" (ngSubmit)="cambiarPasswordObligatorio()">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Nueva contraseña</mat-label>
+            <input matInput type="password" [(ngModel)]="nuevaPassword" name="nuevaPassword"
+                   placeholder="••••••••" required autocomplete="new-password">
+            <mat-icon matPrefix>lock</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Confirmar contraseña</mat-label>
+            <input matInput type="password" [(ngModel)]="confirmarPassword" name="confirmarPassword"
+                   placeholder="••••••••" required autocomplete="new-password">
+            <mat-icon matPrefix>lock</mat-icon>
+          </mat-form-field>
+
+          <button mat-raised-button color="primary" type="submit" class="full-width"
+                  [disabled]="loading">
+            @if (loading) {
+              <ng-container><mat-icon>hourglass_top</mat-icon> Guardando...</ng-container>
+            } @else {
+              <ng-container><mat-icon>password</mat-icon> Cambiar contraseña</ng-container>
+            }
+          </button>
+        </form>
+      </div>
+    }
   </div>
 </div>

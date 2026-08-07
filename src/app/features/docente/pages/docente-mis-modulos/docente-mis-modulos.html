@@ -72,7 +72,11 @@
                     <mat-icon>people</mat-icon>
                     {{ mod.num_alumnos }} alumno{{ mod.num_alumnos !== 1 ? 's' : '' }}
                   </span>
-                  <mat-icon class="calificar-icon" matTooltip="Calificar alumnos">grading</mat-icon>
+                  @if (mod.estado === 'en_curso') {
+                    <mat-icon class="calificar-icon" matTooltip="Calificar alumnos">grading</mat-icon>
+                  } @else {
+                    <mat-icon class="calificar-icon" [matTooltip]="'Ver notas (módulo ' + mod.estado + ' — solo lectura)'">lock</mat-icon>
+                  }
                 </div>
               </div>
             }

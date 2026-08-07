@@ -12,9 +12,11 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 
 import { DocenteService } from '../../services/docente.service';
-import { DocenteCreate } from '../../models/docente.model';
+import { Docente, DocenteCreate } from '../../models/docente.model';
+import { CredencialesDocenteDialog } from './credenciales-docente.dialog';
 
 @Component({
   selector: 'app-docente-form',
@@ -31,6 +33,7 @@ import { DocenteCreate } from '../../models/docente.model';
     MatDividerModule,
     MatIconModule,
     MatSnackBarModule,
+    MatDialogModule,
   ],
   templateUrl: './docente-form.html',
   styleUrl: './docente-form.css'
@@ -41,6 +44,7 @@ export class DocenteFormComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private snackbar = inject(MatSnackBar);
+  private dialog = inject(MatDialog);
   private destroyRef = inject(DestroyRef);
 
   form: FormGroup;
@@ -111,8 +115,24 @@ export class DocenteFormComponent implements OnInit {
       : this.service.create(datos);
 
     peticion.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: () => {
+      next: (resp: Docente) => {
         this.loading.set(false);
+
+        if (!this.idEditando && resp.password_inicial) {
+          this.snackbar.open('Docente creado con éxito', 'OK', { duration: 3000 });
+          this.dialog.open(CredencialesDocenteDialog, {
+            data: {
+              nombre: resp.nombre,
+              email: resp.email_login || resp.correo,
+              password: resp.password_inicial,
+            },
+            width: '460px',
+            disableClose: true,
+          });
+          this.router.navigate(['/docentes'], { replaceUrl: true });
+          return;
+        }
+
         const mensaje = this.idEditando
           ? 'Docente actualizado con éxito'
           : 'Docente creado con éxito';

@@ -7,10 +7,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { NotaService } from '../../services/nota.service';
-import { AlumnoNotas, NotaResponse } from '../../models/nota.model';
-import { NotaRegisterDialog } from '../nota-register-dialog/nota-register-dialog';
+import { AlumnoNotas } from '../../models/nota.model';
 import { clasificarNota } from '../../../../core/utils/nota-utils';
 import { SortDir, sortItems } from '../../../../core/utils/sort-utils';
 
@@ -20,7 +18,7 @@ import { SortDir, sortItems } from '../../../../core/utils/sort-utils';
   imports: [
     CommonModule,
     MatIconModule, MatButtonModule, MatTooltipModule,
-    MatProgressSpinnerModule, MatSnackBarModule, MatDialogModule,
+    MatProgressSpinnerModule, MatSnackBarModule,
   ],
   templateUrl: './notas-edicion.html',
   styleUrl: './notas-edicion.css',
@@ -30,7 +28,6 @@ export class NotasEdicionComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private snackbar = inject(MatSnackBar);
-  private dialog = inject(MatDialog);
   private destroyRef = inject(DestroyRef);
 
   alumnos = signal<AlumnoNotas[]>([]);
@@ -54,7 +51,7 @@ export class NotasEdicionComponent implements OnInit {
   ngOnInit(): void {
     this.idEdicion = Number(this.route.snapshot.paramMap.get('idEdicion'));
     if (!this.idEdicion) {
-      this.router.navigate(['/admin/notas']);
+      this.router.navigate(['/notas']);
       return;
     }
     this.cargarDatos();
@@ -88,31 +85,7 @@ export class NotasEdicionComponent implements OnInit {
     return clasificarNota(promedio);
   }
 
-  agregarNota(a: AlumnoNotas, event: MouseEvent): void {
-    event.stopPropagation();
-    const dialogRef = this.dialog.open(NotaRegisterDialog, {
-      width: '480px',
-      data: { idDetalle: a.id_detalle_programa_alumno, alumno: a.alumno, idEdicion: this.idEdicion },
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) this.cargarDatos();
-    });
-  }
-
-  editarNota(nota: NotaResponse, a: AlumnoNotas, event: MouseEvent): void {
-    event.stopPropagation();
-    const dialogRef = this.dialog.open(NotaRegisterDialog, {
-      width: '480px',
-      data: { idDetalle: a.id_detalle_programa_alumno, alumno: a.alumno, idEdicion: this.idEdicion, notaExistente: nota },
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) this.cargarDatos();
-    });
-  }
-
   volver(): void {
-    this.router.navigate(['/admin/notas']);
+    this.router.navigate(['/notas']);
   }
 }

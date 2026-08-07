@@ -822,11 +822,64 @@
                   <mat-icon [style.color]="'#0ea5e9'">edit_note</mat-icon>
                   <h3>¿Algo que quieras indicar al admin?</h3>
                 </div>
-                <p class="reincorporacion-form-hint">Opcional — el admin elegirá la edición destino.</p>
+                <p class="reincorporacion-form-hint">Opcional — el admin elegirá la edición destino según disponibilidad de módulos.</p>
+
+                <div class="migracion-info-note">
+                  <mat-icon>fact_check</mat-icon>
+                  <div>
+                    <strong>Qué se migra:</strong> tus notas aprobadas, tus pagos y tu documentación.
+                    Los módulos que te faltan los continuás en la edición destino.
+                  </div>
+                </div>
+
                 <textarea class="motivo-textarea" rows="3"
                           [value]="motivoMigracion()"
                           (input)="motivoMigracion.set($any($event.target).value)"
                           placeholder="Ej: Quisiera continuar en la edición más reciente..."></textarea>
+
+                @if (requisitosMigracion().length > 0) {
+                  <div class="reincorporacion-docs">
+                    <div class="reincorporacion-docs-header">
+                      <span class="reincorporacion-field-label">Documentos requeridos</span>
+                      <span class="reincorporacion-docs-count">{{ migrReqSubidos() }} / {{ requisitosMigracion().length }}</span>
+                    </div>
+                    <div class="reincorporacion-docs-list">
+                      @for (req of requisitosMigracion(); track req.id_solicitud_requisito) {
+                        <div class="reinc-req-item">
+                          <div class="reinc-req-left">
+                            <div class="reinc-req-status-icon"
+                                 [style.background]="migrReqFiles()[req.id_requisito] ? '#0ea5e920' : '#94a3b815'"
+                                 [style.color]="migrReqFiles()[req.id_requisito] ? '#0284c7' : '#94a3b8'">
+                              <mat-icon>{{ migrReqFiles()[req.id_requisito] ? 'attach_file' : 'description' }}</mat-icon>
+                            </div>
+                            <div class="reinc-req-info">
+                              <span class="reinc-req-name">{{ req.requisito_nombre }}</span>
+                            </div>
+                          </div>
+                          <div class="reinc-req-right">
+                            @if (migrReqFiles()[req.id_requisito]) {
+                              <div class="reinc-req-chip">
+                                <span class="reinc-req-chip-name">{{ migrReqFiles()[req.id_requisito].name }}</span>
+                                <button mat-icon-button class="reinc-req-chip-remove"
+                                        (click)="quitarMigrReqFile(req.id_requisito)" matTooltip="Quitar archivo">
+                                  <mat-icon>close</mat-icon>
+                                </button>
+                              </div>
+                            } @else {
+                              <label class="doc-upload-btn reinc-req-upload" matTooltip="Subir imagen o PDF">
+                                <mat-icon>cloud_upload</mat-icon>
+                                <span>Subir</span>
+                                <input type="file" accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
+                                       hidden (change)="onMigrReqFileSelected($event, req.id_requisito)">
+                              </label>
+                            }
+                          </div>
+                        </div>
+                      }
+                    </div>
+                  </div>
+                }
+
                 <div class="reincorporacion-form-actions">
                   <button mat-button (click)="cancelarMigracion()" [disabled]="enviandoMigracion()">
                     Cancelar

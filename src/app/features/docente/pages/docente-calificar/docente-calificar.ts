@@ -2,43 +2,41 @@ import { Component, OnInit, signal, computed, inject, DestroyRef } from '@angula
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { NotaService } from '../../../notas/services/nota.service';
-import { DocenteModuloDetalle, NotaItem } from '../../../notas/models/nota.model';
+import { AuthService } from '../../../../core/services/auth.service';
+import { DocenteModuloDetalle, NotaItem, NotaResponse } from '../../../notas/models/nota.model';
 import { SortDir, sortItems } from '../../../../core/utils/sort-utils';
-
-interface AlumnoCalificar {
-  id_detalle_programa_alumno: number;
-  alumno: { id_alumno: number; nombre: string; apellido: string; ci: string | null } | null;
-}
-import { NotaRegisterDialog } from '../../../notas/pages/nota-register-dialog/nota-register-dialog';
 import { clasificarNota } from '../../../../core/utils/nota-utils';
+import { AlumnoCalificar, NotaDialog, NotaDialogData, NotaDialogResult } from './nota-dialog';
 
 @Component({
   selector: 'app-docente-calificar',
   standalone: true,
   imports: [
     CommonModule,
-    MatCardModule, MatButtonModule, MatIconModule, MatDividerModule,
-    MatProgressSpinnerModule, MatSnackBarModule, MatDialogModule, MatTooltipModule,
+    MatButtonModule, MatIconModule, MatProgressSpinnerModule,
+    MatSnackBarModule, MatTableModule, MatTooltipModule, MatDialogModule,
   ],
   templateUrl: './docente-calificar.html',
   styleUrl: './docente-calificar.css',
 })
 export class DocenteCalificarComponent implements OnInit {
   private service = inject(NotaService);
+  private auth = inject(AuthService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private snackbar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
   private destroyRef = inject(DestroyRef);
+
+  readonly columnas = ['alumno', 'ci', 'nota', 'clasificacion', 'accion'];
 
   datos = signal<DocenteModuloDetalle | null>(null);
   isLoading = signal(true);
@@ -52,23 +50,25 @@ export class DocenteCalificarComponent implements OnInit {
     return sortItems(d.alumnos, a => `${a.alumno?.apellido || ''} ${a.alumno?.nombre || ''}`, this.nombreDir());
   });
 
-  toggleOrden(): void {
-    this.nombreDir.set(this.nombreDir() === 'asc' ? 'desc' : 'asc');
-  }
-
-  promedioGeneral = computed(() => {
+  alumnosSinNota = computed(() => {
     const d = this.datos();
-    if (!d || d.alumnos.length === 0) return 0;
-    const conPromedio = d.alumnos.filter(a => a.notas.length > 0);
-    if (conPromedio.length === 0) return 0;
-    return Math.round(conPromedio.reduce((sum, a) => sum + a.promedio, 0) / conPromedio.length * 10) / 10;
+    if (!d) return [];
+    return d.alumnos.filter(a => a.notas.length === 0);
   });
+
+  calificados = computed(() => {
+    const d = this.datos();
+    if (!d) return 0;
+    return d.alumnos.filter(a => a.notas.length > 0).length;
+  });
+
+  moduloEnCurso = computed(() => this.datos()?.modulo.estado === 'en_curso');
 
   ngOnInit(): void {
     this.idDpm = Number(this.route.snapshot.paramMap.get('idDpm'));
-    this.idDocente = Number(this.route.snapshot.parent?.paramMap.get('id'));
+    this.idDocente = Number(this.auth.user()?.id_profile) || 0;
     if (!this.idDpm) {
-      this.router.navigate(['/docentes']);
+      this.router.navigate(['/docente']);
       return;
     }
     this.cargarDatos();
@@ -88,44 +88,87 @@ export class DocenteCalificarComponent implements OnInit {
     });
   }
 
-  agregarNota(a: AlumnoCalificar, event: MouseEvent): void {
-    event.stopPropagation();
+  notaDe(a: AlumnoCalificar): number | null {
+    const n = a.notas[0]?.nota;
+    if (n === undefined || n === null) return null;
+    return Math.floor(Number(n) + 0.5);
+  }
+
+  calClase(a: AlumnoCalificar): string {
+    const n = this.notaDe(a);
+    return n === null ? 'sin-nota' : clasificarNota(Math.floor(n + 0.5)).replace('cal-', '');
+  }
+
+  calTexto(a: AlumnoCalificar): string {
+    const n = this.notaDe(a);
+    return n === null ? '—' : this.calClase(a);
+  }
+
+  abrirDialogAgregar(): void {
+    const candidatos = this.alumnosSinNota();
+    if (candidatos.length === 0) return;
+    this.abrirDialog({ modo: 'crear', alumnos: candidatos, idDpm: this.idDpm }, 'Nota registrada');
+  }
+
+  abrirDialogAgregarAlumno(a: AlumnoCalificar): void {
+    if (a.notas.length > 0) return;
+    this.abrirDialog({ modo: 'crear', alumnos: [a], fijo: true, idDpm: this.idDpm }, 'Nota registrada');
+  }
+
+  abrirDialogEditar(a: AlumnoCalificar): void {
+    if (a.notas.length === 0) return;
+    this.abrirDialog({ modo: 'editar', alumno: a, idDpm: this.idDpm }, 'Nota actualizada');
+  }
+
+  private abrirDialog(data: NotaDialogData, mensajeExito: string): void {
     const d = this.datos();
-    if (!d) return;
+    if (d && !data.contexto) {
+      data = {
+        ...data,
+        contexto: {
+          sigla: d.modulo.sigla,
+          edicion: `${d.edicion.programa_nombre} — Ed. ${d.edicion.edicion_numero}`,
+        },
+      };
+    }
+    this.dialog.open(NotaDialog, { width: '460px', data })
+      .afterClosed().pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((res: NotaDialogResult | null) => {
+        if (!res) return;
+        this.patchearNotaEnDatos(res.dpaId, res.nota);
+        this.snackbar.open(mensajeExito, 'OK', { duration: 2000 });
+      });
+  }
 
-    const dialogRef = this.dialog.open(NotaRegisterDialog, {
-      width: '480px',
-      data: {
-        idDetalle: a.id_detalle_programa_alumno,
-        alumno: a.alumno,
-        idEdicion: d.edicion.id_programa_version_edicion,
-      },
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) this.cargarDatos();
+  private patchearNotaEnDatos(idDpa: number, resp: NotaResponse): void {
+    this.datos.update(d => {
+      if (!d) return d;
+      const alumnos = d.alumnos.map(x => {
+        if (x.id_detalle_programa_alumno !== idDpa) return x;
+        const item: NotaItem = {
+          id_nota: resp.id_nota,
+          nota: Number(resp.nota),
+          calificacion: resp.calificacion,
+          fecha: resp.fecha,
+          created_at: resp.created_at,
+          updated_at: resp.updated_at,
+        };
+        return { ...x, notas: [item] };
+      });
+      return { ...d, alumnos };
     });
   }
 
-  editarNota(nota: NotaItem, a: AlumnoCalificar, event: MouseEvent): void {
-    event.stopPropagation();
-    const dialogRef = this.dialog.open(NotaRegisterDialog, {
-      width: '480px',
-      data: {
-        idDetalle: a.id_detalle_programa_alumno,
-        alumno: a.alumno,
-        idEdicion: this.datos()?.edicion.id_programa_version_edicion,
-        notaExistente: nota,
-      },
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) this.cargarDatos();
-    });
+  trackByDpa(_: number, a: AlumnoCalificar): number {
+    return a.id_detalle_programa_alumno;
   }
 
-  promedioClass(promedio: number): string {
-    return clasificarNota(promedio);
+  onSort(): void {
+    this.nombreDir.set(this.nombreDir() === 'asc' ? 'desc' : 'asc');
+  }
+
+  sortIcon(): string {
+    return this.nombreDir() === 'asc' ? 'arrow_upward' : 'arrow_downward';
   }
 
   iniciales(a: AlumnoCalificar): string {
@@ -134,10 +177,6 @@ export class DocenteCalificarComponent implements OnInit {
   }
 
   volver(): void {
-    if (this.idDocente) {
-      this.router.navigate(['/docentes', this.idDocente, 'mis-modulos']);
-    } else {
-      this.router.navigate(['/docentes']);
-    }
+    this.router.navigate(['/docente/mis-modulos']);
   }
 }

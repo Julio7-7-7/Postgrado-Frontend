@@ -1,0 +1,209 @@
+h2[mat-dialog-title] {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.1rem;
+}
+
+h2[mat-dialog-title] mat-icon {
+  color: var(--fich-primary);
+}
+
+.dialog-contexto {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: -6px 0 12px;
+  padding: 6px 12px;
+  background: var(--fich-bg-subtle);
+  border: 1px solid var(--fich-border-light);
+  border-radius: var(--fich-radius-sm);
+  color: var(--fich-text-secondary);
+  font-size: 0.82rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dialog-contexto mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  color: var(--fich-primary);
+  flex-shrink: 0;
+}
+
+.full-width {
+  width: 100%;
+  margin-bottom: 4px;
+}
+
+.dialog-empty {
+  color: var(--fich-text-muted);
+  font-size: 0.88rem;
+  padding: 8px 0;
+}
+
+.dialog-empty-hint {
+  margin-top: 4px;
+}
+
+.alumnos-lista {
+  max-height: 210px;
+  overflow-y: auto;
+  border: 1px solid var(--fich-border-light);
+  border-radius: var(--fich-radius-sm);
+  margin-bottom: 14px;
+  padding: 4px;
+}
+
+.alumno-opcion {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  border-radius: var(--fich-radius-sm);
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+}
+
+.alumno-opcion:hover {
+  background: var(--fich-bg-hover);
+}
+
+.alumno-opcion.seleccionada {
+  background: var(--fich-primary-light);
+  color: var(--fich-primary);
+}
+
+.opcion-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--fich-feature-docente), #5eead4);
+  color: var(--fich-bg-card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.opcion-nombre {
+  flex: 1;
+  min-width: 0;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--fich-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.alumno-opcion.seleccionada .opcion-nombre {
+  color: var(--fich-primary);
+}
+
+.opcion-ci {
+  font-family: monospace;
+  font-size: 0.78rem;
+  color: var(--fich-text-secondary);
+}
+
+.alumno-opcion.seleccionada .opcion-ci {
+  color: var(--fich-primary);
+}
+
+.lista-vacia {
+  padding: 12px;
+  text-align: center;
+  color: var(--fich-text-muted);
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.alumno-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  border: 1px solid var(--fich-border-light);
+  border-radius: var(--fich-radius-md);
+  background: var(--fich-bg-subtle);
+}
+
+.alumno-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--fich-feature-docente), #5eead4);
+  color: var(--fich-bg-card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.alumno-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.alumno-nombre {
+  font-weight: 600;
+  color: var(--fich-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.alumno-ci {
+  font-family: monospace;
+  font-size: 0.8rem;
+  color: var(--fich-text-secondary);
+}
+
+.clasificacion-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 2px;
+}
+
+.cal-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: capitalize;
+  white-space: nowrap;
+  border: 1px solid transparent;
+}
+
+.sin-nota { background: var(--fich-border-light); color: var(--fich-text-muted); border-color: var(--fich-border); }
+.abandono { background: var(--fich-border-light); color: var(--fich-text-muted); border-color: var(--fich-border); }
+.insuficiente { background: var(--fich-danger-light); color: var(--fich-danger); border-color: var(--fich-danger-light); }
+.suficiente { background: var(--fich-warning-light); color: var(--fich-warning); border-color: var(--fich-warning-light); }
+.bueno { background: var(--fich-info-light); color: var(--fich-info); border-color: var(--fich-info-light); }
+.distinguido { background: var(--fich-success-light); color: var(--fich-success); border-color: var(--fich-success-light); }
+.sobresaliente { background: var(--fich-primary-light); color: var(--fich-primary); border-color: var(--fich-primary-light); }
+
+.spinner-icon {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

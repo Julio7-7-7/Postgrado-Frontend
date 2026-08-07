@@ -27,11 +27,13 @@ export class LoginComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private snackBar = inject(MatSnackBar);
 
-  step = signal<'credentials' | 'roles'>('credentials');
+  step = signal<'credentials' | 'roles' | 'cambio'>('credentials');
   userRoles = signal<RolInfo[]>([]);
   loginUserId = signal<number>(0);
   email = '';
   password = '';
+  nuevaPassword = '';
+  confirmarPassword = '';
   loading = false;
   inscribirId: number | null = null;
   incorporarId: number | null = null;
@@ -42,6 +44,10 @@ export class LoginComponent implements OnInit {
 
     if (this.auth.isLogged()) {
       const user = this.auth.user();
+      if (user?.must_change_password) {
+        this.step.set('cambio');
+        return;
+      }
       if (this.incorporarId && user?.rol === 'alumno') {
         this.router.navigate(['/alumnos', 'inscribir', this.incorporarId], { replaceUrl: true });
         return;
@@ -97,6 +103,11 @@ export class LoginComponent implements OnInit {
         this.auth.guardarSesion(resp);
         this.loading = false;
 
+        if (resp.user.must_change_password) {
+          this.step.set('cambio');
+          return;
+        }
+
         if (this.incorporarId && resp.user.rol === 'alumno') {
           this.router.navigate(['/alumnos', 'inscribir', this.incorporarId], { replaceUrl: true });
         } else if (this.inscribirId && resp.user.rol === 'alumno') {
@@ -115,6 +126,33 @@ export class LoginComponent implements OnInit {
   volver(): void {
     this.step.set('credentials');
     this.userRoles.set([]);
+  }
+
+  cambiarPasswordObligatorio(): void {
+    if (!this.nuevaPassword || this.nuevaPassword !== this.confirmarPassword) {
+      this.snackBar.open('Las contraseñas no coinciden', 'Cerrar', { duration: 4000 });
+      return;
+    }
+    if (this.nuevaPassword.length < 6) {
+      this.snackBar.open('La contraseña debe tener al menos 6 caracteres', 'Cerrar', { duration: 4000 });
+      return;
+    }
+
+    this.loading = true;
+    this.auth.cambiarPassword('', this.nuevaPassword).subscribe({
+      next: () => {
+        this.loading = false;
+        this.auth.logout();
+        this.step.set('credentials');
+        this.nuevaPassword = '';
+        this.confirmarPassword = '';
+        this.snackBar.open('Contraseña actualizada. Iniciá sesión con tu nueva contraseña.', 'OK', { duration: 5000 });
+      },
+      error: (err) => {
+        this.loading = false;
+        this.snackBar.open(err.error?.detail || 'Error al cambiar la contraseña', 'Cerrar', { duration: 5000 });
+      },
+    });
   }
 
   getRolIcon(nombre: string): string {
@@ -159,8 +197,8 @@ export class LoginComponent implements OnInit {
   private redirectAfterLogin(rol: string, id_profile?: number | null): void {
     if (rol === 'alumno') {
       this.router.navigate(['/']);
-    } else if (rol === 'docente' && id_profile) {
-      this.router.navigate(['/docentes', id_profile]);
+    } else if (rol === 'docente') {
+      this.router.navigate(['/docente/mis-modulos']);
     } else {
       this.router.navigate(['/dashboard']);
     }

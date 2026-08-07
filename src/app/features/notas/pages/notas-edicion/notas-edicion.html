@@ -75,12 +75,6 @@
             <span class="prom-value">{{ a.promedio | number:'1.1-1' }}</span>
           </div>
         }
-        @if (!isRetirado) {
-          <button mat-flat-button color="primary" class="register-btn"
-                  (click)="agregarNota(a, $event)">
-            <mat-icon>add</mat-icon> Agregar Nota
-          </button>
-        }
         <mat-icon class="expand-icon" [class.rotated]="expandedId() === a.id_detalle_programa_alumno">
           expand_more
         </mat-icon>
@@ -102,7 +96,6 @@
               <span class="col-nota">Nota</span>
               <span class="col-calificacion">Clasificación</span>
               <span class="col-fecha">Fecha</span>
-              @if (!isRetirado) { <span class="col-acciones"></span> }
             </div>
             @for (nota of a.notas; track nota.id_nota) {
               <div class="notas-row">
@@ -111,13 +104,6 @@
                 <span class="col-nota" [class]="'cal-' + nota.calificacion">{{ nota.nota | number:'1.1-1' }}</span>
                 <span class="col-calificacion" [class]="'cal-' + nota.calificacion">{{ nota.calificacion }}</span>
                 <span class="col-fecha">{{ nota.fecha | date:'dd/MM/yyyy' }}</span>
-                @if (!isRetirado) {
-                  <span class="col-acciones">
-                    <button mat-icon-button matTooltip="Editar" (click)="editarNota(nota, a, $event)" class="action-icon edit">
-                      <mat-icon>edit</mat-icon>
-                    </button>
-                  </span>
-                }
               </div>
             }
           </div>

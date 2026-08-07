@@ -76,6 +76,6 @@ export class NotasAdminComponent implements OnInit {
   }
 
   irANotas(ed: ProgramaVersionEdicionResponse): void {
-    this.router.navigate(['/admin/notas', ed.id_programa_version_edicion]);
+    this.router.navigate(['/notas', ed.id_programa_version_edicion]);
   }
 }

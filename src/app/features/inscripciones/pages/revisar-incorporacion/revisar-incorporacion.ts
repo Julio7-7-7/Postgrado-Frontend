@@ -10,18 +10,29 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatRadioModule } from '@angular/material/radio';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { InscripcionEdicionService } from '../../services/inscripcion-edicion.service';
 import { DetalleService } from '../../../detalle-programa-modulo/services/detalle.service';
 import {
   SolicitudConDetalle,
   PreviewMigracion,
+  DestinoRecomendado,
+  ModuloPendiente,
 } from '../../../alumno/models/solicitud-incorporacion.model';
 import { EdicionBasica } from '../../models/inscripcion-edicion.model';
 import { DetalleProgramaModulo } from '../../../detalle-programa-modulo/models/detalle.model';
 import { HistorialMovimiento, InscripcionBasica } from '../../../notas/models/nota.model';
 import { environment } from '../../../../../environments/environment';
+import { aDate } from '../../../../core/utils/date-utils';
+
+interface OpcionModulo {
+  mod: DetalleProgramaModulo;
+  etiqueta: string;
+  recomendado: boolean;
+  pct: number | null;
+  aviso?: string;
+}
 
 @Component({
   selector: 'app-revisar-incorporacion',
@@ -30,7 +41,7 @@ import { environment } from '../../../../../environments/environment';
     CommonModule, FormsModule,
     MatIconModule, MatButtonModule, MatTooltipModule,
     MatProgressSpinnerModule, MatSelectModule, MatFormFieldModule, MatInputModule,
-    MatCheckboxModule, MatSnackBarModule,
+    MatRadioModule, MatSnackBarModule,
   ],
   templateUrl: './revisar-incorporacion.html',
   styleUrl: './revisar-incorporacion.css',
@@ -54,9 +65,53 @@ export class RevisarIncorporacionComponent implements OnInit {
   edicionSeleccionada = signal<number | null>(null);
   motivo = signal('');
 
+  destinos = signal<DestinoRecomendado[]>([]);
+  pendientesDestino = signal<ModuloPendiente[]>([]);
+  destinosLoading = signal(false);
+
   modulosEdicion = signal<DetalleProgramaModulo[]>([]);
   idModuloInicio = signal<number | null>(null);
-  incorporarModuloActual = signal(true);
+
+  opcionesModulo = computed<OpcionModulo[]>(() => {
+    const mods = this.modulosEdicion();
+    if (!mods.length) return [];
+
+    const enCurso = mods.find(m => m.estado === 'en_curso');
+    if (enCurso) {
+      const pct = this.progresoModulo(enCurso);
+      const siguiente = mods.find(m => m.orden > enCurso.orden) || null;
+      const irAlSiguiente = pct !== null && pct >= 50 && !!siguiente;
+      const opciones: OpcionModulo[] = [{
+        mod: enCurso,
+        etiqueta: 'Módulo en curso',
+        recomendado: !irAlSiguiente,
+        pct,
+      }];
+      if (siguiente) {
+        opciones.push({
+          mod: siguiente,
+          etiqueta: 'Siguiente módulo',
+          recomendado: irAlSiguiente,
+          pct: null,
+        });
+      }
+      return opciones;
+    }
+
+    const siguiente = mods.find(m => m.estado !== 'finalizado');
+    if (!siguiente) return [];
+
+    const sinFecha = !siguiente.fecha_inicio;
+    return [{
+      mod: siguiente,
+      etiqueta: 'Próximo módulo',
+      recomendado: true,
+      pct: null,
+      aviso: sinFecha
+        ? 'Este módulo aún no tiene fecha de inicio asignada. El alumno iniciará cuando se defina.'
+        : undefined,
+    }];
+  });
 
   preview = signal<PreviewMigracion | null>(null);
 
@@ -66,11 +121,38 @@ export class RevisarIncorporacionComponent implements OnInit {
 
   esMigracion = computed(() => this.solicitud()?.tipo_codigo === 'migracion');
   esReincorporacion = computed(() => this.solicitud()?.tipo_codigo === 'reincorporacion');
+  esPendiente = computed(() => this.solicitud()?.estado === 'pendiente');
+
+  moduloAsignado = computed<DetalleProgramaModulo | null>(() => {
+    const sol = this.solicitud();
+    if (!sol) return null;
+    if (sol.dpa_id_modulo_inicio) {
+      return this.modulosEdicion().find(m => m.id_detalle_programa_modulo === sol.dpa_id_modulo_inicio) || null;
+    }
+    if (sol.dpa_modulo_inicio) {
+      return this.modulosEdicion().find(m => m.orden === sol.dpa_modulo_inicio) || null;
+    }
+    return null;
+  });
+
+  edicionDestinoLabel = computed(() => {
+    const sol = this.solicitud();
+    if (!sol) return '—';
+    const destino = sol.migracion?.id_edicion_destino;
+    if (destino) {
+      const ed = this.ediciones().find(e => e.id_programa_version_edicion === destino);
+      if (ed) return `${ed.programa_nombre} — Ed. ${ed.edicion}`;
+    }
+    if (sol.edicion_numero) {
+      return `${sol.programa_nombre || ''} — Ed. ${sol.edicion_numero}`;
+    }
+    return '—';
+  });
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('idSolicitud'));
     if (!id) {
-      this.router.navigate(['/admin/solicitudes-incorporacion']);
+      this.router.navigate(['/solicitudes']);
       return;
     }
     this.cargarSolicitud(id);
@@ -92,9 +174,10 @@ export class RevisarIncorporacionComponent implements OnInit {
             if (sol.id_alumno) {
               this.cargarHistorial(sol.id_alumno);
             }
+            this.cargarDestinosRecomendados();
           } else {
             this.snackBar.open('Solicitud no encontrada', 'Cerrar', { duration: 3000 });
-            this.router.navigate(['/admin/solicitudes-incorporacion']);
+            this.router.navigate(['/solicitudes']);
           }
           this.isLoading.set(false);
         },
@@ -129,6 +212,55 @@ export class RevisarIncorporacionComponent implements OnInit {
       });
   }
 
+  cargarDestinosRecomendados(): void {
+    const sol = this.solicitud();
+    if (!sol || !this.esMigracion() || !this.esPendiente()) return;
+
+    this.destinosLoading.set(true);
+    this.service.destinosRecomendados(sol.id_solicitud)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.destinos.set(res.destinos);
+          this.pendientesDestino.set(res.pendientes);
+          this.destinosLoading.set(false);
+
+          const recomendado = res.destinos.find(d => d.recomendado);
+          if (recomendado && !this.edicionSeleccionada()) {
+            this.onEdicionChange(recomendado.id_programa_version_edicion);
+          }
+        },
+        error: () => {
+          this.destinosLoading.set(false);
+          this.destinos.set([]);
+          this.pendientesDestino.set([]);
+        },
+      });
+  }
+
+  destinoTitulo(d: DestinoRecomendado): string {
+    const prog = this.ediciones().find(e => e.id_programa_version_edicion === d.id_programa_version_edicion)?.programa_nombre;
+    return `${prog || 'Programa'} — Ed. ${d.edicion ?? '?'}`;
+  }
+
+  destinoPeriodo(d: DestinoRecomendado): string {
+    return `${this.semestreLabel(d.semestre)}-${d.anio ?? '?'}`;
+  }
+
+  destinoCupo(d: DestinoRecomendado): string {
+    if (d.cupo_disponible === null || d.cupo_disponible === undefined) return '—';
+    return `${d.cupo_disponible} cupo${d.cupo_disponible === 1 ? '' : 's'} libre${d.cupo_disponible === 1 ? '' : 's'}`;
+  }
+
+  destinoNoAprovechables(d: DestinoRecomendado): string[] {
+    return d.coincidencias.filter(c => !c.disponible).map(c => c.nombre_modulo);
+  }
+
+  moduloInicioLabel(moduloInicio: number | null): string {
+    if (moduloInicio === null || moduloInicio === undefined) return '—';
+    return `Módulo ${moduloInicio}`;
+  }
+
   cargarModulos(edicionId: number): void {
     this.detalleService.getAll(edicionId)
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -137,10 +269,27 @@ export class RevisarIncorporacionComponent implements OnInit {
           const sorted = [...modulos].sort((a, b) => a.orden - b.orden);
           this.modulosEdicion.set(sorted);
           if (sorted.length > 0 && !this.idModuloInicio()) {
-            this.idModuloInicio.set(sorted[0].id_detalle_programa_modulo);
+            const recomendado = this.opcionesModulo().find(o => o.recomendado);
+            this.idModuloInicio.set(
+              recomendado ? recomendado.mod.id_detalle_programa_modulo : sorted[0].id_detalle_programa_modulo
+            );
           }
         },
       });
+  }
+
+  progresoModulo(mod: DetalleProgramaModulo): number | null {
+    const ini = aDate(mod.fecha_inicio);
+    const fin = aDate(mod.fecha_fin);
+    if (!ini || !fin || fin.getTime() <= ini.getTime()) return null;
+    const pct = ((Date.now() - ini.getTime()) / (fin.getTime() - ini.getTime())) * 100;
+    return Math.round(Math.min(100, Math.max(0, pct)));
+  }
+
+  fechaModulo(fecha: string | null): string {
+    if (!fecha) return '—';
+    const d = aDate(fecha);
+    return d ? d.toLocaleDateString('es-BO', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
   }
 
   get nombreCompleto(): string {
@@ -251,16 +400,7 @@ export class RevisarIncorporacionComponent implements OnInit {
     this.isApproving.set(true);
 
     const modulos = this.modulosEdicion();
-    let idModuloInicio: number | null = null;
-    if (this.incorporarModuloActual()) {
-      idModuloInicio = modulos.length > 0 ? modulos[0].id_detalle_programa_modulo : null;
-    } else {
-      idModuloInicio = modulos.length > 1 ? modulos[1].id_detalle_programa_modulo
-                     : modulos.length > 0 ? modulos[0].id_detalle_programa_modulo
-                     : null;
-    }
-
-    const data: any = { id_modulo_inicio: idModuloInicio };
+    const data: any = { id_modulo_inicio: modulos.length > 0 ? this.idModuloInicio() : null };
     if (this.esMigracion()) {
       data.id_programa_version_edicion = this.edicionSeleccionada();
       data.motivo = this.motivo();
@@ -272,7 +412,7 @@ export class RevisarIncorporacionComponent implements OnInit {
         next: () => {
           this.isApproving.set(false);
           this.snackBar.open('Solicitud aprobada correctamente', 'Cerrar', { duration: 3000 });
-          this.router.navigate(['/admin/solicitudes-incorporacion']);
+          this.router.navigate(['/solicitudes']);
         },
         error: (err) => {
           this.isApproving.set(false);
@@ -290,7 +430,7 @@ export class RevisarIncorporacionComponent implements OnInit {
         next: () => {
           this.isApproving.set(false);
           this.snackBar.open('Solicitud rechazada', 'Cerrar', { duration: 3000 });
-          this.router.navigate(['/admin/solicitudes-incorporacion']);
+          this.router.navigate(['/solicitudes']);
         },
         error: (err) => {
           this.isApproving.set(false);
@@ -300,6 +440,6 @@ export class RevisarIncorporacionComponent implements OnInit {
   }
 
   volver(): void {
-    this.router.navigate(['/admin/solicitudes-incorporacion']);
+    this.router.navigate(['/solicitudes']);
   }
 }

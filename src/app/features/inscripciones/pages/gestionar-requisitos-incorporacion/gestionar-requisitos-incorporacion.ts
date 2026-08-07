@@ -33,15 +33,13 @@ const TIPOS = [
   ],
   template: `
     <div class="page-container">
-      <div class="header-section">
-        <div class="header-left">
-          <button mat-icon-button (click)="volver()" class="back-btn" matTooltip="Volver a inscripciones">
-            <mat-icon>arrow_back</mat-icon>
-          </button>
-          <div>
-            <h1><mat-icon>description</mat-icon> Documentos Requeridos</h1>
-            <p class="subtitle">Configurar qué documentos son requeridos por tipo de solicitud</p>
-          </div>
+      <div class="page-toolbar">
+        <button mat-icon-button (click)="volver()" class="back-btn" matTooltip="Volver a inscripciones">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <div class="toolbar-titulo">
+          <h1><mat-icon>description</mat-icon> Documentos Requeridos</h1>
+          <p class="subtitle">Configurá qué documentos se generan por tipo de solicitud</p>
         </div>
       </div>
 
@@ -50,6 +48,7 @@ const TIPOS = [
           <button class="tab-btn" [class.active]="tipo() === t.id" (click)="cambiarTipo(t.id)">
             <mat-icon>{{ t.icon }}</mat-icon>
             <span>{{ t.label }}</span>
+            <span class="tab-count" [class.active]="tipo() === t.id">{{ configs()[t.id]?.length ?? 0 }}</span>
           </button>
         }
       </div>
@@ -60,17 +59,37 @@ const TIPOS = [
           <span>Cargando configuración...</span>
         </div>
       } @else {
-        <div class="add-section">
-          <div class="add-row">
-            <mat-form-field appearance="outline" class="select-field">
-              <mat-label>Agregar requisito</mat-label>
-              <mat-select (selectionChange)="onRequisitoSelected($event.value)">
-                @for (req of requisitosDisponibles(); track req.id_requisito) {
-                  <mat-option [value]="req.id_requisito">{{ req.nombre }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
+        <div class="add-card">
+          <div class="add-card-header">
+            <div class="add-icon">
+              <mat-icon>playlist_add</mat-icon>
+            </div>
+            <div class="add-heading">
+              <h3>Agregar requisito</h3>
+              <p>Elegí un requisito del catálogo para configurarlo en {{ tipoLabelMap[tipo()] }}</p>
+            </div>
           </div>
+
+          <mat-form-field appearance="outline" class="select-field">
+            <mat-icon matPrefix>manage_search</mat-icon>
+            <mat-select placeholder="Buscar requisito..." (selectionChange)="onRequisitoSelected($event.value)">
+              @for (req of requisitosDisponibles(); track req.id_requisito) {
+                <mat-option [value]="req.id_requisito">
+                  <div class="opt-wrap">
+                    <span class="opt-name">{{ req.nombre }}</span>
+                    @if (req.descripcion) { <span class="opt-desc">{{ req.descripcion }}</span> }
+                  </div>
+                </mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          @if (requisitosDisponibles().length === 0) {
+            <div class="all-added">
+              <mat-icon>check_circle</mat-icon>
+              <span>Todos los requisitos del catálogo ya están configurados para este tipo.</span>
+            </div>
+          }
         </div>
 
         @if (items().length === 0) {
@@ -84,17 +103,28 @@ const TIPOS = [
             <table class="fich-table">
               <thead>
                 <tr>
-                  <th class="col-nombre">Requisito</th>
+                  <th class="col-num">#</th>
+                  <th>Requisito</th>
                   <th class="col-acciones">Acciones</th>
                 </tr>
               </thead>
               <tbody>
-                @for (item of items(); track item.id_solicitud_requisito) {
+                @for (item of items(); track item.id_solicitud_requisito; let i = $index) {
                   <tr class="table-row">
-                    <td class="col-nombre">
+                    <td class="col-num">
+                      <span class="row-index">{{ i + 1 }}</span>
+                    </td>
+                    <td>
                       <div class="req-cell">
-                        <mat-icon class="req-icon">description</mat-icon>
-                        <span class="req-name">{{ item.requisito_nombre }}</span>
+                        <div class="req-avatar" [class]="'req-avatar-' + tipoCodigo()">
+                          <mat-icon>{{ tipoIcon() }}</mat-icon>
+                        </div>
+                        <div class="req-info">
+                          <span class="req-name">{{ item.requisito_nombre }}</span>
+                          @if (descripcionDe(item.id_requisito)) {
+                            <span class="req-desc">{{ descripcionDe(item.id_requisito) }}</span>
+                          }
+                        </div>
                       </div>
                     </td>
                     <td class="col-acciones">
@@ -120,63 +150,112 @@ const TIPOS = [
     </div>
   `,
   styles: [`
-    .page-container { max-width: 800px; margin: 0 auto; padding: 24px; }
-    .header-section { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-    .header-left { display: flex; align-items: center; gap: 12px; }
-    .back-btn { margin-right: 2px; }
-    .header-section h1 { margin: 0; font-size: 1.4rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
-    .header-section h1 mat-icon { color: #0d9488; }
-    .subtitle { margin: 2px 0 0; color: #64748b; font-size: 0.85rem; }
+    .page-container { width: 90%; max-width: 1240px; margin: 0 auto; padding: 24px; }
+
+    .page-toolbar { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
+    .back-btn { background: var(--fich-bg-subtle, #f8fafc); border: 1px solid var(--fich-border-light, #e2e8f0); }
+    .toolbar-titulo h1 { margin: 0; font-size: 1.35rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+    .toolbar-titulo h1 mat-icon { color: #0d9488; }
+    .subtitle { margin: 4px 0 0; color: var(--fich-text-muted, #64748b); font-size: 0.85rem; }
 
     .tabs-bar {
-      display: flex; gap: 4px; margin-bottom: 20px;
-      background: #f1f5f9; border-radius: 10px; padding: 4px;
+      display: flex; gap: 6px; margin-bottom: 20px;
+      background: var(--fich-bg-subtle, #f8fafc); border: 1px solid var(--fich-border-light, #e2e8f0);
+      border-radius: 12px; padding: 4px;
     }
     .tab-btn {
-      flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
+      flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px;
       padding: 10px 16px; border: none; background: transparent;
-      border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 500;
-      color: #64748b; transition: all 0.2s;
+      border-radius: 9px; cursor: pointer; font-size: 0.85rem; font-weight: 600;
+      color: var(--fich-text-secondary, #475569); transition: all 0.2s;
     }
     .tab-btn mat-icon { font-size: 18px; width: 18px; height: 18px; }
-    .tab-btn:hover { background: #e2e8f0; color: #334155; }
+    .tab-btn:hover { background: var(--fich-bg-hover, #f1f5f9); color: var(--fich-text, #1e293b); }
     .tab-btn.active {
       background: white; color: #0d9488; box-shadow: 0 1px 3px rgba(0,0,0,0.08);
     }
+    .tab-count {
+      min-width: 22px; height: 22px; padding: 0 6px; border-radius: 9999px;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 0.72rem; font-weight: 700; background: var(--fich-bg-hover, #f1f5f9); color: var(--fich-text-muted, #94a3b8);
+      transition: all 0.2s;
+    }
+    .tab-count.active { background: #ccfbf1; color: #0f766e; }
 
     .loading-state, .empty-state {
       display: flex; flex-direction: column; align-items: center; gap: 12px;
       padding: 56px 20px; background: white; border-radius: 12px;
-      border: 1px solid #e2e8f0;
+      border: 1px solid var(--fich-border-light, #e2e8f0);
     }
     .empty-state mat-icon { font-size: 48px; width: 48px; height: 48px; color: #cbd5e1; }
-    .empty-state h4 { margin: 0; font-size: 1rem; color: #64748b; }
-    .empty-state p { margin: 0; font-size: 0.85rem; color: #94a3b8; text-align: center; max-width: 400px; }
+    .empty-state h4 { margin: 0; font-size: 1rem; color: var(--fich-text-secondary, #475569); }
+    .empty-state p { margin: 0; font-size: 0.85rem; color: var(--fich-text-muted, #94a3b8); text-align: center; max-width: 400px; }
 
-    .add-section { margin-bottom: 20px; }
-    .add-row { display: flex; gap: 12px; align-items: center; }
-    .select-field { flex: 1; }
+    .add-card {
+      background: white; border: 1px solid var(--fich-border-light, #e2e8f0);
+      border-radius: 12px; padding: 20px; margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+    }
+    .add-card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+    .add-icon {
+      width: 40px; height: 40px; border-radius: 10px; flex-shrink: 0;
+      background: #ccfbf1; color: #0f766e;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .add-icon mat-icon { font-size: 20px; width: 20px; height: 20px; }
+    .add-heading h3 { margin: 0; font-size: 0.95rem; font-weight: 700; }
+    .add-heading p { margin: 2px 0 0; font-size: 0.78rem; color: var(--fich-text-muted, #64748b); }
+
+    .select-field { width: 100%; }
+
+    .all-added {
+      display: flex; align-items: center; gap: 8px; margin-top: 12px;
+      padding: 10px 14px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px;
+      font-size: 0.8rem; color: #15803d;
+    }
+    .all-added mat-icon { font-size: 18px; width: 18px; height: 18px; flex-shrink: 0; }
 
     .table-container {
-      background: white; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden;
+      background: white; border-radius: 12px; border: 1px solid var(--fich-border-light, #e2e8f0); overflow: hidden;
     }
     .fich-table { width: 100%; border-collapse: collapse; }
     .fich-table th {
       padding: 12px 16px; text-align: left; font-size: 0.72rem; font-weight: 700;
-      text-transform: uppercase; letter-spacing: 0.5px; color: #94a3b8;
-      background: #f8fafc; border-bottom: 1px solid #e2e8f0;
+      text-transform: uppercase; letter-spacing: 0.5px; color: var(--fich-text-muted, #94a3b8);
+      background: var(--fich-bg-subtle, #f8fafc); border-bottom: 1px solid var(--fich-border-light, #e2e8f0);
     }
     .fich-table td {
-      padding: 14px 16px; font-size: 0.85rem; color: #1e293b;
+      padding: 14px 16px; font-size: 0.85rem; color: var(--fich-text, #1e293b);
       border-bottom: 1px solid #f1f5f9; vertical-align: middle;
     }
     .table-row { transition: background 0.15s; }
-    .table-row:hover { background: #f8fafc; }
+    .table-row:hover { background: var(--fich-bg-hover, #f8fafc); }
     .table-row:last-child td { border-bottom: none; }
 
-    .req-cell { display: flex; align-items: center; gap: 10px; }
-    .req-icon { font-size: 18px; width: 18px; height: 18px; color: #0d9488; }
-    .req-name { font-weight: 500; }
+    .col-num { width: 48px; }
+    .row-index {
+      width: 28px; height: 28px; border-radius: 8px;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 0.78rem; font-weight: 600; color: var(--fich-text-muted, #94a3b8);
+      background: var(--fich-bg-subtle, #f8fafc);
+    }
+
+    .req-cell { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .req-avatar {
+      width: 38px; height: 38px; border-radius: 10px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .req-avatar mat-icon { font-size: 18px; width: 18px; height: 18px; }
+    .req-avatar-incorporacion { background: #eef2ff; color: #1e3a8a; }
+    .req-avatar-migracion { background: #f0fdfa; color: #0d9488; }
+    .req-avatar-reincorporacion { background: #f5f3ff; color: #4f46e5; }
+
+    .req-info { display: flex; flex-direction: column; min-width: 0; }
+    .req-name { font-weight: 600; }
+    .req-desc {
+      font-size: 0.75rem; color: var(--fich-text-muted, #94a3b8);
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 720px;
+    }
 
     .acciones-cell { display: flex; align-items: center; gap: 4px; }
     .action-icon {
@@ -210,14 +289,21 @@ export class GestionarRequisitosIncorporacionComponent implements OnInit {
   };
 
   tipo = signal<number>(1);
-  items = signal<SolicitudRequisito[]>([]);
+  configs = signal<Record<number, SolicitudRequisito[]>>({});
   allRequisitos = signal<Requisito[]>([]);
   isLoading = signal(true);
+
+  items = computed(() => this.configs()[this.tipo()] ?? []);
+
+  tipoCodigo = computed(() => this.tipos.find(t => t.id === this.tipo())?.codigo ?? 'incorporacion');
+  tipoIcon = computed(() => this.tipos.find(t => t.id === this.tipo())?.icon ?? 'how_to_reg');
 
   requisitosDisponibles = computed(() => {
     const configurados = new Set(this.items().map(i => i.id_requisito));
     return this.allRequisitos().filter(r => !configurados.has(r.id_requisito));
   });
+
+  requisitoById = computed(() => new Map(this.allRequisitos().map(r => [r.id_requisito, r] as const)));
 
   ngOnInit(): void {
     this.cargarDatos();
@@ -226,38 +312,35 @@ export class GestionarRequisitosIncorporacionComponent implements OnInit {
   cambiarTipo(nuevo: number): void {
     if (this.tipo() === nuevo) return;
     this.tipo.set(nuevo);
-    this.cargarDatos();
   }
 
   cargarDatos(): void {
     this.isLoading.set(true);
-    this.items.set([]);
-    let loaded = 0;
+    let pending = TIPOS.length + 1;
     const onComplete = () => {
-      if (++loaded >= 2) this.isLoading.set(false);
+      if (--pending <= 0) this.isLoading.set(false);
     };
 
-    this.service.getRequisitosConfigurados(this.tipo()).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: data => { this.items.set(data); onComplete(); },
-      error: () => {
-        this.snackBar.open('Error al cargar requisitos configurados', 'Cerrar', { duration: 3000 });
-        onComplete();
-      },
-    });
+    for (const t of TIPOS) {
+      this.service.getRequisitosConfigurados(t.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+        next: data => {
+          this.configs.update(c => ({ ...c, [t.id]: data }));
+          onComplete();
+        },
+        error: () => onComplete(),
+      });
+    }
 
     this.service.getTodosLosRequisitos().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: data => { this.allRequisitos.set(data); onComplete(); },
-      error: () => {
-        this.snackBar.open('Error al cargar catálogo de requisitos', 'Cerrar', { duration: 3000 });
-        onComplete();
-      },
+      error: () => onComplete(),
     });
   }
 
   onRequisitoSelected(idRequisito: number): void {
     this.service.agregarRequisito(idRequisito, this.tipo()).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (nuevo) => {
-        this.items.update(items => [...items, nuevo]);
+        this.configs.update(c => ({ ...c, [this.tipo()]: [...(c[this.tipo()] ?? []), nuevo] }));
         this.snackBar.open('Requisito agregado', 'Cerrar', { duration: 2000 });
       },
       error: (err) => {
@@ -278,7 +361,10 @@ export class GestionarRequisitosIncorporacionComponent implements OnInit {
       if (result) {
         this.service.toggleEstado(item.id_solicitud_requisito, false).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
           next: () => {
-            this.items.update(items => items.filter(i => i.id_solicitud_requisito !== item.id_solicitud_requisito));
+            this.configs.update(c => ({
+              ...c,
+              [this.tipo()]: (c[this.tipo()] ?? []).filter(i => i.id_solicitud_requisito !== item.id_solicitud_requisito),
+            }));
             this.snackBar.open('Requisito quitado', 'Cerrar', { duration: 2000 });
           },
           error: () => {
@@ -289,7 +375,11 @@ export class GestionarRequisitosIncorporacionComponent implements OnInit {
     });
   }
 
+  descripcionDe(idRequisito: number): string | null {
+    return this.requisitoById().get(idRequisito)?.descripcion ?? null;
+  }
+
   volver(): void {
-    this.router.navigate(['/admin/inscripciones']);
+    this.router.navigate(['/inscripciones']);
   }
 }

@@ -33,20 +33,6 @@ export interface NotaUpdate {
   fecha?: string;
 }
 
-export interface AlumnoBasico {
-  id_alumno: number;
-  nombre: string;
-  apellido: string;
-  ci: string | null;
-}
-
-export interface NotaDialogData {
-  idDetalle: number;
-  alumno: AlumnoBasico | null;
-  idEdicion: number;
-  notaExistente?: NotaResponse;
-}
-
 export interface AlumnoNotas {
   id_detalle_programa_alumno: number;
   alumno: {

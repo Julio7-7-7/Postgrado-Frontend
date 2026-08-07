@@ -57,7 +57,7 @@ export class DocMatrizComponent implements OnInit {
   ngOnInit(): void {
     const idEdicion = Number(this.route.snapshot.paramMap.get('idEdicion'));
     if (!idEdicion) {
-      this.router.navigate(['/admin/documentacion']);
+      this.router.navigate(['/documentacion']);
       return;
     }
 
@@ -210,6 +210,6 @@ export class DocMatrizComponent implements OnInit {
   }
 
   volver(): void {
-    this.router.navigate(['/admin/documentacion']);
+    this.router.navigate(['/documentacion']);
   }
 }

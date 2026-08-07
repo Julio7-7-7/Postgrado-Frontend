@@ -3,7 +3,7 @@ import { Observable, map } from 'rxjs';
 import { ApiService } from '../../../core/services/api.service';
 import { PaginatedInscripciones, TranscriptResponse, EdicionBasica } from '../models/inscripcion-edicion.model';
 import { DetalleProgramaAlumno } from '../../alumno/models/detalle-programa-alumno.model';
-import { SolicitudConDetalle, PreviewMigracion } from '../../alumno/models/solicitud-incorporacion.model';
+import { SolicitudConDetalle, PreviewMigracion, DestinosRecomendadosResponse } from '../../alumno/models/solicitud-incorporacion.model';
 import { HistorialMovimientosResponse } from '../../notas/models/nota.model';
 
 @Injectable({ providedIn: 'root' })
@@ -65,6 +65,12 @@ export class InscripcionEdicionService extends ApiService {
   previewMigracion(idSolicitud: number, idEdicion: number): Observable<PreviewMigracion> {
     return this.http.get<PreviewMigracion>(
       `${this.baseUrl}/solicitud/${idSolicitud}/preview-migracion?id_programa_version_edicion=${idEdicion}`
+    );
+  }
+
+  destinosRecomendados(idSolicitud: number): Observable<DestinosRecomendadosResponse> {
+    return this.http.get<DestinosRecomendadosResponse>(
+      `${this.baseUrl}/solicitud/${idSolicitud}/destinos-recomendados`
     );
   }
 

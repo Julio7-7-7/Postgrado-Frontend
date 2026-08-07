@@ -53,6 +53,8 @@ export interface SolicitudConDetalle {
   edicion_semestre: number | null;
   programa_nombre: string | null;
   dpa_estado: string | null;
+  dpa_modulo_inicio: number | null;
+  dpa_id_modulo_inicio: number | null;
   created_at: string;
   documentos: DocumentoSolicitud[];
   incorporacion: SolicitudIncorporacion | null;
@@ -133,4 +135,48 @@ export interface SolicitudAdminItem {
 export interface PuedeMigrarResponse {
   puede: boolean;
   motivo: string | null;
+}
+
+export interface ModuloPendiente {
+  id_modulo: number;
+  nombre_modulo: string;
+  orden_origen: number;
+}
+
+export interface ModuloCoincidencia {
+  id_modulo: number;
+  nombre_modulo: string;
+  orden_origen: number;
+  disponible: boolean;
+  estado_destino: string | null;
+  posicion_destino: number | null;
+}
+
+export interface DestinoRecomendado {
+  id_programa_version_edicion: number;
+  edicion: number | null;
+  semestre: number | null;
+  anio: number | null;
+  estado: string;
+  modalidad: string | null;
+  precio: number | null;
+  cupo_maximo: number | null;
+  cupo_disponible: number | null;
+  fecha_inicio: string | null;
+  afinidad_pct: number;
+  aprovechables: number;
+  pendientes: number;
+  coincidencias: ModuloCoincidencia[];
+  recomendado: boolean;
+  motivo_recomendacion: string;
+}
+
+export interface DestinosRecomendadosResponse {
+  id_solicitud: number;
+  id_alumno: number | null;
+  alumno_nombre: string | null;
+  alumno_apellido: string | null;
+  modulo_inicio_origen: number | null;
+  pendientes: ModuloPendiente[];
+  destinos: DestinoRecomendado[];
 }

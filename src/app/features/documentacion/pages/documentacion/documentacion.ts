@@ -83,7 +83,7 @@ export class DocumentacionComponent implements OnInit {
   }
 
   irAMatriz(ed: ProgramaVersionEdicionResponse): void {
-    this.router.navigate(['/admin/documentacion', ed.id_programa_version_edicion]);
+    this.router.navigate(['/documentacion', ed.id_programa_version_edicion]);
   }
 
   getFotoUrl(foto: string | null): string {

@@ -199,7 +199,6 @@
 
 .solicitudes-table {
   width: 100%;
-  table-layout: fixed;
   border-collapse: collapse;
 }
 
@@ -254,10 +253,15 @@
   vertical-align: middle;
 }
 
-.col-alumno { width: 30%; }
-.col-solicitud { width: auto; }
-.col-docs { width: 72px; text-align: center; }
+.col-alumno { width: 26%; }
+.col-solicitud { width: 38%; }
+.col-docs { width: 110px; text-align: center; }
 .col-estado { width: 150px; text-align: center; }
+
+.solicitudes-table th.col-docs,
+.solicitudes-table th.col-estado {
+  text-align: center;
+}
 
 .table-row {
   transition: background 0.12s;

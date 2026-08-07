@@ -79,7 +79,7 @@ export class PagosAdminComponent implements OnInit {
   }
 
   irAPagos(ed: ProgramaVersionEdicionResponse): void {
-    this.router.navigate(['/admin/pagos', ed.id_programa_version_edicion]);
+    this.router.navigate(['/pagos', ed.id_programa_version_edicion]);
   }
 
   getFotoUrl(foto: string | null): string {

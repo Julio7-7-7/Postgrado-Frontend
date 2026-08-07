@@ -16,6 +16,9 @@ export interface Docente {
   celular: string | null;
   estado: EstadoDocente;
   tiene_modulos_activos: boolean;
+  usuario_creado?: boolean;
+  email_login?: string | null;
+  password_inicial?: string | null;
   created_at: string;
   updated_at: string;
 }

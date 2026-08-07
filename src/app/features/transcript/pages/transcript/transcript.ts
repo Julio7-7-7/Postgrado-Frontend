@@ -51,7 +51,7 @@ export class TranscriptComponent implements OnInit {
   ngOnInit(): void {
     this.idAlumno = Number(this.route.snapshot.paramMap.get('idAlumno'));
     if (!this.idAlumno) {
-      this.router.navigate(['/admin/inscripciones']);
+      this.router.navigate(['/inscripciones']);
       return;
     }
     this.loadTranscript(this.idAlumno);
@@ -89,7 +89,7 @@ export class TranscriptComponent implements OnInit {
   }
 
   volver(): void {
-    this.router.navigate(['/admin/inscripciones']);
+    this.router.navigate(['/inscripciones']);
   }
 
   estadoClass(estado: string): string {
