@@ -17,6 +17,7 @@ export interface ProgramaVersionEdicion {
   cupo_maximo: number | null;
   descripcion: string | null;
   precio: number | null;
+  matricula: number | null;
   programa_version: ProgramaVersion;
   created_at: string;
   updated_at: string;
@@ -35,4 +36,5 @@ export interface ProgramaVersionEdicionCreate {
   cupo_maximo?: number | null;
   descripcion?: string | null;
   precio?: number | null;
+  matricula?: number | null;
 }

@@ -149,6 +149,7 @@ export class EdicionFormComponent implements OnInit {
       cupo_maximo: [null, [Validators.min(1)]],
       descripcion: ['', [Validators.maxLength(500)]],
       precio: [null, [Validators.min(0)]],
+      matricula: [200, [Validators.min(0)]],
     });
   }
 
@@ -379,6 +380,7 @@ export class EdicionFormComponent implements OnInit {
       cupo_maximo: raw.cupo_maximo ?? undefined,
       descripcion: raw.descripcion || null,
       precio: raw.precio ?? undefined,
+      matricula: raw.matricula ?? undefined,
     };
 
     const peticion = this.idEditando
