@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, computed, inject, DestroyRef } from '@angular/core';
+import { Component, OnInit, signal, computed, inject, DestroyRef, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -14,6 +14,7 @@ import { AuthService } from '../../../../core/services/auth.service';
 import { DocenteModuloDetalle, NotaItem, NotaResponse } from '../../../notas/models/nota.model';
 import { SortDir, sortItems } from '../../../../core/utils/sort-utils';
 import { clasificarNota } from '../../../../core/utils/nota-utils';
+import { maxTextWidth } from '../../../../core/utils/measure-text';
 import { AlumnoCalificar, NotaDialog, NotaDialogData, NotaDialogResult } from './nota-dialog';
 
 @Component({
@@ -36,13 +37,16 @@ export class DocenteCalificarComponent implements OnInit {
   private dialog = inject(MatDialog);
   private destroyRef = inject(DestroyRef);
 
-  readonly columnas = ['alumno', 'ci', 'nota', 'clasificacion', 'accion'];
+  @ViewChild('tablaWrap', { read: ElementRef }) private tablaWrap!: ElementRef<HTMLElement>;
+
+  readonly columnas = ['alumno', 'nota', 'clasificacion', 'accion'];
 
   datos = signal<DocenteModuloDetalle | null>(null);
   isLoading = signal(true);
   idDpm = 0;
   idDocente = 0;
   nombreDir = signal<SortDir>('asc');
+  alumnoWidth = signal('auto');
 
   alumnosOrdenados = computed(() => {
     const d = this.datos();
@@ -80,12 +84,23 @@ export class DocenteCalificarComponent implements OnInit {
       next: data => {
         this.datos.set(data);
         this.isLoading.set(false);
+        requestAnimationFrame(() => this.medirColumnaAlumno());
       },
       error: () => {
         this.isLoading.set(false);
         this.snackbar.open('Error al cargar datos del módulo', 'Cerrar', { duration: 3000 });
       },
     });
+  }
+
+  private medirColumnaAlumno(): void {
+    const el = this.tablaWrap?.nativeElement;
+    if (!el) return;
+    const max = maxTextWidth(Array.from(el.querySelectorAll<HTMLElement>('.alumno-nombre')));
+    if (max > 0) {
+      const AVATAR = 32, GAP = 10, PADDING = 32;
+      this.alumnoWidth.set(`${max + AVATAR + GAP + PADDING + 12}px`);
+    }
   }
 
   notaDe(a: AlumnoCalificar): number | null {

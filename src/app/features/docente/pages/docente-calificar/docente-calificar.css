@@ -187,15 +187,20 @@
 }
 
 .table-wrapper {
-  border-radius: var(--fich-radius-md);
+  border-radius: 18px;
   overflow: hidden;
-  border: 1px solid var(--fich-border);
-  background: var(--fich-bg-card);
+  border: 1px solid var(--fich-border-light);
+  background:
+    radial-gradient(900px 160px at 50% -60px, rgba(13, 148, 136, 0.07), transparent 70%),
+    linear-gradient(180deg, #f6fcfb, var(--fich-bg-card) 220px);
   box-shadow: var(--fich-shadow-sm);
+  overflow-x: auto;
 }
 
 .calificar-table {
   width: 100%;
+  table-layout: fixed;
+  min-width: 620px;
 }
 
 .calificar-table .mat-mdc-cell {
@@ -211,8 +216,8 @@
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--fich-text-secondary);
-  background: var(--fich-bg-subtle);
-  border-bottom: 1px solid var(--fich-border);
+  background: linear-gradient(180deg, #f0fdfa, rgba(240, 253, 250, 0));
+  border-bottom: 1px solid #e9edf4;
 }
 
 .calificar-table .mat-mdc-row:hover {
@@ -223,11 +228,11 @@
   border-bottom-color: transparent;
 }
 
-.calificar-table .mat-column-ci { width: 110px; }
-.calificar-table .mat-column-nota { width: 100px; }
-.calificar-table .mat-column-clasificacion { width: 170px; }
+.calificar-table .mat-column-alumno { width: auto; text-align: left; }
+.calificar-table .mat-column-nota,
+.calificar-table .mat-column-clasificacion,
+.calificar-table .mat-column-accion { width: auto; }
 .calificar-table .mat-column-accion {
-  width: 210px;
   text-align: right;
 }
 
@@ -255,26 +260,49 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  text-align: left;
+}
+
+.alumno-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
 }
 
 .avatar-sm {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--fich-feature-docente), #5eead4);
-  color: var(--fich-bg-card);
+  background: linear-gradient(135deg, #f0fdfa, #ccfbf1);
+  border: 1px solid #99f6e4;
+  color: #0f766e;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: 0.7rem;
+  font-weight: 800;
   flex-shrink: 0;
 }
 
 .alumno-nombre {
+  display: block;
   font-weight: 600;
   color: var(--fich-text);
+  font-size: 0.84rem;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.alumno-ci {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--fich-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .cell-mono {
@@ -283,15 +311,39 @@
   color: var(--fich-text-secondary);
 }
 
-.nota-display {
-  font-size: 1.05rem;
+.nota-bubble {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 42px;
+  height: 30px;
+  padding: 0 12px;
+  border-radius: var(--fich-radius-full);
   font-weight: 700;
-  color: var(--fich-text);
+  font-size: 0.8rem;
   font-variant-numeric: tabular-nums;
+  border: 1px solid transparent;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.calificar-table .mat-mdc-row:hover .nota-bubble {
+  transform: scale(1.08);
+  border-color: currentColor;
+  box-shadow: var(--fich-shadow-sm);
+}
+
+.nota-bubble.sin-nota {
+  border: 1px dashed var(--fich-border);
+  color: var(--fich-text-muted);
+  font-weight: 600;
+  background: transparent;
 }
 
 .cal-badge {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   padding: 4px 12px;
   border-radius: 20px;
   font-size: 0.75rem;
@@ -301,13 +353,32 @@
   border: 1px solid transparent;
 }
 
+.cal-badge::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  flex: 0 0 auto;
+}
+
+.cal-badge.sin-nota::before {
+  display: none;
+}
+
+/* Paleta de clasificación (unificada con notas-edicion) */
 .sin-nota { background: var(--fich-border-light); color: var(--fich-text-muted); border-color: var(--fich-border); }
-.abandono { background: var(--fich-border-light); color: var(--fich-text-muted); border-color: var(--fich-border); }
-.insuficiente { background: var(--fich-danger-light); color: var(--fich-danger); border-color: var(--fich-danger-light); }
-.suficiente { background: var(--fich-warning-light); color: var(--fich-warning); border-color: var(--fich-warning-light); }
-.bueno { background: var(--fich-info-light); color: var(--fich-info); border-color: var(--fich-info-light); }
-.distinguido { background: var(--fich-success-light); color: var(--fich-success); border-color: var(--fich-success-light); }
-.sobresaliente { background: var(--fich-primary-light); color: var(--fich-primary); border-color: var(--fich-primary-light); }
+.abandono { background: #f1f5f9; color: #64748b; border-color: #e2e8f0; }
+.insuficiente { background: #fef2f2; color: #b91c1c; border-color: #fecaca; }
+.suficiente { background: #fffbeb; color: #b45309; border-color: #fde68a; }
+.bueno { background: #eff6ff; color: #0369a1; border-color: #bfdbfe; }
+.distinguido { background: #ecfdf5; color: #047857; border-color: #a7f3d0; }
+.sobresaliente { background: #eef2ff; color: #4338ca; border-color: #c7d2fe; }
+
+.cal-badge.abandono, .cal-badge.insuficiente, .cal-badge.suficiente,
+.cal-badge.bueno, .cal-badge.distinguido, .cal-badge.sobresaliente {
+  border-width: 1px;
+}
 
 .action-btns {
   display: flex;
@@ -349,4 +420,49 @@
   font-size: 16px;
   width: 16px;
   height: 16px;
+}
+
+/* ===== Estilo tablero (espejo de notas-edicion) ===== */
+.matriz-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  margin: 0 4px 10px;
+}
+
+.matriz-leyenda {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 0.7rem;
+  color: var(--fich-text-muted);
+}
+
+.leyenda-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.leyenda-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex: 0 0 auto;
+}
+
+.leyenda-dot.cal-abandono { background: #94a3b8; }
+.leyenda-dot.cal-insuficiente { background: #dc2626; }
+.leyenda-dot.cal-suficiente { background: #d97706; }
+.leyenda-dot.cal-bueno { background: #0284c7; }
+.leyenda-dot.cal-distinguido { background: #059669; }
+.leyenda-dot.cal-sobresaliente { background: #4338ca; }
+
+.calificar-table .mat-mdc-cell {
+  border-bottom: 1px solid #e9edf4;
+}
+
+.calificar-table .mat-mdc-row:last-child .mat-mdc-cell {
+  border-bottom: none;
 }
