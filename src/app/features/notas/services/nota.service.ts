@@ -2,8 +2,9 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from '../../../core/services/api.service';
 import {
-  AlumnoNotas, NotaCreate, NotaUpdate, NotaResponse,
+  NotaCreate, NotaUpdate, NotaResponse,
   DocenteEdicionCompleta, DocenteModuloDetalle, HistorialMovimientosResponse,
+  NotasEdicionData,
 } from '../models/nota.model';
 import { ProgramaVersionEdicionResponse } from '../../documentacion/models/documentacion.model';
 
@@ -14,8 +15,8 @@ export class NotaService extends ApiService {
     return this.http.get<ProgramaVersionEdicionResponse[]>(`${this.baseUrl}/programa-version-edicion/`);
   }
 
-  getNotasPorEdicion(idEdicion: number): Observable<AlumnoNotas[]> {
-    return this.http.get<AlumnoNotas[]>(`${this.baseUrl}/notas/por-edicion/${idEdicion}`);
+  getNotasPorEdicion(idEdicion: number): Observable<NotasEdicionData> {
+    return this.http.get<NotasEdicionData>(`${this.baseUrl}/notas/por-edicion/${idEdicion}`);
   }
 
   getNotasPorDocente(idDocente: number): Observable<DocenteEdicionCompleta[]> {
