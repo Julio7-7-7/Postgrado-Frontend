@@ -6,7 +6,7 @@
       </button>
       <div>
         <h1><mat-icon>school</mat-icon> Transcript Acad&eacute;mico</h1>
-        <p class="subtitle">Historial de m&oacute;dulos, notas y ediciones cursadas</p>
+        <p class="subtitle">El recorrido del alumno: situaci&oacute;n, m&oacute;dulos y ediciones cursadas</p>
       </div>
     </div>
   </div>
@@ -17,21 +17,114 @@
       <span>Cargando transcript...</span>
     </div>
   } @else if (transcript(); as t) {
-    <div class="alumno-card">
-      <div class="alumno-header">
-        <div class="avatar-lg">{{ t.alumno_nombre[0] }}{{ t.alumno_apellido[0] }}</div>
-        <div class="alumno-info">
+    @let sit = situacion();
+
+    <!-- ═══════════ HERO: panel del recorrido ═══════════ -->
+    <div class="hero-card">
+      <div class="hero-top">
+        <div class="hero-avatar">{{ t.alumno_nombre[0] }}{{ t.alumno_apellido[0] }}</div>
+        <div class="hero-info">
           <h2>{{ t.alumno_nombre }} {{ t.alumno_apellido }}</h2>
           <span class="ci-label">{{ t.alumno_ci || 'Sin CI' }}</span>
         </div>
-        @if (t.promedio_general !== null) {
-          <div class="promedio-chip" [class]="notaClass(t.promedio_general)">
-            <span class="promedio-num">{{ round(t.promedio_general) }}</span>
-            <span class="promedio-sep"></span>
-            <span class="promedio-lbl">Promedio general</span>
+        @if (lastInscripcion(); as insTop) {
+          <div class="hero-tags">
+            <span class="hero-edicion"><mat-icon>calendar_today</mat-icon> Ed. {{ insTop.edicion_numero }} &middot; {{ semestreLabel(insTop.edicion_semestre) }} {{ insTop.edicion_anio }}</span>
+            <span class="estado-pill" [class]="estadoClass(insTop.estado)">{{ estadoLabel(insTop.estado) }}</span>
           </div>
         }
       </div>
+
+      @if (lastInscripcion(); as ins) {
+        <div class="hero-body">
+          <div class="hero-donut">
+            <span class="donut-label">Promedio general</span>
+            @if (t.promedio_general !== null) {
+              <div class="donut" [class]="notaClass(t.promedio_general)" [style.background]="promRingBg(t.promedio_general)">
+                <span class="donut-num">{{ round(t.promedio_general) }}</span>
+              </div>
+              <span class="prom-clasif" [class]="notaClass(t.promedio_general)">{{ promClasifLabel(t.promedio_general) }}</span>
+            } @else {
+              <div class="donut donut-vacia"><span class="donut-num">&mdash;</span></div>
+              <span class="prom-clasif prom-clasif-vacia">Sin promedio</span>
+            }
+          </div>
+
+          <div class="hero-ruta">
+            <div class="ruta-header">
+              <span class="ruta-label">Recorrido</span>
+              @if (tieneTrayectoria()) {
+                <span class="ruta-ediciones">
+                  @for (insE of t.inscripciones; track insE.id_detalle_programa_alumno; let last = $last) {
+                    <span class="ed-pill" [class.ed-actual]="last"
+                          [matTooltip]="'Ed. ' + insE.edicion_numero + ' · ' + semestreLabel(insE.edicion_semestre) + ' ' + insE.edicion_anio + ' — ' + estadoLabel(insE.estado)">
+                      Ed. {{ insE.edicion_numero }}
+                    </span>
+                    @if (last) {
+                      <mat-icon class="ed-arrow ed-arrow-down" matTooltip="Edición actual">south</mat-icon>
+                    } @else {
+                      <mat-icon class="ed-arrow">arrow_forward</mat-icon>
+                    }
+                  }
+                </span>
+              }
+            </div>
+            <div class="ruta-stage">
+              <div class="ruta-track">
+                <div class="ruta-fill" [style.width]="rutaFillPct(ins) + '%'"></div>
+              </div>
+              <div class="ruta-nodos" [style.gridTemplateColumns]="rutaCols(ins.modulos.length)">
+                @for (mod of ins.modulos; track mod.id_detalle_programa_modulo) {
+                  @let hcl = hitoClass(mod, ins);
+                  <div class="hito" [class]="hcl"
+                       [matTooltip]="cellTooltip(mod, ins)" matTooltipPosition="above">
+                    <span class="hito-num">{{ mod.modulo_orden }}</span>
+                    @if (mod.es_migrada && !aprobado(mod)) {
+                      <span class="hito-migdot" matTooltip="Migrado de Ed. {{ mod.edicion_origen_numero }}"></span>
+                    }
+                    @if (hcl === 'hito-curso') {
+                      <span class="hito-marker" matTooltip="Módulo en curso">Estás acá</span>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="stats-head">
+          <span class="stats-label">Resumen</span>
+        </div>
+        <div class="hero-stats">
+          @for (s of stats(); track s.label) {
+            <div class="stat-tile" [class]="s.clase">
+              <span class="stat-icon"><mat-icon>{{ s.icono }}</mat-icon></span>
+              <div class="stat-texto">
+                <span class="stat-valor">{{ s.valor }}</span>
+                <span class="stat-label">{{ s.label }}</span>
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="hero-caption">
+          <mat-icon>{{ sit.icono }}</mat-icon>
+          <span class="hero-caption-text">
+            @for (p of sit.partes; track $index) {
+              <span [class.cap-num]="p.hi">{{ p.t }}</span>
+            }
+          </span>
+        </div>
+      } @else {
+        <div class="hero-caption hero-caption-solo">
+          <mat-icon>school</mat-icon>
+          <span class="hero-caption-text">
+            @for (p of sit.partes; track $index) {
+              <span [class.cap-num]="p.hi">{{ p.t }}</span>
+            }
+          </span>
+        </div>
+      }
     </div>
 
     @if (t.inscripciones.length === 0) {
@@ -41,193 +134,60 @@
         <p>Este alumno no tiene inscripciones registradas</p>
       </div>
     } @else {
-      <div class="legend-bar">
-        <span class="legend-item"><span class="legend-dot lg-completed"></span>Completado</span>
-        <span class="legend-item"><span class="legend-dot lg-pending"></span>Pendiente</span>
-        <span class="legend-item"><span class="legend-dot lg-migrated-from"></span>Migrado desde otra ed.</span>
-        <span class="legend-item"><span class="legend-dot lg-migrated-to"></span>Migrado a otra ed.</span>
-      </div>
 
-      @for (ins of t.inscripciones; track ins.id_detalle_programa_alumno; let idx = $index; let total = $count) {
-        @let esOrigen = idx === 0 && total > 1;
-        @let esActual = idx === total - 1 && total > 1;
-        @let viewIns = esActual ? filteredInscripcion(ins) : ins;
-        @let accentClass = esOrigen ? 'edicion-card-accent-blue' : (esActual ? 'edicion-card-accent-green' : '');
-        <div class="edicion-card" [class]="accentClass">
-          <div class="edicion-header" [class]="esOrigen ? 'eh-origen' : 'eh-actual'">
-            <div class="eh-left">
-              @if (total > 1) {
-                <span class="eh-tag">{{ esOrigen ? 'Origen' : 'Actual' }}</span>
-              }
-              <span class="eh-title">{{ ins.programa_nombre }}</span>
-              <span class="eh-meta">Ed. {{ ins.edicion_numero }} &middot; {{ semestreLabel(ins.edicion_semestre) }} {{ ins.edicion_anio }}</span>
-              @if (ins.migrado_a_edicion_numero !== null) {
-                <span class="eh-migrated-to">
+      <!-- ═══════════ TABLERO: los 6 módulos ═══════════ -->
+      @if (lastInscripcion(); as ins) {
+        <div class="tablero">
+          <div class="tablero-header">
+            <div class="tablero-title">
+              <mat-icon>grid_view</mat-icon>
+              <div>
+                <h3>M&oacute;dulos del programa</h3>
+                <p>{{ ins.programa_nombre }} &middot; Ed. {{ ins.edicion_numero }} ({{ semestreLabel(ins.edicion_semestre) }} {{ ins.edicion_anio }})</p>
+              </div>
+            </div>
+            <div class="tablero-right">
+              @if (migradasInfo(); as mig) {
+                <span class="tablero-chip mig-chip"
+                      [matTooltip]="'Módulos aprobados en la Ed. ' + mig.de + ' que se suman a esta edición'">
                   <mat-icon>swap_horiz</mat-icon>
-                  Migr&oacute; a Ed. {{ ins.migrado_a_edicion_numero }}
+                  {{ mig.cuantas }} migrado{{ mig.cuantas === 1 ? '' : 's' }} de Ed. {{ mig.de }}
                 </span>
               }
-            </div>
-            <div class="eh-right">
-              <span class="eh-modalidad">{{ ins.modalidad_nombre }}</span>
-              <span class="estado-pill" [class]="estadoClass(ins.estado)">{{ estadoLabel(ins.estado) }}</span>
+              <span class="prog-label">{{ progLabel(ins) }}</span>
             </div>
           </div>
 
-          @if (viewIns.modulos.length > 0) {
-            <div class="modules-area">
-              <!-- Row 1: Module dots -->
-              <div class="mod-row">
-                <span class="mod-label">M&oacute;dulos</span>
-                <div class="mod-dots" [style.gridTemplateColumns]="gridCols(viewIns.modulos.length)">
-                  @for (mod of viewIns.modulos; track mod.id_detalle_programa_modulo) {
-                    <div class="mod-dot-wrap">
-                      <span class="mod-dot"
-                            [class.mod-done]="mod.nota !== null"
-                            [class.mod-origen]="esOrigen"
-                            [class.mod-actual]="!esOrigen"
-                            [matTooltip]="cellTooltip(mod, viewIns)"
-                            matTooltipPosition="above">
-                        {{ mod.modulo_orden }}
-                      </span>
-                    </div>
+          <div class="mod-grid">
+            @for (mod of ins.modulos; track mod.id_detalle_programa_modulo) {
+              @let estado = modEstado(mod, ins);
+              <div class="mod-card" [matTooltip]="cellTooltip(mod, ins)" matTooltipPosition="above">
+                <div class="mod-num" [class.mod-num-ok]="aprobado(mod)">{{ mod.modulo_orden }}</div>
+                <div class="mod-nombre">{{ mod.modulo_nombre }}</div>
+                <div class="mod-estado-area">
+                  @if (mod.nota !== null) {
+                    <div class="nota-bubble" [class]="notaClass(mod.nota)">{{ round(mod.nota) }}</div>
+                    @if (estado === 'migrada') {
+                      <span class="mig-badge" matTooltip="Aprobado en la Ed. {{ mod.edicion_origen_numero }}">de Ed. {{ mod.edicion_origen_numero }}</span>
+                    }
+                  } @else if (estado === 'en-curso') {
+                    <span class="mod-chip chip-encurso"><span class="pulse-dot"></span>En curso</span>
+                  } @else if (estado === 'saltado') {
+                    <span class="mod-chip chip-saltado"><mat-icon>skip_next</mat-icon>Incorporaci&oacute;n</span>
+                  } @else {
+                    <span class="mod-chip chip-pendiente">Pendiente</span>
                   }
                 </div>
               </div>
-
-              <!-- Row 2: Grades -->
-              <div class="grade-row">
-                <span class="mod-label">Nota</span>
-                <div class="grade-cells" [style.gridTemplateColumns]="gridCols(viewIns.modulos.length)">
-                  @for (mod of viewIns.modulos; track mod.id_detalle_programa_modulo; let mi = $index) {
-                    <div class="grade-cell" [class]="modTypeClass(mod, viewIns)"
-                         [class.g-origen]="esOrigen" [class.g-actual]="!esOrigen"
-                         [class.g-migrada]="mod.es_migrada"
-                         [matTooltip]="cellTooltip(mod, viewIns)"
-                         matTooltipPosition="above">
-                      @if (mod.nota !== null) {
-                        <span class="g-val" [class]="notaClass(mod.nota)">{{ round(mod.nota) }}</span>
-                        @if (mod.es_migrada) {
-                          <span class="g-mig-label g-mig-from" matTooltip="Tra&iacute;da de Ed. {{ mod.edicion_origen_numero }}">
-                            Ed. {{ mod.edicion_origen_numero }}
-                          </span>
-                        }
-                        @if (mod.migrado_a_edicion_numero !== null && !mod.es_migrada) {
-                          <span class="g-mig-label g-mig-to" matTooltip="Enviada a Ed. {{ mod.migrado_a_edicion_numero }}">
-                            Ed. {{ mod.migrado_a_edicion_numero }}
-                          </span>
-                        }
-                      } @else {
-                        <span class="g-dash">&mdash;</span>
-                      }
-                      @if (mod.nota === null && mod.modulo_orden >= viewIns.modulo_inicio && mi === currentModIdx(viewIns)) {
-                        <span class="g-active-dot"></span>
-                      }
-                    </div>
-                  }
-                </div>
-              </div>
-
-              <!-- Row 3: Snake -->
-              <div class="snake-row">
-                <span class="mod-label"></span>
-                <div class="snake-track">
-                  <div class="snake-bar" [class]="esOrigen ? 'snake-origin' : 'snake-dest'"
-                       [style.width]="snakeWidth(viewIns)"
-                       [style.left]="snakeOffset(viewIns)">
-                    <div class="snake-fill"></div>
-                    <div class="snake-tip"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          } @else {
-            <div class="sin-modulos">
-              <mat-icon>info</mat-icon>
-              <span>No hay m&oacute;dulos registrados</span>
-            </div>
-          }
-        </div>
-      }
-
-      <!-- Total card -->
-      @if (hasMigrations() && lastInscripcion(); as totalIns) {
-        <div class="edicion-card edicion-card-accent-purple">
-          <div class="edicion-header eh-total">
-            <div class="eh-left">
-              <span class="eh-tag">Resumen</span>
-              <span class="eh-title">{{ totalIns.programa_nombre }}</span>
-              <span class="eh-meta">Ed. {{ totalIns.edicion_numero }} &middot; {{ semestreLabel(totalIns.edicion_semestre) }} {{ totalIns.edicion_anio }}</span>
-            </div>
-            <div class="eh-right">
-              <span class="eh-modalidad">{{ totalIns.modalidad_nombre }}</span>
-              <span class="estado-pill" [class]="estadoClass(totalIns.estado)">{{ estadoLabel(totalIns.estado) }}</span>
-            </div>
+            }
           </div>
 
-          @if (totalIns.modulos.length > 0) {
-            <div class="modules-area">
-              <!-- Row 1: Module dots -->
-              <div class="mod-row">
-                <span class="mod-label">M&oacute;dulos</span>
-                <div class="mod-dots" [style.gridTemplateColumns]="gridCols(totalIns.modulos.length)">
-                  @for (mod of totalIns.modulos; track mod.id_detalle_programa_modulo) {
-                    <div class="mod-dot-wrap">
-                      <span class="mod-dot"
-                            [class.mod-done]="mod.nota !== null"
-                            [class.mod-total]="mod.nota !== null"
-                            [matTooltip]="cellTooltip(mod, totalIns)"
-                            matTooltipPosition="above">
-                        {{ mod.modulo_orden }}
-                      </span>
-                    </div>
-                  }
-                </div>
-              </div>
-
-              <!-- Row 2: Grades -->
-              <div class="grade-row">
-                <span class="mod-label">Nota</span>
-                <div class="grade-cells" [style.gridTemplateColumns]="gridCols(totalIns.modulos.length)">
-                  @for (mod of totalIns.modulos; track mod.id_detalle_programa_modulo; let mi = $index) {
-                    <div class="grade-cell g-total"
-                         [class.g-migrada]="mod.es_migrada"
-                         [matTooltip]="cellTooltip(mod, totalIns)"
-                         matTooltipPosition="above">
-                      @if (mod.nota !== null) {
-                        <span class="g-val" [class]="notaClass(mod.nota)">{{ round(mod.nota) }}</span>
-                        @if (mod.es_migrada) {
-                          <span class="g-mig-label g-mig-from" matTooltip="Tra&iacute;da de Ed. {{ mod.edicion_origen_numero }}">
-                            Ed. {{ mod.edicion_origen_numero }}
-                          </span>
-                        }
-                      } @else {
-                        <span class="g-dash">&mdash;</span>
-                      }
-                    </div>
-                  }
-                </div>
-              </div>
-
-              <!-- Row 3: Snake -->
-              <div class="snake-row">
-                <span class="mod-label"></span>
-                <div class="snake-track">
-                  <div class="snake-bar snake-total"
-                       [style.width]="totalSnakeWidth(totalIns)"
-                       [style.left]="totalSnakeOffset(totalIns)">
-                    <div class="snake-fill"></div>
-                    <div class="snake-tip"></div>
-                  </div>
-                </div>
-              </div>
+          <div class="prog-row">
+            <div class="prog-track">
+              <div class="prog-fill" [style.width]="progPct(ins) + '%'"></div>
             </div>
-          } @else {
-            <div class="sin-modulos">
-              <mat-icon>info</mat-icon>
-              <span>No hay m&oacute;dulos registrados</span>
-            </div>
-          }
+            <span class="prog-label">{{ progLabel(ins) }}</span>
+          </div>
         </div>
       }
     }
