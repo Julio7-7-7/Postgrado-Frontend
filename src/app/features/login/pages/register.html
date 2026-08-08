@@ -166,9 +166,9 @@
             <button mat-raised-button color="primary" type="submit" class="nav-btn"
                     [disabled]="loading">
               @if (loading) {
-                <mat-icon>hourglass_top</mat-icon> Creando cuenta...
+                <ng-container><mat-icon>hourglass_top</mat-icon> Creando cuenta...</ng-container>
               } @else {
-                <mat-icon>person_add</mat-icon> Crear Cuenta
+                <ng-container><mat-icon>person_add</mat-icon> Crear Cuenta</ng-container>
               }
             </button>
           }
