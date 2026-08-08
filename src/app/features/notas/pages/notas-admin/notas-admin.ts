@@ -8,6 +8,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { NotaService } from '../../services/nota.service';
 import { ProgramaVersionEdicionResponse } from '../../../documentacion/models/documentacion.model';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-notas-admin',
@@ -24,6 +25,8 @@ export class NotasAdminComponent implements OnInit {
   private router = inject(Router);
   private snackbar = inject(MatSnackBar);
   private destroyRef = inject(DestroyRef);
+
+  apiUrl = environment.apiUrl;
 
   ediciones = signal<ProgramaVersionEdicionResponse[]>([]);
   isLoading = signal(true);
@@ -77,5 +80,13 @@ export class NotasAdminComponent implements OnInit {
 
   irANotas(ed: ProgramaVersionEdicionResponse): void {
     this.router.navigate(['/notas', ed.id_programa_version_edicion]);
+  }
+
+  getFotoUrl(foto: string | null): string {
+    return foto ? `${this.apiUrl}${foto}` : '';
+  }
+
+  onImgError(event: Event): void {
+    (event.target as HTMLImageElement).style.display = 'none';
   }
 }

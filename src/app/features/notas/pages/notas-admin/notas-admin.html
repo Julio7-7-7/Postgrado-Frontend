@@ -20,13 +20,19 @@
       <div class="ediciones-grid">
         @for (ed of ediciones(); track ed.id_programa_version_edicion) {
           <div class="edicion-card" (click)="irANotas(ed)">
-            <div class="card-header">
-              <div class="card-icon">
-                <mat-icon>grading</mat-icon>
-              </div>
-              <span class="estado-chip" [class]="estadoClass(ed.estado)">{{ estadoLabel(ed.estado) }}</span>
+            <div class="card-foto">
+              @if (ed.programa_version.foto) {
+                <img [src]="getFotoUrl(ed.programa_version.foto)" (error)="onImgError($event)" alt="Foto" />
+              } @else {
+                <div class="card-foto-placeholder">
+                  <mat-icon>grading</mat-icon>
+                </div>
+              }
             </div>
-            <div class="card-body">
+            <div class="card-content">
+              <div class="card-top">
+                <span class="estado-chip" [class]="estadoClass(ed.estado)">{{ estadoLabel(ed.estado) }}</span>
+              </div>
               <h3 class="card-title">{{ programaNombre(ed) }}</h3>
               <div class="card-meta">
                 <span class="meta-tag tipo">{{ tipoPrograma(ed) }}</span>
@@ -35,8 +41,6 @@
                   <span class="meta-tag modalidad">{{ ed.modalidad }}</span>
                 }
               </div>
-            </div>
-            <div class="card-footer">
               <button mat-flat-button color="primary" class="action-btn">
                 <mat-icon>arrow_forward</mat-icon> Ver Notas
               </button>
