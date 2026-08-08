@@ -112,4 +112,8 @@ export class NavbarComponent implements OnDestroy {
   logout() {
     this.auth.logout();
   }
+
+  cambiarRol() {
+    this.router.navigate(['/login'], { queryParams: { cambiar: '1' } });
+  }
 }

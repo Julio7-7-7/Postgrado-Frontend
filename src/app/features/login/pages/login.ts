@@ -37,13 +37,21 @@ export class LoginComponent implements OnInit {
   loading = false;
   inscribirId: number | null = null;
   incorporarId: number | null = null;
+  cambiarRol = false;
 
   ngOnInit(): void {
     this.inscribirId = Number(this.route.snapshot.queryParams['inscribir']) || null;
     this.incorporarId = Number(this.route.snapshot.queryParams['incorporar']) || null;
+    this.cambiarRol = this.route.snapshot.queryParams['cambiar'] === '1';
 
     if (this.auth.isLogged()) {
       const user = this.auth.user();
+      if (this.cambiarRol) {
+        this.userRoles.set(this.auth.roles());
+        this.loginUserId.set(user?.id_usuario ?? 0);
+        this.step.set('roles');
+        return;
+      }
       if (user?.must_change_password) {
         this.step.set('cambio');
         return;
@@ -124,6 +132,10 @@ export class LoginComponent implements OnInit {
   }
 
   volver(): void {
+    if (this.cambiarRol) {
+      this.router.navigate(['/']);
+      return;
+    }
     this.step.set('credentials');
     this.userRoles.set([]);
   }
