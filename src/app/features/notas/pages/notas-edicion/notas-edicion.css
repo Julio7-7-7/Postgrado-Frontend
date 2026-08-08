@@ -26,7 +26,7 @@
   gap: 8px;
 }
 
-.header-section h1 mat-icon { color: var(--fich-primary); }
+.header-section h1 mat-icon { color: var(--fich-feature-notas); }
 
 .subtitle {
   margin: 2px 0 0;
@@ -55,157 +55,397 @@
 .empty-state h4 { margin: 0; font-weight: 600; color: var(--fich-text-secondary); }
 .empty-state p { margin: 0; color: var(--fich-text-muted); font-size: 0.85rem; }
 
-.alumnos-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.alumno-card {
-  background: var(--fich-bg-card);
-  border: 1px solid var(--fich-border-light);
-  border-radius: 10px;
-  cursor: pointer;
-  transition: border-color 0.12s;
-}
-
-.alumno-card:hover { border-color: var(--fich-primary); }
-.alumno-card.expanded { border-color: var(--fich-primary); background: var(--fich-bg-subtle); }
-
-.alumno-header {
+/* ===== Tablero de notas ===== */
+.matriz-meta-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 18px;
-  gap: 16px;
-}
-
-.alumno-info {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
-}
-
-.avatar-sm {
-  width: 34px;
-  height: 34px;
-  border-radius: 8px;
-  background: linear-gradient(135deg, var(--fich-feature-edicion), var(--fich-feature-edicion-light));
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 0.72rem;
-  flex-shrink: 0;
-}
-
-.alumno-text { display: flex; flex-direction: column; }
-.alumno-nombre { font-weight: 600; color: var(--fich-text); font-size: 0.88rem; }
-.alumno-ci { font-size: 0.75rem; color: var(--fich-text-muted); }
-
-.alumno-actions {
-  display: flex;
-  align-items: center;
   gap: 12px;
-  flex-shrink: 0;
+  margin: 0 4px 10px;
 }
 
-.prom-badge {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 1px;
-  padding-right: 12px;
-  border-right: 1px solid var(--fich-border-light);
-}
-
-.prom-label {
-  font-size: 0.68rem;
+.matriz-meta {
+  font-size: 0.78rem;
+  font-weight: 600;
   color: var(--fich-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
 }
 
-.prom-value {
-  font-size: 0.92rem;
-  font-weight: 700;
-  color: var(--fich-text);
-}
-
-.register-btn {
-  height: 32px !important;
-  font-size: 0.78rem !important;
-  border-radius: 6px !important;
-}
-
-.register-btn mat-icon { font-size: 16px; margin-right: 2px; }
-
-.expand-icon { color: var(--fich-text-muted); transition: transform 0.2s; }
-.expand-icon.rotated { transform: rotate(180deg); }
-
-.detail-panel {
-  padding: 0 18px 16px;
-  border-top: 1px solid var(--fich-border-light);
-}
-
-.no-notas {
+.matriz-leyenda {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 24px;
+  gap: 14px;
+  font-size: 0.7rem;
   color: var(--fich-text-muted);
-  font-size: 0.85rem;
 }
 
-.no-notas mat-icon { opacity: 0.3; }
-
-.notas-table { margin-top: 12px; }
-
-.notas-header, .notas-row {
-  display: grid;
-  grid-template-columns: 40px 1fr 80px 120px 100px 50px;
-  gap: 8px;
-  padding: 8px 12px;
+.leyenda-item {
+  display: inline-flex;
   align-items: center;
+  gap: 5px;
+}
+
+.leyenda-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex: 0 0 auto;
+}
+
+.leyenda-dot.cal-abandono { background: #94a3b8; }
+.leyenda-dot.cal-insuficiente { background: #dc2626; }
+.leyenda-dot.cal-suficiente { background: #d97706; }
+.leyenda-dot.cal-bueno { background: #0284c7; }
+.leyenda-dot.cal-distinguido { background: #059669; }
+.leyenda-dot.cal-sobresaliente { background: #4338ca; }
+
+.matriz-scroll {
+  overflow-x: auto;
+  border-radius: 18px;
+  border: 1px solid var(--fich-border-light);
+  background:
+    radial-gradient(900px 160px at 50% -60px, rgba(147, 51, 234, 0.06), transparent 70%),
+    linear-gradient(180deg, #fbfcff, var(--fich-bg-card) 220px);
+  box-shadow: var(--fich-shadow-sm);
+}
+
+.matriz {
+  width: 100%;
+  min-width: 780px;
+  table-layout: fixed;
+  border-collapse: separate;
+  border-spacing: 0;
   font-size: 0.82rem;
 }
 
-.notas-header {
-  font-weight: 600;
-  color: var(--fich-text-muted);
+/* ----- Cabeceras ----- */
+.matriz thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.matriz thead th.col-alumno {
+  left: 0;
+  z-index: 3;
+  text-align: left;
+  background: var(--fich-bg-card);
+  padding: 14px 0 14px 18px;
+  vertical-align: middle;
+}
+
+.th-alumno-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.7rem;
+  font-weight: 700;
   text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--fich-text-muted);
+}
+
+.th-alumno-icon {
+  font-size: 15px;
+  width: 15px;
+  height: 15px;
+  color: var(--fich-feature-notas);
+}
+
+/* Fila de agrupación "Número de módulo" */
+.thead-group th {
+  padding: 10px 10px 4px;
+}
+
+.th-mod-group {
+  background: linear-gradient(180deg, #fbfaff, rgba(251, 250, 255, 0));
+}
+
+.th-mod-group-inner {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
   font-size: 0.68rem;
-  letter-spacing: 0.04em;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--fich-text-muted);
+}
+
+.th-mod-group-line {
+  display: inline-block;
+  width: 30px;
+  height: 1px;
+}
+
+.th-mod-group-line:first-child {
+  background: linear-gradient(90deg, transparent, var(--fich-border));
+}
+
+.th-mod-group-line:last-child {
+  background: linear-gradient(90deg, var(--fich-border), transparent);
+}
+
+/* Fila de números */
+.thead-nums th {
+  padding: 4px 10px 14px;
   border-bottom: 1px solid var(--fich-border-light);
 }
 
-.notas-row { border-bottom: 1px solid var(--fich-border-light); }
-.notas-row:last-child { border-bottom: none; }
+.th-chip { display: inline-flex; }
 
-.col-orden { color: var(--fich-text-muted); text-align: center; }
-.col-modulo { color: var(--fich-text); font-weight: 500; }
-.col-nota { font-weight: 700; text-align: center; }
-.col-calificacion { font-weight: 500; text-transform: capitalize; font-size: 0.78rem; }
-.col-fecha { color: var(--fich-text-muted); font-size: 0.78rem; }
-.col-acciones { text-align: center; }
+.th-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--fich-feature-notas-light);
+  border: 1px solid #f3e8ff;
+  color: var(--fich-feature-notas);
+  font-weight: 800;
+  font-size: 0.78rem;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
 
-.cal-abandono { color: var(--fich-text-muted); }
-.cal-insuficiente { color: var(--fich-danger); }
-.cal-suficiente { color: var(--fich-warning); }
-.cal-bueno { color: var(--fich-info); }
-.cal-distinguido { color: var(--fich-success); }
-.cal-sobresaliente { color: var(--fich-primary); }
+.matriz thead th.col-mod:hover .th-num {
+  transform: scale(1.12);
+  box-shadow: var(--fich-shadow-sm);
+}
 
-.action-icon { width: 28px !important; height: 28px !important; }
-.action-icon mat-icon { font-size: 16px; width: 16px; height: 16px; }
-.action-icon.edit { color: var(--fich-primary); }
+.th-prom-chip {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 14px;
+  border-radius: var(--fich-radius-full);
+  background: linear-gradient(135deg, #a855f7, #7c3aed);
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  box-shadow: var(--fich-shadow-sm);
+}
 
-/* Retirados section */
+/* ----- Celdas ----- */
+.matriz tbody td {
+  padding: 11px 10px;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: middle;
+  border-bottom: 1px solid #e9edf4;
+  transition: background 0.15s ease;
+}
+
+.matriz tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Columna Alumno fija con desvanecido en su borde derecho */
+.matriz thead th.col-alumno,
+.matriz tbody td.col-alumno {
+  position: sticky;
+  left: 0;
+  background: var(--fich-bg-card);
+}
+
+.matriz tbody td.col-alumno {
+  z-index: 1;
+}
+
+.matriz thead th.col-alumno::after,
+.matriz tbody td.col-alumno::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 8px;
+  background: linear-gradient(to right, rgba(100, 116, 139, 0.14), transparent);
+  pointer-events: none;
+}
+
+.alumno-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+}
+
+.alumno-avatar {
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #faf5ff, #f3e8ff);
+  border: 1px solid #f3e8ff;
+  color: var(--fich-feature-notas);
+  font-weight: 800;
+  font-size: 0.7rem;
+}
+
+.alumno-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.alumno-nombre {
+  font-weight: 600;
+  color: var(--fich-text);
+  font-size: 0.84rem;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.alumno-ci {
+  font-size: 0.72rem;
+  color: var(--fich-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ----- Burbujas de nota ----- */
+.nota-bubble {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 42px;
+  height: 30px;
+  padding: 0 12px;
+  border-radius: var(--fich-radius-full);
+  font-weight: 700;
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+  border: 1px solid transparent;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.matriz tbody tr:hover .nota-bubble {
+  transform: scale(1.08);
+  border-color: currentColor;
+  box-shadow: var(--fich-shadow-sm);
+}
+
+.nota-bubble-vacia {
+  border: 1px dashed var(--fich-border);
+  color: var(--fich-text-muted);
+  font-weight: 600;
+  background: transparent;
+}
+
+/* ----- Anillo de promedio ----- */
+.prom-ring {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+.prom-ring::before {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  background: var(--fich-bg-card);
+  border-radius: 50%;
+}
+
+.prom-num {
+  position: relative;
+  z-index: 1;
+  font-weight: 800;
+  font-size: 0.76rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.prom-ring-vacia {
+  background: var(--fich-border-light);
+}
+
+.prom-ring-vacia::before {
+  background: var(--fich-bg-subtle);
+}
+
+.prom-ring-vacia .prom-num {
+  color: var(--fich-text-muted);
+}
+
+.prom-wrap {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.prom-clasif {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: var(--fich-radius-full);
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: capitalize;
+  line-height: 1.2;
+  white-space: nowrap;
+  border: 1px solid transparent;
+}
+
+/* ----- Clasificación (burbujas + anillos) ----- */
+.cal-abandono { --prom-color: #94a3b8; background: #f1f5f9; color: #64748b; }
+.cal-insuficiente { --prom-color: #dc2626; background: #fef2f2; color: #b91c1c; }
+.cal-suficiente { --prom-color: #d97706; background: #fffbeb; color: #b45309; }
+.cal-bueno { --prom-color: #0284c7; background: #eff6ff; color: #0369a1; }
+.cal-distinguido { --prom-color: #059669; background: #ecfdf5; color: #047857; }
+.cal-sobresaliente { --prom-color: #4338ca; background: #eef2ff; color: #4338ca; }
+
+/* Hover de fila: se pinta toda la fila, incluida la columna Alumno */
+.matriz tbody tr:hover td {
+  background: var(--fich-bg-subtle);
+}
+
+/* ----- Retirados ----- */
+.row-retirado td {
+  opacity: 0.55;
+}
+
+.row-retirado:hover td {
+  opacity: 1;
+}
+
+.row-retirado .nota-bubble,
+.row-retirado .prom-ring {
+  filter: saturate(0.2);
+}
+
+.row-retirado .alumno-avatar {
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+  color: #64748b;
+}
+
+.row-retirado .alumno-nombre {
+  text-decoration: line-through;
+  text-decoration-color: #cbd5e1;
+}
+
 .retirados-section {
-  margin-top: 8px;
+  margin-top: 12px;
 }
 
 .retirados-toggle {
@@ -239,21 +479,6 @@
   transform: rotate(180deg);
 }
 
-.retirados-list {
+.retirados-section .matriz-scroll {
   margin-top: 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.alumno-card.retired {
-  opacity: 0.65;
-}
-
-.alumno-card.retired:hover {
-  opacity: 1;
-}
-
-.avatar-retired {
-  background: linear-gradient(135deg, var(--fich-text-muted), var(--fich-text-faint)) !important;
 }

@@ -6,7 +6,7 @@
       </button>
       <div>
         <h1><mat-icon>payments</mat-icon> Pagos por Edición</h1>
-        <p class="subtitle">Gestión de pagos de los postulantes</p>
+        <p class="subtitle">Planilla de cuotas y aportes de los alumnos</p>
       </div>
     </div>
     <div class="header-right">
@@ -28,89 +28,198 @@
     @if (alumnos().length === 0) {
       <div class="empty-state">
         <mat-icon>payments</mat-icon>
-        <h4>No hay postulantes en esta edición</h4>
+        <h4>No hay alumnos en esta edición</h4>
         <p>Los pagos se registran cuando los alumnos realizan sus aportes</p>
       </div>
     } @else {
-      <div class="alumnos-list">
-        @for (a of alumnosOrdenados(); track a.id_detalle_programa_alumno) {
-          <div class="alumno-card" [class.expanded]="expandedId() === a.id_detalle_programa_alumno"
-               (click)="toggleExpand(a)">
-            <div class="alumno-header">
-              <div class="alumno-info">
-                <div class="avatar-sm">{{ iniciales(a) }}</div>
-                <div class="alumno-text">
-                  <span class="alumno-nombre">{{ a.alumno?.nombre }} {{ a.alumno?.apellido }}</span>
-                  <span class="alumno-ci">CI: {{ a.alumno?.ci || '—' }}</span>
-                </div>
-              </div>
-              <div class="alumno-actions">
-                <div class="total-badge" [class.complete]="a.total_pagado > 0">
-                  <span class="total-label">Total pagado</span>
-                  <span class="total-value">{{ a.total_pagado | number:'1.2-2' }} Bs.</span>
-                </div>
-                <button mat-flat-button color="primary" class="register-btn"
-                        (click)="registrarPago(a, $event)">
-                  <mat-icon>add</mat-icon> Registrar Pago
-                </button>
-                <mat-icon class="expand-icon" [class.rotated]="expandedId() === a.id_detalle_programa_alumno">
-                  expand_more
-                </mat-icon>
-              </div>
-            </div>
+      <div class="matriz-meta-row">
+        <span class="matriz-meta">
+          {{ modulos().length }} cuotas · {{ activos().length }} alumnos · Matrícula {{ fmt(matriculaEdicion()) }} Bs
+        </span>
+        <span class="matriz-leyenda">
+          <span class="leyenda-item"><i class="leyenda-dot pago-full"></i> Pagado</span>
+          <span class="leyenda-item"><i class="leyenda-dot pago-parcial"></i> Parcial</span>
+          <span class="leyenda-item"><i class="leyenda-dot pago-vacio"></i> Pendiente</span>
+        </span>
+      </div>
 
-            @if (expandedId() === a.id_detalle_programa_alumno) {
-              <div class="detail-panel">
-                @if (a.pagos.length === 0) {
-                  <div class="no-pagos">
-                    <mat-icon>receipt_long</mat-icon>
-                    <span>Sin pagos registrados</span>
-                  </div>
-                } @else {
-                  <div class="pagos-table">
-                    <div class="pagos-header">
-                      <span class="col-fecha">Fecha</span>
-                      <span class="col-concepto">Concepto</span>
-                      <span class="col-monto">Monto</span>
-                      <span class="col-referencia">Referencia</span>
-                      <span class="col-estado">Estado</span>
-                      <span class="col-acciones">Acciones</span>
-                    </div>
-                    @for (pago of a.pagos; track pago.id_pago) {
-                      <div class="pagos-row">
-                        <span class="col-fecha">{{ pago.fecha_pago }}</span>
-                        <span class="col-concepto">{{ pago.concepto }}</span>
-                        <span class="col-monto">{{ pago.monto | number:'1.2-2' }} Bs.</span>
-                        <span class="col-referencia">{{ pago.numero_referencia || '—' }}</span>
-                        <span class="col-estado">
-                          <span class="estado-pill" [class]="estadoClass(pago.estado)">
-                            {{ estadoLabel(pago.estado) }}
+      <div class="matriz-scroll" #matrizWrap>
+        <table class="matriz">
+          <thead>
+            <tr class="thead-group">
+              <th class="col-alumno" rowspan="2" [style.width]="alumnoWidth()">
+                <span class="th-alumno-label">
+                  <mat-icon class="th-alumno-icon">person_outline</mat-icon>
+                  Alumno
+                </span>
+              </th>
+              <th [attr.colspan]="modulos().length" class="th-mod-group">
+                <span class="th-mod-group-inner">
+                  <span class="th-mod-group-line"></span>
+                  Cuotas por módulo
+                  <span class="th-mod-group-line"></span>
+                </span>
+              </th>
+              <th class="col-matricula" rowspan="2">
+                <span class="th-matricula-chip">Matrícula</span>
+              </th>
+              <th class="col-total" rowspan="2">
+                <span class="th-prom-chip">Total</span>
+              </th>
+            </tr>
+            <tr class="thead-nums">
+              @for (m of modulos(); track m.id_detalle_programa_modulo) {
+                <th class="col-mod" [matTooltip]="'Cuota ' + m.orden + ' — ' + m.nombre" [matTooltipPosition]="'above'">
+                  <span class="th-chip"><span class="th-num">{{ m.orden }}</span></span>
+                </th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            @for (a of activos(); track a.id_detalle_programa_alumno) {
+              <tr>
+                <td class="col-alumno" [style.width]="alumnoWidth()">
+                  <span class="alumno-cell">
+                    <span class="alumno-avatar">{{ iniciales(a) }}</span>
+                    <span class="alumno-info">
+                      <span class="alumno-nombre" [matTooltip]="nombreAlumno(a)" [matTooltipPosition]="'above'">{{ nombreAlumno(a) }}</span>
+                      <span class="alumno-ci">CI: {{ a.alumno?.ci || '—' }}</span>
+                    </span>
+                  </span>
+                </td>
+                @for (m of modulos(); track m.id_detalle_programa_modulo) {
+                  <td class="col-mod">
+                    @if (cuotaDe(a, m.id_detalle_programa_modulo); as cuota) {
+                      <span class="pago-cell">
+                        <span class="pago-bubble" [class]="bubbleClass(cuota.pagado, cuota.esperado)"
+                              [matTooltip]="bubbleTooltip(cuota)">
+                          {{ fmt(cuota.pagado) }}
+                        </span>
+                        <span class="pago-track">
+                          <span class="pago-track-fill" [class.parcial]="cuota.pct > 0 && cuota.pct < 100"
+                                [style.width.%]="pctClamped(cuota.pagado, cuota.esperado)"></span>
+                        </span>
+                      </span>
+                    } @else {
+                      <span class="pago-cell">
+                        <span class="pago-bubble pago-bubble-vacia" matTooltip="Cuota sin definir">—</span>
+                        <span class="pago-track"></span>
+                      </span>
+                    }
+                  </td>
+                }
+                <td class="col-matricula">
+                  <span class="pago-cell">
+                    <span class="pago-bubble" [class]="bubbleClass(a.matricula.pagado, a.matricula.esperado)"
+                          [matTooltip]="matriculaTooltip(a)">
+                      {{ fmt(a.matricula.pagado) }}
+                    </span>
+                    <span class="pago-track">
+                      <span class="pago-track-fill" [class.parcial]="a.matricula.pct > 0 && a.matricula.pct < 100"
+                            [style.width.%]="pctClamped(a.matricula.pagado, a.matricula.esperado)"></span>
+                    </span>
+                  </span>
+                </td>
+                <td class="col-total">
+                  <span class="total-wrap">
+                    <span class="total-main">
+                      <span class="prom-ring" [class.prom-ring-verde]="a.pct_total >= 100" [style.background]="ringBg(a)"
+                            [matTooltip]="totalTooltip(a)">
+                        <span class="prom-num">{{ pctTotal(a) }}%</span>
+                      </span>
+                      <button mat-icon-button class="register-btn" matTooltip="Registrar cuota"
+                              (click)="registrarCuota(a, $event)">
+                        <mat-icon>add</mat-icon>
+                      </button>
+                    </span>
+                  </span>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      @if (retirados().length > 0) {
+        <div class="retirados-section">
+          <button class="retirados-toggle" (click)="showRetirados.set(!showRetirados())">
+            <mat-icon class="toggle-chevron" [class.rotated]="showRetirados()">expand_more</mat-icon>
+            <span>Retirados ({{ retirados().length }})</span>
+          </button>
+          @if (showRetirados()) {
+            <div class="matriz-scroll">
+              <table class="matriz">
+                <thead>
+                  <tr>
+                    <th class="col-alumno" [style.width]="alumnoWidth()"><span class="th-alumno-label">Alumno</span></th>
+                    @for (m of modulos(); track m.id_detalle_programa_modulo) {
+                      <th class="col-mod" [matTooltip]="'Cuota ' + m.orden + ' — ' + m.nombre" [matTooltipPosition]="'above'">
+                        <span class="th-chip"><span class="th-num">{{ m.orden }}</span></span>
+                      </th>
+                    }
+                    <th class="col-matricula"><span class="th-matricula-chip">Matrícula</span></th>
+                    <th class="col-total"><span class="th-prom-chip">Total</span></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (a of retirados(); track a.id_detalle_programa_alumno) {
+                    <tr class="row-retirado">
+                      <td class="col-alumno" [style.width]="alumnoWidth()">
+                        <span class="alumno-cell">
+                          <span class="alumno-avatar">{{ iniciales(a) }}</span>
+                          <span class="alumno-info">
+                            <span class="alumno-nombre">{{ nombreAlumno(a) }}</span>
+                            <span class="alumno-ci">CI: {{ a.alumno?.ci || '—' }}</span>
                           </span>
                         </span>
-                        <span class="col-acciones">
-                          @if (pago.estado === 'pendiente') {
-                            <button mat-icon-button matTooltip="Confirmar" (click)="confirmarPago(pago, $event)" class="action-icon confirm">
-                              <mat-icon>check_circle</mat-icon>
-                            </button>
-                            <button mat-icon-button matTooltip="Rechazar" (click)="rechazarPago(pago, $event)" class="action-icon reject">
-                              <mat-icon>cancel</mat-icon>
-                            </button>
+                      </td>
+                      @for (m of modulos(); track m.id_detalle_programa_modulo) {
+                        <td class="col-mod">
+                          @if (cuotaDe(a, m.id_detalle_programa_modulo); as cuota) {
+                            <span class="pago-cell">
+                              <span class="pago-bubble" [class]="bubbleClass(cuota.pagado, cuota.esperado)"
+                                    [matTooltip]="bubbleTooltip(cuota)">
+                                {{ fmt(cuota.pagado) }}
+                              </span>
+                              <span class="pago-track">
+                                <span class="pago-track-fill" [class.parcial]="cuota.pct > 0 && cuota.pct < 100"
+                                      [style.width.%]="pctClamped(cuota.pagado, cuota.esperado)"></span>
+                              </span>
+                            </span>
+                          } @else {
+                            <span class="pago-cell">
+                              <span class="pago-bubble pago-bubble-vacia" matTooltip="Cuota sin definir">—</span>
+                              <span class="pago-track"></span>
+                            </span>
                           }
-                          @if (pago.comprobante_url) {
-                            <button mat-icon-button matTooltip="Ver comprobante" (click)="verComprobante(pago.comprobante_url, $event)" class="action-icon">
-                              <mat-icon>visibility</mat-icon>
-                            </button>
-                          }
+                        </td>
+                      }
+                      <td class="col-matricula">
+                        <span class="pago-cell">
+                          <span class="pago-bubble" [class]="bubbleClass(a.matricula.pagado, a.matricula.esperado)"
+                                [matTooltip]="matriculaTooltip(a)">
+                            {{ fmt(a.matricula.pagado) }}
+                          </span>
+                          <span class="pago-track">
+                            <span class="pago-track-fill" [class.parcial]="a.matricula.pct > 0 && a.matricula.pct < 100"
+                                  [style.width.%]="pctClamped(a.matricula.pagado, a.matricula.esperado)"></span>
+                          </span>
                         </span>
-                      </div>
-                    }
-                  </div>
-                }
-              </div>
-            }
-          </div>
-        }
-      </div>
+                      </td>
+                      <td class="col-total">
+                        <span class="prom-ring" [class.prom-ring-verde]="a.pct_total >= 100" [style.background]="ringBg(a)"
+                              [matTooltip]="totalTooltip(a)">
+                          <span class="prom-num">{{ pctTotal(a) }}%</span>
+                        </span>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </div>
+      }
     }
   }
 </div>

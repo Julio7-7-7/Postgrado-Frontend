@@ -1,21 +1,52 @@
 <h2 mat-dialog-title>
-  <mat-icon>add_card</mat-icon> Registrar Pago
+  <mat-icon>add_card</mat-icon> Registrar cuota
 </h2>
 
 <div mat-dialog-content>
   <p class="dialog-subtitle">
-    {{ data.alumno?.nombre }} {{ data.alumno?.apellido }}
+    {{ data.alumno.alumno?.nombre }} {{ data.alumno.alumno?.apellido }}
   </p>
 
+  <div class="alumno-resumen">
+    <span class="resumen-chip">Total pagado: <b>{{ fmt(data.alumno.total_pagado) }} Bs</b></span>
+    <span class="resumen-chip">Total: <b>{{ fmt(data.alumno.total_esperado) }} Bs</b></span>
+    @if (data.alumno.descuento_aplicado > 0) {
+      <span class="resumen-chip descuento">{{ data.alumno.descuento_aplicado }}% desc.</span>
+    }
+    @if (!data.alumno.beca_activa && data.alumno.beca_motivo) {
+      <span class="resumen-chip beca-perdida" [matTooltip]="data.alumno.beca_motivo">Beca perdida</span>
+    }
+  </div>
+
   <mat-form-field appearance="outline" class="full-width">
-    <mat-label>Concepto</mat-label>
-    <input matInput [(ngModel)]="concepto" placeholder="Ej: Matrícula, Cuota 1, Cuota 2...">
+    <mat-label>Destino del pago</mat-label>
+    <mat-select [value]="target()" (selectionChange)="onTargetChange($event.value)">
+      <mat-option [value]="null">{{ opcionLabel(null) }}</mat-option>
+      @for (m of modulosOrdenados(); track m.id_detalle_programa_modulo) {
+        <mat-option [value]="m.id_detalle_programa_modulo">{{ opcionLabel(m.id_detalle_programa_modulo) }}</mat-option>
+      }
+    </mat-select>
   </mat-form-field>
 
   <mat-form-field appearance="outline" class="full-width">
     <mat-label>Monto (Bs.)</mat-label>
-    <input matInput type="number" [(ngModel)]="monto" min="0.01" step="0.01">
+    <input matInput type="number" [ngModel]="monto()" (ngModelChange)="monto.set($event)" min="0.01" step="0.01">
   </mat-form-field>
+
+  @if (preview().length > 0) {
+    <div class="preview-box">
+      <div class="preview-title">Reparto automático</div>
+      @for (item of preview(); track $index) {
+        <div class="preview-row" [class.preview-overflow]="item.esUltimo">
+          <span class="preview-label">{{ item.label }}</span>
+          <span class="preview-monto">{{ fmt(item.monto) }} Bs</span>
+        </div>
+      }
+      <p class="preview-note">
+        El saldo se asigna a la cuota pendiente más próxima. El excedente se acumula en la última cuota.
+      </p>
+    </div>
+  }
 
   <mat-form-field appearance="outline" class="full-width">
     <mat-label>Fecha de pago</mat-label>

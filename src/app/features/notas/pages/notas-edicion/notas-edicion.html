@@ -6,7 +6,7 @@
       </button>
       <div>
         <h1><mat-icon>grading</mat-icon> Notas por Edición</h1>
-        <p class="subtitle">Gestión de notas de los alumnos</p>
+        <p class="subtitle">Planilla de calificaciones de los alumnos</p>
       </div>
     </div>
     <div class="header-right">
@@ -25,90 +25,156 @@
       <span>Cargando notas...</span>
     </div>
   } @else {
-    @if (activos().length === 0 && retirados().length === 0) {
+    @if (alumnos().length === 0) {
       <div class="empty-state">
         <mat-icon>grading</mat-icon>
         <h4>No hay alumnos en esta edición</h4>
         <p>Las notas se registran cuando los alumnos rinden evaluaciones</p>
       </div>
     } @else {
-      <div class="alumnos-list">
-        @for (a of activos(); track a.id_detalle_programa_alumno) {
-          <ng-container *ngTemplateOutlet="alumnoCardTpl; context: { $implicit: a, isRetirado: false }"></ng-container>
-        }
-
-        @if (retirados().length > 0) {
-          <div class="retirados-section">
-            <button class="retirados-toggle" (click)="showRetirados.set(!showRetirados())">
-              <mat-icon class="toggle-chevron" [class.rotated]="showRetirados()">expand_more</mat-icon>
-              <span>Retirados ({{ retirados().length }})</span>
-            </button>
-            @if (showRetirados()) {
-              <div class="retirados-list">
-                @for (a of retirados(); track a.id_detalle_programa_alumno) {
-                  <ng-container *ngTemplateOutlet="alumnoCardTpl; context: { $implicit: a, isRetirado: true }"></ng-container>
-                }
-              </div>
-            }
-          </div>
-        }
+      <div class="matriz-meta-row">
+        <span class="matriz-meta">{{ modulos().length }} módulos · {{ activos().length }} alumnos</span>
+        <span class="matriz-leyenda">
+          <span class="leyenda-item"><i class="leyenda-dot cal-sobresaliente"></i> Sobre.</span>
+          <span class="leyenda-item"><i class="leyenda-dot cal-distinguido"></i> Dist.</span>
+          <span class="leyenda-item"><i class="leyenda-dot cal-bueno"></i> Bueno</span>
+          <span class="leyenda-item"><i class="leyenda-dot cal-suficiente"></i> Suf.</span>
+          <span class="leyenda-item"><i class="leyenda-dot cal-insuficiente"></i> Insuf.</span>
+        </span>
       </div>
+
+      <div class="matriz-scroll" #matrizWrap>
+        <table class="matriz">
+          <thead>
+            <tr class="thead-group">
+              <th class="col-alumno" rowspan="2" [style.width]="alumnoWidth()">
+                <span class="th-alumno-label">
+                  <mat-icon class="th-alumno-icon">person_outline</mat-icon>
+                  Alumno
+                </span>
+              </th>
+              <th [attr.colspan]="modulos().length" class="th-mod-group">
+                <span class="th-mod-group-inner">
+                  <span class="th-mod-group-line"></span>
+                  Número de módulo
+                  <span class="th-mod-group-line"></span>
+                </span>
+              </th>
+              <th class="col-prom-head" rowspan="2">
+                <span class="th-prom-chip">Prom</span>
+              </th>
+            </tr>
+            <tr class="thead-nums">
+              @for (m of modulos(); track m.id_detalle_programa_modulo) {
+                <th class="col-mod" [matTooltip]="'Módulo ' + m.orden + ' — ' + m.nombre" [matTooltipPosition]="'above'">
+                  <span class="th-chip"><span class="th-num">{{ m.orden }}</span></span>
+                </th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            @for (a of activos(); track a.id_detalle_programa_alumno) {
+              <tr>
+                <td class="col-alumno" [style.width]="alumnoWidth()">
+                  <span class="alumno-cell">
+                    <span class="alumno-avatar">{{ initials(a) }}</span>
+                    <span class="alumno-info">
+                      <span class="alumno-nombre" [matTooltip]="nombreAlumno(a)" [matTooltipPosition]="'above'">{{ nombreAlumno(a) }}</span>
+                      <span class="alumno-ci">CI: {{ a.alumno?.ci || '—' }}</span>
+                    </span>
+                  </span>
+                </td>
+                @for (m of modulos(); track m.id_detalle_programa_modulo) {
+                  <td class="col-mod" [matTooltip]="cellTooltip(a, m.id_detalle_programa_modulo)">
+                    @if (notaValor(a, m.id_detalle_programa_modulo) !== null) {
+                      <span class="nota-bubble" [class]="cellClass(a, m.id_detalle_programa_modulo)">
+                        {{ notaValor(a, m.id_detalle_programa_modulo) }}
+                      </span>
+                    } @else {
+                      <span class="nota-bubble nota-bubble-vacia">—</span>
+                    }
+                  </td>
+                }
+                <td class="col-prom" [matTooltip]="promedioValor(a) !== null ? 'Promedio general' : 'Sin notas'">
+                  @if (promedioValor(a) !== null) {
+                    <span class="prom-wrap">
+                      <span class="prom-ring" [class]="promedioClass(a)" [style.background]="promBg(a)">
+                        <span class="prom-num">{{ promedioValor(a) }}</span>
+                      </span>
+                      <span class="prom-clasif" [class]="promedioClass(a)">{{ promLabel(a) }}</span>
+                    </span>
+                  } @else {
+                    <span class="prom-ring prom-ring-vacia"><span class="prom-num">—</span></span>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      @if (retirados().length > 0) {
+        <div class="retirados-section">
+          <button class="retirados-toggle" (click)="showRetirados.set(!showRetirados())">
+            <mat-icon class="toggle-chevron" [class.rotated]="showRetirados()">expand_more</mat-icon>
+            <span>Retirados ({{ retirados().length }})</span>
+          </button>
+          @if (showRetirados()) {
+            <div class="matriz-scroll">
+              <table class="matriz">
+                <thead>
+                  <tr>
+                    <th class="col-alumno" [style.width]="alumnoWidth()"><span class="th-alumno-label">Alumno</span></th>
+                    @for (m of modulos(); track m.id_detalle_programa_modulo) {
+                      <th class="col-mod" [matTooltip]="'Módulo ' + m.orden + ' — ' + m.nombre" [matTooltipPosition]="'above'">
+                        <span class="th-chip"><span class="th-num">{{ m.orden }}</span></span>
+                      </th>
+                    }
+                    <th class="col-prom" [matTooltip]="'Promedio general'">
+                      <span class="th-prom-chip">Prom</span>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (a of retirados(); track a.id_detalle_programa_alumno) {
+                    <tr class="row-retirado">
+                      <td class="col-alumno" [style.width]="alumnoWidth()">
+                        <span class="alumno-cell">
+                          <span class="alumno-avatar">{{ initials(a) }}</span>
+                          <span class="alumno-info">
+                            <span class="alumno-nombre">{{ nombreAlumno(a) }}</span>
+                            <span class="alumno-ci">CI: {{ a.alumno?.ci || '—' }}</span>
+                          </span>
+                        </span>
+                      </td>
+                      @for (m of modulos(); track m.id_detalle_programa_modulo) {
+                        <td class="col-mod" [matTooltip]="cellTooltip(a, m.id_detalle_programa_modulo)">
+                          @if (notaValor(a, m.id_detalle_programa_modulo) !== null) {
+                            <span class="nota-bubble" [class]="cellClass(a, m.id_detalle_programa_modulo)">
+                              {{ notaValor(a, m.id_detalle_programa_modulo) }}
+                            </span>
+                          } @else {
+                            <span class="nota-bubble nota-bubble-vacia">—</span>
+                          }
+                        </td>
+                      }
+                      <td class="col-prom" [matTooltip]="promedioValor(a) !== null ? 'Promedio general' : 'Sin notas'">
+                        @if (promedioValor(a) !== null) {
+                          <span class="prom-ring" [class]="promedioClass(a)" [style.background]="promBg(a)">
+                            <span class="prom-num">{{ promedioValor(a) }}</span>
+                          </span>
+                        } @else {
+                          <span class="prom-ring prom-ring-vacia"><span class="prom-num">—</span></span>
+                        }
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </div>
+      }
     }
   }
 </div>
-
-<ng-template #alumnoCardTpl let-a let-isRetirado="isRetirado">
-  <div class="alumno-card" [class.retired]="isRetirado" [class.expanded]="expandedId() === a.id_detalle_programa_alumno"
-       (click)="toggleExpand(a)">
-    <div class="alumno-header">
-      <div class="alumno-info">
-        <div class="avatar-sm" [class.avatar-retired]="isRetirado">{{ iniciales(a) }}</div>
-        <div class="alumno-text">
-          <span class="alumno-nombre">{{ a.alumno?.nombre }} {{ a.alumno?.apellido }}</span>
-          <span class="alumno-ci">CI: {{ a.alumno?.ci || '—' }}</span>
-        </div>
-      </div>
-      <div class="alumno-actions">
-        @if (a.notas.length > 0) {
-          <div class="prom-badge" [class]="promedioClass(a.promedio)">
-            <span class="prom-label">Promedio</span>
-            <span class="prom-value">{{ a.promedio | number:'1.1-1' }}</span>
-          </div>
-        }
-        <mat-icon class="expand-icon" [class.rotated]="expandedId() === a.id_detalle_programa_alumno">
-          expand_more
-        </mat-icon>
-      </div>
-    </div>
-
-    @if (expandedId() === a.id_detalle_programa_alumno) {
-      <div class="detail-panel">
-        @if (a.notas.length === 0) {
-          <div class="no-notas">
-            <mat-icon>school</mat-icon>
-            <span>Sin notas registradas</span>
-          </div>
-        } @else {
-          <div class="notas-table">
-            <div class="notas-header">
-              <span class="col-orden">#</span>
-              <span class="col-modulo">Módulo</span>
-              <span class="col-nota">Nota</span>
-              <span class="col-calificacion">Clasificación</span>
-              <span class="col-fecha">Fecha</span>
-            </div>
-            @for (nota of a.notas; track nota.id_nota) {
-              <div class="notas-row">
-                <span class="col-orden">{{ nota.modulo_orden }}</span>
-                <span class="col-modulo">{{ nota.modulo_nombre }}</span>
-                <span class="col-nota" [class]="'cal-' + nota.calificacion">{{ nota.nota | number:'1.1-1' }}</span>
-                <span class="col-calificacion" [class]="'cal-' + nota.calificacion">{{ nota.calificacion }}</span>
-                <span class="col-fecha">{{ nota.fecha | date:'dd/MM/yyyy' }}</span>
-              </div>
-            }
-          </div>
-        }
-      </div>
-    }
-  </div>
-</ng-template>

@@ -115,6 +115,15 @@
               <mat-error>El precio no puede ser negativo</mat-error>
             }
           </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Matrícula (Bs)</mat-label>
+            <input matInput type="number" formControlName="matricula" placeholder="Ej: 200" min="0">
+            <mat-hint>Cuota aparte del precio del programa</mat-hint>
+            @if (form.get('matricula')?.hasError('min')) {
+              <mat-error>La matrícula no puede ser negativa</mat-error>
+            }
+          </mat-form-field>
         </div>
 
         <mat-form-field appearance="outline" class="full-width">

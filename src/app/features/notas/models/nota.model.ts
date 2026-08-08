@@ -47,6 +47,19 @@ export interface AlumnoNotas {
   promedio: number;
 }
 
+export interface ModuloNotaResumen {
+  id_detalle_programa_modulo: number;
+  nombre: string;
+  sigla: string;
+  orden: number;
+}
+
+export interface NotasEdicionData {
+  id_programa_version_edicion: number;
+  modulos: ModuloNotaResumen[];
+  alumnos: AlumnoNotas[];
+}
+
 export interface DocenteEdicionResumen {
   id_programa_version_edicion: number;
   edicion_numero: number;

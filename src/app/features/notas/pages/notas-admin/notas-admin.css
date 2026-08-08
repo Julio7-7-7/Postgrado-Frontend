@@ -53,38 +53,66 @@
   background: var(--fich-bg-card);
   border: 1px solid var(--fich-border-light);
   border-radius: 12px;
-  padding: 20px;
+  overflow: hidden;
   cursor: pointer;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition: all 0.2s ease;
   display: flex;
   flex-direction: column;
 }
 
 .edicion-card:hover {
   border-color: var(--fich-primary);
-  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.07);
+  transform: translateY(-2px);
 }
 
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 14px;
+.edicion-card:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
 }
 
-.card-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  background: var(--fich-primary-container, #eef2ff);
+.card-foto {
+  width: 100%;
+  height: 160px;
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  overflow: hidden;
+}
+
+.card-foto img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.card-foto-placeholder {
+  width: 100%;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
 }
 
-.card-icon mat-icon {
-  color: var(--fich-primary);
-  font-size: 22px;
+.card-foto-placeholder mat-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  color: #d97706;
+  opacity: 0.5;
+}
+
+.card-content {
+  padding: 14px 18px 18px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.card-top {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 4px;
 }
 
 .estado-chip {
@@ -100,10 +128,8 @@
 .estado-en_curso { background: #d1fae5; color: #065f46; }
 .estado-reprogramado { background: #fef3c7; color: #92400e; }
 
-.card-body { flex: 1; }
-
 .card-title {
-  margin: 0 0 10px;
+  margin: 0;
   font-size: 1rem;
   font-weight: 700;
   color: var(--fich-text);
@@ -113,6 +139,8 @@
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
+  margin-top: 6px;
+  margin-bottom: 12px;
 }
 
 .meta-tag {
@@ -128,16 +156,12 @@
 .meta-tag.gestion { background: #dbeafe; color: #1e40af; }
 .meta-tag.modalidad { background: #f0fdfa; color: #0d9488; }
 
-.card-footer {
-  margin-top: 16px;
-  display: flex;
-  justify-content: flex-end;
-}
-
 .action-btn {
+  width: 100%;
+  height: 38px;
   font-size: 0.82rem !important;
-  height: 34px !important;
   border-radius: 8px !important;
+  margin-top: auto;
 }
 
 .action-btn mat-icon {

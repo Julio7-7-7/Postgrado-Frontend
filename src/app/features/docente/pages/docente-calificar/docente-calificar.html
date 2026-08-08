@@ -75,34 +75,41 @@
         <p>Los alumnos aparecerán cuando se inscriban en esta edición</p>
       </div>
     } @else {
-      <div class="table-wrapper mat-elevation-z1">
+      <div class="matriz-meta-row">
+        <span class="matriz-leyenda">
+          <span class="leyenda-item"><i class="leyenda-dot cal-sobresaliente"></i> Sobre.</span>
+          <span class="leyenda-item"><i class="leyenda-dot cal-distinguido"></i> Dist.</span>
+          <span class="leyenda-item"><i class="leyenda-dot cal-bueno"></i> Bueno</span>
+          <span class="leyenda-item"><i class="leyenda-dot cal-suficiente"></i> Suf.</span>
+          <span class="leyenda-item"><i class="leyenda-dot cal-insuficiente"></i> Insuf.</span>
+          <span class="leyenda-item"><i class="leyenda-dot cal-abandono"></i> Aband.</span>
+        </span>
+      </div>
+
+      <div class="table-wrapper mat-elevation-z1" #tablaWrap>
         <table mat-table [dataSource]="alumnosOrdenados()" [trackBy]="trackByDpa" class="fich-table calificar-table">
 
           <ng-container matColumnDef="alumno">
-            <th mat-header-cell *matHeaderCellDef>
+            <th mat-header-cell *matHeaderCellDef [style.width]="alumnoWidth()">
               <button class="sort-btn" (click)="onSort()">
                 Alumno <mat-icon>{{ sortIcon() }}</mat-icon>
               </button>
             </th>
-            <td mat-cell *matCellDef="let a">
+            <td mat-cell *matCellDef="let a" [style.width]="alumnoWidth()">
               <div class="cell-alumno">
                 <div class="avatar-sm">{{ iniciales(a) }}</div>
-                <span class="alumno-nombre">{{ a.alumno?.nombre }} {{ a.alumno?.apellido }}</span>
+                <div class="alumno-info">
+                  <span class="alumno-nombre">{{ a.alumno?.apellido }} {{ a.alumno?.nombre }}</span>
+                  <span class="alumno-ci">CI: {{ a.alumno?.ci || '—' }}</span>
+                </div>
               </div>
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="ci">
-            <th mat-header-cell *matHeaderCellDef>CI</th>
-            <td mat-cell *matCellDef="let a">
-              <span class="cell-mono">{{ a.alumno?.ci || '—' }}</span>
             </td>
           </ng-container>
 
           <ng-container matColumnDef="nota">
             <th mat-header-cell *matHeaderCellDef>Nota</th>
             <td mat-cell *matCellDef="let a">
-              <span class="nota-display">{{ notaDe(a) ?? '—' }}</span>
+              <span class="nota-bubble" [class]="calClase(a)">{{ notaDe(a) ?? '—' }}</span>
             </td>
           </ng-container>
 

@@ -73,6 +73,12 @@
             <span>Mi Perfil</span>
           </button>
         }
+        @if (hasMultipleRoles()) {
+          <button mat-menu-item (click)="cambiarRol()">
+            <mat-icon>swap_horiz</mat-icon>
+            <span>Cambiar de rol</span>
+          </button>
+        }
         <mat-divider></mat-divider>
         <button mat-menu-item (click)="logout()">
           <mat-icon>logout</mat-icon>

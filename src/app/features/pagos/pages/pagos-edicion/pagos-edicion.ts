@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, computed, inject, DestroyRef } from '@angular/core';
+import { Component, OnInit, signal, computed, inject, DestroyRef, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -9,10 +9,10 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { PagoService } from '../../services/pago.service';
-import { AlumnoPagos, PagoResponse } from '../../models/pago.model';
+import { AlumnoPagosMatrix, CuotaPagos, PagosEdicionData } from '../../models/pago.model';
 import { PagoRegisterDialog } from '../pago-register-dialog/pago-register-dialog';
-import { environment } from '../../../../../environments/environment';
 import { SortDir, sortItems } from '../../../../core/utils/sort-utils';
+import { maxTextWidth } from '../../../../core/utils/measure-text';
 
 @Component({
   selector: 'app-pagos-edicion',
@@ -33,16 +33,31 @@ export class PagosEdicionComponent implements OnInit {
   private dialog = inject(MatDialog);
   private destroyRef = inject(DestroyRef);
 
-  alumnos = signal<AlumnoPagos[]>([]);
+  @ViewChild('matrizWrap', { read: ElementRef }) private matrizWrap!: ElementRef<HTMLElement>;
+
+  data = signal<PagosEdicionData | null>(null);
   isLoading = signal(true);
-  expandedId = signal<number | null>(null);
+  showRetirados = signal(false);
   idEdicion = 0;
-  apiUrl = environment.apiUrl;
+  alumnoWidth = signal('auto');
+
   nombreDir = signal<SortDir>('asc');
 
-  alumnosOrdenados = computed(() =>
-    sortItems(this.alumnos(), a => `${a.alumno?.apellido || ''} ${a.alumno?.nombre || ''}`, this.nombreDir())
-  );
+  matriculaEdicion = computed(() => this.data()?.matricula ?? 0);
+
+  modulos = computed(() => {
+    const mods = this.data()?.modulos ?? [];
+    return [...mods].sort((a, b) => a.orden - b.orden);
+  });
+
+  alumnos = computed(() => this.data()?.alumnos ?? []);
+
+  activos = computed(() => this.sortAlumnos(this.alumnos().filter(a => a.estado !== 'retirado')));
+  retirados = computed(() => this.sortAlumnos(this.alumnos().filter(a => a.estado === 'retirado')));
+
+  sortAlumnos(items: AlumnoPagosMatrix[]): AlumnoPagosMatrix[] {
+    return sortItems(items, a => `${a.alumno?.apellido || ''} ${a.alumno?.nombre || ''}`, this.nombreDir());
+  }
 
   toggleOrden(): void {
     this.nombreDir.set(this.nombreDir() === 'asc' ? 'desc' : 'asc');
@@ -61,8 +76,9 @@ export class PagosEdicionComponent implements OnInit {
     this.isLoading.set(true);
     this.service.getPagosPorEdicion(this.idEdicion).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: data => {
-        this.alumnos.set(data);
+        this.data.set(data);
         this.isLoading.set(false);
+        requestAnimationFrame(() => this.medirColumnaAlumno());
       },
       error: () => {
         this.isLoading.set(false);
@@ -71,39 +87,101 @@ export class PagosEdicionComponent implements OnInit {
     });
   }
 
-  toggleExpand(a: AlumnoPagos): void {
-    const newId = this.expandedId() === a.id_detalle_programa_alumno ? null : a.id_detalle_programa_alumno;
-    this.expandedId.set(newId);
+  private medirColumnaAlumno(): void {
+    const el = this.matrizWrap?.nativeElement;
+    if (!el) return;
+    const max = maxTextWidth(Array.from(el.querySelectorAll<HTMLElement>('.alumno-nombre')));
+    if (max > 0) {
+      const AVATAR = 36, GAP = 10, PADDING = 20;
+      this.alumnoWidth.set(`${max + AVATAR + GAP + PADDING + 12}px`);
+    }
   }
 
-  iniciales(a: AlumnoPagos): string {
-    if (!a.alumno) return '??';
-    return (a.alumno.nombre[0] + a.alumno.apellido[0]).toUpperCase();
+  cuotaDe(a: AlumnoPagosMatrix, idDpm: number): CuotaPagos | undefined {
+    return a.cuotas.find(c => c.id_detalle_programa_modulo === idDpm);
   }
 
-  estadoClass(estado: string): string {
-    const map: Record<string, string> = {
-      pendiente: 'estado-pendiente',
-      confirmado: 'estado-confirmado',
-      rechazado: 'estado-rechazado',
-    };
-    return map[estado] || '';
+  bubbleClass(pagado: number, esperado: number): string {
+    if (esperado <= 0) return 'pago-bubble-vacia';
+    const pct = (pagado / esperado) * 100;
+    if (pagado <= 0) return 'pago-bubble-vacia';
+    if (pct > 100) return 'pago-bubble-sobre';
+    if (pct >= 100) return 'pago-bubble-full';
+    return 'pago-bubble-parcial';
   }
 
-  estadoLabel(estado: string): string {
-    const map: Record<string, string> = {
-      pendiente: 'Pendiente',
-      confirmado: 'Confirmado',
-      rechazado: 'Rechazado',
-    };
-    return map[estado] || estado;
+  pctClamped(pagado: number, esperado: number): number {
+    if (esperado <= 0 || pagado <= 0) return 0;
+    return Math.min(100, Math.round((pagado / esperado) * 100));
   }
 
-  registrarPago(a: AlumnoPagos, event: MouseEvent): void {
+  sobrePagado(pagado: number, esperado: number): boolean {
+    return esperado > 0 && pagado > esperado;
+  }
+
+  private conSaldo(t: string, pagado: number, esperado: number): string {
+    if (this.sobrePagado(pagado, esperado)) {
+      return `${t}\nSaldo a favor: ${this.fmt(pagado - esperado)} Bs`;
+    }
+    return t;
+  }
+
+  bubbleTooltip(c: CuotaPagos): string {
+    return this.conSaldo(this.entryTooltip(`Cuota ${c.orden} — ${c.nombre}`, c.esperado, c.pagado, c.pct, c.pagos), c.pagado, c.esperado);
+  }
+
+  matriculaTooltip(a: AlumnoPagosMatrix): string {
+    return this.conSaldo(this.entryTooltip('Matrícula', a.matricula.esperado, a.matricula.pagado, a.matricula.pct, a.matricula.pagos), a.matricula.pagado, a.matricula.esperado);
+  }
+
+  private entryTooltip(
+    titulo: string,
+    esperado: number,
+    pagado: number,
+    pct: number,
+    pagos: { monto: number; fecha_pago: string; estado: string; origen: { edicion: number; anio: number; semestre: number } | null }[],
+  ): string {
+    const lines = [
+      titulo,
+      `Pagado ${this.fmt(pagado)} de ${this.fmt(esperado)} Bs (${pct}%)`,
+    ];
+    for (const p of pagos) {
+      const fecha = p.fecha_pago ? new Date(p.fecha_pago).toLocaleDateString('es-AR') : '—';
+      let linea = `• ${this.fmt(p.monto)} Bs — ${fecha}`;
+      if (p.estado !== 'confirmado') linea += ` (${p.estado})`;
+      if (p.origen) linea += ` · desde Ed. ${p.origen.edicion} ${p.origen.anio}/${p.origen.semestre}`;
+      lines.push(linea);
+    }
+    return lines.join('\n');
+  }
+
+  pctTotal(a: AlumnoPagosMatrix): number {
+    return Math.round(a.pct_total);
+  }
+
+  ringBg(a: AlumnoPagosMatrix): string {
+    const p = Math.min(100, Math.round(a.pct_total));
+    return `conic-gradient(var(--prom-color) ${p}%, var(--fich-border) 0)`;
+  }
+
+  totalTooltip(a: AlumnoPagosMatrix): string {
+    return `Pagado ${this.fmt(a.total_pagado)} de ${this.fmt(a.total_esperado)} Bs (${this.pctTotal(a)}%)`;
+  }
+
+  fmt(n: number): string {
+    return Number(n || 0).toLocaleString('es-BO', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+  }
+
+  registrarCuota(a: AlumnoPagosMatrix, event: MouseEvent): void {
     event.stopPropagation();
     const dialogRef = this.dialog.open(PagoRegisterDialog, {
-      width: '480px',
-      data: { idDetalle: a.id_detalle_programa_alumno, alumno: a.alumno },
+      width: '520px',
+      data: {
+        alumno: a,
+        modulos: this.modulos(),
+        matricula: a.matricula.esperado,
+        precio: this.data()?.precio ?? 0,
+      },
     });
 
     dialogRef.afterClosed().subscribe(result => {
@@ -111,31 +189,14 @@ export class PagosEdicionComponent implements OnInit {
     });
   }
 
-  confirmarPago(pago: PagoResponse, event: MouseEvent): void {
-    event.stopPropagation();
-    this.service.update(pago.id_pago, { estado: 'confirmado' }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: () => {
-        this.cargarDatos();
-        this.snackbar.open('Pago confirmado', 'Cerrar', { duration: 1500 });
-      },
-      error: err => this.snackbar.open(err.error?.detail || 'Error', 'Cerrar', { duration: 3000 }),
-    });
+  iniciales(a: AlumnoPagosMatrix): string {
+    const ap = (a.alumno?.apellido || '').trim();
+    const nm = (a.alumno?.nombre || '').trim();
+    return `${ap.charAt(0)}${nm.charAt(0)}`.toUpperCase() || '—';
   }
 
-  rechazarPago(pago: PagoResponse, event: MouseEvent): void {
-    event.stopPropagation();
-    this.service.update(pago.id_pago, { estado: 'rechazado' }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: () => {
-        this.cargarDatos();
-        this.snackbar.open('Pago rechazado', 'Cerrar', { duration: 1500 });
-      },
-      error: err => this.snackbar.open(err.error?.detail || 'Error', 'Cerrar', { duration: 3000 }),
-    });
-  }
-
-  verComprobante(url: string, event: MouseEvent): void {
-    event.stopPropagation();
-    window.open(`${this.apiUrl}${url}`, '_blank');
+  nombreAlumno(a: AlumnoPagosMatrix): string {
+    return a.alumno ? `${a.alumno.apellido} ${a.alumno.nombre}` : 'Alumno sin datos';
   }
 
   volver(): void {
