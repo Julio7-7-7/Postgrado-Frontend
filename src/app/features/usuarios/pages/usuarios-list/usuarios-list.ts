@@ -4,7 +4,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatTableModule } from '@angular/material/table';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -23,7 +22,7 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
   imports: [
     CommonModule,
     MatButtonModule, MatIconModule, MatTooltipModule,
-    MatTableModule, MatProgressSpinnerModule,
+    MatProgressSpinnerModule,
     MatSnackBarModule, MatDialogModule,
   ],
   templateUrl: './usuarios-list.html',
@@ -40,7 +39,6 @@ export class UsuariosListComponent implements OnInit {
   roles = signal<RolResponse[]>([]);
   isLoading = signal(true);
   error = signal<string | null>(null);
-  columnas = ['email', 'profile', 'roles', 'activo', 'acciones'];
 
   page = signal(1);
   totalPages = signal(1);
@@ -101,7 +99,7 @@ export class UsuariosListComponent implements OnInit {
 
   abrirFormulario(): void {
     const dialogRef = this.dialog.open(UsuarioFormComponent, {
-      width: '520px',
+      width: '640px',
     });
     dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(result => {
       if (result) this.cargarDatos();
@@ -155,5 +153,53 @@ export class UsuariosListComponent implements OnInit {
           error: err => this.snackbar.open(err.error?.detail || 'Error', 'Cerrar', { duration: 4000 }),
         });
     });
+  }
+
+  nombrePrincipal(u: UserAdminResponse): string {
+    return u.perfiles[0]?.nombre ?? '';
+  }
+
+  iniciales(u: UserAdminResponse): string {
+    const nombre = this.nombrePrincipal(u);
+    if (!nombre) return '?';
+    const parts = nombre.trim().split(/\s+/).filter(Boolean);
+    if (parts.length === 0) return '?';
+    const a = parts[0][0];
+    const b = parts.length > 1 ? parts[parts.length - 1][0] : (parts[0][1] ?? '');
+    return (a + b).toUpperCase();
+  }
+
+  perfilClase(u: UserAdminResponse): string {
+    const t = u.perfiles[0]?.type;
+    if (t === 'alumno') return 'av-alumno';
+    if (t === 'docente') return 'av-docente';
+    if (t === 'administrativo') return 'av-admin';
+    return 'av-sin';
+  }
+
+  perfilLabel(u: UserAdminResponse): string {
+    const t = u.perfiles[0]?.type;
+    if (t === 'alumno') return 'Alumno';
+    if (t === 'docente') return 'Docente';
+    if (t === 'administrativo') return 'Administrativo';
+    return 'Sin perfil';
+  }
+
+  rolClase(rol: string): string {
+    if (rol === 'alumno') return 'rol-alumno';
+    if (rol === 'docente') return 'rol-docente';
+    if (rol.startsWith('adm_')) return 'rol-admin';
+    return 'rol-otro';
+  }
+
+  rolLabel(rol: string): string {
+    return rol.startsWith('adm_') ? rol.slice(4) : rol;
+  }
+
+  fechaAlta(iso: string): string {
+    if (!iso) return '—';
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return '—';
+    return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
   }
 }

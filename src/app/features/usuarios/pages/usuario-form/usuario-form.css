@@ -16,6 +16,10 @@
   flex-shrink: 0;
 }
 
+.header-icon.success {
+  background: linear-gradient(135deg, #059669, #10b981);
+}
+
 .header-icon mat-icon {
   font-size: 22px;
   width: 22px;
@@ -111,14 +115,18 @@ mat-dialog-content {
   background: #ecfeff;
 }
 
+.role-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex: 1;
+  min-width: 0;
+}
+
 .role-name {
   font-weight: 600;
   font-size: 0.88rem;
   color: #1e293b;
-}
-
-.role-sep {
-  color: #cbd5e1;
 }
 
 .role-desc {
@@ -132,4 +140,287 @@ mat-dialog-content {
 
 mat-dialog-actions button mat-spinner {
   display: inline-block;
+}
+
+/* ===== Wizard ===== */
+.wizard-stepper {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.wizard-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.step-circle {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #e2e8f0;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.step-circle mat-icon {
+  font-size: 15px;
+  width: 15px;
+  height: 15px;
+}
+
+.wizard-step.active .step-circle {
+  background: #0891b2;
+  color: white;
+}
+
+.wizard-step.done .step-circle {
+  background: #10b981;
+  color: white;
+}
+
+.step-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #94a3b8;
+}
+
+.wizard-step.active .step-label {
+  color: #0891b2;
+}
+
+.step-line {
+  width: 40px;
+  height: 2px;
+  background: #e2e8f0;
+  margin: 14px 6px 0;
+}
+
+.step-line.done {
+  background: #10b981;
+}
+
+/* ===== Tipo ===== */
+.tipo-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.tipo-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 18px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: center;
+}
+
+.tipo-card:hover {
+  transform: translateY(-1px);
+  border-color: #cbd5e1;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+}
+
+.tipo-card.selected {
+  border-width: 1.5px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+}
+
+.tipo-icon-wrap {
+  position: relative;
+  margin-bottom: 4px;
+}
+
+.tipo-icon {
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+}
+
+.tipo-check {
+  position: absolute;
+  top: -10px;
+  right: -14px;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  background: white;
+  border-radius: 50%;
+  color: #059669;
+}
+
+.tc-alumno .tipo-icon { color: #0891b2; }
+.tc-alumno.selected { border-color: #0891b2; background: #ecfeff; }
+
+.tc-docente .tipo-icon { color: #0d9488; }
+.tc-docente.selected { border-color: #0d9488; background: #f0fdfa; }
+
+.tc-administrativo .tipo-icon { color: #4f46e5; }
+.tc-administrativo.selected { border-color: #4f46e5; background: #eef2ff; }
+
+.tipo-titulo {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #0f172a;
+}
+
+.tipo-desc {
+  font-size: 0.74rem;
+  color: #64748b;
+  line-height: 1.35;
+}
+
+.chip-tipo {
+  margin-left: auto;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: #ecfeff;
+  color: #0891b2;
+}
+
+/* ===== Roles aviso ===== */
+.roles-aviso {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  color: #334155;
+  background: #f1f5f9;
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin: 0 0 12px;
+}
+
+.roles-aviso mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  color: #0891b2;
+}
+
+.roles-aviso.muted mat-icon {
+  color: #10b981;
+}
+
+/* ===== Resultado ===== */
+.result-card {
+  text-align: center;
+  padding: 4px 0;
+}
+
+.result-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #d1fae5;
+  color: #059669;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 12px;
+}
+
+.result-icon mat-icon {
+  font-size: 30px;
+  width: 30px;
+  height: 30px;
+}
+
+.result-text {
+  font-size: 0.85rem;
+  color: #475569;
+  margin: 0 0 16px;
+}
+
+.cred-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 8px;
+  text-align: left;
+}
+
+.cred-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #64748b;
+  flex-shrink: 0;
+}
+
+.cred-label mat-icon {
+  font-size: 15px;
+  width: 15px;
+  height: 15px;
+  color: #0891b2;
+}
+
+.cred-right {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+}
+
+.cred-right .cred-value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cred-value {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #0891b2;
+  background: #ecfeff;
+  padding: 4px 10px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+.cred-right button {
+  color: #64748b;
+}
+
+.cred-aviso {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: 0.75rem;
+  color: #92400e;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin: 12px 0 0;
+  text-align: left;
+}
+
+.cred-aviso mat-icon {
+  font-size: 15px;
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  margin-top: 1px;
 }

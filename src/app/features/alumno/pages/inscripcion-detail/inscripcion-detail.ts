@@ -91,6 +91,16 @@ const TRANSACCION_ESTADO_LABELS: Record<string, string> = {
   anulado: 'Anulado',
 };
 
+type TabId = 'recorrido' | 'notas' | 'pagos' | 'docs' | 'solicitudes';
+
+const TABS: { id: TabId; label: string; icon: string }[] = [
+  { id: 'recorrido', label: 'Recorrido', icon: 'timeline' },
+  { id: 'notas', label: 'Notas', icon: 'grading' },
+  { id: 'pagos', label: 'Pagos', icon: 'receipt_long' },
+  { id: 'docs', label: 'Documentación', icon: 'description' },
+  { id: 'solicitudes', label: 'Solicitudes', icon: 'swap_horiz' },
+];
+
 @Component({
   selector: 'app-inscripcion-detail',
   standalone: true,
@@ -168,6 +178,47 @@ export class InscripcionDetailComponent implements OnInit {
     if (!f || !f.total_esperado) return 0;
     return Math.min(100, Math.round((f.total_pagado / f.total_esperado) * 100));
   });
+
+  tab = signal<TabId>('recorrido');
+
+  solicitudesActivas = computed(() => {
+    let n = 0;
+    if (this.mostrarReincorporacion()) n++;
+    if (this.tieneSolicitudPendiente()) n++;
+    if (this.tieneSolicitudRechazada()) n++;
+    if (this.tieneSolicitudAprobada()) n++;
+    if (this.needsCartaUpload()) n++;
+    if (this.cartaEnRevision()) n++;
+    if (this.cartaAprobada()) n++;
+    if (this.cartaRechazada()) n++;
+    if (this.showMigracionCard()) n++;
+    if (this.showMigracionPendiente()) n++;
+    if (this.showMigracionRechazada()) n++;
+    return n;
+  });
+
+  activeTab = computed(() => {
+    const t = this.tab();
+    if (t === 'solicitudes' && this.solicitudesActivas() === 0) return 'recorrido';
+    return t;
+  });
+
+  tabsVisibles = computed(() => {
+    const showSolicitudes = this.solicitudesActivas() > 0;
+    return TABS.filter(t => t.id !== 'solicitudes' || showSolicitudes);
+  });
+
+  tabCounts = computed(() => ({
+    recorrido: 0,
+    notas: this.misNotas()?.modulos.length ?? 0,
+    pagos: this.misPagos()?.transacciones.length ?? 0,
+    docs: this.docsObligatorios().length + this.docsExtras().length,
+    solicitudes: this.solicitudesActivas(),
+  }));
+
+  cambiarTab(id: TabId): void {
+    this.tab.set(id);
+  }
 
   hitos = computed(() => {
     const ins = this.inscripcion();

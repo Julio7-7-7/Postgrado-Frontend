@@ -1,92 +1,244 @@
 <div class="dialog-header">
-  <div class="header-icon">
-    <mat-icon>person_add</mat-icon>
+  <div class="header-icon" [class.success]="credenciales()">
+    <mat-icon>{{ credenciales() ? 'how_to_reg' : 'person_add' }}</mat-icon>
   </div>
   <div>
-    <h2 mat-dialog-title>Nuevo Usuario</h2>
-    <p class="header-sub">Creá una cuenta con sus roles y datos personales</p>
+    <h2 mat-dialog-title>{{ credenciales() ? 'Persona registrada' : 'Registrar persona' }}</h2>
+    <p class="header-sub">{{ credenciales() ? 'Cuenta creada con acceso automático' : 'Alta de alumno, docente o administrativo' }}</p>
   </div>
 </div>
 
-<mat-dialog-content>
-  <div class="section-card">
-    <div class="section-label">
-      <mat-icon>email</mat-icon>
-      Credenciales de acceso
+@if (credenciales()) {
+  <mat-dialog-content>
+    <div class="result-card">
+      <div class="result-icon">
+        <mat-icon>check_circle</mat-icon>
+      </div>
+      <p class="result-text">
+        La persona ya puede ingresar al sistema. Compartile estas credenciales:
+      </p>
+      <div class="cred-row">
+        <span class="cred-label"><mat-icon>mail</mat-icon> Correo</span>
+        <div class="cred-right">
+          <code class="cred-value">{{ credenciales()!.email }}</code>
+          <button mat-icon-button matTooltip="Copiar" (click)="copiar(credenciales()!.email)">
+            <mat-icon>content_copy</mat-icon>
+          </button>
+        </div>
+      </div>
+      <div class="cred-row">
+        <span class="cred-label"><mat-icon>key</mat-icon> Contraseña inicial</span>
+        <div class="cred-right">
+          <code class="cred-value">{{ credenciales()!.password }}</code>
+          <button mat-icon-button matTooltip="Copiar" (click)="copiar(credenciales()!.password)">
+            <mat-icon>content_copy</mat-icon>
+          </button>
+        </div>
+      </div>
+      <p class="cred-aviso">
+        <mat-icon>info</mat-icon>
+        Al ingresar por primera vez, el sistema le pedirá crear una nueva contraseña.
+      </p>
     </div>
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Email</mat-label>
-      <input matInput [(ngModel)]="email" type="email" placeholder="usuario@ejemplo.com" required>
-    </mat-form-field>
-
-    <mat-form-field appearance="outline" class="full-width no-margin">
-      <mat-label>Contraseña</mat-label>
-      <input matInput [(ngModel)]="password" type="password" placeholder="Mínimo 6 caracteres" required minlength="6">
-    </mat-form-field>
-  </div>
-
-  <div class="section-card">
-    <div class="section-label">
-      <mat-icon>shield</mat-icon>
-      Roles del sistema
-      <span class="roles-badge">{{ rolesSeleccionadosCount() }} seleccionados</span>
-    </div>
-
-    <div class="roles-list">
-      @for (r of roles(); track r.id_rol) {
-        <label class="role-chip" [class.selected]="rolesSeleccionados[r.id_rol]">
-          <mat-checkbox [(ngModel)]="rolesSeleccionados[r.id_rol]"></mat-checkbox>
-          <span class="role-name">{{ r.nombre }}</span>
-          @if (r.descripcion) {
-            <span class="role-sep">—</span>
-            <span class="role-desc">{{ r.descripcion }}</span>
-          }
-        </label>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-raised-button color="primary" (click)="cerrar()">
+      <mat-icon>check</mat-icon> Entendido
+    </button>
+  </mat-dialog-actions>
+} @else {
+  <mat-dialog-content>
+    <div class="wizard-stepper">
+      @for (p of pasos; track p; let i = $index) {
+        <div class="wizard-step" [class.active]="paso() === i + 1" [class.done]="paso() > i + 1">
+          <div class="step-circle">
+            @if (paso() > i + 1) {
+              <mat-icon>check</mat-icon>
+            } @else {
+              <span>{{ i + 1 }}</span>
+            }
+          </div>
+          <span class="step-label">{{ p }}</span>
+        </div>
+        @if (!credenciales() && i < pasos.length - 1) {
+          <div class="step-line" [class.done]="paso() > i + 1"></div>
+        }
       }
     </div>
-  </div>
 
-  <div class="section-card">
-    <div class="section-label">
-      <mat-icon>badge</mat-icon>
-      Datos personales
-    </div>
+    @switch (paso()) {
+      @case (1) {
+        <div class="section-card">
+          <div class="section-label">
+            <mat-icon>group</mat-icon>
+            ¿Qué tipo de persona vas a registrar?
+          </div>
+          <div class="tipo-grid">
+            @for (t of tipos; track t.valor) {
+              <label class="tipo-card" [class]="'tc-' + t.valor" [class.selected]="tipo() === t.valor" (click)="seleccionarTipo(t.valor)">
+                <div class="tipo-icon-wrap">
+                  <mat-icon class="tipo-icon">{{ t.icono }}</mat-icon>
+                  @if (tipo() === t.valor) {
+                    <mat-icon class="tipo-check">check_circle</mat-icon>
+                  }
+                </div>
+                <span class="tipo-titulo">{{ t.titulo }}</span>
+                <span class="tipo-desc">{{ t.descripcion }}</span>
+              </label>
+            }
+          </div>
+        </div>
+      }
+      @case (2) {
+        <div class="section-card">
+          <div class="section-label">
+            <mat-icon>badge</mat-icon>
+            Datos de la persona
+            <span class="chip-tipo">{{ tipoLabel() }}</span>
+          </div>
 
-    <div class="form-row">
-      <mat-form-field appearance="outline" class="half">
-        <mat-label>Nombre</mat-label>
-        <input matInput [(ngModel)]="nombre" required>
-      </mat-form-field>
-      <mat-form-field appearance="outline" class="half">
-        <mat-label>Apellido</mat-label>
-        <input matInput [(ngModel)]="apellido" required>
-      </mat-form-field>
-    </div>
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="half">
+              <mat-label>Nombre</mat-label>
+              <input matInput [(ngModel)]="nombre" required>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="half">
+              <mat-label>Apellido</mat-label>
+              <input matInput [(ngModel)]="apellido" required>
+            </mat-form-field>
+          </div>
 
-    <div class="form-row">
-      <mat-form-field appearance="outline" class="half">
-        <mat-label>CI</mat-label>
-        <input matInput [(ngModel)]="ci" placeholder="Carnet de identidad" required>
-      </mat-form-field>
-      <mat-form-field appearance="outline" class="half">
-        <mat-label>Celular</mat-label>
-        <input matInput [(ngModel)]="celular" placeholder="Opcional">
-      </mat-form-field>
-    </div>
-  </div>
-</mat-dialog-content>
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="half">
+              <mat-label>CI</mat-label>
+              <input matInput [(ngModel)]="ci" placeholder="Carnet de identidad" required>
+              <mat-hint>Será la contraseña inicial de acceso</mat-hint>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="half">
+              <mat-label>Celular</mat-label>
+              <input matInput [(ngModel)]="celular" placeholder="Opcional">
+            </mat-form-field>
+          </div>
 
-<mat-dialog-actions align="end">
-  <button mat-button mat-dialog-close class="btn-cancel">Cancelar</button>
-  <button mat-raised-button color="primary"
-          [disabled]="!puedeGuardar() || guardando()"
-          (click)="guardar()">
-    @if (guardando()) {
-      <mat-spinner diameter="16"></mat-spinner> Creando...
-    } @else {
-      <ng-container>
-        <mat-icon>person_add</mat-icon> Crear Usuario
-      </ng-container>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Email</mat-label>
+            <input matInput [(ngModel)]="email" type="email" placeholder="usuario@ejemplo.com" required>
+            <mat-hint>Será el usuario de acceso al sistema</mat-hint>
+          </mat-form-field>
+
+          @if (tipo() === 'alumno') {
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="half">
+                <mat-label>Fecha de nacimiento</mat-label>
+                <input matInput [matDatepicker]="picker" [(ngModel)]="fechaNacimiento">
+                <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-datepicker #picker></mat-datepicker>
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="half">
+                <mat-label>Género</mat-label>
+                <mat-select [(ngModel)]="genero">
+                  @for (g of generos; track g) {
+                    <mat-option [value]="g">{{ g }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            </div>
+          }
+
+          @if (tipo() === 'docente') {
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="half">
+                <mat-label>Género</mat-label>
+                <mat-select [(ngModel)]="genero">
+                  @for (g of generos; track g) {
+                    <mat-option [value]="g">{{ g }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="half">
+                <mat-label>Extensión</mat-label>
+                <mat-select [(ngModel)]="extension">
+                  @for (e of extensiones; track e) {
+                    <mat-option [value]="e">{{ e }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            </div>
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="half">
+                <mat-label>Grado</mat-label>
+                <mat-select [(ngModel)]="grado">
+                  @for (g of grados; track g) {
+                    <mat-option [value]="g">{{ g }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="half">
+                <mat-label>Título</mat-label>
+                <input matInput [(ngModel)]="titulo" placeholder="Ej: Ingeniero en Sistemas">
+              </mat-form-field>
+            </div>
+          }
+        </div>
+      }
+      @case (3) {
+        <div class="section-card">
+          <div class="section-label">
+            <mat-icon>shield</mat-icon>
+            Roles del sistema
+            <span class="roles-badge">{{ rolesSeleccionadosCount() }} seleccionados</span>
+          </div>
+
+          @if (tipo() === 'administrativo') {
+            <p class="roles-aviso">
+              <mat-icon>info</mat-icon>
+              Un administrativo puede tener varios roles. El cargo se define por el rol: al promocionar, solo cambiás los roles.
+            </p>
+          } @else {
+            <p class="roles-aviso muted">
+              <mat-icon>person</mat-icon>
+              {{ tipoLabel() === 'Docente' ? 'El rol docente se asigna automáticamente.' : 'El rol alumno se asigna automáticamente.' }}
+            </p>
+          }
+
+          <div class="roles-list">
+            @for (r of rolesVisibles(); track r.id_rol) {
+              <label class="role-chip" [class.selected]="rolSeleccionado(r.id_rol)">
+                <mat-checkbox [checked]="rolSeleccionado(r.id_rol)" (change)="toggleRol(r.id_rol)"></mat-checkbox>
+                <div class="role-info">
+                  <span class="role-name">{{ r.nombre }}</span>
+                  @if (r.descripcion) {
+                    <span class="role-desc">{{ r.descripcion }}</span>
+                  }
+                </div>
+              </label>
+            }
+          </div>
+        </div>
+      }
     }
-  </button>
-</mat-dialog-actions>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    @if (paso() > 1) {
+      <button mat-button class="btn-cancel" [disabled]="guardando()" (click)="atras()">Volver</button>
+    }
+    <button mat-button class="btn-cancel" [disabled]="guardando()" (click)="cancelar()">Cancelar</button>
+    @if (paso() < 3) {
+      <button mat-raised-button color="primary" (click)="siguiente()">
+        Siguiente
+        <mat-icon>arrow_forward</mat-icon>
+      </button>
+    } @else {
+      <button mat-raised-button color="primary" [disabled]="!puedeGuardar()" (click)="guardar()">
+        @if (guardando()) {
+          <mat-spinner diameter="16"></mat-spinner> Creando...
+        } @else {
+          <ng-container>
+            <mat-icon>person_add</mat-icon> Crear cuenta
+          </ng-container>
+        }
+      </button>
+    }
+  </mat-dialog-actions>
+}
