@@ -56,10 +56,10 @@
                 <span class="edicion-badge">E{{ e.edicion }}</span>
                 <span class="card-gestion">{{ e.gestion }}</span>
                 @if (e.es_historico) {
-                  <span class="historico-chip">Histórico</span>
+                  <span class="estado-pill historico">Histórico</span>
                 }
               </div>
-              <span class="estado-chip {{ estadoClass(e.estado) }}">{{ estadoLabel(e.estado) }}</span>
+              <span class="estado-pill {{ estadoClass(e.estado) }}">{{ estadoLabel(e.estado) }}</span>
             </div>
 
             <div class="card-main">

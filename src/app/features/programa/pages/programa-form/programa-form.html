@@ -1,4 +1,4 @@
-<div class="form-container">
+<div class="form-page">
   <mat-card class="form-card">
     <div class="form-header">
       <h2>{{ idEditando ? 'Editar Programa' : 'Nuevo Programa' }}</h2>
@@ -70,7 +70,7 @@
           <input #fileInput type="file" accept="image/jpeg,image/png,image/gif,image/webp" (change)="onFotoSeleccionada($event)" class="file-input-hidden" />
         </div>
 
-        <div class="actions">
+        <div class="form-actions">
           <button mat-stroked-button type="button" routerLink="/programas" class="btn-cancelar">
             Cancelar
           </button>

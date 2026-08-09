@@ -101,7 +101,7 @@
   width: 32px;
   height: 32px;
   border-radius: 8px;
-  background: linear-gradient(135deg, #0d9488, #14b8a6);
+  background: linear-gradient(135deg, var(--fich-primary), var(--fich-primary-hover));
   color: white;
   display: flex;
   align-items: center;
@@ -121,22 +121,6 @@
   font-size: 0.82rem;
 }
 
-.estado-pill {
-  font-size: 0.72rem;
-  font-weight: 600;
-  padding: 3px 10px;
-  border-radius: 20px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.estado-postulante { background: #fef3c7; color: #92400e; }
-.estado-observado { background: #ffedd5; color: #9a3412; }
-.estado-inscrito { background: #d1fae5; color: #065f46; }
-.estado-incorporado { background: #dbeafe; color: #1e40af; }
-.estado-finalizado { background: #e0e7ff; color: #3730a3; }
-.estado-retirado { background: #fee2e2; color: #991b1b; }
-
 .docs-cell {
   display: flex;
   align-items: center;
@@ -153,13 +137,13 @@
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #0d9488, #14b8a6);
+  background: linear-gradient(90deg, var(--fich-primary), var(--fich-primary-hover));
   border-radius: 4px;
   transition: width 0.3s;
 }
 
 .progress-fill.complete {
-  background: #10b981;
+  background: var(--fich-success);
 }
 
 .docs-label {

@@ -16,17 +16,19 @@
       </div>
     </div>
 
-    @if (!bloqueado()) {
-      <button
-        mat-raised-button
-        color="primary"
-        routerLink="nuevo"
-        class="btn-nuevo"
-      >
-        <mat-icon>add</mat-icon>
-        <span>Nuevo Módulo</span>
-      </button>
-    }
+    <div class="header-right">
+      @if (!bloqueado()) {
+        <button
+          mat-raised-button
+          color="primary"
+          routerLink="nuevo"
+          class="btn-nuevo"
+        >
+          <mat-icon>add</mat-icon>
+          <span>Nuevo Módulo</span>
+        </button>
+      }
+    </div>
   </div>
 
   @if (bloqueado()) {
@@ -37,13 +39,13 @@
   }
 
   @if (isLoading()) {
-    <div class="loading-container">
+    <div class="loading-state">
       <mat-spinner diameter="50" color="primary"></mat-spinner>
       <p>Cargando módulos...</p>
     </div>
   } @else if (error()) {
-    <div class="error-state">
-      <mat-icon color="warn">error_outline</mat-icon>
+    <div class="empty-state error">
+      <mat-icon>error_outline</mat-icon>
       <p>{{ error() }}</p>
       <button mat-flat-button color="primary" (click)="cargarModulos()">
         <mat-icon>refresh</mat-icon> Reintentar

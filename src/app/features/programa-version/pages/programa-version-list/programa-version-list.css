@@ -1,45 +1,13 @@
 .page-container {
-  padding: var(--fich-space-lg) var(--fich-space-lg) 30px;
-  width: 90%; max-width: 1920px;  margin: 0 auto;
+  max-width: 1920px;
 }
 
 .header-section {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: var(--fich-space-lg);
-}
-
-.header-left {
-  display: flex;
-  align-items: center;
   gap: 12px;
-}
-
-.back-btn {
-  margin-right: 4px;
-}
-
-.header-section h2 {
-  margin: 0;
-  color: var(--fich-primary-dark);
-  font-weight: 800;
-  font-size: 1.8rem;
-  letter-spacing: -0.5px;
-}
-
-.subtitle {
-  color: var(--fich-text-muted);
-  font-size: 0.9rem;
-  margin-top: 2px;
-}
-
-.btn-nuevo {
-  height: 44px;
-  border-radius: var(--fich-radius-md) !important;
-  font-weight: 600 !important;
-  letter-spacing: 0.3px;
-  box-shadow: 0 4px 12px rgba(26, 58, 108, 0.2) !important;
+  flex-wrap: wrap;
 }
 
 .section {
@@ -159,31 +127,9 @@ mat-card-content {
   font-family: 'Roboto Mono', monospace;
 }
 
-.estado-chip {
-  display: inline-flex;
-  align-items: center;
-  padding: 3px 12px;
-  border-radius: var(--fich-radius-full);
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.3px;
+.estado-pill.vigente,
+.estado-pill.inactivo {
   margin-left: auto;
-  text-transform: uppercase;
-}
-
-.estado-chip.vigente {
-  background: var(--fich-success-light);
-  color: var(--fich-success);
-}
-
-.estado-chip.inactivo {
-  background: var(--fich-bg-hover);
-  color: var(--fich-text-muted);
-}
-
-.estado-chip.historico {
-  background: var(--fich-historico-bg);
-  color: var(--fich-historico);
 }
 
 .card-descripcion {
@@ -226,41 +172,6 @@ mat-card-content {
   font-weight: 600;
 }
 
-.loading-container,
-.error-state,
-.empty-state {
-  padding: 60px 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  background: var(--fich-bg-card);
-  border-radius: var(--fich-radius-lg);
-  border: 1px solid var(--fich-border-light);
-}
-
-.error-state mat-icon {
-  font-size: 48px;
-  width: 48px;
-  height: 48px;
-}
-
-.empty-state mat-icon {
-  font-size: 48px;
-  width: 48px;
-  height: 48px;
-  opacity: 0.3;
-}
-
-.empty-state p {
-  color: var(--fich-text-muted);
-  font-size: 0.95rem;
-}
-
-.error-state {
-  color: var(--fich-danger);
-}
-
 @media (max-width: 960px) {
   .cards-container {
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -268,21 +179,13 @@ mat-card-content {
 }
 
 @media (max-width: 640px) {
-  .page-container {
-    padding: 16px;
-  }
-
   .header-section {
     flex-direction: column;
     align-items: stretch;
     gap: 12px;
   }
 
-  .header-section h2 {
-    font-size: 1.4rem;
-  }
-
-  .btn-nuevo {
+  .header-right .btn-nuevo {
     width: 100%;
   }
 

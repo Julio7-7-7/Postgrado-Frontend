@@ -16,27 +16,29 @@
       </div>
     </div>
 
-    <button
-      mat-raised-button
-      color="primary"
-      routerLink="nuevo"
-      class="btn-nuevo"
-      [disabled]="programa()?.estado !== 'activo'"
-      [matTooltip]="(programa()?.estado !== 'activo') ? 'No se pueden agregar versiones a un programa inactivo' : 'Agregar nueva versión'"
-    >
-      <mat-icon>add</mat-icon>
-      <span>Nueva Versión</span>
-    </button>
+    <div class="header-right">
+      <button
+        mat-raised-button
+        color="primary"
+        routerLink="nuevo"
+        class="btn-nuevo"
+        [disabled]="programa()?.estado !== 'activo'"
+        [matTooltip]="(programa()?.estado !== 'activo') ? 'No se pueden agregar versiones a un programa inactivo' : 'Agregar nueva versión'"
+      >
+        <mat-icon>add</mat-icon>
+        <span>Nueva Versión</span>
+      </button>
+    </div>
   </div>
 
   @if (isLoading()) {
-    <div class="loading-container">
+    <div class="loading-state">
       <mat-spinner diameter="50" color="primary"></mat-spinner>
       <p>Cargando versiones...</p>
     </div>
   } @else if (error()) {
-    <div class="error-state">
-      <mat-icon color="warn">error_outline</mat-icon>
+    <div class="empty-state error">
+      <mat-icon>error_outline</mat-icon>
       <p>{{ error() }}</p>
       <button mat-flat-button color="primary" (click)="cargarVersiones()">
         <mat-icon>refresh</mat-icon> Reintentar
@@ -81,9 +83,9 @@
                 <div class="card-header-row">
                   <span class="version-badge">V{{ v.version }}</span>
                   @if (v.vigente) {
-                    <span class="estado-chip vigente">Vigente</span>
+                    <span class="estado-pill vigente">Vigente</span>
                   } @else {
-                    <span class="estado-chip inactivo">Inactiva</span>
+                    <span class="estado-pill inactivo">Inactiva</span>
                   }
                 </div>
                 <p class="card-descripcion">

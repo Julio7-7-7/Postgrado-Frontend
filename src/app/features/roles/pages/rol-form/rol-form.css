@@ -1,38 +1,5 @@
-.dialog-header {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 20px 24px 0;
-}
-
 .header-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #4f46e5, #6366f1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.header-icon mat-icon {
-  font-size: 22px;
-  width: 22px;
-  height: 22px;
-  color: white;
-}
-
-.dialog-header h2 {
-  margin: 0;
-  font-size: 1.15rem;
-  font-weight: 700;
-}
-
-.header-sub {
-  margin: 2px 0 0;
-  font-size: 0.8rem;
-  color: #94a3b8;
+  background: linear-gradient(135deg, var(--fich-feature-roles), #a78bfa);
 }
 
 mat-dialog-content {
@@ -40,9 +7,9 @@ mat-dialog-content {
 }
 
 .section-card {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
+  background: var(--fich-bg-subtle);
+  border: 1px solid var(--fich-border);
+  border-radius: var(--fich-radius-sm);
   padding: 16px;
   margin-bottom: 16px;
 }
@@ -53,7 +20,7 @@ mat-dialog-content {
   gap: 6px;
   font-size: 0.82rem;
   font-weight: 600;
-  color: #475569;
+  color: var(--fich-text-secondary);
   margin-bottom: 12px;
 }
 
@@ -61,7 +28,7 @@ mat-dialog-content {
   font-size: 16px;
   width: 16px;
   height: 16px;
-  color: #6366f1;
+  color: var(--fich-feature-roles);
 }
 
 .full-width { width: 100%; }
@@ -73,13 +40,13 @@ mat-dialog-content {
   font-weight: 700;
   padding: 2px 8px;
   border-radius: 6px;
-  background: #eef2ff;
-  color: #4f46e5;
+  background: var(--fich-feature-roles-light);
+  color: var(--fich-feature-roles);
 }
 
 .permisos-progress {
   height: 4px;
-  background: #e2e8f0;
+  background: var(--fich-border);
   border-radius: 4px;
   margin-bottom: 12px;
   overflow: hidden;
@@ -87,7 +54,7 @@ mat-dialog-content {
 
 .progress-bar {
   height: 100%;
-  background: linear-gradient(90deg, #4f46e5, #6366f1);
+  background: linear-gradient(90deg, var(--fich-feature-roles), #a78bfa);
   border-radius: 4px;
   transition: width 0.3s ease;
 }
@@ -97,13 +64,13 @@ mat-dialog-content {
   align-items: center;
   gap: 10px;
   padding: 20px;
-  color: #94a3b8;
+  color: var(--fich-text-faint);
   font-size: 0.85rem;
 }
 
 .permiso-group {
-  background: white;
-  border: 1px solid #e2e8f0;
+  background: var(--fich-bg-card);
+  border: 1px solid var(--fich-border);
   border-radius: 8px;
   margin-bottom: 6px;
   overflow: hidden;
@@ -111,7 +78,7 @@ mat-dialog-content {
 }
 
 .permiso-group.expanded {
-  border-color: #c7d2fe;
+  border-color: var(--fich-est-convocatoria-border);
 }
 
 .group-header {
@@ -124,7 +91,7 @@ mat-dialog-content {
 }
 
 .group-header:hover {
-  background: #f8fafc;
+  background: var(--fich-bg-subtle);
 }
 
 .group-label {
@@ -141,7 +108,7 @@ mat-dialog-content {
 .group-count {
   font-size: 0.75rem;
   font-weight: 600;
-  color: #94a3b8;
+  color: var(--fich-text-faint);
   min-width: 36px;
   text-align: right;
 }
@@ -150,7 +117,7 @@ mat-dialog-content {
   font-size: 18px;
   width: 18px;
   height: 18px;
-  color: #94a3b8;
+  color: var(--fich-text-faint);
   transition: transform 0.2s ease;
 }
 
@@ -160,7 +127,7 @@ mat-dialog-content {
 
 .group-body {
   padding: 4px 14px 10px;
-  border-top: 1px solid #f1f5f9;
+  border-top: 1px solid var(--fich-border-light);
 }
 
 .permiso-item {
@@ -171,20 +138,20 @@ mat-dialog-content {
 .permiso-codigo {
   font-family: 'SF Mono', 'Fira Code', monospace;
   font-size: 0.82rem;
-  color: #475569;
+  color: var(--fich-text-secondary);
   font-weight: 500;
 }
 
 .permiso-desc {
   display: block;
   font-size: 0.78rem;
-  color: #94a3b8;
+  color: var(--fich-text-faint);
   margin-left: 28px;
   margin-top: -2px;
 }
 
 .btn-cancel {
-  color: #64748b;
+  color: var(--fich-text-muted);
 }
 
 mat-dialog-actions button mat-spinner {

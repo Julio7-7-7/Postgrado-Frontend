@@ -1,12 +1,16 @@
 <div class="page-container">
   <div class="header-section">
-    <div>
-      <h1>Requisitos Documentales</h1>
-      <p class="subtitle">Catálogo global de documentos requeridos para inscripciones</p>
+    <div class="header-left">
+      <div>
+        <h1>Requisitos Documentales</h1>
+        <p class="subtitle">Catálogo global de documentos requeridos para inscripciones</p>
+      </div>
     </div>
-    <button mat-flat-button color="primary" (click)="abrirFormulario()">
-      <mat-icon>add</mat-icon> Nuevo Requisito
-    </button>
+    <div class="header-right">
+      <button mat-flat-button color="primary" class="btn-nuevo" (click)="abrirFormulario()">
+        <mat-icon>add</mat-icon> Nuevo Requisito
+      </button>
+    </div>
   </div>
 
   @if (isLoading()) {
@@ -20,7 +24,7 @@
       <button mat-stroked-button (click)="cargar()">Reintentar</button>
     </div>
   } @else {
-    <div class="search-bar">
+    <div class="filters-bar">
       <mat-form-field appearance="outline" class="search-field">
         <mat-label>Buscar requisito</mat-label>
         <input matInput placeholder="Nombre del requisito..." [ngModel]="terminoBusqueda()" (ngModelChange)="terminoBusqueda.set($event)">

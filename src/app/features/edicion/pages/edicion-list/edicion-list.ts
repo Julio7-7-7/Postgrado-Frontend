@@ -88,10 +88,10 @@ export class EdicionListComponent implements OnInit {
 
   estadoClass(estado: string): string {
     const map: Record<string, string> = {
-      programado: 'estado-programado',
-      en_curso: 'estado-en_curso',
-      reprogramado: 'estado-reprogramado',
-      finalizado: 'estado-finalizado',
+      programado: 'programado',
+      en_curso: 'en-curso',
+      reprogramado: 'reprogramado',
+      finalizado: 'finalizado',
     };
     return map[estado] || '';
   }

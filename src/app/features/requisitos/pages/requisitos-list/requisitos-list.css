@@ -1,28 +1,22 @@
-.page-container { width: 90%; max-width: 1920px; margin: 0 auto; padding: 24px; }
+.page-container {
+  max-width: 1920px;
+}
 
 .header-section {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  margin-bottom: 24px;
-}
-
-.header-section h1 { margin: 0; font-size: 1.5rem; font-weight: 700; }
-.subtitle { margin: 4px 0 0; color: #94a3b8; font-size: 0.88rem; }
-
-.loading-state, .empty-state {
-  display: flex;
-  flex-direction: column;
   align-items: center;
+  justify-content: space-between;
   gap: 12px;
-  padding: 48px;
-  color: #94a3b8;
+  flex-wrap: wrap;
 }
 
-.empty-state mat-icon { font-size: 48px; width: 48px; height: 48px; }
+.filters-bar {
+  margin-bottom: 16px;
+}
 
-.search-bar { margin-bottom: 16px; }
-.search-field { width: 100%; }
+.search-field {
+  flex: 1;
+}
 
 .entity-table {
   display: flex;

@@ -752,15 +752,32 @@ h1, h2, h3, h4, h5, h6 {
 
 .dialog-header {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 20px;
+  align-items: center;
+  gap: 14px;
+  padding: 20px 24px 0;
+}
+
+.header-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--fich-primary), var(--fich-primary-hover));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.header-icon mat-icon {
+  font-size: 22px;
+  width: 22px;
+  height: 22px;
+  color: white;
 }
 
 .dialog-header h2 {
   margin: 0;
-  font-size: 1.2rem;
+  font-size: 1.15rem;
   font-weight: 700;
   display: flex;
   align-items: center;
@@ -768,11 +785,14 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--fich-text);
 }
 
-.dialog-header h2 mat-icon {
-  color: var(--fich-primary);
+.header-sub {
+  margin: 2px 0 0;
+  font-size: 0.82rem;
+  color: var(--fich-text-muted);
 }
 
 .dialog-header .close-btn {
+  margin-left: auto;
   color: var(--fich-text-muted);
 }
 
