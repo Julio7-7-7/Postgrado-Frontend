@@ -12,7 +12,7 @@
 
 .header-section h2 {
   margin: 0;
-  color: var(--fich-primary-dark);
+  color: var(--fich-feature-docente);
   font-weight: 800;
   font-size: 1.8rem;
   letter-spacing: -0.5px;
@@ -113,7 +113,7 @@
 }
 
 .sort-button:hover mat-icon {
-  color: var(--fich-primary-dark);
+  color: var(--fich-feature-docente);
   transform: scale(1.1);
 }
 
@@ -171,7 +171,7 @@ tr.mat-mdc-row:hover {
 .id-cell {
   font-family: 'Roboto Mono', monospace;
   font-weight: 600;
-  color: var(--fich-primary-dark);
+  color: var(--fich-feature-docente);
   background: var(--fich-bg-hover);
   padding: 2px 8px;
   border-radius: 6px;
@@ -188,19 +188,9 @@ tr.mat-mdc-row:hover {
   font-size: 0.85rem;
 }
 
-.estado-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 3px 10px;
-  border-radius: var(--fich-radius-full);
-  font-size: 0.78rem;
-  font-weight: 600;
-  text-transform: capitalize;
-}
-
 .grado-badge {
   font-weight: 600;
-  color: var(--fich-primary-dark);
+  color: var(--fich-feature-docente);
   font-size: 0.85rem;
 }
 
@@ -212,16 +202,6 @@ tr.mat-mdc-row:hover {
   background: var(--fich-bg-subtle);
   padding: 2px 6px;
   border-radius: 4px;
-}
-
-.estado-badge.activo {
-  background: #e8f5e9;
-  color: #2e7d32;
-}
-
-.estado-badge.inactivo {
-  background: #fce4ec;
-  color: #c62828;
 }
 
 .dictando-badge {
