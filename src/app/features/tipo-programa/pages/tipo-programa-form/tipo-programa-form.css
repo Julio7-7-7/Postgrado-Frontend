@@ -14,7 +14,7 @@ mat-form-field mat-icon[matPrefix] {
 
 .section-divider {
   height: 1px;
-  background: #e2e8f0;
+  background: var(--fich-border);
   margin: 8px 0;
 }
 
@@ -24,7 +24,7 @@ mat-form-field mat-icon[matPrefix] {
   gap: 8px;
   font-size: 0.92rem;
   font-weight: 600;
-  color: #475569;
+  color: var(--fich-text-muted);
 }
 
 .section-header mat-icon {
@@ -37,7 +37,7 @@ mat-form-field mat-icon[matPrefix] {
 .section-hint {
   margin: 4px 0 12px;
   font-size: 0.78rem;
-  color: #94a3b8;
+  color: var(--fich-text-x-faint);
 }
 
 .chips-container {
@@ -52,19 +52,19 @@ mat-form-field mat-icon[matPrefix] {
   align-items: center;
   gap: 8px;
   padding: 8px 12px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--fich-border);
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.15s;
   font-size: 0.88rem;
 }
 
-.chip-option:hover { background: #f8fafc; border-color: #c7d2fe; }
+.chip-option:hover { background: var(--fich-bg-subtle); border-color: var(--fich-est-convocatoria-border); }
 
 .chip-option.selected {
-  background: #eef2ff;
-  border-color: #6366f1;
-  color: #4338ca;
+  background: var(--fich-est-convocatoria-bg);
+  border-color: var(--fich-primary);
+  color: var(--fich-est-convocatoria);
 }
 
 .chip-option mat-icon {
@@ -76,14 +76,14 @@ mat-form-field mat-icon[matPrefix] {
 .chip-badge {
   margin-left: auto;
   font-size: 0.72rem;
-  color: #94a3b8;
-  background: #f1f5f9;
+  color: var(--fich-text-x-faint);
+  background: var(--fich-border-light);
   padding: 1px 6px;
   border-radius: 4px;
 }
 
 .empty-hint {
   font-size: 0.82rem;
-  color: #94a3b8;
+  color: var(--fich-text-x-faint);
   font-style: italic;
 }

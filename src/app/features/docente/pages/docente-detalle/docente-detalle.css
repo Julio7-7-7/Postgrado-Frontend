@@ -16,7 +16,7 @@
   border-radius: var(--fich-radius-lg) !important;
   overflow: hidden;
   box-shadow: var(--fich-shadow-md) !important;
-  border-top: 4px solid var(--fich-primary) !important;
+  border-top: 4px solid var(--fich-feature-docente) !important;
 }
 
 .perfil-header {
@@ -30,7 +30,7 @@
   width: 80px;
   height: 80px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--fich-primary), var(--fich-primary-hover));
+  background: linear-gradient(135deg, var(--fich-feature-docente), #2dd4bf);
   color: white;
   display: flex;
   align-items: center;
@@ -38,7 +38,7 @@
   font-weight: 700;
   font-size: 1.8rem;
   flex-shrink: 0;
-  box-shadow: 0 4px 12px rgba(30, 58, 138, 0.25);
+  box-shadow: 0 4px 12px rgba(13, 148, 136, 0.25);
 }
 
 .header-info {
@@ -74,15 +74,15 @@
 }
 
 .estado-activo {
-  background: #f0fdf4;
-  color: #16a34a;
-  border: 1px solid #bbf7d0;
+  background: var(--fich-success-light);
+  color: var(--fich-success);
+  border: 1px solid var(--fich-success-lighter);
 }
 
 .estado-inactivo {
-  background: #f8fafc;
-  color: #64748b;
-  border: 1px solid #e2e8f0;
+  background: var(--fich-bg-subtle);
+  color: var(--fich-text-faint);
+  border: 1px solid var(--fich-border);
 }
 
 .dictando-badge {
@@ -94,7 +94,7 @@
   font-weight: 700;
   background: var(--fich-success-light);
   color: var(--fich-success);
-  border: 1px solid #bbf7d0;
+  border: 1px solid var(--fich-est-en-curso-border);
   text-transform: uppercase;
   letter-spacing: 0.03em;
 }
@@ -126,7 +126,7 @@
   font-size: 22px;
   width: 22px;
   height: 22px;
-  color: var(--fich-primary);
+  color: var(--fich-feature-docente);
   margin-top: 2px;
   opacity: 0.7;
 }
@@ -171,7 +171,7 @@
 }
 
 .modulos-card mat-card-title mat-icon {
-  color: var(--fich-primary);
+  color: var(--fich-feature-docente);
 }
 
 .modulos-card mat-card-subtitle {
@@ -227,58 +227,16 @@
 }
 
 .modulo-row:hover {
-  background: var(--fich-primary-light) !important;
+  background: var(--fich-feature-docente-light) !important;
 }
 
 .modulo-row:active {
-  background: #dbeafe !important;
+  background: var(--fich-feature-docente-lighter) !important;
 }
 
 .edicion-cell {
   font-weight: 600;
-  color: var(--fich-primary-dark);
-}
-
-.estado-modulo-badge {
-  display: inline-block;
-  padding: 4px 12px;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: capitalize;
-  letter-spacing: 0.02em;
-}
-
-.estado-modulo-programado {
-  background: #fef3c7;
-  color: #92400e;
-}
-
-.estado-modulo-en_curso {
-  background: #dbeafe;
-  color: #1e40af;
-}
-
-.estado-modulo-reprogramado {
-  background: #f3e8ff;
-  color: #6b21a8;
-}
-
-.estado-modulo-finalizado {
-  background: #d1fae5;
-  color: #065f46;
-}
-
-.estado-modulo-pausado {
-  background: #fef9c3;
-  color: #a16207;
-  border: 1px solid #fef08a;
-}
-
-.estado-modulo-cancelado {
-  background: #fee2e2;
-  color: #b91c1c;
-  border: 1px solid #fecaca;
+  color: var(--fich-feature-docente);
 }
 
 .empty-section {

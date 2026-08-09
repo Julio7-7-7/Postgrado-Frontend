@@ -64,15 +64,15 @@
   align-items: center;
   gap: 12px;
   padding: 16px 20px;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
+  background: var(--fich-est-truncado-bg);
+  border: 1px solid var(--fich-est-truncado-border);
   border-radius: var(--fich-radius-lg);
-  color: #b91c1c;
+  color: var(--fich-est-truncado);
   font-weight: 500;
 }
 
 .error-banner mat-icon {
-  color: #ef4444;
+  color: var(--fich-danger);
 }
 
 .timeline {

@@ -69,6 +69,10 @@ export class DocenteDetalleComponent implements OnInit {
     );
   }
 
+  estadoModuloClass(estado: string): string {
+    return 'estado-pill ' + estado.replace(/_/g, '-');
+  }
+
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) {

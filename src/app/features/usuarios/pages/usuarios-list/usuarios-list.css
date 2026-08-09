@@ -43,13 +43,13 @@
   margin: 0;
   font-size: 1.15rem;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--fich-text);
 }
 
 .toolbar-sub {
   display: block;
   font-size: 0.78rem;
-  color: #94a3b8;
+  color: var(--fich-text-x-faint);
 }
 
 .loading-container,
@@ -59,14 +59,14 @@
   align-items: center;
   padding: 48px;
   gap: 12px;
-  color: #64748b;
+  color: var(--fich-text-faint);
 }
 
 .error-container mat-icon {
   font-size: 40px;
   width: 40px;
   height: 40px;
-  color: #ef4444;
+  color: var(--fich-danger);
 }
 
 /* ===== Grid de cards ===== */
@@ -78,7 +78,7 @@
 
 .usuario-card {
   background: white;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--fich-border);
   border-radius: 14px;
   padding: 16px;
   display: flex;
@@ -89,7 +89,7 @@
 
 .usuario-card:hover {
   transform: translateY(-2px);
-  border-color: #bae6fd;
+  border-color: var(--fich-est-verificacion-border);
   box-shadow: 0 6px 16px rgba(14, 165, 233, 0.1);
 }
 
@@ -121,7 +121,7 @@
 .av-alumno { background: linear-gradient(135deg, #0891b2, #22d3ee); }
 .av-docente { background: linear-gradient(135deg, #0d9488, #2dd4bf); }
 .av-admin { background: linear-gradient(135deg, #0284c7, #38bdf8); }
-.av-sin { background: #e2e8f0; color: #94a3b8; }
+.av-sin { background: var(--fich-border); color: var(--fich-text-x-faint); }
 
 .usuario-info {
   display: flex;
@@ -134,7 +134,7 @@
 .usuario-nombre {
   font-weight: 600;
   font-size: 0.92rem;
-  color: #0f172a;
+  color: var(--fich-text);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -142,7 +142,7 @@
 
 .usuario-email {
   font-size: 0.78rem;
-  color: #94a3b8;
+  color: var(--fich-text-x-faint);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -156,8 +156,8 @@
   font-weight: 700;
   padding: 3px 9px;
   border-radius: 999px;
-  background: #f1f5f9;
-  color: #64748b;
+  background: var(--fich-border-light);
+  color: var(--fich-text-faint);
   flex-shrink: 0;
   white-space: nowrap;
 }
@@ -166,16 +166,16 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #94a3b8;
+  background: var(--fich-text-x-faint);
 }
 
 .estado-pill.activo {
-  background: #f0fdf4;
-  color: #16a34a;
+  background: var(--fich-success-light);
+  color: var(--fich-success);
 }
 
 .estado-pill.activo .dot {
-  background: #22c55e;
+  background: var(--fich-success);
 }
 
 .usuario-tags {
@@ -194,8 +194,8 @@
 
 .perfil-chip.av-alumno { background: #ecfeff; color: #0891b2; }
 .perfil-chip.av-docente { background: #f0fdfa; color: #0d9488; }
-.perfil-chip.av-admin { background: #f0f9ff; color: #0284c7; }
-.perfil-chip.av-sin { background: #f1f5f9; color: #94a3b8; }
+.perfil-chip.av-admin { background: var(--fich-est-verificacion-bg); color: #0284c7; }
+.perfil-chip.av-sin { background: var(--fich-border-light); color: var(--fich-text-x-faint); }
 
 .rol-pill {
   font-size: 0.68rem;
@@ -208,15 +208,15 @@
 
 .rol-alumno { background: #ecfeff; color: #0e7490; border-color: #a5f3fc; }
 .rol-docente { background: #f0fdfa; color: #0f766e; border-color: #99f6e4; }
-.rol-admin { background: #eef2ff; color: #4338ca; border-color: #c7d2fe; }
-.rol-otro { background: #f1f5f9; color: #475569; border-color: #e2e8f0; }
+.rol-admin { background: var(--fich-est-convocatoria-bg); color: var(--fich-est-convocatoria); border-color: var(--fich-est-convocatoria-border); }
+.rol-otro { background: var(--fich-border-light); color: var(--fich-text-muted); border-color: var(--fich-border); }
 
 .usuario-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding-top: 10px;
-  border-top: 1px solid #f1f5f9;
+  border-top: 1px solid var(--fich-border-light);
 }
 
 .alta {
@@ -224,7 +224,7 @@
   align-items: center;
   gap: 4px;
   font-size: 0.72rem;
-  color: #94a3b8;
+  color: var(--fich-text-x-faint);
 }
 
 .alta mat-icon {
@@ -255,7 +255,7 @@
   align-items: center;
   padding: 48px;
   gap: 8px;
-  color: #94a3b8;
+  color: var(--fich-text-x-faint);
 }
 
 .empty-state mat-icon {
@@ -267,7 +267,7 @@
 .empty-state h4 {
   margin: 0;
   font-weight: 600;
-  color: #64748b;
+  color: var(--fich-text-faint);
 }
 
 .empty-state p {
@@ -284,7 +284,7 @@
 
 .page-info {
   font-size: 0.8rem;
-  color: #94a3b8;
+  color: var(--fich-text-x-faint);
 }
 
 .page-controls {
@@ -306,5 +306,5 @@
 }
 
 .page-controls button:not(.active):not(:disabled):hover {
-  background: #f1f5f9;
+  background: var(--fich-border-light);
 }

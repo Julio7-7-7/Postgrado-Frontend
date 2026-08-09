@@ -11,8 +11,8 @@ mat-dialog-content {
 }
 
 .section-card {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: var(--fich-bg-subtle);
+  border: 1px solid var(--fich-border);
   border-radius: 12px;
   padding: 16px;
   margin-bottom: 16px;
@@ -24,7 +24,7 @@ mat-dialog-content {
   gap: 6px;
   font-size: 0.82rem;
   font-weight: 600;
-  color: #475569;
+  color: var(--fich-text-muted);
   margin-bottom: 12px;
 }
 
@@ -68,13 +68,13 @@ mat-dialog-content {
   padding: 8px 12px;
   border-radius: 8px;
   background: white;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--fich-border);
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .role-chip:hover {
-  border-color: #cbd5e1;
+  border-color: var(--fich-border);
 }
 
 .role-chip.selected {
@@ -93,16 +93,16 @@ mat-dialog-content {
 .role-name {
   font-weight: 600;
   font-size: 0.88rem;
-  color: #1e293b;
+  color: var(--fich-text);
 }
 
 .role-desc {
   font-size: 0.78rem;
-  color: #94a3b8;
+  color: var(--fich-text-x-faint);
 }
 
 .btn-cancel {
-  color: #64748b;
+  color: var(--fich-text-faint);
 }
 
 mat-dialog-actions button mat-spinner {
@@ -128,8 +128,8 @@ mat-dialog-actions button mat-spinner {
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  background: #e2e8f0;
-  color: #64748b;
+  background: var(--fich-border);
+  color: var(--fich-text-faint);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -149,14 +149,14 @@ mat-dialog-actions button mat-spinner {
 }
 
 .wizard-step.done .step-circle {
-  background: #10b981;
+  background: var(--fich-success);
   color: white;
 }
 
 .step-label {
   font-size: 0.72rem;
   font-weight: 600;
-  color: #94a3b8;
+  color: var(--fich-text-x-faint);
 }
 
 .wizard-step.active .step-label {
@@ -166,12 +166,12 @@ mat-dialog-actions button mat-spinner {
 .step-line {
   width: 40px;
   height: 2px;
-  background: #e2e8f0;
+  background: var(--fich-border);
   margin: 14px 6px 0;
 }
 
 .step-line.done {
-  background: #10b981;
+  background: var(--fich-success);
 }
 
 /* ===== Tipo ===== */
@@ -187,7 +187,7 @@ mat-dialog-actions button mat-spinner {
   align-items: center;
   gap: 6px;
   padding: 18px 12px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--fich-border);
   border-radius: 12px;
   background: white;
   cursor: pointer;
@@ -197,7 +197,7 @@ mat-dialog-actions button mat-spinner {
 
 .tipo-card:hover {
   transform: translateY(-1px);
-  border-color: #cbd5e1;
+  border-color: var(--fich-border);
   box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
 }
 
@@ -226,7 +226,7 @@ mat-dialog-actions button mat-spinner {
   height: 18px;
   background: white;
   border-radius: 50%;
-  color: #059669;
+  color: var(--fich-success);
 }
 
 .tc-alumno .tipo-icon { color: #0891b2; }
@@ -235,18 +235,18 @@ mat-dialog-actions button mat-spinner {
 .tc-docente .tipo-icon { color: #0d9488; }
 .tc-docente.selected { border-color: #0d9488; background: #f0fdfa; }
 
-.tc-administrativo .tipo-icon { color: #4f46e5; }
-.tc-administrativo.selected { border-color: #4f46e5; background: #eef2ff; }
+.tc-administrativo .tipo-icon { color: var(--fich-primary-hover); }
+.tc-administrativo.selected { border-color: var(--fich-primary-hover); background: var(--fich-est-convocatoria-bg); }
 
 .tipo-titulo {
   font-weight: 700;
   font-size: 0.9rem;
-  color: #0f172a;
+  color: var(--fich-text);
 }
 
 .tipo-desc {
   font-size: 0.74rem;
-  color: #64748b;
+  color: var(--fich-text-faint);
   line-height: 1.35;
 }
 
@@ -266,8 +266,8 @@ mat-dialog-actions button mat-spinner {
   align-items: center;
   gap: 6px;
   font-size: 0.78rem;
-  color: #334155;
-  background: #f1f5f9;
+  color: var(--fich-text-secondary);
+  background: var(--fich-border-light);
   border-radius: 8px;
   padding: 8px 10px;
   margin: 0 0 12px;
@@ -281,7 +281,7 @@ mat-dialog-actions button mat-spinner {
 }
 
 .roles-aviso.muted mat-icon {
-  color: #10b981;
+  color: var(--fich-success);
 }
 
 /* ===== Resultado ===== */
@@ -294,8 +294,8 @@ mat-dialog-actions button mat-spinner {
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: #d1fae5;
-  color: #059669;
+  background: var(--fich-success-lighter);
+  color: var(--fich-success);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -310,7 +310,7 @@ mat-dialog-actions button mat-spinner {
 
 .result-text {
   font-size: 0.85rem;
-  color: #475569;
+  color: var(--fich-text-muted);
   margin: 0 0 16px;
 }
 
@@ -319,8 +319,8 @@ mat-dialog-actions button mat-spinner {
   justify-content: space-between;
   align-items: center;
   gap: 8px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: var(--fich-bg-subtle);
+  border: 1px solid var(--fich-border);
   border-radius: 8px;
   padding: 10px 14px;
   margin-bottom: 8px;
@@ -333,7 +333,7 @@ mat-dialog-actions button mat-spinner {
   gap: 6px;
   font-size: 0.78rem;
   font-weight: 600;
-  color: #64748b;
+  color: var(--fich-text-faint);
   flex-shrink: 0;
 }
 
@@ -367,7 +367,7 @@ mat-dialog-actions button mat-spinner {
 }
 
 .cred-right button {
-  color: #64748b;
+  color: var(--fich-text-faint);
 }
 
 .cred-aviso {
@@ -376,8 +376,8 @@ mat-dialog-actions button mat-spinner {
   gap: 6px;
   font-size: 0.75rem;
   color: #92400e;
-  background: #fffbeb;
-  border: 1px solid #fde68a;
+  background: var(--fich-est-pendiente-bg);
+  border: 1px solid var(--fich-est-pendiente-border);
   border-radius: 8px;
   padding: 8px 10px;
   margin: 12px 0 0;

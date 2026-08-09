@@ -538,7 +538,7 @@
 }
 
 .aula-tag {
-  background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+  background: linear-gradient(135deg, var(--fich-bg-subtle), var(--fich-border-light));
   color: var(--fich-text-muted);
   font-size: 0.75rem;
   padding: 2px 10px;

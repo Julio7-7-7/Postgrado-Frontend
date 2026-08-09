@@ -50,10 +50,10 @@ h2[mat-dialog-title] mat-icon {
 
 .resumen-chip b { color: var(--fich-text); }
 
-.resumen-chip.descuento { background: #f0fdf4; border-color: #bbf7d0; color: #15803d; }
+.resumen-chip.descuento { background: var(--fich-success-light); border-color: var(--fich-est-en-curso-border); color: #15803d; }
 .resumen-chip.descuento b { color: #166534; }
 
-.resumen-chip.beca-perdida { background: #fef2f2; border-color: #fecaca; color: #b91c1c; }
+.resumen-chip.beca-perdida { background: var(--fich-est-truncado-bg); border-color: var(--fich-est-truncado-border); color: var(--fich-est-truncado); }
 
 .preview-box {
   margin: 8px 0 14px;
@@ -91,7 +91,7 @@ h2[mat-dialog-title] mat-icon {
   font-variant-numeric: tabular-nums;
 }
 
-.preview-row.preview-overflow .preview-monto { color: #d97706; }
+.preview-row.preview-overflow .preview-monto { color: var(--fich-warning); }
 
 .preview-note {
   margin: 8px 0 0;
@@ -137,7 +137,7 @@ h2[mat-dialog-title] mat-icon {
 
 .upload-btn:hover {
   border-color: var(--fich-feature-pagos);
-  background: #f0fdf4;
+  background: var(--fich-success-light);
 }
 
 .upload-hint {
@@ -152,8 +152,8 @@ h2[mat-dialog-title] mat-icon {
   gap: 8px;
   padding: 8px 12px;
   border-radius: 10px;
-  border: 1px solid #bbf7d0;
-  background: #f0fdf4;
+  border: 1px solid var(--fich-est-en-curso-border);
+  background: var(--fich-success-light);
   color: var(--fich-text);
 }
 

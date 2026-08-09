@@ -118,17 +118,17 @@
 
 .timeline-dot.tipo-estado {
   border-color: #3b82f6;
-  background: #eff6ff;
+  background: var(--fich-est-programado-bg);
 }
 
 .timeline-dot.tipo-fechas {
-  border-color: #16a34a;
-  background: #f0fdf4;
+  border-color: var(--fich-success);
+  background: var(--fich-success-light);
 }
 
 .timeline-dot.tipo-mixto {
-  border-color: #8b5cf6;
-  background: #f5f3ff;
+  border-color: var(--fich-est-reprogramado);
+  background: var(--fich-est-reprogramado-bg);
 }
 
 .historial-card {
@@ -147,11 +147,11 @@
 }
 
 .historial-card.tipo-fechas {
-  border-left-color: #16a34a;
+  border-left-color: var(--fich-success);
 }
 
 .historial-card.tipo-mixto {
-  border-left-color: #8b5cf6;
+  border-left-color: var(--fich-est-reprogramado);
 }
 
 .historial-card mat-card-header {
@@ -190,11 +190,11 @@
 }
 
 .tipo-icon.tipo-fechas {
-  color: #16a34a;
+  color: var(--fich-success);
 }
 
 .tipo-icon.tipo-mixto {
-  color: #8b5cf6;
+  color: var(--fich-est-reprogramado);
 }
 
 .card-title {
@@ -222,12 +222,12 @@
 }
 
 .badge-manual {
-  background: #fef3c7;
+  background: var(--fich-warning-lighter);
   color: #92400e;
 }
 
 .badge-auto {
-  background: #dbeafe;
+  background: var(--fich-est-programado-border);
   color: #1e40af;
 }
 
@@ -266,12 +266,12 @@
 }
 
 .diff-old {
-  background: #fef2f2;
-  color: #991b1b;
+  background: var(--fich-est-truncado-bg);
+  color: var(--fich-danger);
 }
 
 .diff-new {
-  background: #f0fdf4;
+  background: var(--fich-success-light);
   color: #166534;
 }
 

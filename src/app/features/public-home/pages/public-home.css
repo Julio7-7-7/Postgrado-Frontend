@@ -7,7 +7,7 @@
 /* ===== HERO ===== */
 .hero {
   position: relative;
-  background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 50%, #312e81 100%);
+  background: linear-gradient(135deg, #1e3a8a 0%, var(--fich-est-programado) 50%, #312e81 100%);
   color: white;
   text-align: center;
   padding: 80px 24px 64px;
@@ -89,7 +89,7 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  color: #1e293b;
+  color: var(--fich-text);
 }
 
 .section-header h2 mat-icon {
@@ -101,7 +101,7 @@
 
 .section-header p {
   margin: 6px 0 0;
-  color: #64748b;
+  color: var(--fich-text-faint);
   font-size: 0.9rem;
 }
 
@@ -120,7 +120,7 @@
   align-items: center;
   gap: 12px;
   padding: 48px;
-  color: #64748b;
+  color: var(--fich-text-faint);
 }
 
 .carrusel-loading .spin {
@@ -138,7 +138,7 @@
   font-size: 48px;
   width: 48px;
   height: 48px;
-  color: #94a3b8;
+  color: var(--fich-text-x-faint);
 }
 
 /* Carousel stage — inspired by modulo cards */
@@ -213,7 +213,7 @@
   width: 100%;
   height: 180px;
   overflow: hidden;
-  background: #f1f5f9;
+  background: var(--fich-border-light);
 }
 
 .card-foto {
@@ -233,14 +233,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #e2e8f0, #cbd5e1);
+  background: linear-gradient(135deg, var(--fich-border), var(--fich-border));
 }
 
 .card-foto-placeholder mat-icon {
   font-size: 56px;
   width: 56px;
   height: 56px;
-  color: #94a3b8;
+  color: var(--fich-text-x-faint);
 }
 
 .card-img-overlay {
@@ -294,7 +294,7 @@ mat-card-content {
 
 .card-edicion {
   font-size: 0.75rem;
-  color: #94a3b8;
+  color: var(--fich-text-x-faint);
   font-weight: 500;
 }
 
@@ -302,7 +302,7 @@ mat-card-content {
   margin: 0 0 4px;
   font-size: 1.05rem;
   font-weight: 600;
-  color: #1e293b;
+  color: var(--fich-text);
   line-height: 1.35;
 }
 
@@ -323,14 +323,14 @@ mat-card-content {
   align-items: center;
   gap: 8px;
   font-size: 0.82rem;
-  color: #475569;
+  color: var(--fich-text-muted);
 }
 
 .meta-item mat-icon {
   font-size: 16px;
   width: 16px;
   height: 16px;
-  color: #94a3b8;
+  color: var(--fich-text-x-faint);
 }
 
 .card-precio {
@@ -339,12 +339,12 @@ mat-card-content {
   align-items: center;
   margin-top: 14px;
   padding-top: 12px;
-  border-top: 1px solid #f1f5f9;
+  border-top: 1px solid var(--fich-border-light);
 }
 
 .precio-label {
   font-size: 0.8rem;
-  color: #64748b;
+  color: var(--fich-text-faint);
 }
 
 .precio-valor {
@@ -399,7 +399,7 @@ mat-card-actions {
 }
 
 .nav-btn mat-icon {
-  color: #475569;
+  color: var(--fich-text-muted);
 }
 
 .carrusel-dots {
@@ -412,7 +412,7 @@ mat-card-actions {
   height: 10px;
   border-radius: 50%;
   border: none;
-  background: #cbd5e1;
+  background: var(--fich-border);
   cursor: pointer;
   transition: background 0.3s, transform 0.3s;
 }
@@ -424,7 +424,7 @@ mat-card-actions {
 
 /* ===== ABOUT ===== */
 .about-section {
-  background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+  background: linear-gradient(135deg, var(--fich-bg-subtle) 0%, var(--fich-est-convocatoria-bg) 100%);
   padding: 64px 24px;
 }
 
@@ -437,14 +437,14 @@ mat-card-actions {
 .about-content h2 {
   margin: 0 0 20px;
   font-size: 1.6rem;
-  color: #1e293b;
+  color: var(--fich-text);
 }
 
 .about-content p {
   margin: 0 0 16px;
   font-size: 0.95rem;
   line-height: 1.7;
-  color: #475569;
+  color: var(--fich-text-muted);
   text-align: justify;
 }
 
@@ -472,7 +472,7 @@ mat-card-actions {
   text-align: center;
   transition: transform 0.25s, box-shadow 0.25s;
   cursor: default;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--fich-border);
 }
 
 .pilar-card:hover {
@@ -500,24 +500,24 @@ mat-card-actions {
   margin: 0 0 10px;
   font-size: 1.05rem;
   font-weight: 600;
-  color: #1e293b;
+  color: var(--fich-text);
 }
 
 .pilar-card p {
   margin: 0;
   font-size: 0.85rem;
   line-height: 1.55;
-  color: #64748b;
+  color: var(--fich-text-faint);
 }
 
 /* ===== FOOTER ===== */
 .landing-footer {
   text-align: center;
   padding: 20px;
-  color: #94a3b8;
+  color: var(--fich-text-x-faint);
   font-size: 0.8rem;
-  border-top: 1px solid #e2e8f0;
-  background: #f8fafc;
+  border-top: 1px solid var(--fich-border);
+  background: var(--fich-bg-subtle);
 }
 
 /* ===== RESPONSIVE ===== */

@@ -32,7 +32,7 @@
               <div class="edicion-meta">
                 <span class="edicion-label">Ed. {{ ed.edicion.edicion_numero }}</span>
                 <span class="edicion-periodo">{{ semestreLabel(ed.edicion.semestre) }} {{ ed.edicion.anio }}</span>
-                <span class="ed-estado-badge" [class]="estadoEdicionClass(ed.edicion.estado)">
+                <span class="estado-pill" [class]="estadoEdicionClass(ed.edicion.estado)">
                   {{ ed.edicion.estado }}
                 </span>
               </div>
@@ -56,7 +56,7 @@
               <div class="modulo-card" (click)="gestionarModulo(mod)">
                 <div class="modulo-top">
                   <span class="modulo-sigla">{{ mod.sigla }}</span>
-                  <span class="modulo-estado-badge" [class]="estadoModuloClass(mod.estado)">
+                  <span class="estado-pill" [class]="estadoModuloClass(mod.estado)">
                     {{ mod.estado }}
                   </span>
                 </div>

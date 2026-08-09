@@ -143,6 +143,16 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--fich-est-historico);
   border: 1px solid var(--fich-est-historico-border);
 }
+.estado-pill.pausado {
+  background: var(--fich-warning-lighter);
+  color: #a16207;
+  border: 1px solid #fef08a;
+}
+.estado-pill.cancelado {
+  background: var(--fich-est-truncado-bg);
+  color: var(--fich-est-truncado);
+  border: 1px solid var(--fich-est-truncado-border);
+}
 
 /* ─── Global Status Dot ─── */
 .status-dot {
@@ -150,13 +160,13 @@ h1, h2, h3, h4, h5, h6 {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #ef4444;
+  background: var(--fich-danger);
   margin-right: 6px;
   vertical-align: middle;
 }
 
 .status-dot.active {
-  background: #22c55e;
+  background: var(--fich-success);
 }
 
 /* ─── Global Table Styles ─── */
@@ -292,8 +302,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .mat-mdc-snack-bar-container {
-  --mdc-snackbar-container-color: #1e293b;
-  --mat-snack-bar-button-color: #94a3b8;
+  --mdc-snackbar-container-color: var(--fich-text);
+  --mat-snack-bar-button-color: var(--fich-text-x-faint);
 }
 
 .mat-mdc-dialog-container .mdc-dialog__surface {

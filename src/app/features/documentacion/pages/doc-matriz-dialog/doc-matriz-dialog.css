@@ -75,12 +75,12 @@
   letter-spacing: 0.4px;
 }
 
-.estado-postulante { background: #fef3c7; color: #92400e; }
+.estado-postulante { background: var(--fich-warning-lighter); color: #92400e; }
 .estado-observado { background: #ffedd5; color: #9a3412; }
-.estado-inscrito { background: #d1fae5; color: #065f46; }
-.estado-incorporado { background: #dbeafe; color: #1e40af; }
-.estado-finalizado { background: #e0e7ff; color: #3730a3; }
-.estado-retirado { background: #fee2e2; color: #991b1b; }
+.estado-inscrito { background: var(--fich-success-lighter); color: var(--fich-success); }
+.estado-incorporado { background: var(--fich-est-programado-border); color: #1e40af; }
+.estado-finalizado { background: var(--fich-primary-lighter); color: var(--fich-primary-dark); }
+.estado-retirado { background: var(--fich-est-truncado-border); color: var(--fich-danger); }
 
 /* ─── Progress ─── */
 
@@ -122,7 +122,7 @@
 }
 
 .progress-fill.complete {
-  background: #10b981;
+  background: var(--fich-success);
 }
 
 /* ─── Content ─── */
@@ -145,9 +145,9 @@
 
 .doc-row:last-child { margin-bottom: 0; }
 
-.doc-row.doc-aceptado { border-left: 3px solid #10b981; }
-.doc-row.doc-rechazado { border-left: 3px solid #ef4444; }
-.doc-row.doc-entregado { border-left: 3px solid #f59e0b; }
+.doc-row.doc-aceptado { border-left: 3px solid var(--fich-success); }
+.doc-row.doc-rechazado { border-left: 3px solid var(--fich-danger); }
+.doc-row.doc-entregado { border-left: 3px solid var(--fich-warning); }
 
 .doc-main {
   display: flex;
@@ -165,10 +165,10 @@
   height: 22px;
 }
 
-.icon-aceptado { color: #10b981; }
-.icon-rechazado { color: #ef4444; }
-.icon-entregado { color: #f59e0b; }
-.icon-pendiente { color: #94a3b8; }
+.icon-aceptado { color: var(--fich-success); }
+.icon-rechazado { color: var(--fich-danger); }
+.icon-entregado { color: var(--fich-warning); }
+.icon-pendiente { color: var(--fich-text-x-faint); }
 
 .doc-info {
   flex: 1;
@@ -195,10 +195,10 @@
   gap: 6px;
   margin-top: 6px;
   padding: 6px 10px;
-  background: #fef2f2;
+  background: var(--fich-est-truncado-bg);
   border-radius: 6px;
   font-size: 0.8rem;
-  color: #991b1b;
+  color: var(--fich-danger);
   font-style: italic;
 }
 
@@ -221,10 +221,10 @@
   flex-shrink: 0;
 }
 
-.badge-aceptado { background: #d1fae5; color: #065f46; }
-.badge-rechazado { background: #fee2e2; color: #991b1b; }
-.badge-entregado { background: #fef3c7; color: #92400e; }
-.badge-pendiente { background: #f1f5f9; color: #64748b; }
+.badge-aceptado { background: var(--fich-success-lighter); color: var(--fich-success); }
+.badge-rechazado { background: var(--fich-est-truncado-border); color: var(--fich-danger); }
+.badge-entregado { background: var(--fich-warning-lighter); color: #92400e; }
+.badge-pendiente { background: var(--fich-border-light); color: var(--fich-text-faint); }
 
 /* ─── Actions ─── */
 
@@ -254,7 +254,7 @@
   gap: 4px;
   font-size: 0.82rem;
   font-weight: 600;
-  color: #10b981;
+  color: var(--fich-success);
 }
 
 .approved-label mat-icon {
@@ -264,12 +264,12 @@
 }
 
 .reject-btn {
-  color: #ef4444 !important;
-  border-color: #fecaca !important;
+  color: var(--fich-danger) !important;
+  border-color: var(--fich-est-truncado-border) !important;
 }
 
 .reject-btn:hover {
-  background: #fef2f2 !important;
+  background: var(--fich-est-truncado-bg) !important;
 }
 
 /* ─── Reject form ─── */
@@ -278,7 +278,7 @@
   margin-top: 10px;
   padding: 12px;
   background: #fff;
-  border: 1px solid #fecaca;
+  border: 1px solid var(--fich-est-truncado-border);
   border-radius: 8px;
 }
 

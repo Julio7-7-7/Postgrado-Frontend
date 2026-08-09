@@ -22,12 +22,12 @@
   justify-content: space-between;
   padding: 14px 18px;
   background: white;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--fich-border);
   border-radius: 10px;
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 
-.entity-row:hover { border-color: #c7d2fe; }
+.entity-row:hover { border-color: var(--fich-est-convocatoria-border); }
 .entity-row.inactive { opacity: 0.6; }
 
 .entity-main {
@@ -49,14 +49,14 @@
   width: 40px;
   height: 40px;
   border-radius: 10px;
-  background: #f1f5f9;
+  background: var(--fich-border-light);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
 }
 
-.entity-icon.discount { background: #fef3c7; color: #b45309; }
+.entity-icon.discount { background: var(--fich-warning-lighter); color: var(--fich-est-pendiente); }
 .entity-icon mat-icon { font-size: 20px; width: 20px; height: 20px; }
 
 .entity-name {
@@ -72,11 +72,11 @@
   font-weight: 700;
   padding: 2px 8px;
   border-radius: 12px;
-  background: #fef3c7;
-  color: #b45309;
+  background: var(--fich-warning-lighter);
+  color: var(--fich-est-pendiente);
 }
 
-.entity-meta { font-size: 0.78rem; color: #94a3b8; }
+.entity-meta { font-size: 0.78rem; color: var(--fich-text-x-faint); }
 
 .entity-tags {
   display: flex;
@@ -92,9 +92,9 @@
   border-radius: 6px;
 }
 
-.tag-modalidad { background: #e0e7ff; color: #3730a3; }
+.tag-modalidad { background: var(--fich-primary-lighter); color: var(--fich-primary-dark); }
 .tag-requisito { background: #fce7f3; color: #9d174d; }
-.tag-uso-unico { background: #fef3c7; color: #b45309; }
+.tag-uso-unico { background: var(--fich-warning-lighter); color: var(--fich-est-pendiente); }
 
 .entity-actions {
   display: flex;

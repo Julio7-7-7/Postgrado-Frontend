@@ -20,7 +20,7 @@
 
 .toolbar-count {
   font-size: 0.8rem;
-  color: #94a3b8;
+  color: var(--fich-text-x-faint);
   font-weight: 500;
 }
 
@@ -61,20 +61,20 @@
   align-items: center;
   padding: 48px;
   gap: 12px;
-  color: #64748b;
+  color: var(--fich-text-faint);
 }
 
 .error-container mat-icon {
   font-size: 40px;
   width: 40px;
   height: 40px;
-  color: #ef4444;
+  color: var(--fich-danger);
 }
 
 .table-wrapper {
   border-radius: 12px;
   overflow: hidden;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--fich-border);
 }
 
 .cell-name-row {
@@ -99,23 +99,23 @@
 
 .cell-name {
   font-weight: 500;
-  color: #1e293b;
+  color: var(--fich-text);
 }
 
 .cell-email {
   font-weight: 500;
-  color: #1e293b;
+  color: var(--fich-text);
 }
 
 .cell-muted {
-  color: #94a3b8;
+  color: var(--fich-text-x-faint);
   font-size: 0.82rem;
 }
 
 .cell-mono {
   font-family: 'Roboto Mono', monospace;
   font-size: 0.82rem;
-  color: #475569;
+  color: var(--fich-text-muted);
 }
 
 .action-btns {
@@ -140,7 +140,7 @@
   align-items: center;
   padding: 48px;
   gap: 8px;
-  color: #94a3b8;
+  color: var(--fich-text-x-faint);
 }
 
 .empty-state mat-icon {
@@ -152,7 +152,7 @@
 .empty-state h4 {
   margin: 0;
   font-weight: 600;
-  color: #64748b;
+  color: var(--fich-text-faint);
 }
 
 .empty-state p {

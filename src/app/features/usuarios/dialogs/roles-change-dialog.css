@@ -6,7 +6,7 @@
 }
 
 .roles-header mat-icon {
-  color: #4f46e5;
+  color: var(--fich-primary-hover);
 }
 
 .roles-list {
@@ -25,11 +25,11 @@
 }
 
 .role-option:hover {
-  background: #f8fafc;
+  background: var(--fich-bg-subtle);
 }
 
 .role-desc {
   font-size: 0.78rem;
-  color: #94a3b8;
+  color: var(--fich-text-x-faint);
   margin-left: auto;
 }

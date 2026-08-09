@@ -147,7 +147,7 @@
           <ng-container matColumnDef="estado">
             <th mat-header-cell *matHeaderCellDef> Estado </th>
             <td mat-cell *matCellDef="let m">
-              <span class="estado-modulo-badge" [class]="'estado-modulo-' + m.estado">
+              <span class="estado-pill" [class]="estadoModuloClass(m.estado)">
                 {{ m.estado }}
               </span>
             </td>
@@ -219,7 +219,7 @@
           <ng-container matColumnDef="estado">
             <th mat-header-cell *matHeaderCellDef> Estado </th>
             <td mat-cell *matCellDef="let m">
-              <span class="estado-modulo-badge" [class]="'estado-modulo-' + m.estado">
+              <span class="estado-pill" [class]="estadoModuloClass(m.estado)">
                 {{ m.estado }}
               </span>
             </td>

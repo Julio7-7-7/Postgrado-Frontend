@@ -188,7 +188,7 @@
   width: 38px;
   height: 38px;
   border-radius: var(--fich-radius-sm);
-  background: linear-gradient(135deg, var(--fich-primary), #6366f1);
+  background: linear-gradient(135deg, var(--fich-primary), var(--fich-primary));
   color: white;
   font-weight: 700;
   font-size: 0.78rem;

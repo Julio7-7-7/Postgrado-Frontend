@@ -3,11 +3,11 @@ h2[mat-dialog-title] {
   align-items: center;
   gap: 8px;
   font-size: 1.05rem;
-  color: #b91c1c;
+  color: var(--fich-est-truncado);
 }
 
 h2[mat-dialog-title] mat-icon {
-  color: #b91c1c;
+  color: var(--fich-est-truncado);
 }
 
 mat-dialog-content {
@@ -38,8 +38,8 @@ mat-dialog-content {
   font-size: 0.8rem;
   line-height: 1.5;
   color: var(--fich-text-secondary);
-  background: #fef2f2;
-  border: 1px solid #fecaca;
+  background: var(--fich-est-truncado-bg);
+  border: 1px solid var(--fich-est-truncado-border);
   border-radius: 10px;
   padding: 10px 12px;
   margin: 0 0 12px;

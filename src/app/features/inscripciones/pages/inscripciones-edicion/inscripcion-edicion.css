@@ -65,33 +65,33 @@
 }
 .stat-chip mat-icon { font-size: 15px; width: 15px; height: 15px; }
 
-.stat-chip.chip-postulante { background: #dbeafe; color: #1e40af; }
+.stat-chip.chip-postulante { background: var(--fich-est-programado-border); color: #1e40af; }
 .stat-chip.chip-postulante:hover,
-.stat-chip.chip-postulante.active { background: #bfdbfe; box-shadow: 0 0 0 2px #3b82f6; }
+.stat-chip.chip-postulante.active { background: var(--fich-est-programado-border); box-shadow: 0 0 0 2px #3b82f6; }
 
-.stat-chip.chip-observado { background: #fee2e2; color: #991b1b; }
+.stat-chip.chip-observado { background: var(--fich-est-truncado-border); color: var(--fich-danger); }
 .stat-chip.chip-observado:hover,
-.stat-chip.chip-observado.active { background: #fecaca; box-shadow: 0 0 0 2px #ef4444; }
+.stat-chip.chip-observado.active { background: var(--fich-est-truncado-border); box-shadow: 0 0 0 2px var(--fich-danger); }
 
-.stat-chip.chip-inscrito { background: #d1fae5; color: #065f46; }
+.stat-chip.chip-inscrito { background: var(--fich-success-lighter); color: var(--fich-success); }
 .stat-chip.chip-inscrito:hover,
-.stat-chip.chip-inscrito.active { background: #a7f3d0; box-shadow: 0 0 0 2px #10b981; }
+.stat-chip.chip-inscrito.active { background: var(--fich-est-en-curso-border); box-shadow: 0 0 0 2px var(--fich-success); }
 
-.stat-chip.chip-incorporado { background: #fef3c7; color: #92400e; }
+.stat-chip.chip-incorporado { background: var(--fich-warning-lighter); color: #92400e; }
 .stat-chip.chip-incorporado:hover,
-.stat-chip.chip-incorporado.active { background: #fde68a; box-shadow: 0 0 0 2px #f59e0b; }
+.stat-chip.chip-incorporado.active { background: var(--fich-est-pendiente-border); box-shadow: 0 0 0 2px var(--fich-warning); }
 
-.stat-chip.chip-finalizado { background: #e0e7ff; color: #3730a3; }
+.stat-chip.chip-finalizado { background: var(--fich-primary-lighter); color: var(--fich-primary-dark); }
 .stat-chip.chip-finalizado:hover,
-.stat-chip.chip-finalizado.active { background: #c7d2fe; box-shadow: 0 0 0 2px #6366f1; }
+.stat-chip.chip-finalizado.active { background: var(--fich-est-convocatoria-border); box-shadow: 0 0 0 2px var(--fich-primary); }
 
-.stat-chip.chip-graduado { background: #a7f3d0; color: #064e3b; }
+.stat-chip.chip-graduado { background: var(--fich-est-en-curso-border); color: #064e3b; }
 .stat-chip.chip-graduado:hover,
-.stat-chip.chip-graduado.active { background: #6ee7b7; box-shadow: 0 0 0 2px #059669; }
+.stat-chip.chip-graduado.active { background: #6ee7b7; box-shadow: 0 0 0 2px var(--fich-success); }
 
 .stat-chip.chip-retirado { background: #f3f4f6; color: #4b5563; }
 .stat-chip.chip-retirado:hover,
-.stat-chip.chip-retirado.active { background: #e5e7eb; box-shadow: 0 0 0 2px #9ca3af; }
+.stat-chip.chip-retirado.active { background: #e5e7eb; box-shadow: 0 0 0 2px var(--fich-text-faint); }
 
 .clear-filter {
   display: inline-flex;
@@ -102,12 +102,12 @@
   font-size: 0.75rem;
   font-weight: 500;
   cursor: pointer;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--fich-border);
   background: white;
-  color: #64748b;
+  color: var(--fich-text-faint);
   transition: all 0.2s;
 }
-.clear-filter:hover { background: #f1f5f9; color: #1e293b; }
+.clear-filter:hover { background: var(--fich-border-light); color: var(--fich-text); }
 .clear-filter mat-icon { font-size: 14px; width: 14px; height: 14px; }
 
 /* Filters */
@@ -262,7 +262,7 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.3px;
-  background: #fef3c7;
+  background: var(--fich-warning-lighter);
   color: #92400e;
   margin-left: 8px;
   vertical-align: middle;
@@ -288,13 +288,13 @@
   white-space: nowrap;
 }
 
-.estado-postulante { background: #dbeafe; color: #1e40af; }
-.estado-observado { background: #fee2e2; color: #991b1b; }
-.estado-inscrito { background: #d1fae5; color: #065f46; }
-.estado-incorporado { background: #fef3c7; color: #92400e; border: 1px dashed #f59e0b; }
-.estado-finalizado { background: #e0e7ff; color: #3730a3; }
-.estado-retirado { background: #f3f4f6; color: #6b7280; }
-.estado-graduado { background: #d1fae5; color: #065f46; }
+.estado-postulante { background: var(--fich-est-programado-border); color: #1e40af; }
+.estado-observado { background: var(--fich-est-truncado-border); color: var(--fich-danger); }
+.estado-inscrito { background: var(--fich-success-lighter); color: var(--fich-success); }
+.estado-incorporado { background: var(--fich-warning-lighter); color: #92400e; border: 1px dashed var(--fich-warning); }
+.estado-finalizado { background: var(--fich-primary-lighter); color: var(--fich-primary-dark); }
+.estado-retirado { background: #f3f4f6; color: var(--fich-text-faint); }
+.estado-graduado { background: var(--fich-success-lighter); color: var(--fich-success); }
 
 /* Actions */
 
@@ -315,7 +315,7 @@
 }
 
 .transcript-btn {
-  color: var(--fich-primary, #4f46e5);
+  color: var(--fich-primary, var(--fich-primary-hover));
 }
 
 .col-acciones {
@@ -335,8 +335,8 @@
 }
 
 .docs-badge.complete {
-  background: #d1fae5;
-  color: #065f46;
+  background: var(--fich-success-lighter);
+  color: var(--fich-success);
 }
 
 /* Descuento */
@@ -396,7 +396,7 @@
   cursor: pointer;
   transition: all 0.12s;
 }
-.paginator-btn:hover:not(:disabled) { background: #f1f5f9; border-color: #cbd5e1; }
+.paginator-btn:hover:not(:disabled) { background: var(--fich-border-light); border-color: var(--fich-border); }
 .paginator-btn:disabled { opacity: 0.35; cursor: default; }
 .paginator-btn mat-icon { font-size: 17px; width: 17px; height: 17px; }
 
@@ -416,7 +416,7 @@
   cursor: pointer;
   transition: all 0.12s;
 }
-.paginator-page:hover { background: #f1f5f9; }
+.paginator-page:hover { background: var(--fich-border-light); }
 .paginator-page.active {
   background: var(--fich-primary);
   color: white;

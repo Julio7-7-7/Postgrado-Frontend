@@ -107,13 +107,13 @@ mat-dialog-content {
 }
 
 .estado-pill.confirmado {
-  background: #dcfce7;
+  background: var(--fich-success-lighter);
   color: #166534;
 }
 
 .estado-pill.anulado {
-  background: #fee2e2;
-  color: #b91c1c;
+  background: var(--fich-est-truncado-border);
+  color: var(--fich-est-truncado);
 }
 
 .asignaciones {
@@ -151,7 +151,7 @@ mat-dialog-content {
 }
 
 .asig-dot.matricula {
-  background: #d97706;
+  background: var(--fich-warning);
 }
 
 .asig-monto {
@@ -203,14 +203,14 @@ mat-dialog-content {
 }
 
 .meta-item.anulacion {
-  color: #b91c1c;
+  color: var(--fich-est-truncado);
 }
 
 .motivo {
   width: 100%;
   font-size: 0.72rem;
-  color: #b91c1c;
-  background: #fef2f2;
+  color: var(--fich-est-truncado);
+  background: var(--fich-est-truncado-bg);
   border-radius: 8px;
   padding: 5px 8px;
   margin-top: 6px;

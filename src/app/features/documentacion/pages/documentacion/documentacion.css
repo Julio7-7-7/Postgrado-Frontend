@@ -94,7 +94,7 @@
 .card-foto {
   width: 100%;
   height: 160px;
-  background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+  background: linear-gradient(135deg, var(--fich-primary-lighter), var(--fich-est-convocatoria-border));
   overflow: hidden;
   position: relative;
 }
@@ -111,14 +111,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+  background: linear-gradient(135deg, var(--fich-primary-lighter), var(--fich-est-convocatoria-border));
 }
 
 .card-foto-placeholder mat-icon {
   font-size: 48px;
   width: 48px;
   height: 48px;
-  color: #6366f1;
+  color: var(--fich-primary);
   opacity: 0.5;
 }
 
@@ -148,18 +148,18 @@
 }
 
 .estado-programado {
-  background: var(--fich-est-programado-bg, #f1f5f9);
-  color: var(--fich-est-programado, #64748b);
+  background: var(--fich-est-programado-bg, var(--fich-border-light));
+  color: var(--fich-est-programado, var(--fich-text-faint));
 }
 
 .estado-en_curso {
-  background: var(--fich-est-en-curso-bg, #dcfce7);
-  color: var(--fich-est-en-curso, #16a34a);
+  background: var(--fich-est-en-curso-bg, var(--fich-success-lighter));
+  color: var(--fich-est-en-curso, var(--fich-success));
 }
 
 .estado-reprogramado {
-  background: var(--fich-est-reprogramado-bg, #fef3c7);
-  color: var(--fich-est-reprogramado, #d97706);
+  background: var(--fich-est-reprogramado-bg, var(--fich-warning-lighter));
+  color: var(--fich-est-reprogramado, var(--fich-warning));
 }
 
 .card-title {

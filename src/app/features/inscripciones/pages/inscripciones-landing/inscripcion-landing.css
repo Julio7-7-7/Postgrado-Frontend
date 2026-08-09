@@ -149,9 +149,9 @@
   letter-spacing: 0.3px;
 }
 
-.estado-programado { background: #dbeafe; color: #1e40af; }
-.estado-en_curso { background: #d1fae5; color: #065f46; }
-.estado-reprogramado { background: #fef3c7; color: #92400e; }
+.estado-programado { background: var(--fich-est-programado-border); color: #1e40af; }
+.estado-en_curso { background: var(--fich-success-lighter); color: var(--fich-success); }
+.estado-reprogramado { background: var(--fich-warning-lighter); color: #92400e; }
 
 .card-title {
   margin: 0;
@@ -177,8 +177,8 @@
   color: var(--fich-text-secondary);
 }
 
-.meta-tag.tipo { background: #ede9fe; color: #6d28d9; }
-.meta-tag.gestion { background: #dbeafe; color: #1e40af; }
+.meta-tag.tipo { background: #ede9fe; color: var(--fich-est-reprogramado); }
+.meta-tag.gestion { background: var(--fich-est-programado-border); color: #1e40af; }
 .meta-tag.modalidad { background: #f0fdfa; color: #0d9488; }
 
 .action-btn {

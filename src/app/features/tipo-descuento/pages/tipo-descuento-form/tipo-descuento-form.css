@@ -1,5 +1,5 @@
 .header-icon {
-  background: linear-gradient(135deg, var(--fich-feature-descuentos), #f59e0b);
+  background: linear-gradient(135deg, var(--fich-feature-descuentos), var(--fich-warning));
 }
 
 mat-dialog-content { padding: 16px 24px; }

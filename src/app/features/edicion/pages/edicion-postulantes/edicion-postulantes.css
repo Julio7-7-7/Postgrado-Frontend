@@ -155,7 +155,7 @@
 .descuento-badge {
   display: inline-flex;
   align-items: center;
-  background: #fef3c7;
+  background: var(--fich-warning-lighter);
   color: #92400e;
   font-size: 0.72rem;
   font-weight: 700;
@@ -219,10 +219,10 @@ tr[mat-row]:hover {
   height: 18px;
 }
 
-.status-icon.pendiente { color: #94a3b8; }
-.status-icon.entregado { color: #f59e0b; }
-.status-icon.aceptado { color: #10b981; }
-.status-icon.rechazado { color: #ef4444; }
+.status-icon.pendiente { color: var(--fich-text-x-faint); }
+.status-icon.entregado { color: var(--fich-warning); }
+.status-icon.aceptado { color: var(--fich-success); }
+.status-icon.rechazado { color: var(--fich-danger); }
 
 .doc-info {
   flex: 1;
@@ -237,7 +237,7 @@ tr[mat-row]:hover {
 
 .doc-obs {
   font-size: 0.78rem;
-  color: #ef4444;
+  color: var(--fich-danger);
   font-style: italic;
 }
 
@@ -249,7 +249,7 @@ tr[mat-row]:hover {
   text-transform: capitalize;
 }
 
-.doc-estado-pendiente { background: #f1f5f9; color: #64748b; }
-.doc-estado-entregado { background: #fef3c7; color: #92400e; }
-.doc-estado-aceptado { background: #d1fae5; color: #065f46; }
-.doc-estado-rechazado { background: #fee2e2; color: #991b1b; }
+.doc-estado-pendiente { background: var(--fich-border-light); color: var(--fich-text-faint); }
+.doc-estado-entregado { background: var(--fich-warning-lighter); color: #92400e; }
+.doc-estado-aceptado { background: var(--fich-success-lighter); color: var(--fich-success); }
+.doc-estado-rechazado { background: var(--fich-est-truncado-border); color: var(--fich-danger); }

@@ -93,10 +93,10 @@
   background: var(--fich-border-light);
 }
 
-.edicion-card.programado .card-bar { background: var(--fich-est-programado, #64748b); }
-.edicion-card.en-curso .card-bar { background: var(--fich-est-en-curso, #16a34a); }
-.edicion-card.reprogramado .card-bar { background: var(--fich-est-reprogramado, #d97706); }
-.edicion-card.finalizado .card-bar { background: var(--fich-est-finalizado, #94a3b8); }
+.edicion-card.programado .card-bar { background: var(--fich-est-programado, var(--fich-text-faint)); }
+.edicion-card.en-curso .card-bar { background: var(--fich-est-en-curso, var(--fich-success)); }
+.edicion-card.reprogramado .card-bar { background: var(--fich-est-reprogramado, var(--fich-warning)); }
+.edicion-card.finalizado .card-bar { background: var(--fich-est-finalizado, var(--fich-text-x-faint)); }
 
 /* ─── Card body ─── */
 
