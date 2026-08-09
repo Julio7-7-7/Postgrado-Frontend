@@ -1,7 +1,7 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -12,22 +12,8 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { PagoService } from '../../services/pago.service';
-import { PagoCreate, AlumnoPagosMatrix, ModuloPagosInfo } from '../../models/pago.model';
-
-interface Bucket {
-  key: string;
-  id: number | null;
-  label: string;
-  orden: number;
-  esperado: number;
-  pagado: number;
-}
-
-interface PreviewItem {
-  label: string;
-  monto: number;
-  esUltimo: boolean;
-}
+import { AlumnoPagosMatrix, ModuloPagosInfo, PreviewAsignacion, TransaccionPagoCreate } from '../../models/pago.model';
+import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog';
 
 interface PagoDialogData {
   alumno: AlumnoPagosMatrix;
@@ -35,6 +21,9 @@ interface PagoDialogData {
   matricula: number;
   precio: number;
 }
+
+const MAX_SIZE = 10 * 1024 * 1024;
+const ACCEPTED = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
 
 @Component({
   selector: 'app-pago-register-dialog',
@@ -52,115 +41,102 @@ interface PagoDialogData {
 export class PagoRegisterDialog {
   private service = inject(PagoService);
   private snackbar = inject(MatSnackBar);
+  private dialog = inject(MatDialog);
   dialogRef = inject(MatDialogRef<PagoRegisterDialog>);
   data = inject<PagoDialogData>(MAT_DIALOG_DATA);
 
   target = signal<number | null>(null);
   monto = signal<number | null>(null);
   fechaPago: Date | null = new Date();
-  numeroReferencia = '';
-  comprobanteUrl = '';
+  comprobante = signal<{ name: string; size: number; data: string } | null>(null);
   isSubmitting = signal(false);
+  previewAsig = signal<PreviewAsignacion[]>([]);
+  previewLoading = signal(false);
 
-  modulosOrdenados = computed(() =>
-    [...this.data.modulos].sort((a, b) => a.orden - b.orden)
-  );
-
-  matEsperado = computed(() => this.data.alumno.matricula.esperado);
-  matPagado = computed(() => this.data.alumno.matricula.pagado);
-
-  cuotaDe(idDpm: number): { esperado: number; pagado: number } {
-    const c = this.data.alumno.cuotas.find(x => x.id_detalle_programa_modulo === idDpm);
-    return { esperado: c?.esperado ?? 0, pagado: c?.pagado ?? 0 };
-  }
-
-  restanteLabel(id: number | null): number {
-    if (id === null) return Math.max(0, this.matEsperado() - this.matPagado());
-    const { esperado, pagado } = this.cuotaDe(id);
-    return Math.max(0, Math.round(esperado - pagado));
-  }
-
-  opcionLabel(id: number | null): string {
-    if (id === null) {
-      const rest = this.restanteLabel(null);
-      return rest > 0 ? `Matrícula — restante ${rest} Bs` : 'Matrícula — pagada';
-    }
-    const m = this.data.modulos.find(x => x.id_detalle_programa_modulo === id);
-    const rest = this.restanteLabel(id);
-    const sufijo = rest > 0 ? ` · restante ${rest} Bs` : ' · pagada';
-    return m ? `Cuota ${m.orden} — ${m.sigla}${sufijo}` : `Cuota`;
-  }
-
-  buckets: Bucket[] = [];
+  modulos = () => [...this.data.modulos].sort((a, b) => a.orden - b.orden);
 
   constructor() {
-    const matBucket: Bucket = {
-      key: 'matricula',
-      id: null,
-      label: 'Matrícula',
-      orden: 0,
-      esperado: this.matEsperado(),
-      pagado: this.matPagado(),
+    const modBuckets = this.modulos().map(m => m.id_detalle_programa_modulo);
+    const restante = (id: number | null): number => {
+      if (id === null) return Math.max(0, this.data.alumno.matricula.esperado - this.data.alumno.matricula.pagado);
+      const c = this.data.alumno.cuotas.find(x => x.id_detalle_programa_modulo === id);
+      return Math.max(0, Math.round((c?.esperado ?? 0) - (c?.pagado ?? 0)));
     };
-    const modBuckets: Bucket[] = this.modulosOrdenados().map(m => {
-      const { esperado, pagado } = this.cuotaDe(m.id_detalle_programa_modulo);
-      return {
-        key: `m-${m.id_detalle_programa_modulo}`,
-        id: m.id_detalle_programa_modulo,
-        label: `Cuota ${m.orden}`,
-        orden: m.orden,
-        esperado,
-        pagado,
-      };
-    });
-    this.buckets = [matBucket, ...modBuckets];
-
-    const defaultTarget = modBuckets.find(b => b.esperado - b.pagado > 0) ?? modBuckets[0];
-    this.target.set(defaultTarget ? defaultTarget.id : null);
-    const rest = this.restanteLabel(this.target());
-    this.monto.set(rest > 0 ? rest : this.cuotaDe(this.target() as number).esperado || 1);
+    const defaultTarget = modBuckets.find(id => restante(id) > 0) ?? modBuckets[0] ?? null;
+    this.target.set(defaultTarget);
+    const rest = restante(defaultTarget);
+    this.monto.set(rest > 0 ? rest : 1);
+    this.actualizarPreview();
   }
 
   onTargetChange(id: number | null): void {
     this.target.set(id);
-    const rest = this.restanteLabel(id);
-    if (rest > 0) this.monto.set(rest);
+    const c = this.data.alumno.cuotas.find(x => x.id_detalle_programa_modulo === id);
+    const restante = id === null
+      ? Math.max(0, this.data.alumno.matricula.esperado - this.data.alumno.matricula.pagado)
+      : Math.max(0, Math.round((c?.esperado ?? 0) - (c?.pagado ?? 0)));
+    if (restante > 0) this.monto.set(restante);
+    this.actualizarPreview();
   }
 
-  preview = computed<PreviewItem[]>(() => {
+  onMontoChange(value: number | string): void {
+    const n = Number(value ?? 0);
+    this.monto.set(Number.isFinite(n) && n > 0 ? n : null);
+    this.actualizarPreview();
+  }
+
+  actualizarPreview(): void {
     const monto = this.monto();
-    if (!monto || monto <= 0) return [];
+    if (!monto || monto <= 0) {
+      this.previewAsig.set([]);
+      return;
+    }
+    this.previewLoading.set(true);
+    this.service.preview({
+      id_detalle_programa_alumno: this.data.alumno.id_detalle_programa_alumno,
+      monto,
+      fecha_pago: (this.fechaPago ?? new Date()).toISOString().split('T')[0],
+    }).subscribe({
+      next: resp => {
+        this.previewAsig.set(resp.asignaciones);
+        this.previewLoading.set(false);
+      },
+      error: () => {
+        this.previewAsig.set([]);
+        this.previewLoading.set(false);
+      },
+    });
+  }
 
-    const targetId = this.target();
-    const orden = this.buckets.slice(1);
-    let cola: Bucket[];
-    if (targetId === null) {
-      cola = [this.buckets[0], ...orden];
-    } else {
-      const idx = orden.findIndex(b => b.id === targetId);
-      cola = idx >= 0 ? orden.slice(idx) : orden;
-    }
+  sobrante = (): number => {
+    const asig = this.previewAsig();
+    if (asig.length <= 1) return 0;
+    return asig.slice(1).reduce((acc, a) => acc + a.monto, 0);
+  };
 
-    const items: PreviewItem[] = [];
-    let sobra = monto;
-    let last: Bucket | null = null;
-    for (const b of cola) {
-      last = b;
-      if (sobra <= 0) break;
-      const pendiente = Math.max(0, b.esperado - b.pagado);
-      const asignar = Math.min(pendiente, sobra);
-      if (asignar > 0) items.push({ label: b.label, monto: asignar, esUltimo: false });
-      sobra -= asignar;
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = '';
+    if (!file) return;
+    if (!ACCEPTED.includes(file.type)) {
+      this.snackbar.open('El comprobante debe ser una imagen (JPG/PNG/WebP) o PDF', 'Cerrar', { duration: 3500 });
+      return;
     }
-    if (sobra > 0.001) {
-      if (items.length > 0) {
-        items.push({ label: last!.label, monto: sobra, esUltimo: true });
-      } else {
-        items.push({ label: 'Matrícula', monto: sobra, esUltimo: true });
-      }
+    if (file.size > MAX_SIZE) {
+      this.snackbar.open('El comprobante supera los 10 MB', 'Cerrar', { duration: 3500 });
+      return;
     }
-    return items;
-  });
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.comprobante.set({ name: file.name, size: file.size, data: String(reader.result) });
+    };
+    reader.readAsDataURL(file);
+  }
+
+  quitarComprobante(): void {
+    this.comprobante.set(null);
+  }
 
   fmt(n: number): string {
     return Number(n || 0).toLocaleString('es-BO', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
@@ -168,22 +144,49 @@ export class PagoRegisterDialog {
 
   guardar(): void {
     const monto = this.monto();
-    if (!monto || monto <= 0 || !this.fechaPago) {
-      this.snackbar.open('Ingresá un monto y una fecha válidos', 'Cerrar', { duration: 3000 });
+    if (!monto || monto <= 0) {
+      this.snackbar.open('Ingresá un monto válido', 'Cerrar', { duration: 3000 });
+      return;
+    }
+    if (!this.fechaPago) {
+      this.snackbar.open('Ingresá una fecha válida', 'Cerrar', { duration: 3000 });
+      return;
+    }
+    if (!this.comprobante()) {
+      this.snackbar.open('Debés adjuntar el comprobante del pago', 'Cerrar', { duration: 3000 });
       return;
     }
 
-    this.isSubmitting.set(true);
+    const sobrante = this.sobrante();
+    if (sobrante > 0) {
+      const detalle = this.previewAsig().slice(1)
+        .map(a => `${a.concepto} (${this.fmt(a.monto)} Bs)`)
+        .join(', ');
+      const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+        width: '460px',
+        data: {
+          titulo: 'Sobrante de pago',
+          mensaje: `El monto de ${this.fmt(this.monto()!)} Bs supera lo pendiente del concepto elegido.\n\nEl sobrante de ${this.fmt(sobrante)} Bs se repartirá en: ${detalle}.\n\n¿Cierto?`,
+        },
+      });
+      dialogRef.afterClosed().subscribe(ok => {
+        if (ok) this.crear();
+      });
+      return;
+    }
 
-    const payload: PagoCreate = {
+    this.crear();
+  }
+
+  private crear(): void {
+    this.isSubmitting.set(true);
+    const payload: TransaccionPagoCreate = {
       id_detalle_programa_alumno: this.data.alumno.id_detalle_programa_alumno,
       id_detalle_programa_modulo: this.target(),
-      monto,
-      fecha_pago: this.fechaPago.toISOString().split('T')[0],
-      concepto: 'auto',
-      estado: 'confirmado',
-      numero_referencia: this.numeroReferencia.trim() || null,
-      comprobante_url: this.comprobanteUrl.trim() || null,
+      monto: this.monto()!,
+      fecha_pago: this.fechaPago!.toISOString().split('T')[0],
+      comprobante: this.comprobante()!.data,
+      observaciones: null,
     };
 
     this.service.create(payload).subscribe({
@@ -193,7 +196,7 @@ export class PagoRegisterDialog {
       },
       error: err => {
         this.isSubmitting.set(false);
-        this.snackbar.open(err.error?.detail || 'Error al registrar pago', 'Cerrar', { duration: 3000 });
+        this.snackbar.open(err.error?.detail || 'Error al registrar el pago', 'Cerrar', { duration: 3500 });
       },
     });
   }

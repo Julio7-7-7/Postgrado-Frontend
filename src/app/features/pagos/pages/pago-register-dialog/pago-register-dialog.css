@@ -98,3 +98,91 @@ h2[mat-dialog-title] mat-icon {
   font-size: 0.72rem;
   color: var(--fich-text-muted);
 }
+
+.preview-loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: var(--fich-text-muted);
+}
+
+.upload-section {
+  margin-top: 8px;
+}
+
+.upload-title {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--fich-text-muted);
+  margin-bottom: 8px;
+}
+
+.upload-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border: 1px dashed var(--fich-border);
+  border-radius: 10px;
+  background: var(--fich-bg-subtle);
+  color: var(--fich-feature-pagos);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.upload-btn:hover {
+  border-color: var(--fich-feature-pagos);
+  background: #f0fdf4;
+}
+
+.upload-hint {
+  margin: 6px 0 0;
+  font-size: 0.72rem;
+  color: var(--fich-text-muted);
+}
+
+.file-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid #bbf7d0;
+  background: #f0fdf4;
+  color: var(--fich-text);
+}
+
+.file-chip mat-icon {
+  color: var(--fich-feature-pagos);
+}
+
+.file-name {
+  flex: 1;
+  font-size: 0.82rem;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-size {
+  font-size: 0.72rem;
+  color: var(--fich-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.file-remove {
+  width: 28px;
+  height: 28px;
+  line-height: 28px;
+}
+
+.file-remove mat-icon {
+  font-size: 18px;
+  color: var(--fich-text-muted);
+}

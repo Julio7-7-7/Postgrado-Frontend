@@ -1,0 +1,86 @@
+<h2 mat-dialog-title>
+  <mat-icon>receipt_long</mat-icon> Boletas de pago
+  <span class="title-sub">{{ data.nombre }}</span>
+</h2>
+
+<div mat-dialog-content>
+  <p class="dialog-subtitle">
+    {{ data.edicion }} · Total confirmado: <b>{{ fmt(totalPagado()) }} Bs</b>
+  </p>
+
+  @if (isLoading()) {
+    <div class="loading-state">
+      <mat-spinner diameter="32"></mat-spinner>
+      <span>Cargando boletas...</span>
+    </div>
+  } @else if (transacciones().length === 0) {
+    <div class="empty-state">
+      <mat-icon>receipt_long</mat-icon>
+      <p>Este alumno no tiene boletas registradas.</p>
+    </div>
+  } @else {
+    <div class="boletas-list">
+      @for (t of transacciones(); track t.id_transaccion) {
+        <div class="boleta" [class.anulada]="t.estado === 'anulado'">
+          <div class="boleta-head">
+            <span class="boleta-fecha">
+              <mat-icon>event</mat-icon> {{ fecha(t.fecha_pago) }}
+            </span>
+            <span class="boleta-total">{{ fmt(t.monto_total) }} Bs</span>
+            <span class="estado-pill" [class.confirmado]="t.estado === 'confirmado'"
+                  [class.anulado]="t.estado === 'anulado'">
+              {{ t.estado === 'confirmado' ? 'Confirmado' : 'Anulado' }}
+            </span>
+          </div>
+
+          <ul class="asignaciones">
+            @for (a of t.asignaciones; track a.id_pago) {
+              <li>
+                <span class="asig-concepto">
+                  <span class="asig-dot" [class.matricula]="!a.id_detalle_programa_modulo"></span>
+                  {{ a.concepto }}
+                </span>
+                <span class="asig-monto">{{ fmt(a.monto) }} Bs</span>
+              </li>
+            }
+          </ul>
+
+          <div class="boleta-meta">
+            @if (t.comprobante) {
+              <a class="comprobante-link" [href]="comprobanteUrl(t.comprobante)" target="_blank" rel="noopener">
+                <mat-icon>visibility</mat-icon> Ver comprobante
+              </a>
+            }
+            @if (t.creado_por) {
+              <span class="meta-item" [matTooltip]="'Registrado por ' + t.creado_por">
+                <mat-icon>person</mat-icon> {{ t.creado_por }}
+              </span>
+            }
+            @if (t.estado === 'anulado') {
+              <span class="meta-item anulacion" [matTooltip]="t.motivo_anulacion || ''">
+                <mat-icon>block</mat-icon>
+                {{ t.anulado_fecha ? 'Anulada el ' + fecha(t.anulado_fecha.split('T')[0]) : 'Anulada' }}
+                @if (t.anulado_por) { · {{ t.anulado_por }} }
+              </span>
+              @if (t.motivo_anulacion) {
+                <span class="motivo">Motivo: {{ t.motivo_anulacion }}</span>
+              }
+            }
+          </div>
+
+          @if (puedeAnularTransaccion(t)) {
+            <div class="boleta-actions">
+              <button mat-stroked-button color="warn" class="anular-btn" (click)="anular(t)">
+                <mat-icon>block</mat-icon> Anular boleta
+              </button>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<div mat-dialog-actions align="end">
+  <button mat-button (click)="cerrar()">Cerrar</button>
+</div>

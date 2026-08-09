@@ -471,6 +471,29 @@
   background: #dcfce7;
 }
 
+.boletas-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px !important;
+  height: 26px !important;
+  line-height: 26px !important;
+  --mdc-icon-button-state-layer-size: 26px;
+  background: transparent;
+  color: var(--fich-text-muted);
+}
+
+.boletas-btn mat-icon {
+  font-size: 15px;
+  width: 15px;
+  height: 15px;
+}
+
+.boletas-btn:hover {
+  background: var(--fich-bg-subtle);
+  color: var(--fich-primary);
+}
+
 /* Hover de fila: se pinta toda la fila, incluida la columna Alumno */
 .matriz tbody tr:hover td {
   background: var(--fich-bg-subtle);

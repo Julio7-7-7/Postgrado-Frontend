@@ -1,5 +1,5 @@
 <h2 mat-dialog-title>
-  <mat-icon>add_card</mat-icon> Registrar cuota
+  <mat-icon>add_card</mat-icon> Registrar pago
 </h2>
 
 <div mat-dialog-content>
@@ -8,7 +8,7 @@
   </p>
 
   <div class="alumno-resumen">
-    <span class="resumen-chip">Total pagado: <b>{{ fmt(data.alumno.total_pagado) }} Bs</b></span>
+    <span class="resumen-chip">Pagado: <b>{{ fmt(data.alumno.total_pagado) }} Bs</b></span>
     <span class="resumen-chip">Total: <b>{{ fmt(data.alumno.total_esperado) }} Bs</b></span>
     @if (data.alumno.descuento_aplicado > 0) {
       <span class="resumen-chip descuento">{{ data.alumno.descuento_aplicado }}% desc.</span>
@@ -21,29 +21,34 @@
   <mat-form-field appearance="outline" class="full-width">
     <mat-label>Destino del pago</mat-label>
     <mat-select [value]="target()" (selectionChange)="onTargetChange($event.value)">
-      <mat-option [value]="null">{{ opcionLabel(null) }}</mat-option>
-      @for (m of modulosOrdenados(); track m.id_detalle_programa_modulo) {
-        <mat-option [value]="m.id_detalle_programa_modulo">{{ opcionLabel(m.id_detalle_programa_modulo) }}</mat-option>
+      <mat-option [value]="null">Matrícula</mat-option>
+      @for (m of modulos(); track m.id_detalle_programa_modulo) {
+        <mat-option [value]="m.id_detalle_programa_modulo">Cuota {{ m.orden }} — {{ m.sigla }}</mat-option>
       }
     </mat-select>
   </mat-form-field>
 
   <mat-form-field appearance="outline" class="full-width">
     <mat-label>Monto (Bs.)</mat-label>
-    <input matInput type="number" [ngModel]="monto()" (ngModelChange)="monto.set($event)" min="0.01" step="0.01">
+    <input matInput type="number" [ngModel]="monto()" (ngModelChange)="onMontoChange($event)" min="0.01" step="0.01">
   </mat-form-field>
 
-  @if (preview().length > 0) {
+  @if (previewLoading()) {
     <div class="preview-box">
       <div class="preview-title">Reparto automático</div>
-      @for (item of preview(); track $index) {
-        <div class="preview-row" [class.preview-overflow]="item.esUltimo">
-          <span class="preview-label">{{ item.label }}</span>
-          <span class="preview-monto">{{ fmt(item.monto) }} Bs</span>
+      <div class="preview-loading"><mat-icon class="spinner-icon">sync</mat-icon> Calculando reparto...</div>
+    </div>
+  } @else if (previewAsig().length > 0) {
+    <div class="preview-box">
+      <div class="preview-title">Reparto automático</div>
+      @for (asig of previewAsig(); track $index) {
+        <div class="preview-row" [class.preview-overflow]="asig.tipo === 'cuota' && asig.id_detalle_programa_modulo !== target()">
+          <span class="preview-label">{{ asig.concepto }}</span>
+          <span class="preview-monto">{{ fmt(asig.monto) }} Bs</span>
         </div>
       }
       <p class="preview-note">
-        El saldo se asigna a la cuota pendiente más próxima. El excedente se acumula en la última cuota.
+        La matrícula se cobra primero si está pendiente; el saldo se asigna a las cuotas siguientes en orden.
       </p>
     </div>
   }
@@ -55,15 +60,26 @@
     <mat-datepicker #picker></mat-datepicker>
   </mat-form-field>
 
-  <mat-form-field appearance="outline" class="full-width">
-    <mat-label>N° de referencia (opcional)</mat-label>
-    <input matInput [(ngModel)]="numeroReferencia" placeholder="N° de transacción">
-  </mat-form-field>
-
-  <mat-form-field appearance="outline" class="full-width">
-    <mat-label>URL comprobante (opcional)</mat-label>
-    <input matInput [(ngModel)]="comprobanteUrl" placeholder="Link al comprobante de pago">
-  </mat-form-field>
+  <div class="upload-section">
+    <div class="upload-title">Comprobante (obligatorio)</div>
+    @if (comprobante(); as comp) {
+      <div class="file-chip">
+        <mat-icon>description</mat-icon>
+        <span class="file-name" [matTooltip]="comp.name">{{ comp.name }}</span>
+        <span class="file-size">{{ (comp.size / 1024 / 1024).toFixed(2) }} MB</span>
+        <button mat-icon-button class="file-remove" matTooltip="Quitar archivo" (click)="quitarComprobante()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+    } @else {
+      <button type="button" class="upload-btn" (click)="fileInput.click()">
+        <mat-icon>upload_file</mat-icon>
+        Seleccionar comprobante
+      </button>
+      <input #fileInput type="file" hidden accept="image/jpeg,image/png,image/webp,application/pdf" (change)="onFileSelected($event)">
+      <p class="upload-hint">Foto o PDF de la boleta de pago (máx. 10 MB)</p>
+    }
+  </div>
 </div>
 
 <div mat-dialog-actions align="end">
