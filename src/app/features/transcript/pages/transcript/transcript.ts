@@ -9,8 +9,10 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { InscripcionEdicionService } from '../../../inscripciones/services/inscripcion-edicion.service';
 import { NotaService } from '../../../notas/services/nota.service';
+import { PagoService } from '../../../pagos/services/pago.service';
 import { TranscriptResponse, InscripcionTranscript, ModuloTranscript } from '../../../inscripciones/models/inscripcion-edicion.model';
 import { HistorialMovimiento } from '../../../notas/models/nota.model';
+import { TransaccionTranscript, TranscriptPagosResponse } from '../../../pagos/models/pago.model';
 import { clasificarNota } from '../../../../core/utils/nota-utils';
 
 const CLASIF_LABELS: Record<string, string> = {
@@ -41,6 +43,7 @@ interface CaptionPart {
 export class TranscriptComponent implements OnInit {
   private service = inject(InscripcionEdicionService);
   private notaService = inject(NotaService);
+  private pagoService = inject(PagoService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private snackbar = inject(MatSnackBar);
@@ -48,6 +51,7 @@ export class TranscriptComponent implements OnInit {
 
   transcript = signal<TranscriptResponse | null>(null);
   movimientos = signal<HistorialMovimiento[]>([]);
+  pagosData = signal<TranscriptPagosResponse | null>(null);
   isLoading = signal(true);
   idAlumno = 0;
 
@@ -164,6 +168,7 @@ export class TranscriptComponent implements OnInit {
         next: data => {
           this.transcript.set(data);
           this.loadHistorial(idAlumno);
+          this.loadPagos(idAlumno);
         },
         error: () => {
           this.isLoading.set(false);
@@ -185,6 +190,24 @@ export class TranscriptComponent implements OnInit {
           this.isLoading.set(false);
         },
       });
+  }
+
+  private loadPagos(idAlumno: number): void {
+    this.pagoService.getTranscriptPagos(idAlumno)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: data => this.pagosData.set(data),
+        error: () => this.pagosData.set(null),
+      });
+  }
+
+  fmt(n: number): string {
+    return Number(n || 0).toLocaleString('es-BO', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+  }
+
+  fechaPago(iso: string): string {
+    if (!iso) return '—';
+    return new Date(`${iso}T00:00:00`).toLocaleDateString('es-BO');
   }
 
   volver(): void {
@@ -344,7 +367,12 @@ export class TranscriptComponent implements OnInit {
       migracion: 'Migración',
       incorporacion: 'Incorporación',
       transferencia: 'Transferencia',
+      retiro: 'Retiro',
     };
     return labels[tipo] || tipo;
+  }
+
+  movimientoSelf(tr: HistorialMovimiento): boolean {
+    return tr.origen.id_detalle_programa_alumno === tr.destino.id_detalle_programa_alumno;
   }
 }

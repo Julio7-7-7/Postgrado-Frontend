@@ -745,6 +745,7 @@
 .dot-incorporacion { background: #3b82f6; }
 .dot-migracion { background: #0d9488; }
 .dot-transferencia { background: #f59e0b; }
+.dot-retiro { background: #ef4444; }
 
 .timeline-content {
   flex: 1;

@@ -420,13 +420,17 @@
 .tipo-reincorporacion { background: #e0e7ff; color: #3730a3; }
 .tipo-incorporacion { background: #d1fae5; color: #065f46; }
 .tipo-transferencia { background: #e2e8f0; color: #334155; }
+.tipo-retiro { background: #fee2e2; color: #b91c1c; }
 .movimiento-flow { display: flex; align-items: stretch; gap: 10px; }
 .movimiento-edicion { flex: 1; padding: 10px 12px; border-radius: var(--fich-radius-xs); }
 .movimiento-edicion.origen { background: var(--fich-bg-subtle); border: 1px solid var(--fich-border); }
 .movimiento-edicion.destino { background: #f0fdfa; border: 1px solid #ccfbf1; }
+.movimiento-edicion.solo { background: #f0fdfa; border: 1px solid #ccfbf1; }
 .ed-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; color: var(--fich-text-faint); display: block; margin-bottom: 3px; }
 .ed-nombre { font-size: 13px; font-weight: 600; color: var(--fich-text-secondary); display: block; }
 .ed-info { font-size: 11px; color: var(--fich-text-muted); display: block; margin-top: 2px; }
+.ed-modulo { font-size: 11px; color: var(--fich-feature-modulo); font-weight: 600; display: block; margin-top: 2px; }
+.ed-modulo::before { content: ''; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--fich-feature-modulo); margin-right: 5px; vertical-align: 1px; }
 .ed-estado { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 3px; margin-top: 4px; }
 .movimiento-arrow { display: flex; align-items: center; color: var(--fich-text-faint); flex-shrink: 0; font-size: 20px; width: 20px; height: 20px; }
 .movimiento-motivo { display: flex; align-items: flex-start; gap: 6px; margin-top: 6px; font-size: 12px; color: var(--fich-text-muted); }
@@ -443,3 +447,186 @@
 .cal-bueno { --prom-color: #0284c7; background: #eff6ff; color: #0369a1; }
 .cal-distinguido { --prom-color: #059669; background: #ecfdf5; color: #047857; }
 .cal-sobresaliente { --prom-color: #4338ca; background: #eef2ff; color: #4338ca; }
+
+/* ═══════════ PAGOS DEL ALUMNO ═══════════ */
+.pagos-card {
+  margin-top: 22px;
+  border: 1px solid var(--fich-border-light);
+  border-radius: 18px;
+  padding: 18px 20px;
+  background: linear-gradient(180deg, #fcfdfd, var(--fich-bg-subtle));
+  box-shadow: var(--fich-shadow-sm);
+}
+
+.pagos-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.pagos-header mat-icon {
+  color: var(--fich-feature-pagos);
+}
+
+.pagos-header h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--fich-text);
+}
+
+.pagos-sub {
+  margin-left: auto;
+  font-size: 0.72rem;
+  color: var(--fich-text-muted);
+}
+
+.pagos-inscripcion {
+  border: 1px solid var(--fich-border-light);
+  border-radius: 14px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  background: #fff;
+}
+
+.pagos-inscripcion:last-child {
+  margin-bottom: 0;
+}
+
+.pagos-ins-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.pagos-ins-titulo {
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--fich-text);
+}
+
+.pagos-ins-total {
+  margin-left: auto;
+  font-size: 0.78rem;
+  color: var(--fich-text-muted);
+}
+
+.pagos-ins-total b {
+  color: var(--fich-feature-pagos);
+  font-variant-numeric: tabular-nums;
+}
+
+.pagos-vacio {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  color: var(--fich-text-muted);
+  padding: 10px 2px;
+}
+
+.pagos-vacio mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.pagos-trans-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pago-trans {
+  border: 1px solid var(--fich-border-light);
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: linear-gradient(180deg, #fbfefc, var(--fich-bg-subtle));
+}
+
+.pago-trans.anulado {
+  opacity: 0.62;
+  background: var(--fich-bg-subtle);
+}
+
+.pago-trans-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pago-trans-fecha {
+  font-size: 0.75rem;
+  color: var(--fich-text-muted);
+}
+
+.pago-trans-monto {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--fich-feature-pagos);
+  font-variant-numeric: tabular-nums;
+}
+
+.pago-trans-pill {
+  margin-left: auto;
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 2px 8px;
+  border-radius: var(--fich-radius-full);
+}
+
+.pago-trans-pill.confirmado {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.pago-trans-pill.anulado {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.pago-asig {
+  margin-top: 8px;
+}
+
+.pago-asig-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 3px 2px;
+  border-bottom: 1px dashed var(--fich-border-light);
+  font-size: 0.78rem;
+}
+
+.pago-asig-row:last-child {
+  border-bottom: none;
+}
+
+.pago-asig-monto {
+  font-weight: 700;
+  color: var(--fich-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.pago-anulado-note {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  font-size: 0.72rem;
+  color: #b91c1c;
+  background: #fef2f2;
+  border-radius: 8px;
+  padding: 5px 9px;
+}
+
+.pago-anulado-note mat-icon {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+}

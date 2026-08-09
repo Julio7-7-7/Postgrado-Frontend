@@ -205,21 +205,39 @@
               <div class="movimiento-tipo-badge" [class]="'tipo-' + tr.tipo_movimiento">
                 {{ tipoMovimientoLabel(tr.tipo_movimiento) }}
               </div>
-              <div class="movimiento-flow">
-                <div class="movimiento-edicion origen">
-                  <span class="ed-label">Origen</span>
+              @if (movimientoSelf(tr)) {
+                <div class="movimiento-edicion solo">
+                  <span class="ed-label">Edición</span>
                   <span class="ed-nombre">{{ tr.origen.programa_nombre }}</span>
                   <span class="ed-info">Ed. {{ tr.origen.edicion_numero }} &middot; {{ semestreLabel(tr.origen.semestre) }} {{ tr.origen.anio }}</span>
+                  @if (tr.origen.modulo_inicio > 0) {
+                    <span class="ed-modulo">Módulo de inicio: {{ tr.origen.modulo_inicio }}</span>
+                  }
                   <span class="ed-estado" [class]="estadoClass(tr.origen.estado)">{{ estadoLabel(tr.origen.estado) }}</span>
                 </div>
-                <mat-icon class="movimiento-arrow">arrow_forward</mat-icon>
-                <div class="movimiento-edicion destino">
-                  <span class="ed-label">Destino</span>
-                  <span class="ed-nombre">{{ tr.destino.programa_nombre }}</span>
-                  <span class="ed-info">Ed. {{ tr.destino.edicion_numero }} &middot; {{ semestreLabel(tr.destino.semestre) }} {{ tr.destino.anio }}</span>
-                  <span class="ed-estado" [class]="estadoClass(tr.destino.estado)">{{ estadoLabel(tr.destino.estado) }}</span>
+              } @else {
+                <div class="movimiento-flow">
+                  <div class="movimiento-edicion origen">
+                    <span class="ed-label">Origen</span>
+                    <span class="ed-nombre">{{ tr.origen.programa_nombre }}</span>
+                    <span class="ed-info">Ed. {{ tr.origen.edicion_numero }} &middot; {{ semestreLabel(tr.origen.semestre) }} {{ tr.origen.anio }}</span>
+                    @if (tr.origen.modulo_inicio > 0) {
+                      <span class="ed-modulo">Módulo de inicio: {{ tr.origen.modulo_inicio }}</span>
+                    }
+                    <span class="ed-estado" [class]="estadoClass(tr.origen.estado)">{{ estadoLabel(tr.origen.estado) }}</span>
+                  </div>
+                  <mat-icon class="movimiento-arrow">arrow_forward</mat-icon>
+                  <div class="movimiento-edicion destino">
+                    <span class="ed-label">Destino</span>
+                    <span class="ed-nombre">{{ tr.destino.programa_nombre }}</span>
+                    <span class="ed-info">Ed. {{ tr.destino.edicion_numero }} &middot; {{ semestreLabel(tr.destino.semestre) }} {{ tr.destino.anio }}</span>
+                    @if (tr.destino.modulo_inicio > 0) {
+                      <span class="ed-modulo">Módulo de inicio: {{ tr.destino.modulo_inicio }}</span>
+                    }
+                    <span class="ed-estado" [class]="estadoClass(tr.destino.estado)">{{ estadoLabel(tr.destino.estado) }}</span>
+                  </div>
                 </div>
-              </div>
+              }
               <div class="movimiento-motivo">
                 <mat-icon>description</mat-icon>
                 <span>{{ tr.motivo }}</span>
@@ -234,6 +252,77 @@
           }
         </div>
       </div>
+    }
+
+    @if (pagosData(); as pagos) {
+      @if (pagos.inscripciones.length > 0) {
+        <div class="pagos-card">
+          <div class="pagos-header">
+            <mat-icon>payments</mat-icon>
+            <h3>Pagos del alumno</h3>
+            <span class="pagos-sub">Boletas registradas por inscripción</span>
+          </div>
+
+          @for (ins of pagos.inscripciones; track ins.id_detalle_programa_alumno) {
+            <div class="pagos-inscripcion">
+              <div class="pagos-ins-head">
+                <span class="pagos-ins-titulo">
+                  {{ ins.programa_nombre }}
+                  @if (ins.edicion_numero !== null) {
+                    · Ed. {{ ins.edicion_numero }} ({{ semestreLabel(ins.edicion_semestre) }} {{ ins.edicion_anio }})
+                  }
+                </span>
+                <span class="pagos-ins-total">Confirmado: <b>{{ fmt(ins.total_pagado) }} Bs</b></span>
+              </div>
+
+              @if (ins.transacciones.length === 0) {
+                <div class="pagos-vacio">
+                  <mat-icon>receipt_long</mat-icon>
+                  Sin pagos registrados
+                </div>
+              } @else {
+                <div class="pagos-trans-list">
+                  @for (t of ins.transacciones; track t.id_transaccion) {
+                    <div class="pago-trans" [class.anulado]="t.estado === 'anulado'">
+                      <div class="pago-trans-head">
+                        <span class="pago-trans-fecha">{{ fechaPago(t.fecha_pago) }}</span>
+                        <span class="pago-trans-monto">{{ fmt(t.monto_total) }} Bs</span>
+                        <span class="pago-trans-pill" [class.confirmado]="t.estado === 'confirmado'"
+                              [class.anulado]="t.estado === 'anulado'">
+                          {{ t.estado === 'confirmado' ? 'Confirmado' : 'Anulado' }}
+                        </span>
+                      </div>
+
+                      <div class="pago-asig">
+                        @for (a of t.asignaciones; track a.id_pago) {
+                          <div class="pago-asig-row">
+                            <span class="pago-asig-label">{{ a.concepto }}</span>
+                            <span class="pago-asig-monto">{{ fmt(a.monto) }} Bs</span>
+                          </div>
+                        }
+                      </div>
+
+                      @if (t.estado === 'anulado') {
+                        <div class="pago-anulado-note">
+                          <mat-icon>block</mat-icon>
+                          @if (t.motivo_anulacion) {
+                            <span>Anulada: {{ t.motivo_anulacion }}</span>
+                          } @else {
+                            <span>Anulada</span>
+                          }
+                          @if (t.anulado_fecha) {
+                            · {{ fechaPago(t.anulado_fecha.split('T')[0]) }}
+                          }
+                        </div>
+                      }
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
     }
   }
 </div>
