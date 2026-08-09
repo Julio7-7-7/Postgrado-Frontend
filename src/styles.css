@@ -360,8 +360,15 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* ─── Page fade-in (applied to all routed pages via .page-container) ─── */
-.page-container {
-  animation: fadeSlideIn 0.3s ease;
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ─── Stagger animation for list items ─── */
@@ -606,13 +613,178 @@ h1, h2, h3, h4, h5, h6 {
   margin-bottom: 20px;
 }
 
+.page-container .header-section .header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.page-container .header-section .header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.page-container .header-section .header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.page-container .header-section h1,
 .page-container .header-section h2 {
-  color: var(--fich-primary-dark);
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--fich-text);
+}
+
+.page-container .header-section h1 mat-icon,
+.page-container .header-section h2 mat-icon {
+  color: var(--fich-primary);
+  flex-shrink: 0;
 }
 
 .page-container .header-section .subtitle {
+  margin: 4px 0 0;
+  color: var(--fich-text-muted);
+  font-size: 0.85rem;
+}
+
+/* ─── Loading & Empty states (canon) ─── */
+.loading-state,
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 56px 20px;
+  background: var(--fich-bg-card);
+  border: 1px solid var(--fich-border-light);
+  border-radius: var(--fich-radius-md);
+  text-align: center;
+}
+
+.empty-state mat-icon {
+  font-size: 44px;
+  width: 44px;
+  height: 44px;
+  opacity: 0.35;
+  color: var(--fich-primary);
+}
+
+.empty-state h4 {
+  margin: 0;
+  font-weight: 600;
+  color: var(--fich-text-secondary);
+}
+
+.empty-state p {
+  margin: 0;
+  color: var(--fich-text-muted);
+  font-size: 0.85rem;
+}
+
+.empty-state.error mat-icon {
+  color: var(--fich-danger);
+  opacity: 1;
+}
+
+.loading-state mat-spinner {
+  --mdc-circular-progress-active-indicator-color: var(--fich-primary);
+}
+
+/* ─── Filters bar (canon) ─── */
+.filters-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+  background: var(--fich-bg-card);
+  border: 1px solid var(--fich-border-light);
+  border-radius: var(--fich-radius-sm);
+}
+
+/* ─── Classification pills (canon) ─── */
+.cal-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 12px;
+  border-radius: var(--fich-radius-full);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+.cal-sobresaliente { background: var(--fich-cal-sobresaliente-bg); color: var(--fich-cal-sobresaliente); }
+.cal-distinguido { background: var(--fich-cal-distinguido-bg); color: var(--fich-cal-distinguido); }
+.cal-bueno { background: var(--fich-cal-bueno-bg); color: var(--fich-cal-bueno); }
+.cal-suficiente { background: var(--fich-cal-suficiente-bg); color: var(--fich-cal-suficiente); }
+.cal-insuficiente { background: var(--fich-cal-insuficiente-bg); color: var(--fich-cal-insuficiente); }
+.cal-abandono { background: var(--fich-cal-abandono-bg); color: var(--fich-cal-abandono); }
+
+/* ─── Page container (canon base) ─── */
+.page-container {
+  width: 90%;
+  max-width: 1560px;
+  margin: 0 auto;
+  padding: 24px;
+  animation: fadeSlideIn 0.3s ease;
+}
+
+/* ─── Dialog shell (canon) ─── */
+.dialog-shell {
+  min-width: 460px;
+  max-width: 90vw;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+.dialog-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.dialog-header h2 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--fich-text);
+}
+
+.dialog-header h2 mat-icon {
+  color: var(--fich-primary);
+}
+
+.dialog-header .close-btn {
   color: var(--fich-text-muted);
 }
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--fich-border);
+}
+
 
 .page-container .btn-nuevo.mat-mdc-raised-button,
 .page-container .btn-guardar.mat-mdc-raised-button {
