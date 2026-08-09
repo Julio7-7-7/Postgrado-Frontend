@@ -36,7 +36,7 @@
                 }
                 <div class="estado-chip" [style.background]="estadoColor(ins.estado) + '20'"
                      [style.color]="estadoColor(ins.estado)" [style.border-color]="estadoColor(ins.estado)">
-                  {{ ins.estado }}
+                  {{ estadoLabel(ins.estado) }}
                 </div>
               </div>
             </div>
@@ -44,39 +44,39 @@
             <mat-divider></mat-divider>
 
             <div class="details">
-              <div class="detail-row">
+              <div class="detail-item">
                 <span class="label">Modalidad</span>
                 <span class="value">{{ ins.modalidad_academica.nombre_modalidad || '—' }}</span>
               </div>
-              <div class="detail-row">
-                <span class="label">Fecha de Inscripción</span>
+              <div class="detail-item">
+                <span class="label">Inscripción</span>
                 <span class="value">{{ convertirFecha(ins.fecha_inscripcion) }}</span>
               </div>
               @if (ins.descuento_aplicado > 0) {
-                <div class="detail-row">
+                <div class="detail-item">
                   <span class="label">Descuento</span>
                   <span class="value">{{ ins.descuento_aplicado }}%</span>
                 </div>
               }
-              @if (ins.tipo_descuento) {
-                <div class="detail-row">
-                  <span class="label">Tipo Descuento</span>
-                  <span class="value">{{ ins.tipo_descuento.nombre }}</span>
-                </div>
-              }
               @if (ins.programa_version_edicion.precio) {
-                <div class="detail-row">
+                <div class="detail-item">
                   <span class="label">Precio</span>
                   <span class="value">Bs {{ ins.programa_version_edicion.precio }}</span>
                 </div>
               }
-              @if (docsProgreso(ins)) {
-                <div class="detail-row">
-                  <span class="label">Documentación</span>
-                  <span class="value docs-progreso">{{ docsProgreso(ins) }} aceptados</span>
-                </div>
-              }
             </div>
+
+            @if (docsProgreso(ins)) {
+              <div class="docs-block">
+                <div class="docs-head">
+                  <span class="docs-label">Documentación</span>
+                  <span class="docs-count">{{ docsProgreso(ins) }} aceptados</span>
+                </div>
+                <div class="docs-bar">
+                  <div class="docs-fill" [style.width.%]="docsPct(ins)"></div>
+                </div>
+              </div>
+            }
           </mat-card-content>
           <div class="card-arrow">
             <mat-icon>chevron_right</mat-icon>
