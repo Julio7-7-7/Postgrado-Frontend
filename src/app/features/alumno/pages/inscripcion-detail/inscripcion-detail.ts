@@ -16,6 +16,12 @@ import { DetalleProgramaAlumno, ControlDocumentacionAlumno, EstadoDetalleAlumno 
 import { Solicitud, DocumentoSolicitud } from '../../models/solicitud-incorporacion.model';
 import { SolicitudRequisitoService } from '../../../inscripciones/services/solicitud-requisito.service';
 import { SolicitudRequisito } from '../../../inscripciones/models/solicitud-requisito.model';
+import { InscripcionEdicionService } from '../../../inscripciones/services/inscripcion-edicion.service';
+import { InscripcionTranscript, ModuloTranscript } from '../../../inscripciones/models/inscripcion-edicion.model';
+import { PagoService } from '../../../pagos/services/pago.service';
+import { TranscriptPagosInscripcion, TransaccionTranscript } from '../../../pagos/models/pago.model';
+import { AuthService } from '../../../../core/services/auth.service';
+import { clasificarNota } from '../../../../core/utils/nota-utils';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog';
 import { environment } from '../../../../../environments/environment';
 
@@ -61,6 +67,30 @@ const EDICION_ESTADO_COLORS: Record<string, string> = {
   finalizado: '#6366f1',
 };
 
+const CLASIF_LABELS: Record<string, string> = {
+  'cal-sobresaliente': 'Sobresaliente',
+  'cal-distinguido': 'Distinguido',
+  'cal-bueno': 'Bueno',
+  'cal-suficiente': 'Suficiente',
+  'cal-insuficiente': 'Insuficiente',
+  'cal-abandono': 'Abandono',
+};
+
+const CLASIF_COLOR: Record<string, string> = {
+  'cal-sobresaliente': '#4338ca',
+  'cal-distinguido': '#047857',
+  'cal-bueno': '#0369a1',
+  'cal-suficiente': '#b45309',
+  'cal-insuficiente': '#b91c1c',
+  'cal-abandono': '#64748b',
+};
+
+const TRANSACCION_ESTADO_LABELS: Record<string, string> = {
+  confirmado: 'Confirmado',
+  pendiente: 'Pendiente',
+  anulado: 'Anulado',
+};
+
 @Component({
   selector: 'app-inscripcion-detail',
   standalone: true,
@@ -77,6 +107,9 @@ export class InscripcionDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private detalleService = inject(DetalleProgramaAlumnoService);
   private solicitudRequisitoService = inject(SolicitudRequisitoService);
+  private inscripcionEdicionService = inject(InscripcionEdicionService);
+  private pagoService = inject(PagoService);
+  private auth = inject(AuthService);
   private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
   private destroyRef = inject(DestroyRef);
@@ -121,6 +154,20 @@ export class InscripcionDetailComponent implements OnInit {
 
   requisitosMigracion = signal<SolicitudRequisito[]>([]);
   migrReqFiles = signal<Record<number, { file: File; name: string; size: string }>>({});
+
+  misNotas = signal<InscripcionTranscript | null>(null);
+  misPagos = signal<TranscriptPagosInscripcion | null>(null);
+  cargandoNotas = signal(false);
+  cargandoPagos = signal(false);
+  errorNotas = signal(false);
+  errorPagos = signal(false);
+
+  financiero = computed(() => this.misPagos()?.financiero ?? null);
+  pctPagos = computed(() => {
+    const f = this.financiero();
+    if (!f || !f.total_esperado) return 0;
+    return Math.min(100, Math.round((f.total_pagado / f.total_esperado) * 100));
+  });
 
   hitos = computed(() => {
     const ins = this.inscripcion();
@@ -226,6 +273,7 @@ export class InscripcionDetailComponent implements OnInit {
         this._cargarPuedeMigrar(data.id_detalle_programa_alumno);
         this._cargarSolicitudMigracion();
         this._cargarRequisitosMigracion();
+        this._cargarNotasYPagos(data.id_detalle_programa_alumno);
       },
       error: () => {
         this.cargando.set(false);
@@ -534,6 +582,114 @@ export class InscripcionDetailComponent implements OnInit {
       next: (reqs) => this.requisitosMigracion.set(reqs),
       error: () => {},
     });
+  }
+
+  private _cargarNotasYPagos(idDpa: number): void {
+    const user = this.auth.user();
+    const idAlumno = user && user.profile_type === 'alumno' ? user.id_profile : null;
+    if (!idAlumno) return;
+
+    this.cargandoNotas.set(true);
+    this.cargandoPagos.set(true);
+
+    this.inscripcionEdicionService.getTranscript(idAlumno).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (resp) => {
+        this.misNotas.set(resp.inscripciones.find(i => i.id_detalle_programa_alumno === idDpa) ?? null);
+        this.cargandoNotas.set(false);
+      },
+      error: () => {
+        this.cargandoNotas.set(false);
+        this.errorNotas.set(true);
+      },
+    });
+
+    this.pagoService.getTranscriptPagos(idAlumno).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (resp) => {
+        this.misPagos.set(resp.inscripciones.find(i => i.id_detalle_programa_alumno === idDpa) ?? null);
+        this.cargandoPagos.set(false);
+      },
+      error: () => {
+        this.cargandoPagos.set(false);
+        this.errorPagos.set(true);
+      },
+    });
+  }
+
+  notaDe(mod: ModuloTranscript): number | null {
+    if (mod.nota == null) return null;
+    return Math.floor(Number(mod.nota) + 0.5);
+  }
+
+  notaClase(nota: number | null): string {
+    if (nota == null) return '';
+    return clasificarNota(nota);
+  }
+
+  notaLabel(nota: number | null): string {
+    if (nota == null) return '';
+    return CLASIF_LABELS[clasificarNota(nota)] || '';
+  }
+
+  aprobado(mod: ModuloTranscript): boolean {
+    const n = this.notaDe(mod);
+    return n != null && n >= 66;
+  }
+
+  aprobadosCount(): number {
+    const notas = this.misNotas()?.modulos || [];
+    return notas.filter(m => this.aprobado(m)).length;
+  }
+
+  promedioRedondo(): number | null {
+    const n = this.misNotas()?.promedio;
+    if (n == null) return null;
+    return Math.floor(Number(n) + 0.5);
+  }
+
+  promClasifKey(): string {
+    const n = this.promedioRedondo();
+    if (n == null) return '';
+    return clasificarNota(n);
+  }
+
+  promLabel(): string {
+    const key = this.promClasifKey();
+    return key ? CLASIF_LABELS[key] || '' : '';
+  }
+
+  promColor(): string {
+    const key = this.promClasifKey();
+    return key ? CLASIF_COLOR[key] || '#0891b2' : '#0891b2';
+  }
+
+  promRingBg(): string {
+    const n = this.promedioRedondo();
+    if (n == null) return '';
+    return `conic-gradient(${this.promColor()} ${Math.min(100, n) * 3.6}deg, #e2e8f0 0deg)`;
+  }
+
+  transaccionEstadoLabel(estado: string): string {
+    return TRANSACCION_ESTADO_LABELS[estado] || estado;
+  }
+
+  fmt(monto: number | null | undefined): string {
+    const n = Number(monto ?? 0);
+    return n.toLocaleString('es-BO', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+  }
+
+  fechaPago(iso: string): string {
+    const d = new Date(iso + (iso.includes('T') ? '' : 'T12:00:00'));
+    return d.toLocaleDateString('es-BO', { day: '2-digit', month: 'short', year: 'numeric' });
+  }
+
+  pctBar(esperado: number, pagado: number): number {
+    if (!esperado || esperado <= 0) return 0;
+    return Math.min(100, Math.round((pagado / esperado) * 100));
+  }
+
+  saldoAFavor(): boolean {
+    const f = this.misPagos()?.financiero;
+    return !!f && f.saldo < 0;
   }
 
   showMigracionCard = computed(() => {

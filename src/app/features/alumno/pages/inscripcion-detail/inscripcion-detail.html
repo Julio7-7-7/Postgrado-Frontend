@@ -23,6 +23,81 @@
       </p>
     </div>
 
+    <div class="kpi-strip">
+      <div class="kpi-tile">
+        <div class="kpi-icon" [style.background]="estadoColor(ins.estado) + '15'"
+             [style.color]="estadoColor(ins.estado)">
+          <mat-icon>how_to_reg</mat-icon>
+        </div>
+        <div class="kpi-body">
+          <span class="kpi-label">Estado</span>
+          <span class="kpi-value">{{ estadoLabel(ins.estado) }}</span>
+          <span class="kpi-sub" [style.color]="edicionEstadoColor(edicionEstado())">
+            Edición {{ edicionEstadoLabel(edicionEstado()) }}
+          </span>
+        </div>
+      </div>
+
+      <div class="kpi-tile">
+        <div class="kpi-icon" [style.background]="(promColor()) + '15'" [style.color]="promColor()">
+          <mat-icon>auto_graph</mat-icon>
+        </div>
+        <div class="kpi-body">
+          <span class="kpi-label">Promedio general</span>
+          @if (cargandoNotas()) {
+            <span class="kpi-value muted">—</span>
+          } @else if (promedioRedondo() != null) {
+            <span class="kpi-value">{{ promedioRedondo() }}</span>
+            <span class="kpi-sub" [style.color]="promColor()">{{ promLabel() }}</span>
+          } @else {
+            <span class="kpi-value muted">—</span>
+            <span class="kpi-sub">Sin notas aún</span>
+          }
+        </div>
+      </div>
+
+      <div class="kpi-tile">
+        <div class="kpi-icon" [style.background]="'#0d948815'" [style.color]="'#0d9488'">
+          <mat-icon>fact_check</mat-icon>
+        </div>
+        <div class="kpi-body">
+          <span class="kpi-label">Documentación</span>
+          @if (progresoDocs().total > 0) {
+            <span class="kpi-value">{{ progresoDocs().aceptados }}<span class="kpi-unit">/{{ progresoDocs().total }}</span></span>
+            <div class="kpi-bar">
+              <div class="kpi-bar-fill" [style.width.%]="progresoDocs().pct"
+                   [style.background]="'#0d9488'"></div>
+            </div>
+          } @else {
+            <span class="kpi-value muted">—</span>
+            <span class="kpi-sub">Sin requisitos</span>
+          }
+        </div>
+      </div>
+
+      <div class="kpi-tile">
+        <div class="kpi-icon" [style.background]="'#16a34a15'" [style.color]="'#16a34a'">
+          <mat-icon>payments</mat-icon>
+        </div>
+        <div class="kpi-body">
+          <span class="kpi-label">Pagos</span>
+          @if (cargandoPagos()) {
+            <span class="kpi-value muted">—</span>
+          } @else if (financiero()) {
+            <span class="kpi-value">Bs {{ fmt(financiero()!.total_pagado) }}</span>
+            <div class="kpi-bar">
+              <div class="kpi-bar-fill" [style.width.%]="pctPagos()"
+                   [style.background]="'#16a34a'"></div>
+            </div>
+            <span class="kpi-sub">de Bs {{ fmt(financiero()!.total_esperado) }}</span>
+          } @else {
+            <span class="kpi-value muted">—</span>
+            <span class="kpi-sub">Sin pagos</span>
+          }
+        </div>
+      </div>
+    </div>
+
     <div class="detail-grid">
       <div class="main-col">
 
@@ -79,6 +154,225 @@
               </div>
             }
           </div>
+        </mat-card>
+
+        <mat-card class="section-card notas-card">
+          <div class="section-header">
+            <mat-icon [style.color]="'#0891b2'">grading</mat-icon>
+            <div>
+              <h3>Mis Notas</h3>
+              <p class="section-sub">Avance académico en esta edición</p>
+            </div>
+          </div>
+
+          @if (cargandoNotas()) {
+            <div class="panel-loading">
+              <mat-spinner diameter="22"></mat-spinner>
+              <span>Cargando notas...</span>
+            </div>
+          } @else if (errorNotas()) {
+            <div class="panel-error">
+              <mat-icon>error_outline</mat-icon>
+              <span>No se pudieron cargar tus notas.</span>
+            </div>
+          } @else if (misNotas(); as notas) {
+            @if (notas.modulos.length === 0) {
+              <div class="panel-empty">
+                <mat-icon>insights</mat-icon>
+                <span>Todavía no hay notas registradas en esta edición.</span>
+              </div>
+            } @else {
+              <div class="notas-body">
+                <div class="notas-grid">
+                  @for (mod of notas.modulos; track mod.id_detalle_programa_modulo) {
+                    <div class="mod-card">
+                      <div class="mod-num" [class.aprobado]="aprobado(mod)">{{ mod.modulo_orden }}</div>
+                      <span class="mod-name"
+                            matTooltip="Módulo {{ mod.modulo_orden }} — {{ mod.modulo_nombre }}"
+                            matTooltipPosition="above">{{ mod.modulo_nombre }}</span>
+                      <div class="mod-nota-wrap">
+                        @let nota = notaDe(mod);
+                        @if (nota != null) {
+                          <span class="nota-bubble {{ notaClase(nota) }}" matTooltip="{{ notaLabel(nota) }}">{{ nota }}</span>
+                        } @else {
+                          <span class="nota-bubble vacia" matTooltip="Sin nota">—</span>
+                        }
+                      </div>
+                    </div>
+                  }
+                </div>
+                <div class="promedio-box">
+                  <span class="promedio-label">Promedio general</span>
+                  <div class="promedio-ring" [style.background]="promRingBg()">
+                    <div class="promedio-inner">
+                      @if (promedioRedondo() != null) {
+                        <span class="promedio-num">{{ promedioRedondo() }}</span>
+                      } @else {
+                        <span class="promedio-num vacio">—</span>
+                      }
+                    </div>
+                  </div>
+                  <span class="promedio-chip" [style.color]="promColor()" [style.background]="promColor() + '15'">
+                    {{ promLabel() || 'Sin promedio' }}
+                  </span>
+                </div>
+              </div>
+            }
+          }
+        </mat-card>
+
+        <mat-card class="section-card pagos-card">
+          <div class="section-header">
+            <mat-icon [style.color]="'#16a34a'">receipt_long</mat-icon>
+            <div>
+              <h3>Mis Pagos</h3>
+              <p class="section-sub">Estado financiero en esta edición</p>
+            </div>
+          </div>
+
+          @if (cargandoPagos()) {
+            <div class="panel-loading">
+              <mat-spinner diameter="22"></mat-spinner>
+              <span>Cargando pagos...</span>
+            </div>
+          } @else if (errorPagos()) {
+            <div class="panel-error">
+              <mat-icon>error_outline</mat-icon>
+              <span>No se pudieron cargar tus pagos.</span>
+            </div>
+          } @else if (misPagos(); as pagos) {
+            @if (pagos.financiero; as fin) {
+              <div class="financiero">
+                <div class="fin-total">
+                  <div class="fin-total-row">
+                    <div>
+                      <span class="fin-total-label">Total pagado</span>
+                      <span class="fin-total-val">Bs {{ fmt(fin.total_pagado) }}</span>
+                    </div>
+                    <div class="fin-total-right">
+                      <span class="fin-total-esp">de Bs {{ fmt(fin.total_esperado) }}</span>
+                      <span class="fin-pct-chip" [class.fin-pct-ok]="fin.pct >= 100">{{ fin.pct }}%</span>
+                    </div>
+                  </div>
+                  <div class="fin-bar total">
+                    <div class="fin-bar-fill total" [style.width.%]="pctBar(fin.total_esperado, fin.total_pagado)"></div>
+                  </div>
+
+                  @if (saldoAFavor()) {
+                    <div class="fin-saldo a-favor">
+                      <mat-icon>savings</mat-icon>
+                      <span>Saldo a favor de Bs {{ fmt(-fin.saldo) }}</span>
+                    </div>
+                  } @else {
+                    <div class="fin-saldo pendiente">
+                      <mat-icon>schedule</mat-icon>
+                      <span>Pendiente de pago: Bs {{ fmt(fin.saldo) }}</span>
+                    </div>
+                  }
+                </div>
+
+                <div class="fin-rows">
+                  <div class="fin-row">
+                    <div class="fin-row-head">
+                      <span class="fin-row-label"><mat-icon>school</mat-icon> Matrícula</span>
+                      <span class="fin-row-monto">{{ fmt(fin.matricula.pagado) }} / {{ fmt(fin.matricula.esperado) }} Bs</span>
+                    </div>
+                    <div class="fin-bar">
+                      <div class="fin-bar-fill matricula" [style.width.%]="pctBar(fin.matricula.esperado, fin.matricula.pagado)"></div>
+                    </div>
+                  </div>
+                  <div class="fin-row">
+                    <div class="fin-row-head">
+                      <span class="fin-row-label"><mat-icon>view_module</mat-icon> Cuotas</span>
+                      <span class="fin-row-monto">{{ fmt(fin.cuotas.pagado) }} / {{ fmt(fin.cuotas.esperado) }} Bs</span>
+                    </div>
+                    <div class="fin-bar">
+                      <div class="fin-bar-fill cuotas" [style.width.%]="pctBar(fin.cuotas.esperado, fin.cuotas.pagado)"></div>
+                    </div>
+                  </div>
+                  @if (fin.otros_pagado > 0) {
+                    <div class="fin-row">
+                      <div class="fin-row-head">
+                        <span class="fin-row-label"><mat-icon>more_horiz</mat-icon> Otros conceptos</span>
+                        <span class="fin-row-monto">{{ fmt(fin.otros_pagado) }} Bs</span>
+                      </div>
+                    </div>
+                  }
+                </div>
+
+                @if (fin.descuento_aplicado > 0 && fin.beca_activa) {
+                  <span class="fin-descuento-chip">
+                    <mat-icon>percent</mat-icon>
+                    Descuento aplicado: {{ fin.descuento_aplicado }}%
+                  </span>
+                }
+                @if (!fin.beca_activa && fin.beca_motivo) {
+                  <div class="fin-beca-note">
+                    <mat-icon>warning</mat-icon>
+                    <span>{{ fin.beca_motivo }}</span>
+                  </div>
+                }
+              </div>
+            }
+
+            <mat-divider class="boletas-divider"></mat-divider>
+
+            <div class="boletas-header">
+              <h4 class="docs-group-title">Boletas de pago</h4>
+              <span class="boletas-count">{{ pagos.transacciones.length }}</span>
+            </div>
+
+            @if (pagos.transacciones.length === 0) {
+              <div class="panel-empty compact">
+                <mat-icon>receipt</mat-icon>
+                <span>Todavía no registraste pagos en esta edición.</span>
+              </div>
+            } @else {
+              <div class="boletas-list">
+                @for (t of pagos.transacciones; track t.id_transaccion) {
+                  <div class="boleta-item" [class.anulada]="t.estado === 'anulado'">
+                    <div class="boleta-head">
+                      <span class="boleta-date">
+                        <mat-icon>calendar_today</mat-icon>
+                        {{ fechaPago(t.fecha_pago) }}
+                      </span>
+                      <span class="boleta-monto">Bs {{ fmt(t.monto_total) }}</span>
+                      <span class="boleta-estado"
+                            [class.confirmado]="t.estado === 'confirmado'"
+                            [class.pendiente]="t.estado === 'pendiente'"
+                            [class.anulado]="t.estado === 'anulado'">
+                        {{ transaccionEstadoLabel(t.estado) }}
+                      </span>
+                      @if (t.comprobante) {
+                        <a class="boleta-comprobante" [href]="apiUrl + t.comprobante" target="_blank" matTooltip="Ver comprobante">
+                          <mat-icon>image</mat-icon>
+                        </a>
+                      }
+                    </div>
+                    <div class="boleta-desglose">
+                      @for (a of t.asignaciones; track a.id_pago) {
+                        <span class="boleta-asig">
+                          <span class="boleta-asig-concepto">
+                            {{ a.concepto }}{{ a.modulo_nombre ? ' — ' + a.modulo_nombre : '' }}
+                          </span>
+                          <span class="boleta-asig-monto">Bs {{ fmt(a.monto) }}</span>
+                        </span>
+                      }
+                    </div>
+                    @if (t.estado === 'anulado') {
+                      <div class="boleta-anulado-note">
+                        <mat-icon>block</mat-icon>
+                        <div>
+                          <strong>Boleta anulada</strong>
+                          <p>{{ t.motivo_anulacion || 'Sin motivo registrado' }}{{ t.anulado_fecha ? ' — ' + fechaPago(t.anulado_fecha) : '' }}</p>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            }
+          }
         </mat-card>
 
         @if (mostrarReincorporacion()) {
