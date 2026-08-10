@@ -244,24 +244,6 @@
 .doc-view-btn:hover { background: var(--fich-border); color: var(--fich-text); }
 .doc-view-btn mat-icon { font-size: 18px; width: 18px; height: 18px; }
 
-.doc-upload-btn {
-  display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px;
-  border-radius: 8px; font-size: 0.78rem; font-weight: 600; color: #0d9488;
-  background: #f0fdfa; border: 1px solid #99f6e4; cursor: pointer; transition: all 0.2s;
-  white-space: nowrap;
-}
-.doc-upload-btn:hover { background: #ccfbf1; border-color: #0d9488; }
-.doc-upload-btn mat-icon { font-size: 16px; width: 16px; height: 16px; }
-
-.upload-progress-inline {
-  display: flex; align-items: center; gap: 6px; padding: 4px 0;
-}
-.upload-done { color: var(--fich-success); font-size: 20px; width: 20px; height: 20px; }
-.upload-done-text { font-size: 0.78rem; font-weight: 600; color: var(--fich-success); }
-.upload-status-text { font-size: 0.75rem; color: var(--fich-text-faint); }
-
-.upload-filename { display: none; }
-
 .doc-waiting-badge {
   display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px;
   border-radius: 6px; font-size: 0.72rem; font-weight: 600; color: var(--fich-warning);
@@ -392,19 +374,6 @@
 }
 .reinc-req-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 .reinc-req-upload { padding: 6px 12px !important; }
-.reinc-req-chip {
-  display: flex; align-items: center; gap: 6px;
-  background: var(--fich-est-convocatoria-bg); border: 1px solid var(--fich-est-convocatoria-border); border-radius: 8px;
-  padding: 4px 6px 4px 10px; max-width: 220px;
-}
-.reinc-req-chip-name {
-  font-size: 0.75rem; font-weight: 500; color: var(--fich-est-convocatoria);
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-}
-.reinc-req-chip-remove {
-  width: 24px !important; height: 24px !important; line-height: 24px !important;
-}
-.reinc-req-chip-remove mat-icon { font-size: 16px; width: 16px; height: 16px; }
 .reincorporacion-apartado-actions {
   display: flex; justify-content: flex-end; gap: 8px;
   padding-top: 4px;
@@ -459,39 +428,6 @@
 .carta-status-badge.pendiente { background: var(--fich-warning-lighter); color: #92400e; }
 .carta-status-badge.aprobada { background: var(--fich-success-lighter); color: #166534; }
 .carta-status-badge.rechazada { background: var(--fich-est-truncado-border); color: var(--fich-danger); }
-
-/* Pending confirm inline (per doc row) */
-.doc-pending-actions {
-  display: flex; flex-direction: column; gap: 8px;
-  margin-top: 10px; padding-top: 10px;
-  border-top: 1px solid var(--fich-est-programado-border);
-}
-.pending-progress { display: none; }
-.doc-pending-buttons {
-  display: flex; justify-content: flex-end; gap: 8px;
-}
-.pending-confirm-inline {
-  display: flex; align-items: center; gap: 6px;
-}
-.pending-filename-inline {
-  font-size: 0.78rem; font-weight: 500; color: var(--fich-text);
-  max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-}
-.pending-size-inline {
-  font-size: 0.72rem; color: var(--fich-text-x-faint);
-}
-.cancel-pending-btn {
-  font-size: 0.78rem !important; height: 32px !important;
-}
-.confirm-pending-btn {
-  font-size: 0.78rem !important; height: 32px !important;
-}
-.cancel-pending-btn mat-icon, .confirm-pending-btn mat-icon {
-  font-size: 16px; width: 16px; height: 16px; margin-right: 4px;
-}
-.doc-upload-progress {
-  margin-top: 8px;
-}
 
 /* Migración */
 .migracion-card { border: 1px solid var(--fich-est-verificacion-border); background: var(--fich-est-verificacion-bg); }

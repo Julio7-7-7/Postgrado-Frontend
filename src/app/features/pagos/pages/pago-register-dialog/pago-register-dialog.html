@@ -62,23 +62,16 @@
 
   <div class="upload-section">
     <div class="upload-title">Comprobante (obligatorio)</div>
-    @if (comprobante(); as comp) {
-      <div class="file-chip">
-        <mat-icon>description</mat-icon>
-        <span class="file-name" [matTooltip]="comp.name">{{ comp.name }}</span>
-        <span class="file-size">{{ (comp.size / 1024 / 1024).toFixed(2) }} MB</span>
-        <button mat-icon-button class="file-remove" matTooltip="Quitar archivo" (click)="quitarComprobante()">
-          <mat-icon>close</mat-icon>
-        </button>
-      </div>
-    } @else {
-      <button type="button" class="upload-btn" (click)="fileInput.click()">
-        <mat-icon>upload_file</mat-icon>
-        Seleccionar comprobante
-      </button>
-      <input #fileInput type="file" hidden accept="image/jpeg,image/png,image/webp,application/pdf" (change)="onFileSelected($event)">
-      <p class="upload-hint">Foto o PDF de la boleta de pago (máx. 10 MB)</p>
-    }
+    <app-upload-box
+      accept="image/jpeg,image/png,image/webp,application/pdf"
+      [showConfirmButtons]="false"
+      [file]="comprobanteFile()"
+      [fileName]="comprobante()?.name ?? ''"
+      [fileSize]="comprobante() ? (comprobante()!.size / 1024 / 1024).toFixed(2) + ' MB' : ''"
+      label="Seleccionar comprobante"
+      hint="Foto o PDF de la boleta de pago (m&aacute;x. 10 MB)"
+      (picked)="onFileSelected($event)"
+      (remove)="quitarComprobante()"></app-upload-box>
   </div>
 </div>
 

@@ -14,6 +14,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { PagoService } from '../../services/pago.service';
 import { AlumnoPagosMatrix, ModuloPagosInfo, PreviewAsignacion, TransaccionPagoCreate } from '../../models/pago.model';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog';
+import { UploadBoxComponent } from '../../../../shared/components/upload-box/upload-box';
 
 interface PagoDialogData {
   alumno: AlumnoPagosMatrix;
@@ -33,7 +34,7 @@ const ACCEPTED = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
     MatDialogModule, MatFormFieldModule, MatInputModule, MatSelectModule,
     MatButtonModule, MatIconModule, MatTooltipModule,
     MatDatepickerModule, MatNativeDateModule,
-    MatSnackBarModule,
+    MatSnackBarModule, UploadBoxComponent,
   ],
   templateUrl: './pago-register-dialog.html',
   styleUrl: './pago-register-dialog.css',
@@ -49,6 +50,7 @@ export class PagoRegisterDialog {
   monto = signal<number | null>(null);
   fechaPago: Date | null = new Date();
   comprobante = signal<{ name: string; size: number; data: string } | null>(null);
+  comprobanteFile = signal<File | null>(null);
   isSubmitting = signal(false);
   previewAsig = signal<PreviewAsignacion[]>([]);
   previewLoading = signal(false);
@@ -114,11 +116,7 @@ export class PagoRegisterDialog {
     return asig.slice(1).reduce((acc, a) => acc + a.monto, 0);
   };
 
-  onFileSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
-    input.value = '';
-    if (!file) return;
+  onFileSelected(file: File): void {
     if (!ACCEPTED.includes(file.type)) {
       this.snackbar.open('El comprobante debe ser una imagen (JPG/PNG/WebP) o PDF', 'Cerrar', { duration: 3500 });
       return;
@@ -127,6 +125,7 @@ export class PagoRegisterDialog {
       this.snackbar.open('El comprobante supera los 10 MB', 'Cerrar', { duration: 3500 });
       return;
     }
+    this.comprobanteFile.set(file);
     const reader = new FileReader();
     reader.onload = () => {
       this.comprobante.set({ name: file.name, size: file.size, data: String(reader.result) });
@@ -136,6 +135,7 @@ export class PagoRegisterDialog {
 
   quitarComprobante(): void {
     this.comprobante.set(null);
+    this.comprobanteFile.set(null);
   }
 
   fmt(n: number): string {
@@ -186,7 +186,6 @@ export class PagoRegisterDialog {
       monto: this.monto()!,
       fecha_pago: this.fechaPago!.toISOString().split('T')[0],
       comprobante: this.comprobante()!.data,
-      observaciones: null,
     };
 
     this.service.create(payload).subscribe({

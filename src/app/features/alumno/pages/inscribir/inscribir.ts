@@ -29,6 +29,7 @@ import { ProgramaVersionEdicion } from '../../../edicion/models/edicion.model';
 import { DetalleProgramaAlumno } from '../../models/detalle-programa-alumno.model';
 import { Solicitud, DocumentoSolicitud } from '../../models/solicitud-incorporacion.model';
 import { environment } from '../../../../../environments/environment';
+import { UploadBoxComponent } from '../../../../shared/components/upload-box/upload-box';
 
 @Component({
   selector: 'app-inscribir',
@@ -38,7 +39,7 @@ import { environment } from '../../../../../environments/environment';
     MatCardModule, MatButtonModule, MatIconModule, MatFormFieldModule,
     MatInputModule, MatSelectModule, MatDatepickerModule, MatNativeDateModule,
     MatDividerModule, MatTooltipModule, MatProgressSpinnerModule, MatProgressBarModule,
-    MatSnackBarModule,
+    MatSnackBarModule, UploadBoxComponent,
   ],
   templateUrl: './inscribir.html',
   styleUrl: './inscribir.css',
@@ -94,9 +95,6 @@ export class InscribirComponent implements OnInit {
   uploadFile = signal<File | null>(null);
   uploadFileName = signal('');
   uploadFileSize = signal('');
-  uploadPreviewUrl = signal('');
-  uploadIsPdf = signal(false);
-  uploadDragOver = signal(false);
   subiendoDoc = signal(false);
 
   documentosProgreso = computed(() => {
@@ -347,31 +345,8 @@ export class InscribirComponent implements OnInit {
     this.limpiarUpload();
   }
 
-  onDocUploadDragOver(event: DragEvent): void {
-    event.preventDefault();
-    event.stopPropagation();
-    this.uploadDragOver.set(true);
-  }
-
-  onDocUploadDragLeave(event: DragEvent): void {
-    event.preventDefault();
-    event.stopPropagation();
-    this.uploadDragOver.set(false);
-  }
-
-  onDocUploadDrop(event: DragEvent): void {
-    event.preventDefault();
-    event.stopPropagation();
-    this.uploadDragOver.set(false);
-    const file = event.dataTransfer?.files?.[0];
-    if (file) this._procesarDocUpload(file);
-  }
-
-  onDocUploadFileSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
-    input.value = '';
-    if (file) this._procesarDocUpload(file);
+  onDocUploadFileSelected(file: File): void {
+    this._procesarDocUpload(file);
   }
 
   private _procesarDocUpload(file: File): void {
@@ -388,24 +363,12 @@ export class InscribirComponent implements OnInit {
     this.uploadFile.set(file);
     this.uploadFileName.set(file.name);
     this.uploadFileSize.set(this._formatSize(file.size));
-    this.uploadIsPdf.set(file.type === 'application/pdf');
-
-    if (!this.uploadIsPdf()) {
-      const reader = new FileReader();
-      reader.onload = () => this.uploadPreviewUrl.set(reader.result as string);
-      reader.readAsDataURL(file);
-    } else {
-      this.uploadPreviewUrl.set('');
-    }
   }
 
   limpiarUpload(): void {
     this.uploadFile.set(null);
     this.uploadFileName.set('');
     this.uploadFileSize.set('');
-    this.uploadPreviewUrl.set('');
-    this.uploadIsPdf.set(false);
-    this.uploadDragOver.set(false);
     this.subiendoDoc.set(false);
   }
 

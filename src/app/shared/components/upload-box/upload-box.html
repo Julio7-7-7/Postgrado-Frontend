@@ -1,0 +1,54 @@
+@if (uploading) {
+  <div class="upload-box state-uploading">
+    <mat-spinner diameter="20"></mat-spinner>
+    <span class="upload-box-label">{{ uploadLabel }}</span>
+  </div>
+} @else if (file) {
+  <div class="upload-box state-file">
+    <div class="upload-box-file">
+      <div class="upload-box-icon" [class.pdf]="esPdf">
+        <mat-icon>{{ esPdf ? 'picture_as_pdf' : 'description' }}</mat-icon>
+      </div>
+      <div class="upload-box-info">
+        <span class="upload-box-name" [matTooltip]="fileName">{{ fileName }}</span>
+        <span class="upload-box-size">{{ fileSize }}</span>
+      </div>
+    </div>
+    @if (showConfirmButtons) {
+      <div class="upload-box-actions">
+        <button type="button" mat-button class="upload-box-cancel" (click)="cancel.emit(); limpiarDrag()">
+          <mat-icon>close</mat-icon> Cancelar
+        </button>
+        <button type="button" mat-flat-button color="primary" class="upload-box-confirm" (click)="confirm.emit()">
+          <mat-icon>cloud_upload</mat-icon> {{ confirmText }}
+        </button>
+      </div>
+    } @else {
+      <button type="button" mat-icon-button class="upload-box-remove" matTooltip="Quitar archivo"
+              (click)="remove.emit(); limpiarDrag()">
+        <mat-icon>close</mat-icon>
+      </button>
+    }
+  </div>
+} @else if (uploadDone) {
+  <div class="upload-box state-done">
+    <mat-icon class="upload-box-done-icon">check_circle</mat-icon>
+    <span class="upload-box-label">¡Completado!</span>
+  </div>
+} @else {
+  <div class="upload-box" [class.drag-over]="dragOver()" [class.disabled]="disabled"
+       (click)="abrir()" (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)"
+       (drop)="onDrop($event)" role="button" tabindex="0"
+       (keydown.enter)="abrir()" (keydown.space)="abrir(); $event.preventDefault()">
+    <div class="upload-box-idle">
+      <mat-icon class="upload-box-cloud">cloud_upload</mat-icon>
+      <div class="upload-box-idle-text">
+        <span class="upload-box-label">{{ label }}</span>
+        @if (hint) {
+          <span class="upload-box-hint">{{ hint }}</span>
+        }
+      </div>
+    </div>
+    <input #inputFile type="file" [attr.accept]="accept" hidden (change)="onInputChange($event)" [disabled]="disabled" />
+  </div>
+}

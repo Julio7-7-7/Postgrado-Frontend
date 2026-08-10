@@ -444,22 +444,16 @@
                             </div>
                           </div>
                           <div class="reinc-req-right">
-                            @if (reincReqFiles()[req.id_requisito]) {
-                              <div class="reinc-req-chip">
-                                <span class="reinc-req-chip-name">{{ reincReqFiles()[req.id_requisito].name }}</span>
-                                <button mat-icon-button class="reinc-req-chip-remove"
-                                        (click)="quitarReincReqFile(req.id_requisito)" matTooltip="Quitar archivo">
-                                  <mat-icon>close</mat-icon>
-                                </button>
-                              </div>
-                            } @else {
-                              <label class="doc-upload-btn reinc-req-upload" matTooltip="Subir imagen o PDF">
-                                <mat-icon>cloud_upload</mat-icon>
-                                <span>Subir</span>
-                                <input type="file" accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
-                                       hidden (change)="onReincReqFileSelected($event, req.id_requisito)">
-                              </label>
-                            }
+                            <app-upload-box class="reinc-req-upload"
+                              accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
+                              [showConfirmButtons]="false"
+                              [file]="reincReqFiles()[req.id_requisito]?.file ?? null"
+                              [fileName]="reincReqFiles()[req.id_requisito]?.name ?? ''"
+                              [fileSize]="reincReqFiles()[req.id_requisito]?.size ?? ''"
+                              label="Seleccionar o arrastrar archivo"
+                              hint="Imagen o PDF, m&aacute;x. 10 MB"
+                              (picked)="onReincReqFileSelected($event, req.id_requisito)"
+                              (remove)="quitarReincReqFile(req.id_requisito)"></app-upload-box>
                           </div>
                         </div>
                       }
@@ -532,32 +526,20 @@
                           </a>
                         }
                         @if (doc.estado === 'pendiente') {
-                          @if (pendingReincDocId() === doc.id_solicitud_documento) {
-                            <div class="pending-confirm-inline">
-                              <span class="pending-filename-inline">{{ pendingReincFileName() }}</span>
-                              <span class="pending-size-inline">{{ pendingReincFileSize() }}</span>
-                            </div>
-                          } @else if (isReincUploading(doc.id_solicitud_documento)) {
-                            <div class="upload-progress-inline">
-                              @if (uploadReincState() === 'completado') {
-                                <mat-icon class="upload-done">check_circle</mat-icon>
-                                <span class="upload-done-text">Listo!</span>
-                              } @else {
-                                <mat-spinner diameter="18"></mat-spinner>
-                                <span class="upload-status-text">
-                                  @if (uploadReincState() === 'leyendo') { Leyendo... }
-                                  @else { Subiendo... }
-                                </span>
-                              }
-                            </div>
-                          } @else {
-                            <label class="doc-upload-btn" matTooltip="Subir imagen o PDF">
-                              <mat-icon>cloud_upload</mat-icon>
-                              <span>Subir</span>
-                              <input type="file" accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
-                                     hidden (change)="onReincFileSelected($event, doc)">
-                            </label>
-                          }
+                          <app-upload-box
+                            accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
+                            [file]="pendingReincDocId() === doc.id_solicitud_documento ? pendingReincFile() : null"
+                            [fileName]="pendingReincFileName()"
+                            [fileSize]="pendingReincFileSize()"
+                            [uploading]="isReincUploading(doc.id_solicitud_documento)"
+                            [uploadDone]="uploadReincState() === 'completado' && isReincUploading(doc.id_solicitud_documento)"
+                            [uploadLabel]="uploadReincState() === 'leyendo' ? 'Leyendo...' : 'Subiendo...'"
+                            [disabled]="isReincUploading(doc.id_solicitud_documento)"
+                            label="Seleccionar o arrastrar archivo"
+                            hint="Imagen o PDF, m&aacute;x. 10 MB"
+                            (picked)="onReincFileSelected($event, doc)"
+                            (confirm)="confirmReincUpload()"
+                            (cancel)="cancelReincUpload()"></app-upload-box>
                         }
                         @if (doc.estado === 'entregado') {
                           <span class="doc-approved-badge">
@@ -567,28 +549,6 @@
                         }
                       </div>
                     </div>
-
-                    @if (pendingReincDocId() === doc.id_solicitud_documento && uploadReincState() === 'ninguno') {
-                      <div class="doc-pending-actions">
-                        <mat-progress-bar mode="determinate" [value]="0" class="pending-progress"></mat-progress-bar>
-                        <div class="doc-pending-buttons">
-                          <button mat-button class="cancel-pending-btn" (click)="cancelReincUpload()">
-                            <mat-icon>close</mat-icon>
-                            Cancelar
-                          </button>
-                          <button mat-flat-button color="primary" class="confirm-pending-btn" (click)="confirmReincUpload()">
-                            <mat-icon>cloud_upload</mat-icon>
-                            Subir
-                          </button>
-                        </div>
-                      </div>
-                    }
-
-                    @if (isReincUploading(doc.id_solicitud_documento) && uploadReincState() !== 'completado') {
-                      <div class="doc-upload-progress">
-                        <mat-progress-bar mode="determinate" [value]="uploadReincProgress()"></mat-progress-bar>
-                      </div>
-                    }
                   </div>
                 }
               </div>
@@ -651,32 +611,20 @@
                           </a>
                         }
                         @if (doc.estado === 'pendiente') {
-                          @if (pendingReincDocId() === doc.id_solicitud_documento) {
-                            <div class="pending-confirm-inline">
-                              <span class="pending-filename-inline">{{ pendingReincFileName() }}</span>
-                              <span class="pending-size-inline">{{ pendingReincFileSize() }}</span>
-                            </div>
-                          } @else if (isReincUploading(doc.id_solicitud_documento)) {
-                            <div class="upload-progress-inline">
-                              @if (uploadReincState() === 'completado') {
-                                <mat-icon class="upload-done">check_circle</mat-icon>
-                                <span class="upload-done-text">Listo!</span>
-                              } @else {
-                                <mat-spinner diameter="18"></mat-spinner>
-                                <span class="upload-status-text">
-                                  @if (uploadReincState() === 'leyendo') { Leyendo... }
-                                  @else { Subiendo... }
-                                </span>
-                              }
-                            </div>
-                          } @else {
-                            <label class="doc-upload-btn" matTooltip="Subir imagen o PDF">
-                              <mat-icon>cloud_upload</mat-icon>
-                              <span>Subir</span>
-                              <input type="file" accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
-                                     hidden (change)="onReincFileSelected($event, doc)">
-                            </label>
-                          }
+                          <app-upload-box
+                            accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
+                            [file]="pendingReincDocId() === doc.id_solicitud_documento ? pendingReincFile() : null"
+                            [fileName]="pendingReincFileName()"
+                            [fileSize]="pendingReincFileSize()"
+                            [uploading]="isReincUploading(doc.id_solicitud_documento)"
+                            [uploadDone]="uploadReincState() === 'completado' && isReincUploading(doc.id_solicitud_documento)"
+                            [uploadLabel]="uploadReincState() === 'leyendo' ? 'Leyendo...' : 'Subiendo...'"
+                            [disabled]="isReincUploading(doc.id_solicitud_documento)"
+                            label="Seleccionar o arrastrar archivo"
+                            hint="Imagen o PDF, m&aacute;x. 10 MB"
+                            (picked)="onReincFileSelected($event, doc)"
+                            (confirm)="confirmReincUpload()"
+                            (cancel)="cancelReincUpload()"></app-upload-box>
                         }
                         @if (doc.estado === 'entregado') {
                           <span class="doc-approved-badge">
@@ -686,28 +634,6 @@
                         }
                       </div>
                     </div>
-
-                    @if (pendingReincDocId() === doc.id_solicitud_documento && uploadReincState() === 'ninguno') {
-                      <div class="doc-pending-actions">
-                        <mat-progress-bar mode="determinate" [value]="0" class="pending-progress"></mat-progress-bar>
-                        <div class="doc-pending-buttons">
-                          <button mat-button class="cancel-pending-btn" (click)="cancelReincUpload()">
-                            <mat-icon>close</mat-icon>
-                            Cancelar
-                          </button>
-                          <button mat-flat-button color="primary" class="confirm-pending-btn" (click)="confirmReincUpload()">
-                            <mat-icon>cloud_upload</mat-icon>
-                            Subir
-                          </button>
-                        </div>
-                      </div>
-                    }
-
-                    @if (isReincUploading(doc.id_solicitud_documento) && uploadReincState() !== 'completado') {
-                      <div class="doc-upload-progress">
-                        <mat-progress-bar mode="determinate" [value]="uploadReincProgress()"></mat-progress-bar>
-                      </div>
-                    }
                   </div>
                 }
               </div>
@@ -889,22 +815,16 @@
                             </div>
                           </div>
                           <div class="reinc-req-right">
-                            @if (migrReqFiles()[req.id_requisito]) {
-                              <div class="reinc-req-chip">
-                                <span class="reinc-req-chip-name">{{ migrReqFiles()[req.id_requisito].name }}</span>
-                                <button mat-icon-button class="reinc-req-chip-remove"
-                                        (click)="quitarMigrReqFile(req.id_requisito)" matTooltip="Quitar archivo">
-                                  <mat-icon>close</mat-icon>
-                                </button>
-                              </div>
-                            } @else {
-                              <label class="doc-upload-btn reinc-req-upload" matTooltip="Subir imagen o PDF">
-                                <mat-icon>cloud_upload</mat-icon>
-                                <span>Subir</span>
-                                <input type="file" accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
-                                       hidden (change)="onMigrReqFileSelected($event, req.id_requisito)">
-                              </label>
-                            }
+                            <app-upload-box class="reinc-req-upload"
+                              accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
+                              [showConfirmButtons]="false"
+                              [file]="migrReqFiles()[req.id_requisito]?.file ?? null"
+                              [fileName]="migrReqFiles()[req.id_requisito]?.name ?? ''"
+                              [fileSize]="migrReqFiles()[req.id_requisito]?.size ?? ''"
+                              label="Seleccionar o arrastrar archivo"
+                              hint="Imagen o PDF, m&aacute;x. 10 MB"
+                              (picked)="onMigrReqFileSelected($event, req.id_requisito)"
+                              (remove)="quitarMigrReqFile(req.id_requisito)"></app-upload-box>
                           </div>
                         </div>
                       }
@@ -1023,32 +943,20 @@
                         </a>
                       }
                       @if (doc.estado === 'pendiente' || doc.estado === 'rechazado') {
-                        @if (pendingDocId() === doc.id_control_documentacion) {
-                          <div class="pending-confirm-inline">
-                            <span class="pending-filename-inline">{{ pendingFileName() }}</span>
-                            <span class="pending-size-inline">{{ pendingFileSize() }}</span>
-                          </div>
-                        } @else if (isUploading(doc.id_control_documentacion)) {
-                          <div class="upload-progress-inline">
-                            @if (uploadState() === 'completado') {
-                              <mat-icon class="upload-done">check_circle</mat-icon>
-                              <span class="upload-done-text">Listo!</span>
-                            } @else {
-                              <mat-spinner diameter="18"></mat-spinner>
-                              <span class="upload-status-text">
-                                @if (uploadState() === 'leyendo') { Leyendo... }
-                                @else { Subiendo... }
-                              </span>
-                            }
-                          </div>
-                        } @else {
-                          <label class="doc-upload-btn" matTooltip="Subir imagen o PDF">
-                            <mat-icon>cloud_upload</mat-icon>
-                            <span>{{ doc.estado === 'rechazado' ? 'Reenviar' : 'Subir' }}</span>
-                            <input type="file" accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
-                                   hidden (change)="onFileSelected($event, doc)">
-                          </label>
-                        }
+                        <app-upload-box
+                          accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
+                          [file]="pendingDocId() === doc.id_control_documentacion ? pendingFile() : null"
+                          [fileName]="pendingFileName()"
+                          [fileSize]="pendingFileSize()"
+                          [uploading]="isUploading(doc.id_control_documentacion)"
+                          [uploadDone]="uploadState() === 'completado' && isUploading(doc.id_control_documentacion)"
+                          [uploadLabel]="uploadState() === 'leyendo' ? 'Leyendo...' : 'Subiendo...'"
+                          [disabled]="isUploading(doc.id_control_documentacion)"
+                          label="Seleccionar o arrastrar archivo"
+                          hint="Imagen o PDF, m&aacute;x. 10 MB"
+                          (picked)="onFileSelected($event, doc)"
+                          (confirm)="confirmUpload()"
+                          (cancel)="cancelUpload()"></app-upload-box>
                       }
                       @if (doc.estado === 'entregado') {
                         <span class="doc-waiting-badge">
@@ -1064,28 +972,6 @@
                       }
                     </div>
                   </div>
-
-                  @if (pendingDocId() === doc.id_control_documentacion && uploadState() === 'ninguno') {
-                    <div class="doc-pending-actions">
-                      <mat-progress-bar mode="determinate" [value]="0" class="pending-progress"></mat-progress-bar>
-                      <div class="doc-pending-buttons">
-                        <button mat-button class="cancel-pending-btn" (click)="cancelUpload()" [disabled]="isUploading(doc.id_control_documentacion)">
-                          <mat-icon>close</mat-icon>
-                          Cancelar
-                        </button>
-                        <button mat-flat-button color="primary" class="confirm-pending-btn" (click)="confirmUpload()" [disabled]="isUploading(doc.id_control_documentacion)">
-                          <mat-icon>cloud_upload</mat-icon>
-                          Subir
-                        </button>
-                      </div>
-                    </div>
-                  }
-
-                  @if (isUploading(doc.id_control_documentacion) && uploadState() !== 'completado') {
-                    <div class="doc-upload-progress">
-                      <mat-progress-bar mode="determinate" [value]="uploadProgress()"></mat-progress-bar>
-                    </div>
-                  }
                 </div>
               }
             </div>
@@ -1127,28 +1013,20 @@
                         </a>
                       }
                       @if (doc.estado === 'pendiente' || doc.estado === 'rechazado') {
-                        @if (pendingDocId() === doc.id_control_documentacion) {
-                          <div class="pending-confirm-inline">
-                            <span class="pending-filename-inline">{{ pendingFileName() }}</span>
-                            <span class="pending-size-inline">{{ pendingFileSize() }}</span>
-                          </div>
-                        } @else if (isUploading(doc.id_control_documentacion)) {
-                          <div class="upload-progress-inline">
-                            @if (uploadState() === 'completado') {
-                              <mat-icon class="upload-done">check_circle</mat-icon>
-                              <span class="upload-done-text">Listo!</span>
-                            } @else {
-                              <mat-spinner diameter="18"></mat-spinner>
-                            }
-                          </div>
-                        } @else {
-                          <label class="doc-upload-btn" matTooltip="Subir imagen o PDF">
-                            <mat-icon>cloud_upload</mat-icon>
-                            <span>Subir</span>
-                            <input type="file" accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
-                                   hidden (change)="onFileSelected($event, doc)">
-                          </label>
-                        }
+                        <app-upload-box
+                          accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
+                          [file]="pendingDocId() === doc.id_control_documentacion ? pendingFile() : null"
+                          [fileName]="pendingFileName()"
+                          [fileSize]="pendingFileSize()"
+                          [uploading]="isUploading(doc.id_control_documentacion)"
+                          [uploadDone]="uploadState() === 'completado' && isUploading(doc.id_control_documentacion)"
+                          [uploadLabel]="uploadState() === 'leyendo' ? 'Leyendo...' : 'Subiendo...'"
+                          [disabled]="isUploading(doc.id_control_documentacion)"
+                          label="Seleccionar o arrastrar archivo"
+                          hint="Imagen o PDF, m&aacute;x. 10 MB"
+                          (picked)="onFileSelected($event, doc)"
+                          (confirm)="confirmUpload()"
+                          (cancel)="cancelUpload()"></app-upload-box>
                       }
                       @if (doc.estado === 'entregado') {
                         <span class="doc-waiting-badge">
@@ -1158,27 +1036,6 @@
                       }
                     </div>
                   </div>
-
-                  @if (pendingDocId() === doc.id_control_documentacion && uploadState() === 'ninguno') {
-                    <div class="doc-pending-actions">
-                      <div class="doc-pending-buttons">
-                        <button mat-button class="cancel-pending-btn" (click)="cancelUpload()">
-                          <mat-icon>close</mat-icon>
-                          Cancelar
-                        </button>
-                        <button mat-flat-button color="primary" class="confirm-pending-btn" (click)="confirmUpload()">
-                          <mat-icon>cloud_upload</mat-icon>
-                          Subir
-                        </button>
-                      </div>
-                    </div>
-                  }
-
-                  @if (isUploading(doc.id_control_documentacion) && uploadState() !== 'completado') {
-                    <div class="doc-upload-progress">
-                      <mat-progress-bar mode="determinate" [value]="uploadProgress()"></mat-progress-bar>
-                    </div>
-                  }
                 </div>
               }
             </div>

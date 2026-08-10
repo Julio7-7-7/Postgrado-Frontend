@@ -23,6 +23,7 @@ import { TranscriptPagosInscripcion, TransaccionTranscript } from '../../../pago
 import { AuthService } from '../../../../core/services/auth.service';
 import { clasificarNota } from '../../../../core/utils/nota-utils';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog';
+import { UploadBoxComponent } from '../../../../shared/components/upload-box/upload-box';
 import { environment } from '../../../../../environments/environment';
 
 const ESTADO_HITOS: { estado: EstadoDetalleAlumno; titulo: string; descripcion: string; icono: string }[] = [
@@ -108,7 +109,7 @@ const TABS: { id: TabId; label: string; icon: string }[] = [
     CommonModule,
     MatCardModule, MatButtonModule, MatIconModule,
     MatDividerModule, MatProgressSpinnerModule, MatProgressBarModule,
-    MatTooltipModule, MatSnackBarModule, MatDialogModule,
+    MatTooltipModule, MatSnackBarModule, MatDialogModule, UploadBoxComponent,
   ],
   templateUrl: './inscripcion-detail.html',
   styleUrl: './inscripcion-detail.css',
@@ -405,21 +406,15 @@ export class InscripcionDetailComponent implements OnInit {
     return this.uploadingDocId() === docId;
   }
 
-  onFileSelected(event: Event, doc: ControlDocumentacionAlumno): void {
-    const input = event.target as HTMLInputElement;
-    if (!input.files || !input.files[0]) return;
-
-    const file = input.files[0];
+  onFileSelected(file: File, doc: ControlDocumentacionAlumno): void {
     const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'];
     if (!validTypes.includes(file.type)) {
       this.snackBar.open('Solo se aceptan imágenes (JPG, PNG, GIF, WebP) o PDF', 'Cerrar', { duration: 4000 });
-      input.value = '';
       return;
     }
 
     if (file.size > 10 * 1024 * 1024) {
       this.snackBar.open('El archivo no puede superar 10 MB', 'Cerrar', { duration: 4000 });
-      input.value = '';
       return;
     }
 
@@ -427,7 +422,6 @@ export class InscripcionDetailComponent implements OnInit {
     this.pendingDocId.set(doc.id_control_documentacion);
     this.pendingFileName.set(file.name);
     this.pendingFileSize.set(this.formatSize(file.size));
-    input.value = '';
   }
 
   retirar(): void {
@@ -471,26 +465,20 @@ export class InscripcionDetailComponent implements OnInit {
     this.reincorporacionExpandida.set(true);
   }
 
-  onReincReqFileSelected(event: Event, idRequisito: number): void {
-    const input = event.target as HTMLInputElement;
-    if (!input.files || !input.files[0]) return;
-    const file = input.files[0];
+  onReincReqFileSelected(file: File, idRequisito: number): void {
     const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'];
     if (!validTypes.includes(file.type)) {
       this.snackBar.open('Solo se aceptan imágenes (JPG, PNG, GIF, WebP) o PDF', 'Cerrar', { duration: 4000 });
-      input.value = '';
       return;
     }
     if (file.size > 10 * 1024 * 1024) {
       this.snackBar.open('El archivo no puede superar 10 MB', 'Cerrar', { duration: 4000 });
-      input.value = '';
       return;
     }
     this.reincReqFiles.update(files => ({
       ...files,
       [idRequisito]: { file, name: file.name, size: this.formatSize(file.size) },
     }));
-    input.value = '';
   }
 
   quitarReincReqFile(idRequisito: number): void {
@@ -787,26 +775,20 @@ export class InscripcionDetailComponent implements OnInit {
     this.migrReqFiles.set({});
   }
 
-  onMigrReqFileSelected(event: Event, idRequisito: number): void {
-    const input = event.target as HTMLInputElement;
-    if (!input.files || !input.files[0]) return;
-    const file = input.files[0];
+  onMigrReqFileSelected(file: File, idRequisito: number): void {
     const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'];
     if (!validTypes.includes(file.type)) {
       this.snackBar.open('Solo se aceptan imágenes (JPG, PNG, GIF, WebP) o PDF', 'Cerrar', { duration: 4000 });
-      input.value = '';
       return;
     }
     if (file.size > 10 * 1024 * 1024) {
       this.snackBar.open('El archivo no puede superar 10 MB', 'Cerrar', { duration: 4000 });
-      input.value = '';
       return;
     }
     this.migrReqFiles.update(files => ({
       ...files,
       [idRequisito]: { file, name: file.name, size: this.formatSize(file.size) },
     }));
-    input.value = '';
   }
 
   quitarMigrReqFile(idRequisito: number): void {
@@ -991,26 +973,20 @@ export class InscripcionDetailComponent implements OnInit {
     return this.uploadingReincDocId() === docId;
   }
 
-  onReincFileSelected(event: Event, doc: DocumentoSolicitud): void {
-    const input = event.target as HTMLInputElement;
-    if (!input.files || !input.files[0]) return;
-    const file = input.files[0];
+  onReincFileSelected(file: File, doc: DocumentoSolicitud): void {
     const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'];
     if (!validTypes.includes(file.type)) {
       this.snackBar.open('Solo se aceptan imágenes (JPG, PNG, GIF, WebP) o PDF', 'Cerrar', { duration: 4000 });
-      input.value = '';
       return;
     }
     if (file.size > 10 * 1024 * 1024) {
       this.snackBar.open('El archivo no puede superar 10 MB', 'Cerrar', { duration: 4000 });
-      input.value = '';
       return;
     }
     this.pendingReincFile.set(file);
     this.pendingReincDocId.set(doc.id_solicitud_documento);
     this.pendingReincFileName.set(file.name);
     this.pendingReincFileSize.set(this.formatSize(file.size));
-    input.value = '';
   }
 
   confirmReincUpload(): void {
