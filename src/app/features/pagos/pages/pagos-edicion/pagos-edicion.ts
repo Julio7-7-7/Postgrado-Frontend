@@ -157,7 +157,7 @@ export class PagosEdicionComponent implements OnInit {
   }
 
   pctTotal(a: AlumnoPagosMatrix): number {
-    return Math.round(a.pct_total);
+    return Math.min(100, Math.round(a.pct_total));
   }
 
   ringBg(a: AlumnoPagosMatrix): string {
