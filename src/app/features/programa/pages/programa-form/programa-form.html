@@ -1,85 +1,86 @@
-<div class="form-page">
-  <mat-card class="form-card">
-    <div class="form-header">
-      <h2>{{ idEditando ? 'Editar Programa' : 'Nuevo Programa' }}</h2>
-      <p>Complete la información del programa académico</p>
+<div class="dialog-header">
+  <div class="header-icon">
+    <mat-icon>{{ idEditando ? 'edit' : 'add' }}</mat-icon>
+  </div>
+  <div>
+    <h2 mat-dialog-title>{{ idEditando ? 'Editar Programa' : 'Nuevo Programa' }}</h2>
+    <p class="header-sub">{{ idEditando ? 'Modificá los datos del programa académico' : 'Creá un nuevo programa académico' }}</p>
+  </div>
+</div>
+
+<mat-dialog-content>
+  <form [formGroup]="form" (ngSubmit)="guardar()">
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Nombre del Programa</mat-label>
+      <input matInput formControlName="nombre_programa" placeholder="Ej: Maestría en Ciberseguridad" />
+      <mat-icon matPrefix>school</mat-icon>
+      @if (form.get('nombre_programa')?.hasError('required')) {
+        <mat-error>El nombre es obligatorio</mat-error>
+      }
+      @if (form.get('nombre_programa')?.hasError('minlength')) {
+        <mat-error>Mínimo 3 caracteres</mat-error>
+      }
+    </mat-form-field>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline">
+        <mat-label>Tipo de Programa</mat-label>
+        <mat-select formControlName="id_tipo_programa">
+          @for (tipo of tiposPrograma(); track tipo.id_tipo_programa) {
+            <mat-option [value]="tipo.id_tipo_programa">
+              {{ tipo.nombre }}{{ tipo.estado === 'inactivo' ? ' (Inactivo)' : '' }}
+            </mat-option>
+          }
+        </mat-select>
+        <mat-icon matPrefix>category</mat-icon>
+        @if (form.get('id_tipo_programa')?.hasError('required')) {
+          <mat-error>Seleccione un tipo</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Estado del Registro</mat-label>
+        <mat-select formControlName="estado">
+          <mat-option value="activo">Activo</mat-option>
+          <mat-option value="inactivo">Inactivo</mat-option>
+        </mat-select>
+        <mat-icon matPrefix>toggle_on</mat-icon>
+      </mat-form-field>
     </div>
 
-    <mat-divider></mat-divider>
-
-    <mat-card-content>
-      <form [formGroup]="form" (ngSubmit)="guardar()" class="form-layout">
-
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Nombre del Programa</mat-label>
-          <input matInput formControlName="nombre_programa" placeholder="Ej: Maestría en Ciberseguridad" />
-          <mat-icon matPrefix>school</mat-icon>
-          @if (form.get('nombre_programa')?.hasError('required')) {
-            <mat-error>El nombre es obligatorio</mat-error>
-          }
-          @if (form.get('nombre_programa')?.hasError('minlength')) {
-            <mat-error>Mínimo 3 caracteres</mat-error>
-          }
-        </mat-form-field>
-
-        <div class="form-row">
-          <mat-form-field appearance="outline">
-            <mat-label>Tipo de Programa</mat-label>
-            <mat-select formControlName="id_tipo_programa">
-              @for (tipo of tiposPrograma(); track tipo.id_tipo_programa) {
-                <mat-option [value]="tipo.id_tipo_programa">
-                  {{ tipo.nombre }}{{ tipo.estado === 'inactivo' ? ' (Inactivo)' : '' }}
-                </mat-option>
-              }
-            </mat-select>
-            <mat-icon matPrefix>category</mat-icon>
-            @if (form.get('id_tipo_programa')?.hasError('required')) {
-              <mat-error>Seleccione un tipo</mat-error>
-            }
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Estado del Registro</mat-label>
-            <mat-select formControlName="estado">
-              <mat-option value="activo">Activo</mat-option>
-              <mat-option value="inactivo">Inactivo</mat-option>
-            </mat-select>
-            <mat-icon matPrefix>toggle_on</mat-icon>
-          </mat-form-field>
-        </div>
-
-        <!-- Foto -->
-        <div class="foto-section">
-          <label class="foto-label">Foto del Programa</label>
-          <div class="foto-upload-area" (click)="fileInput.click()">
-            @if (fotoPreview()) {
-              <div class="foto-preview-wrapper">
-                <img [src]="fotoPreview()" class="foto-preview" alt="Preview" />
-                <button type="button" mat-icon-button class="btn-remove-foto" (click)="eliminarFoto(); $event.stopPropagation()">
-                  <mat-icon>close</mat-icon>
-                </button>
-              </div>
-            } @else {
-              <div class="foto-placeholder">
-                <mat-icon>add_a_photo</mat-icon>
-                <span>Haz clic para seleccionar una foto</span>
-                <span class="foto-hint">JPG, PNG, GIF o WebP</span>
-              </div>
-            }
+    <div class="foto-section">
+      <label class="foto-label">Foto del Programa</label>
+      <div class="foto-upload-area" (click)="fileInput.click()">
+        @if (fotoPreview()) {
+          <div class="foto-preview-wrapper">
+            <img [src]="fotoPreview()" class="foto-preview" alt="Preview" />
+            <button type="button" mat-icon-button class="btn-remove-foto" (click)="eliminarFoto(); $event.stopPropagation()">
+              <mat-icon>close</mat-icon>
+            </button>
           </div>
-          <input #fileInput type="file" accept="image/jpeg,image/png,image/gif,image/webp" (change)="onFotoSeleccionada($event)" class="file-input-hidden" />
-        </div>
+        } @else {
+          <div class="foto-placeholder">
+            <mat-icon>add_a_photo</mat-icon>
+            <span>Haz clic para seleccionar una foto</span>
+            <span class="foto-hint">JPG, PNG, GIF o WebP</span>
+          </div>
+        }
+      </div>
+      <input #fileInput type="file" accept="image/jpeg,image/png,image/gif,image/webp" (change)="onFotoSeleccionada($event)" class="file-input-hidden" />
+    </div>
 
-        <div class="form-actions">
-          <button mat-stroked-button type="button" routerLink="/programas" class="btn-cancelar">
-            Cancelar
-          </button>
-          <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid || loading()" class="btn-guardar">
-            <mat-icon>{{ loading() ? 'hourglass_empty' : (idEditando ? 'edit' : 'save') }}</mat-icon>
-            {{ loading() ? (idEditando ? 'Actualizando...' : 'Guardando...') : (idEditando ? 'Actualizar Programa' : 'Guardar Nuevo') }}
-          </button>
-        </div>
-      </form>
-    </mat-card-content>
-  </mat-card>
-</div>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-stroked-button mat-dialog-close type="button">Cancelar</button>
+  <button mat-raised-button color="primary" type="button" (click)="guardar()" [disabled]="form.invalid || loading()" class="btn-guardar">
+    @if (loading()) {
+      <mat-spinner diameter="18"></mat-spinner>
+    } @else {
+      <mat-icon>{{ idEditando ? 'edit' : 'save' }}</mat-icon>
+    }
+    {{ loading() ? (idEditando ? 'Actualizando...' : 'Guardando...') : (idEditando ? 'Actualizar Programa' : 'Guardar Nuevo') }}
+  </button>
+</mat-dialog-actions>

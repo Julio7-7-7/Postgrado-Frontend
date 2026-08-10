@@ -1,110 +1,103 @@
-<div class="form-page">
-  <mat-card class="form-card">
-    <div class="form-header">
-      <button mat-icon-button [routerLink]="['/programas', idPrograma(), 'versiones']" class="back-btn">
-        <mat-icon>arrow_back</mat-icon>
-      </button>
-      <div>
-        <h2>{{ idEditando ? 'Editar Versión' : 'Nueva Versión' }}</h2>
-        @if (nombrePrograma()) {
-          <p class="subtitle">Programa: {{ nombrePrograma() }}</p>
-        }
-      </div>
-    </div>
+<div class="dialog-header">
+  <div class="header-icon">
+    <mat-icon>{{ idEditando ? 'layers' : 'add' }}</mat-icon>
+  </div>
+  <div>
+    <h2 mat-dialog-title>{{ idEditando ? 'Editar Versión' : 'Nueva Versión' }}</h2>
+    @if (nombrePrograma()) {
+      <p class="header-sub">Programa: {{ nombrePrograma() }}</p>
+    } @else {
+      <p class="header-sub">{{ idEditando ? 'Modificá los datos de la versión' : 'Creá una nueva versión del programa' }}</p>
+    }
+  </div>
+</div>
 
-    <mat-divider></mat-divider>
+<mat-dialog-content>
+  <form [formGroup]="form" (ngSubmit)="guardar()">
+    @if (idEditando) {
+      <p class="info-text">Editando la descripción de la versión. El número de versión no se puede modificar.</p>
+    } @else {
+      <p class="info-text">La versión se asignará automáticamente como la siguiente disponible.</p>
+    }
 
-    <mat-card-content>
-      <form [formGroup]="form" (ngSubmit)="guardar()" class="form-layout">
-        @if (idEditando) {
-          <p class="info-text">Editando la descripción de la versión. El número de versión no se puede modificar.</p>
-        } @else {
-          <p class="info-text">La versión se asignará automáticamente como la siguiente disponible.</p>
-        }
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Descripción de la Versión</mat-label>
+      <textarea
+        matInput
+        formControlName="descripcion"
+        placeholder="Ej: Actualización del plan de estudios 2026"
+        rows="4"
+      ></textarea>
+      <mat-hint align="end">{{ form.get('descripcion')?.value?.length || 0 }}/500</mat-hint>
+    </mat-form-field>
 
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Descripción de la Versión</mat-label>
-          <textarea
-            matInput
-            formControlName="descripcion"
-            placeholder="Ej: Actualización del plan de estudios 2026"
-            rows="4"
-          ></textarea>
-          <mat-hint align="end">{{ form.get('descripcion')?.value?.length || 0 }}/500</mat-hint>
-        </mat-form-field>
+    <div class="foto-section full-width">
+      <p class="section-label">Imagen de la Versión</p>
 
-        <div class="foto-section full-width">
-          <p class="section-label">Imagen de la Versión</p>
-
-          @if (cargandoDatos() && idEditando) {
-            <div class="foto-loading">
-              <mat-spinner diameter="24"></mat-spinner>
-              <span>Cargando imagen...</span>
+      @if (cargandoDatos() && idEditando) {
+        <div class="foto-loading">
+          <mat-spinner diameter="24"></mat-spinner>
+          <span>Cargando imagen...</span>
+        </div>
+      } @else {
+        <div class="foto-upload-area" (click)="fileInput.click()">
+          @if (fotoPreview()) {
+            <div class="foto-preview-wrapper">
+              <img [src]="fotoPreview()" alt="Vista previa" class="foto-preview" />
+              <button
+                type="button"
+                mat-mini-fab
+                color="warn"
+                class="btn-remove-foto"
+                (click)="eliminarFoto(); $event.stopPropagation()"
+                matTooltip="Eliminar imagen"
+              >
+                <mat-icon>close</mat-icon>
+              </button>
             </div>
           } @else {
-            <div class="foto-upload-area" (click)="fileInput.click()">
-              @if (fotoPreview()) {
-                <div class="foto-preview-wrapper">
-                  <img [src]="fotoPreview()" alt="Vista previa" class="foto-preview" />
-                  <button
-                    type="button"
-                    mat-mini-fab
-                    color="warn"
-                    class="btn-remove-foto"
-                    (click)="eliminarFoto(); $event.stopPropagation()"
-                    matTooltip="Eliminar imagen"
-                  >
-                    <mat-icon>close</mat-icon>
-                  </button>
-                </div>
-              } @else {
-                <div class="foto-placeholder">
-                  <mat-icon>add_photo_alternate</mat-icon>
-                  <span>Sin imagen</span>
-                </div>
-              }
-
-              <div class="foto-actions" (click)="$event.stopPropagation()">
-                <input
-                  #fileInput
-                  type="file"
-                  accept="image/jpeg,image/png,image/gif,image/webp"
-                  (change)="onFotoSeleccionada($event)"
-                  class="file-input"
-                  id="foto-upload"
-                />
-                <label for="foto-upload" class="btn-file-label" mat-stroked-button>
-                  <mat-icon>upload</mat-icon>
-                  {{ fotoPreview() ? 'Cambiar imagen' : 'Seleccionar imagen' }}
-                </label>
-                <span class="foto-hint">JPG, PNG, GIF o WebP</span>
-              </div>
+            <div class="foto-placeholder">
+              <mat-icon>add_photo_alternate</mat-icon>
+              <span>Sin imagen</span>
             </div>
           }
-        </div>
 
-        <div class="form-actions">
-          <button
-            mat-stroked-button
-            type="button"
-            [routerLink]="['/programas', idPrograma(), 'versiones']"
-            class="btn-cancelar"
-          >
-            Cancelar
-          </button>
-
-          <button
-            mat-raised-button
-            color="primary"
-            type="submit"
-            [disabled]="form.invalid || loading()"
-            class="btn-guardar"
-          >
-            <mat-icon>{{ loading() ? 'hourglass_empty' : (idEditando ? 'edit' : 'add_circle') }}</mat-icon>
-            {{ loading() ? (idEditando ? 'Actualizando...' : 'Guardando...') : (idEditando ? 'Actualizar' : 'Crear Versión') }}
-          </button>
+          <div class="foto-actions" (click)="$event.stopPropagation()">
+            <input
+              #fileInput
+              type="file"
+              accept="image/jpeg,image/png,image/gif,image/webp"
+              (change)="onFotoSeleccionada($event)"
+              class="file-input"
+              id="foto-upload"
+            />
+            <label for="foto-upload" class="btn-file-label" mat-stroked-button>
+              <mat-icon>upload</mat-icon>
+              {{ fotoPreview() ? 'Cambiar imagen' : 'Seleccionar imagen' }}
+            </label>
+            <span class="foto-hint">JPG, PNG, GIF o WebP</span>
+          </div>
         </div>
-      </form>
-    </mat-card-content>
-  </mat-card>
-</div>
+      }
+    </div>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-stroked-button mat-dialog-close type="button">Cancelar</button>
+  <button
+    mat-raised-button
+    color="primary"
+    type="submit"
+    (click)="guardar()"
+    [disabled]="form.invalid || loading()"
+    class="btn-guardar"
+  >
+    @if (loading()) {
+      <mat-spinner diameter="18"></mat-spinner>
+    } @else {
+      <mat-icon>{{ idEditando ? 'edit' : 'add_circle' }}</mat-icon>
+    }
+    {{ loading() ? (idEditando ? 'Actualizando...' : 'Guardando...') : (idEditando ? 'Actualizar' : 'Crear Versión') }}
+  </button>
+</mat-dialog-actions>

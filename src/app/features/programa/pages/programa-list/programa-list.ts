@@ -12,8 +12,10 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { ProgramaService } from '../../services/programa.service';
 import { Programa } from '../../models/programa.model';
+import { ProgramaFormComponent } from '../programa-form/programa-form';
 import { environment } from '../../../../../environments/environment';
 
 @Component({
@@ -32,6 +34,7 @@ import { environment } from '../../../../../environments/environment';
     MatSnackBarModule,
     MatCardModule,
     MatChipsModule,
+    MatDialogModule,
   ],
   templateUrl: './programa-list.html',
   styleUrl: './programa-list.css',
@@ -39,6 +42,7 @@ import { environment } from '../../../../../environments/environment';
 export class ProgramaListComponent implements OnInit {
   private service = inject(ProgramaService);
   private snackbar = inject(MatSnackBar);
+  private dialog = inject(MatDialog);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private destroyRef = inject(DestroyRef);
@@ -80,6 +84,16 @@ export class ProgramaListComponent implements OnInit {
         this.isLoading.set(false);
         this.snackbar.open('Error al sincronizar datos', 'Cerrar', { duration: 4000 });
       },
+    });
+  }
+
+  abrirFormulario(programa?: Programa): void {
+    const ref = this.dialog.open(ProgramaFormComponent, {
+      width: '640px',
+      data: programa ?? null,
+    });
+    ref.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(result => {
+      if (result) this.cargarDatos();
     });
   }
 

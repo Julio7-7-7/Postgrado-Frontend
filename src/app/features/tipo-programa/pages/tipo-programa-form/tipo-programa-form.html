@@ -1,122 +1,106 @@
-<div class="form-page">
+<div class="dialog-header">
+  <div class="header-icon">
+    <mat-icon>{{ data ? 'edit' : 'add' }}</mat-icon>
+  </div>
+  <div>
+    <h2 mat-dialog-title>{{ data ? 'Editar Tipo de Programa' : 'Nuevo Tipo de Programa' }}</h2>
+    <p class="header-sub">{{ data ? 'Modificá los datos del tipo de programa' : 'Creá un nuevo tipo de programa' }}</p>
+  </div>
+</div>
 
-  <mat-card class="form-card">
+<mat-dialog-content>
+  <form [formGroup]="form" (ngSubmit)="guardar()">
 
-    <div class="form-header">
-      <h2>{{ idEditando ? 'Editar Tipo de Programa' : 'Nuevo Tipo de Programa' }}</h2>
-      <p>Complete la información del tipo de programa</p>
+    <div class="field">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Nombre del Tipo de Programa</mat-label>
+        <input
+          matInput
+          formControlName="nombre"
+          placeholder="Ej: Maestría en Tecnologías de la Información"
+        >
+        @if (form.get('nombre')?.hasError('required')) {
+          <mat-error>El nombre es obligatorio</mat-error>
+        }
+        @if (form.get('nombre')?.hasError('minlength')) {
+          <mat-error>Mínimo 3 caracteres</mat-error>
+        }
+      </mat-form-field>
     </div>
 
-    <mat-divider></mat-divider>
-
-    <mat-card-content>
-      <form [formGroup]="form" (ngSubmit)="guardar()" class="form-layout">
-
+    @if (data) {
+      <div class="field">
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Nombre del Tipo de Programa</mat-label>
-          <input
-            matInput
-            formControlName="nombre"
-            placeholder="Ej: Maestría en Tecnologías de la Información"
-          >
-          <mat-icon matPrefix>school</mat-icon>
-
-          @if (form.get('nombre')?.hasError('required')) {
-            <mat-error>El nombre es obligatorio</mat-error>
-          }
-          @if (form.get('nombre')?.hasError('minlength')) {
-            <mat-error>Mínimo 3 caracteres</mat-error>
-          }
+          <mat-label>Estado del Registro</mat-label>
+          <mat-select formControlName="estado">
+            <mat-option value="activo">Activo</mat-option>
+            <mat-option value="inactivo">Inactivo</mat-option>
+          </mat-select>
         </mat-form-field>
+      </div>
+    }
 
-        <div class="form-row">
+    <div class="form-row">
+      <mat-form-field appearance="outline">
+        <mat-label>Cupo Mínimo Requerido</mat-label>
+        <input
+          matInput
+          type="number"
+          formControlName="cupo_minimo"
+          placeholder="Opcional"
+        >
+        @if (form.get('cupo_minimo')?.hasError('min')) {
+          <mat-error>Debe ser mayor a 0</mat-error>
+        }
+      </mat-form-field>
 
-          <mat-form-field appearance="outline">
-            <mat-label>Estado del Registro</mat-label>
-            <mat-select formControlName="estado">
-              <mat-option value="activo">Activo</mat-option>
-              <mat-option value="inactivo">Inactivo</mat-option>
-            </mat-select>
-            <mat-icon matPrefix>toggle_on</mat-icon>
-          </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Duración Mínima (meses)</mat-label>
+        <input
+          matInput
+          type="number"
+          formControlName="duracion_minima_meses"
+          placeholder="Opcional"
+        >
+        @if (form.get('duracion_minima_meses')?.hasError('min')) {
+          <mat-error>Debe ser mayor a 0</mat-error>
+        }
+      </mat-form-field>
+    </div>
 
-          <mat-form-field appearance="outline">
-            <mat-label>Cupo Mínimo Requerido</mat-label>
-            <input
-              matInput
-              type="number"
-              formControlName="cupo_minimo"
-              placeholder="Opcional"
-            >
-            <mat-icon matPrefix>groups</mat-icon>
-            @if (form.get('cupo_minimo')?.hasError('min')) {
-              <mat-error>Debe ser mayor a 0</mat-error>
-            }
-          </mat-form-field>
+    <div class="section-divider"></div>
 
-          <mat-form-field appearance="outline">
-            <mat-label>Duración Mínima (meses)</mat-label>
-            <input
-              matInput
-              type="number"
-              formControlName="duracion_minima_meses"
-              placeholder="Opcional"
-            >
-            <mat-icon matPrefix>calendar_today</mat-icon>
-            <mat-hint>Mínimo de meses entre inicio y fin de una edición</mat-hint>
-            @if (form.get('duracion_minima_meses')?.hasError('min')) {
-              <mat-error>Debe ser mayor a 0</mat-error>
-            }
-          </mat-form-field>
+    <div class="section-header">
+      <mat-icon>school</mat-icon>
+      <span>Modalidades permitidas</span>
+    </div>
+    <p class="section-hint">Qué modalidades de admisión puede usar este tipo de programa</p>
 
+    <div class="chips-container">
+      @for (mod of modalidades(); track mod.id_modalidad_academica) {
+        <div class="chip-option"
+             [class.selected]="selectedModalidades().has(mod.id_modalidad_academica)"
+             (click)="toggleModalidad(mod.id_modalidad_academica)">
+          <mat-icon>{{ selectedModalidades().has(mod.id_modalidad_academica) ? 'check_box' : 'check_box_outline_blank' }}</mat-icon>
+          <span>{{ mod.nombre_modalidad }}</span>
         </div>
+      }
+      @if (modalidades().length === 0) {
+        <p class="empty-hint">No hay modalidades activas disponibles</p>
+      }
+    </div>
 
-        <div class="section-divider"></div>
+  </form>
+</mat-dialog-content>
 
-        <div class="section-header">
-          <mat-icon>school</mat-icon>
-          <span>Modalidades permitidas</span>
-        </div>
-        <p class="section-hint">Qué modalidades de admisión puede usar este tipo de programa</p>
-
-        <div class="chips-container">
-          @for (mod of modalidades(); track mod.id_modalidad_academica) {
-            <div class="chip-option"
-                 [class.selected]="selectedModalidades().has(mod.id_modalidad_academica)"
-                 (click)="toggleModalidad(mod.id_modalidad_academica)">
-              <mat-icon>{{ selectedModalidades().has(mod.id_modalidad_academica) ? 'check_box' : 'check_box_outline_blank' }}</mat-icon>
-              <span>{{ mod.nombre_modalidad }}</span>
-            </div>
-          }
-          @if (modalidades().length === 0) {
-            <p class="empty-hint">No hay modalidades activas disponibles</p>
-          }
-        </div>
-
-        <div class="form-actions">
-          <button
-            mat-stroked-button
-            type="button"
-            routerLink="/tipos-programa"
-            class="btn-cancelar"
-          >
-            <mat-icon>close</mat-icon> Cancelar
-          </button>
-
-          <button
-            mat-raised-button
-            color="primary"
-            type="submit"
-            [disabled]="form.invalid || loading()"
-            class="btn-guardar"
-          >
-            <mat-icon>{{ loading() ? 'hourglass_empty' : (idEditando ? 'edit' : 'save') }}</mat-icon>
-            {{ loading() ? (idEditando ? 'Actualizando...' : 'Guardando...') : (idEditando ? 'Actualizar Registro' : 'Guardar Nuevo') }}
-          </button>
-        </div>
-
-      </form>
-    </mat-card-content>
-
-  </mat-card>
-</div>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancelar</button>
+  <button mat-flat-button color="primary" type="button" (click)="guardar()" [disabled]="form.invalid || loading()">
+    @if (loading()) {
+      <mat-spinner diameter="18"></mat-spinner>
+    } @else {
+      <mat-icon>{{ data ? 'edit' : 'save' }}</mat-icon>
+    }
+    {{ data ? 'Guardar cambios' : 'Crear tipo de programa' }}
+  </button>
+</mat-dialog-actions>

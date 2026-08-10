@@ -1,3 +1,21 @@
+.header-icon {
+  background: linear-gradient(135deg, var(--fich-feature-programa), #818cf8);
+}
+
+mat-dialog-content {
+  padding: 16px 24px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
 mat-form-field mat-icon[matPrefix] {
   color: var(--fich-text-faint);
   margin-right: 10px;
@@ -100,7 +118,19 @@ mat-form-field mat-icon[matPrefix] {
   display: none;
 }
 
+mat-dialog-actions {
+  padding: 12px 24px 20px;
+}
+
+mat-dialog-actions button mat-spinner {
+  display: inline-block;
+}
+
 @media (max-width: 640px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
   .foto-preview {
     height: 140px;
   }

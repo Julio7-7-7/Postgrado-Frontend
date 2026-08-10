@@ -14,6 +14,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog';
+import { ProgramaVersionFormComponent } from '../programa-version-form/programa-version-form';
 import { ProgramaVersionService } from '../../services/programa-version.service';
 import { ProgramaService } from '../../../programa/services/programa.service';
 import { ProgramaVersion } from '../../models/programa-version.model';
@@ -97,6 +98,19 @@ export class ProgramaVersionListComponent implements OnInit {
         this.isLoading.set(false);
         this.snackbar.open('Error al sincronizar datos', 'Cerrar', { duration: 4000 });
       },
+    });
+  }
+
+  abrirFormulario(version?: ProgramaVersion): void {
+    const ref = this.dialog.open(ProgramaVersionFormComponent, {
+      width: '640px',
+      data: {
+        id_programa: this.idPrograma(),
+        version: version ?? null,
+      },
+    });
+    ref.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(result => {
+      if (result) this.cargarVersiones();
     });
   }
 

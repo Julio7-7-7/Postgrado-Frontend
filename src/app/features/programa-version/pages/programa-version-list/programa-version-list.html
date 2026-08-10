@@ -20,7 +20,7 @@
       <button
         mat-raised-button
         color="primary"
-        routerLink="nuevo"
+        (click)="abrirFormulario()"
         class="btn-nuevo"
         [disabled]="programa()?.estado !== 'activo'"
         [matTooltip]="(programa()?.estado !== 'activo') ? 'No se pueden agregar versiones a un programa inactivo' : 'Agregar nueva versión'"
@@ -52,7 +52,7 @@
         <button
           mat-stroked-button
           color="primary"
-          routerLink="nuevo"
+          (click)="abrirFormulario()"
           [disabled]="programa()?.estado !== 'activo'"
           [matTooltip]="(programa()?.estado !== 'activo') ? 'No se pueden agregar versiones a un programa inactivo' : ''"
         >
@@ -110,7 +110,7 @@
                   <mat-icon>calendar_month</mat-icon>
                   <span>Ediciones</span>
                 </button>
-                <button mat-button color="primary" [routerLink]="['editar', v.id_programa_version]" class="btn-footer-action btn-editar" matTooltip="Editar versión">
+                <button mat-button color="primary" (click)="abrirFormulario(v)" class="btn-footer-action btn-editar" matTooltip="Editar versión">
                   <mat-icon>edit</mat-icon>
                   <span>Editar</span>
                 </button>

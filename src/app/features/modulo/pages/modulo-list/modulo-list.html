@@ -21,12 +21,20 @@
         <button
           mat-raised-button
           color="primary"
-          routerLink="nuevo"
+          (click)="abrirFormulario()"
           class="btn-nuevo"
         >
           <mat-icon>add</mat-icon>
           <span>Nuevo Módulo</span>
         </button>
+        <a
+          mat-stroked-button
+          routerLink="masiva"
+          class="btn-carga-masiva"
+        >
+          <mat-icon>playlist_add</mat-icon>
+          <span>Carga masiva</span>
+        </a>
       }
     </div>
   </div>
@@ -98,7 +106,7 @@
             <button
               mat-icon-button
               color="primary"
-              [routerLink]="['editar', element.id_modulo]"
+              (click)="abrirFormulario(element)"
               matTooltip="Editar módulo"
             >
               <mat-icon>edit</mat-icon>
@@ -115,7 +123,7 @@
           <mat-icon>bookmark_border</mat-icon>
           <p>Esta versión aún no tiene módulos.</p>
           @if (!bloqueado()) {
-            <button mat-stroked-button color="primary" routerLink="nuevo">
+            <button mat-stroked-button color="primary" (click)="abrirFormulario()">
               <mat-icon>add</mat-icon> Crear primer módulo
             </button>
           }

@@ -1,6 +1,5 @@
 import { Component, OnInit, signal, inject, computed, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
@@ -19,6 +18,7 @@ import { MatMenuModule } from '@angular/material/menu';
 
 // Componentes compartidos, Servicios y Modelos
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog'; 
+import { TipoProgramaFormComponent } from '../tipo-programa-form/tipo-programa-form'; 
 import { TipoProgramaService } from '../../services/tipo-programa.service'; 
 import { TipoPrograma } from '../../models/tipo-programa.model';
 
@@ -27,7 +27,6 @@ import { TipoPrograma } from '../../models/tipo-programa.model';
   standalone: true,
   imports: [
     CommonModule,
-    RouterLink,
     FormsModule,
     MatTableModule,
     MatButtonModule,
@@ -113,6 +112,16 @@ export class TipoProgramaListComponent implements OnInit {
         this.isLoading.set(false);
         this.snackbar.open('Error al sincronizar datos', 'Cerrar', { duration: 4000 });
       }
+    });
+  }
+
+  abrirFormulario(registro?: TipoPrograma): void {
+    const ref = this.dialog.open(TipoProgramaFormComponent, {
+      width: '640px',
+      data: registro ?? null,
+    });
+    ref.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(result => {
+      if (result) this.cargarDatos();
     });
   }
 

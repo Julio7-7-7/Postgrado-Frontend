@@ -1,21 +1,22 @@
-mat-form-field mat-icon[matPrefix] {
-  color: var(--fich-text-faint);
-  margin-right: 10px;
-  transform: scale(0.95);
+.header-icon {
+  background: linear-gradient(135deg, var(--fich-feature-tipo-programa), #a78bfa);
 }
 
-::ng-deep .mat-mdc-form-field-focused mat-icon[matPrefix] {
-  color: var(--fich-primary-hover) !important;
-}
+mat-dialog-content { padding: 16px 24px; }
 
-::ng-deep .mat-mdc-form-field-subscript-wrapper {
-  padding-left: 4px !important;
+.field { margin-bottom: 4px; }
+.full-width { width: 100%; }
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
 }
 
 .section-divider {
   height: 1px;
   background: var(--fich-border);
-  margin: 8px 0;
+  margin: 16px 0;
 }
 
 .section-header {
@@ -24,20 +25,20 @@ mat-form-field mat-icon[matPrefix] {
   gap: 8px;
   font-size: 0.92rem;
   font-weight: 600;
-  color: var(--fich-text-muted);
+  color: var(--fich-text-secondary);
 }
 
 .section-header mat-icon {
   font-size: 18px;
   width: 18px;
   height: 18px;
-  color: var(--fich-primary);
+  color: var(--fich-feature-tipo-programa);
 }
 
 .section-hint {
   margin: 4px 0 12px;
   font-size: 0.78rem;
-  color: var(--fich-text-x-faint);
+  color: var(--fich-text-muted);
 }
 
 .chips-container {
@@ -55,16 +56,19 @@ mat-form-field mat-icon[matPrefix] {
   border: 1px solid var(--fich-border);
   border-radius: 8px;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: all var(--fich-transition);
   font-size: 0.88rem;
 }
 
-.chip-option:hover { background: var(--fich-bg-subtle); border-color: var(--fich-est-convocatoria-border); }
+.chip-option:hover {
+  background: var(--fich-bg-subtle);
+  border-color: var(--fich-feature-tipo-programa);
+}
 
 .chip-option.selected {
-  background: var(--fich-est-convocatoria-bg);
-  border-color: var(--fich-primary);
-  color: var(--fich-est-convocatoria);
+  background: var(--fich-feature-tipo-programa-light);
+  border-color: var(--fich-feature-tipo-programa);
+  color: var(--fich-feature-tipo-programa);
 }
 
 .chip-option mat-icon {
@@ -73,17 +77,16 @@ mat-form-field mat-icon[matPrefix] {
   height: 18px;
 }
 
-.chip-badge {
-  margin-left: auto;
-  font-size: 0.72rem;
-  color: var(--fich-text-x-faint);
-  background: var(--fich-border-light);
-  padding: 1px 6px;
-  border-radius: 4px;
-}
-
 .empty-hint {
   font-size: 0.82rem;
   color: var(--fich-text-x-faint);
   font-style: italic;
+}
+
+mat-dialog-actions {
+  padding: 12px 24px 20px;
+}
+
+mat-dialog-actions button mat-spinner {
+  display: inline-block;
 }
