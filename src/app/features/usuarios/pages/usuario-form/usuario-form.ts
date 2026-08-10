@@ -1,8 +1,9 @@
 import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -39,8 +40,8 @@ interface TipoCard {
   selector: 'app-usuario-form',
   standalone: true,
   imports: [
-    CommonModule, FormsModule,
-    MatDialogModule, MatButtonModule, MatFormFieldModule,
+    CommonModule, FormsModule, RouterLink,
+    MatButtonModule, MatCardModule, MatFormFieldModule,
     MatInputModule, MatSelectModule, MatCheckboxModule,
     MatDatepickerModule, MatNativeDateModule, MatIconModule,
     MatProgressSpinnerModule, MatSnackBarModule, MatTooltipModule,
@@ -52,7 +53,7 @@ export class UsuarioFormComponent implements OnInit {
   private service = inject(UsuariosService);
   private rolesService = inject(RolesService);
   private snackbar = inject(MatSnackBar);
-  private dialogRef = inject(MatDialogRef<UsuarioFormComponent>);
+  private router = inject(Router);
 
   pasos = ['Tipo', 'Datos', 'Roles'];
   paso = signal(1);
@@ -235,12 +236,12 @@ export class UsuarioFormComponent implements OnInit {
   }
 
   cerrar(): void {
-    this.dialogRef.close(true);
+    this.router.navigate(['/usuarios']);
   }
 
   cancelar(): void {
     if (this.guardando()) return;
-    this.dialogRef.close();
+    this.router.navigate(['/usuarios']);
   }
 
   copiar(texto: string): void {

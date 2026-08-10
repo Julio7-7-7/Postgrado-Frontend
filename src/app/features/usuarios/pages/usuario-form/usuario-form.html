@@ -1,16 +1,21 @@
-<div class="dialog-header">
-  <div class="header-icon" [class.success]="credenciales()">
-    <mat-icon>{{ credenciales() ? 'how_to_reg' : 'person_add' }}</mat-icon>
+<div class="form-page">
+  <div class="form-header">
+    <button mat-icon-button routerLink="/usuarios" class="back-btn" matTooltip="Volver a usuarios">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div class="header-icon" [class.success]="credenciales()">
+      <mat-icon>{{ credenciales() ? 'how_to_reg' : 'person_add' }}</mat-icon>
+    </div>
+    <div>
+      <h2>{{ credenciales() ? 'Persona registrada' : 'Registrar persona' }}</h2>
+      <p class="header-sub">{{ credenciales() ? 'Cuenta creada con acceso automático' : 'Alta de alumno, docente o administrativo' }}</p>
+    </div>
   </div>
-  <div>
-    <h2 mat-dialog-title>{{ credenciales() ? 'Persona registrada' : 'Registrar persona' }}</h2>
-    <p class="header-sub">{{ credenciales() ? 'Cuenta creada con acceso automático' : 'Alta de alumno, docente o administrativo' }}</p>
-  </div>
-</div>
 
-@if (credenciales()) {
-  <mat-dialog-content>
-    <div class="result-card">
+  @if (credenciales()) {
+  <mat-card class="form-card">
+    <mat-card-content>
+      <div class="result-card">
       <div class="result-icon">
         <mat-icon>check_circle</mat-icon>
       </div>
@@ -40,14 +45,16 @@
         Al ingresar por primera vez, el sistema le pedirá crear una nueva contraseña.
       </p>
     </div>
-  </mat-dialog-content>
-  <mat-dialog-actions align="end">
-    <button mat-raised-button color="primary" (click)="cerrar()">
-      <mat-icon>check</mat-icon> Entendido
-    </button>
-  </mat-dialog-actions>
+    </mat-card-content>
+    <mat-card-actions align="end">
+      <button mat-raised-button color="primary" (click)="cerrar()">
+        <mat-icon>check</mat-icon> Entendido
+      </button>
+    </mat-card-actions>
+  </mat-card>
 } @else {
-  <mat-dialog-content>
+  <mat-card class="form-card">
+    <mat-card-content>
     <div class="wizard-stepper">
       @for (p of pasos; track p; let i = $index) {
         <div class="wizard-step" [class.active]="paso() === i + 1" [class.done]="paso() > i + 1">
@@ -217,9 +224,9 @@
         </div>
       }
     }
-  </mat-dialog-content>
+  </mat-card-content>
 
-  <mat-dialog-actions align="end">
+  <mat-card-actions align="end">
     @if (paso() > 1) {
       <button mat-button class="btn-cancel" [disabled]="guardando()" (click)="atras()">Volver</button>
     }
@@ -240,5 +247,8 @@
         }
       </button>
     }
-  </mat-dialog-actions>
+  </mat-card-actions>
+  </mat-card>
 }
+
+</div>

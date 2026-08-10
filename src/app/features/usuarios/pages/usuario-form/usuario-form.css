@@ -1,13 +1,60 @@
+.form-page {
+  padding: var(--fich-space-lg);
+  max-width: 1240px;
+  margin: 0 auto;
+  width: 90%;
+}
+
+.form-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.form-header .back-btn {
+  flex-shrink: 0;
+}
+
+.form-header h2 {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--fich-text);
+}
+
 .header-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  flex-shrink: 0;
   background: linear-gradient(135deg, var(--fich-feature-usuarios), #38bdf8);
+}
+
+.header-icon mat-icon {
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
 }
 
 .header-icon.success {
   background: linear-gradient(135deg, var(--fich-success), #34d399);
 }
 
-mat-dialog-content {
-  padding-top: 16px !important;
+.form-card {
+  max-width: none;
+}
+
+.form-card mat-card-content {
+  padding: 20px 24px;
+}
+
+.form-card mat-card-actions {
+  padding: 4px 24px 20px;
 }
 
 .section-card {
@@ -105,7 +152,7 @@ mat-dialog-content {
   color: var(--fich-text-faint);
 }
 
-mat-dialog-actions button mat-spinner {
+mat-card-actions button mat-spinner {
   display: inline-block;
 }
 

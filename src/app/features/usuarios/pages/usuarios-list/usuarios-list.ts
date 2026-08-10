@@ -1,5 +1,6 @@
 import { Component, OnInit, signal, computed, inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -11,7 +12,6 @@ import { UsuariosService } from '../../services/usuarios.service';
 import { RolesService } from '../../../roles/services/roles.service';
 import { UserAdminResponse } from '../../models/usuarios.model';
 import { RolResponse } from '../../../roles/models/roles.model';
-import { UsuarioFormComponent } from '../usuario-form/usuario-form';
 import { RolesChangeDialog } from '../../dialogs/roles-change-dialog';
 import { UsuarioEditDialog } from '../../dialogs/usuario-edit-dialog';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog';
@@ -33,6 +33,7 @@ export class UsuariosListComponent implements OnInit {
   private rolesService = inject(RolesService);
   private dialog = inject(MatDialog);
   private snackbar = inject(MatSnackBar);
+  private router = inject(Router);
   private destroyRef = inject(DestroyRef);
 
   usuarios = signal<UserAdminResponse[]>([]);
@@ -98,12 +99,7 @@ export class UsuariosListComponent implements OnInit {
   }
 
   abrirFormulario(): void {
-    const dialogRef = this.dialog.open(UsuarioFormComponent, {
-      width: '640px',
-    });
-    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(result => {
-      if (result) this.cargarDatos();
-    });
+    this.router.navigate(['/usuarios/nuevo']);
   }
 
   editarUsuario(u: UserAdminResponse): void {
