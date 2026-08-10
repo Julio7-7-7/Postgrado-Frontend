@@ -3,12 +3,9 @@
 export interface PagoItemResponse {
   id_pago: number;
   id_transaccion: number;
-  id_detalle_programa_alumno: number;
   id_detalle_programa_modulo: number | null;
   monto: number;
-  fecha_pago: string;
   concepto: string;
-  observaciones: string | null;
 }
 
 export interface TransaccionPagoResponse {
@@ -33,7 +30,6 @@ export interface TransaccionPagoCreate {
   monto: number;
   fecha_pago: string;
   comprobante?: string | null;
-  observaciones?: string | null;
 }
 
 export interface TransaccionPagoBaja {
