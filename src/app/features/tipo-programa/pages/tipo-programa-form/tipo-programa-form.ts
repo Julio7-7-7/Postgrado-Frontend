@@ -1,20 +1,19 @@
 import { Component, OnInit, signal, inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 
 import { TipoProgramaService } from '../../services/tipo-programa.service';
-import { TipoProgramaCreate } from '../../models/tipo-programa.model';
+import { TipoProgramaCreate, TipoPrograma } from '../../models/tipo-programa.model';
 import { ModalidadAcademicaResponse } from '../../../modalidad/models/modalidad.model';
 
 @Component({
@@ -23,14 +22,13 @@ import { ModalidadAcademicaResponse } from '../../../modalidad/models/modalidad.
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    RouterLink,
+    MatDialogModule,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
     MatButtonModule,
-    MatCardModule,
-    MatDividerModule,
     MatIconModule,
+    MatProgressSpinnerModule,
     MatSnackBarModule,
   ],
   templateUrl: './tipo-programa-form.html',
@@ -39,13 +37,13 @@ import { ModalidadAcademicaResponse } from '../../../modalidad/models/modalidad.
 export class TipoProgramaFormComponent implements OnInit {
   private fb = inject(FormBuilder);
   private service = inject(TipoProgramaService);
-  private router = inject(Router);
-  private route = inject(ActivatedRoute);
   private snackbar = inject(MatSnackBar);
   private destroyRef = inject(DestroyRef);
+  private dialogRef = inject(MatDialogRef<TipoProgramaFormComponent>);
+
+  data: TipoPrograma | null = inject(MAT_DIALOG_DATA);
 
   form: FormGroup;
-  idEditando: number | null = null;
   loading = signal(false);
   cargandoDatos = signal(false);
 
@@ -63,33 +61,16 @@ export class TipoProgramaFormComponent implements OnInit {
 
   ngOnInit(): void {
     this.cargarModalidades();
-    const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
-      this.idEditando = +id;
-      this.cargarDatosParaEditar(this.idEditando);
+    if (this.data) {
+      this.form.patchValue(this.data);
+      const ids = new Set(this.data.modalidades.map(m => m.id_modalidad_academica));
+      this.selectedModalidades.set(ids);
     }
   }
 
   private cargarModalidades(): void {
     this.service.getModalidades().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: data => this.modalidades.set(data.filter(m => m.estado === 'activo')),
-    });
-  }
-
-  private cargarDatosParaEditar(id: number) {
-    this.cargandoDatos.set(true);
-    this.service.getById(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (data) => {
-        this.form.patchValue(data);
-        const ids = new Set(data.modalidades.map(m => m.id_modalidad_academica));
-        this.selectedModalidades.set(ids);
-        this.cargandoDatos.set(false);
-      },
-      error: () => {
-        this.cargandoDatos.set(false);
-        this.snackbar.open('Error al cargar los datos del registro', 'Cerrar', { duration: 4000 });
-        this.router.navigate(['/tipos-programa']);
-      }
     });
   }
 
@@ -111,18 +92,18 @@ export class TipoProgramaFormComponent implements OnInit {
       modalidades: Array.from(this.selectedModalidades()),
     };
 
-    const peticion = this.idEditando
-      ? this.service.update(this.idEditando, datos)
+    const peticion = this.data
+      ? this.service.update(this.data.id_tipo_programa, datos)
       : this.service.create(datos);
 
     peticion.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.loading.set(false);
-        const mensaje = this.idEditando
+        const mensaje = this.data
           ? 'Registro actualizado con éxito'
           : 'Registro creado con éxito';
         this.snackbar.open(mensaje, 'OK', { duration: 3000 });
-        this.router.navigate(['/tipos-programa'], { replaceUrl: true });
+        this.dialogRef.close(true);
       },
       error: (err) => {
         this.loading.set(false);

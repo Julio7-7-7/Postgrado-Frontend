@@ -86,6 +86,12 @@ export const routes: Routes = [
       import('../../features/transcript/pages/transcript/transcript').then(m => m.TranscriptComponent),
     canActivate: [permisoGuard('alumnos.ver')],
   },
+  {
+    path: 'usuarios/nuevo',
+    loadComponent: () =>
+      import('../../features/usuarios/pages/usuario-form/usuario-form').then(m => m.UsuarioFormComponent),
+    canActivate: [permisoGuard('usuarios.gestionar')],
+  },
   ...buildNavRoutes(),
   { path: '**', redirectTo: '' },
 ];

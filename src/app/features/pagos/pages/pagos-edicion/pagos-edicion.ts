@@ -11,6 +11,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { PagoService } from '../../services/pago.service';
 import { AlumnoPagosMatrix, CuotaPagos, PagosEdicionData } from '../../models/pago.model';
 import { PagoRegisterDialog } from '../pago-register-dialog/pago-register-dialog';
+import { BoletasAlumnoDialog } from '../boletas-alumno-dialog/boletas-alumno-dialog';
 import { SortDir, sortItems } from '../../../../core/utils/sort-utils';
 import { maxTextWidth } from '../../../../core/utils/measure-text';
 
@@ -185,6 +186,24 @@ export class PagosEdicionComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe(result => {
+      if (result) this.cargarDatos();
+    });
+  }
+
+  verBoletas(a: AlumnoPagosMatrix, event: MouseEvent): void {
+    event.stopPropagation();
+    if (!a.alumno) return;
+    const dialogRef = this.dialog.open(BoletasAlumnoDialog, {
+      width: '560px',
+      data: {
+        idAlumno: a.alumno.id_alumno,
+        idDetalleProgramaAlumno: a.id_detalle_programa_alumno,
+        nombre: `${a.alumno.apellido} ${a.alumno.nombre}`,
+        edicion: `Edición #${this.idEdicion}`,
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((result: boolean | undefined) => {
       if (result) this.cargarDatos();
     });
   }

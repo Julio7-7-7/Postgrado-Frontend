@@ -354,6 +354,7 @@ export class RevisarIncorporacionComponent implements OnInit {
       case 'incorporacion': return 'Incorporación';
       case 'migracion': return 'Migración';
       case 'transferencia': return 'Transferencia';
+      case 'retiro': return 'Retiro';
       default: return tipo;
     }
   }

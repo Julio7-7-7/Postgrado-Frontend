@@ -91,9 +91,9 @@
   flex: 0 0 auto;
 }
 
-.leyenda-dot.pago-full { background: #059669; }
-.leyenda-dot.pago-parcial { background: #d97706; }
-.leyenda-dot.pago-vacio { background: #cbd5e1; }
+.leyenda-dot.pago-full { background: var(--fich-success); }
+.leyenda-dot.pago-parcial { background: var(--fich-warning); }
+.leyenda-dot.pago-vacio { background: var(--fich-border); }
 
 .matriz-scroll {
   overflow-x: auto;
@@ -200,7 +200,7 @@
   height: 28px;
   border-radius: 50%;
   background: var(--fich-feature-pagos-light);
-  border: 1px solid #bbf7d0;
+  border: 1px solid var(--fich-est-en-curso-border);
   color: var(--fich-feature-pagos);
   font-weight: 800;
   font-size: 0.78rem;
@@ -219,8 +219,8 @@
   height: 28px;
   padding: 0 14px;
   border-radius: var(--fich-radius-full);
-  background: linear-gradient(135deg, #f0fdf4, #dcfce7);
-  border: 1px solid #bbf7d0;
+  background: linear-gradient(135deg, var(--fich-success-light), var(--fich-success-lighter));
+  border: 1px solid var(--fich-est-en-curso-border);
   color: #15803d;
   font-weight: 800;
   font-size: 0.68rem;
@@ -234,7 +234,7 @@
   height: 28px;
   padding: 0 14px;
   border-radius: var(--fich-radius-full);
-  background: linear-gradient(135deg, #22c55e, #16a34a);
+  background: linear-gradient(135deg, var(--fich-success), var(--fich-success));
   color: #fff;
   font-weight: 800;
   font-size: 0.72rem;
@@ -296,8 +296,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #f0fdf4, #dcfce7);
-  border: 1px solid #bbf7d0;
+  background: linear-gradient(135deg, var(--fich-success-light), var(--fich-success-lighter));
+  border: 1px solid var(--fich-est-en-curso-border);
   color: var(--fich-feature-pagos);
   font-weight: 800;
   font-size: 0.7rem;
@@ -349,12 +349,12 @@
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: #16a34a;
+  background: var(--fich-success);
   transition: width 0.25s ease;
 }
 
 .pago-track-fill.parcial {
-  background: #d97706;
+  background: var(--fich-warning);
 }
 
 .pago-bubble {
@@ -380,13 +380,13 @@
 }
 
 .pago-bubble-full {
-  background: #ecfdf5;
-  color: #047857;
+  background: var(--fich-est-en-curso-bg);
+  color: var(--fich-est-en-curso);
 }
 
 .pago-bubble-parcial {
-  background: #fffbeb;
-  color: #b45309;
+  background: var(--fich-est-pendiente-bg);
+  color: var(--fich-est-pendiente);
 }
 
 .pago-bubble-vacia {
@@ -397,14 +397,14 @@
 }
 
 .pago-bubble-sobre {
-  background: #d1fae5;
-  color: #065f46;
-  border-color: #a7f3d0;
+  background: var(--fich-success-lighter);
+  color: var(--fich-success);
+  border-color: var(--fich-est-en-curso-border);
 }
 
 /* ----- Anillo de total ----- */
 .prom-ring {
-  --prom-color: #16a34a;
+  --prom-color: var(--fich-success);
   position: relative;
   display: inline-flex;
   align-items: center;
@@ -435,7 +435,7 @@
 }
 
 .prom-ring-verde {
-  --prom-color: #059669;
+  --prom-color: var(--fich-success);
 }
 
 .total-wrap {
@@ -468,7 +468,30 @@
 }
 
 .register-btn:hover {
-  background: #dcfce7;
+  background: var(--fich-success-lighter);
+}
+
+.boletas-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px !important;
+  height: 26px !important;
+  line-height: 26px !important;
+  --mdc-icon-button-state-layer-size: 26px;
+  background: transparent;
+  color: var(--fich-text-muted);
+}
+
+.boletas-btn mat-icon {
+  font-size: 15px;
+  width: 15px;
+  height: 15px;
+}
+
+.boletas-btn:hover {
+  background: var(--fich-bg-subtle);
+  color: var(--fich-primary);
 }
 
 /* Hover de fila: se pinta toda la fila, incluida la columna Alumno */
@@ -491,14 +514,14 @@
 }
 
 .row-retirado .alumno-avatar {
-  background: #f1f5f9;
-  border-color: #e2e8f0;
-  color: #64748b;
+  background: var(--fich-border-light);
+  border-color: var(--fich-border);
+  color: var(--fich-text-faint);
 }
 
 .row-retirado .alumno-nombre {
   text-decoration: line-through;
-  text-decoration-color: #cbd5e1;
+  text-decoration-color: var(--fich-border);
 }
 
 .retirados-section {

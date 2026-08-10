@@ -224,16 +224,20 @@
                                 </a>
                               }
                               @if (!pasosBloqueados()) {
-                                <input type="file" accept=".pdf,application/pdf"
-                                       #inputReemplazo
-                                       [hidden]="true"
-                                       (change)="onFileSelected($event, docState.ordenGlobal)">
-                                <button mat-stroked-button color="primary" class="reemplazar-btn"
-                                        (click)="inputReemplazo.click()"
-                                        [disabled]="subiendo() !== 'ninguno' || pendingFile() !== null"
-                                        matTooltip="Reemplazar este documento">
-                                  <mat-icon>upload_file</mat-icon> Reemplazar
-                                </button>
+                                <app-upload-box
+                                  accept="application/pdf"
+                                  [file]="pendingOrdenReemplazo() === docState.ordenGlobal ? pendingFile() : null"
+                                  [fileName]="pendingFileName()"
+                                  [fileSize]="pendingFileSize()"
+                                  [uploading]="subiendo() !== 'ninguno' && subiendo() !== 'completado'"
+                                  [uploadDone]="subiendo() === 'completado'"
+                                  [uploadLabel]="subiendo() === 'file-read' ? 'Leyendo archivo...' : 'Subiendo al servidor...'"
+                                  [disabled]="subiendo() !== 'ninguno'"
+                                  label="Reemplazar"
+                                  hint="Solo PDF"
+                                  (picked)="onFileSelected($event, docState.ordenGlobal)"
+                                  (confirm)="confirmUpload()"
+                                  (cancel)="cancelUpload()"></app-upload-box>
                               }
                             </div>
                             @if (versionesAnteriores(docState.ordenGlobal).length > 0) {
@@ -266,55 +270,21 @@
                           </div>
                         } @else if (activo) {
                           <div class="doc-upload">
-                            <input type="file" accept=".pdf,application/pdf"
-                                   #fileInput
-                                   (change)="onFileSelected($event)"
-                                   class="file-input"
-                                   [disabled]="subiendo() !== 'ninguno' || pendingFile() !== null">
-                            <button mat-raised-button color="primary"
-                                    [disabled]="subiendo() !== 'ninguno' || pendingFile() !== null"
-                                    (click)="fileInput.click()">
-                              @if (subiendo() === 'ninguno') {
-                                <mat-icon>upload_file</mat-icon>
-                              }
-                              @if (subiendo() !== 'ninguno') {
-                                <mat-spinner diameter="20"></mat-spinner>
-                              }
-                              {{ subiendo() === 'ninguno' ? 'Subir PDF' : 'Subiendo...' }}
-                            </button>
+                            <app-upload-box
+                              accept="application/pdf"
+                              [file]="pendingOrdenReemplazo() === undefined ? pendingFile() : null"
+                              [fileName]="pendingFileName()"
+                              [fileSize]="pendingFileSize()"
+                              [uploading]="subiendo() !== 'ninguno' && subiendo() !== 'completado'"
+                              [uploadDone]="subiendo() === 'completado'"
+                              [uploadLabel]="subiendo() === 'file-read' ? 'Leyendo archivo...' : 'Subiendo al servidor...'"
+                              [disabled]="pasosBloqueados() || subiendo() !== 'ninguno'"
+                              label="Seleccionar o arrastrar PDF"
+                              hint="Solo PDF"
+                              (picked)="onFileSelected($event)"
+                              (confirm)="confirmUpload()"
+                              (cancel)="cancelUpload()"></app-upload-box>
                           </div>
-                          @if (pendingFile()) {
-                            <div class="pending-upload-bar">
-                              <div class="pending-upload-info">
-                                <mat-icon [style.color]="'#d97706'">picture_as_pdf</mat-icon>
-                                <div>
-                                  <span class="pending-filename">{{ pendingFileName() }}</span>
-                                  <span class="pending-filesize">{{ pendingFileSize() }}</span>
-                                </div>
-                              </div>
-                              <div class="pending-upload-actions">
-                                <button mat-button (click)="cancelUpload()" class="cancel-btn">
-                                  <mat-icon>close</mat-icon>
-                                  Cancelar
-                                </button>
-                                <button mat-flat-button color="primary" (click)="confirmUpload()">
-                                  <mat-icon>cloud_upload</mat-icon>
-                                  Confirmar y subir
-                                </button>
-                              </div>
-                            </div>
-                          }
-                          @if (subiendo() !== 'ninguno') {
-                            <div class="upload-progress">
-                              <mat-progress-bar mode="determinate" [value]="progresoSubida()"
-                                                [class.complete]="subiendo() === 'completado'"></mat-progress-bar>
-                              <span class="upload-status">
-                                @if (subiendo() === 'file-read') { Leyendo archivo... }
-                                @else if (subiendo() === 'subiendo') { Subiendo al servidor... }
-                                @else { ¡Completado! }
-                              </span>
-                            </div>
-                          }
                         } @else {
                           <span class="doc-bloqueado-msg">
                             <mat-icon>lock</mat-icon> Complete el paso anterior

@@ -1,25 +1,30 @@
-<div class="toolbar-row">
-  <div class="toolbar-left">
-    <h3>Roles del Sistema</h3>
-    <span class="toolbar-count">{{ roles().length }} roles</span>
+<div class="page-container">
+  <div class="header-section">
+    <div class="header-left">
+      <div>
+        <h2>Roles del Sistema</h2>
+        <p class="subtitle">Definí los roles y sus permisos de acceso</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <button mat-raised-button color="primary" class="btn-nuevo" (click)="abrirFormulario()">
+        <mat-icon>add</mat-icon> Nuevo Rol
+      </button>
+    </div>
   </div>
-  <button mat-raised-button color="primary" class="btn-nuevo" (click)="abrirFormulario()">
-    <mat-icon>add</mat-icon> Nuevo Rol
-  </button>
-</div>
 
-@if (isLoading()) {
-  <div class="loading-container">
-    <mat-spinner diameter="36"></mat-spinner>
-    <span>Cargando roles...</span>
-  </div>
-} @else if (error()) {
-  <div class="error-container">
-    <mat-icon>error_outline</mat-icon>
-    <p>{{ error() }}</p>
-    <button mat-stroked-button (click)="cargarDatos()">Reintentar</button>
-  </div>
-} @else {
+  @if (isLoading()) {
+    <div class="loading-state">
+      <mat-spinner diameter="36"></mat-spinner>
+      <p>Cargando roles...</p>
+    </div>
+  } @else if (error()) {
+    <div class="empty-state error">
+      <mat-icon>error_outline</mat-icon>
+      <p>{{ error() }}</p>
+      <button mat-stroked-button (click)="cargarDatos()">Reintentar</button>
+    </div>
+  } @else {
   <div class="roles-grid">
     @for (r of roles(); track r.id_rol) {
       <div class="rol-card">

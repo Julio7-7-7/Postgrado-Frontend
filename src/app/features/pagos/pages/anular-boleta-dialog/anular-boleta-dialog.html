@@ -1,0 +1,32 @@
+<h2 mat-dialog-title>
+  <mat-icon>block</mat-icon> Anular boleta
+</h2>
+
+<div mat-dialog-content>
+  <div class="boleta-info">
+    <span class="info-row">Fecha: <b>{{ data.transaccion.fecha_pago }}</b></span>
+    <span class="info-row">Monto: <b>{{ fmt(data.transaccion.monto_total) }} Bs</b></span>
+  </div>
+
+  <p class="warning-text">
+    Al anular la boleta, los montos dejan de contar como pagados y la inscripción vuelve a quedar al día.
+    Esta acción queda registrada con tu usuario.
+  </p>
+
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>Motivo de la anulación</mat-label>
+    <textarea matInput rows="3" [(ngModel)]="motivo" placeholder="Ej: pago duplicado, boleta rechazada, error de monto"></textarea>
+  </mat-form-field>
+</div>
+
+<div mat-dialog-actions align="end">
+  <button mat-button type="button" (click)="dialogRef.close(false)">Cancelar</button>
+  <button mat-flat-button type="button" color="warn" (click)="anular()" [disabled]="isSubmitting()">
+    @if (isSubmitting()) {
+      <mat-icon class="spinner-icon">sync</mat-icon>
+    } @else {
+      <mat-icon>block</mat-icon>
+    }
+    Anular
+  </button>
+</div>

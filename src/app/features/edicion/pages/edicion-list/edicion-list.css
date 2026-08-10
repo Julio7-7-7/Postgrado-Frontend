@@ -93,10 +93,10 @@
   background: var(--fich-border-light);
 }
 
-.edicion-card.estado-programado .card-bar { background: var(--fich-est-programado, #64748b); }
-.edicion-card.estado-en_curso .card-bar { background: var(--fich-est-en-curso, #16a34a); }
-.edicion-card.estado-reprogramado .card-bar { background: var(--fich-est-reprogramado, #d97706); }
-.edicion-card.estado-finalizado .card-bar { background: var(--fich-est-finalizado, #94a3b8); }
+.edicion-card.programado .card-bar { background: var(--fich-est-programado, var(--fich-text-faint)); }
+.edicion-card.en-curso .card-bar { background: var(--fich-est-en-curso, var(--fich-success)); }
+.edicion-card.reprogramado .card-bar { background: var(--fich-est-reprogramado, var(--fich-warning)); }
+.edicion-card.finalizado .card-bar { background: var(--fich-est-finalizado, var(--fich-text-x-faint)); }
 
 /* ─── Card body ─── */
 
@@ -139,53 +139,6 @@
   font-weight: 600;
   font-size: 0.95rem;
   color: var(--fich-text);
-}
-
-.historico-chip {
-  display: inline-flex;
-  align-items: center;
-  background: var(--fich-historico-bg, #fef3c7);
-  color: var(--fich-historico, #92400e);
-  font-size: 0.62rem;
-  font-weight: 600;
-  padding: 2px 8px;
-  border-radius: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-}
-
-/* ─── Estado chip ─── */
-
-.estado-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 3px 13px;
-  border-radius: 16px;
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.2px;
-  text-transform: capitalize;
-}
-
-.estado-chip.estado-programado {
-  background: var(--fich-est-programado-bg, #f1f5f9);
-  color: var(--fich-est-programado, #64748b);
-}
-
-.estado-chip.estado-en_curso {
-  background: var(--fich-est-en-curso-bg, #dcfce7);
-  color: var(--fich-est-en-curso, #16a34a);
-}
-
-.estado-chip.estado-reprogramado {
-  background: var(--fich-est-reprogramado-bg, #fef3c7);
-  color: var(--fich-est-reprogramado, #d97706);
-}
-
-.estado-chip.estado-finalizado {
-  background: var(--fich-est-finalizado-bg, #f1f5f9);
-  color: var(--fich-est-finalizado, #94a3b8);
 }
 
 /* ─── Main content ─── */

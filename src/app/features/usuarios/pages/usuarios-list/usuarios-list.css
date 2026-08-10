@@ -1,26 +1,55 @@
+.page-container {
+  padding: var(--fich-space-lg) var(--fich-space-lg) 30px;
+  width: 90%;
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
 .toolbar-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 16px;
   margin-bottom: 20px;
+  flex-wrap: wrap;
 }
 
-.toolbar-left {
+.toolbar-title {
   display: flex;
-  align-items: baseline;
-  gap: 10px;
+  align-items: center;
+  gap: 12px;
 }
 
-.toolbar-left h3 {
+.toolbar-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #0ea5e9, #38bdf8);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(14, 165, 233, 0.25);
+}
+
+.toolbar-icon mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.toolbar-title h3 {
   margin: 0;
   font-size: 1.15rem;
-  font-weight: 600;
+  font-weight: 700;
+  color: var(--fich-text);
 }
 
-.toolbar-count {
-  font-size: 0.8rem;
-  color: #94a3b8;
-  font-weight: 500;
+.toolbar-sub {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--fich-text-x-faint);
 }
 
 .loading-container,
@@ -30,70 +59,191 @@
   align-items: center;
   padding: 48px;
   gap: 12px;
-  color: #64748b;
+  color: var(--fich-text-faint);
 }
 
 .error-container mat-icon {
   font-size: 40px;
   width: 40px;
   height: 40px;
-  color: #ef4444;
+  color: var(--fich-danger);
 }
 
-.table-wrapper {
-  border-radius: 12px;
-  overflow: hidden;
-  border: 1px solid #e2e8f0;
+/* ===== Grid de cards ===== */
+.usuarios-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+  gap: 14px;
 }
 
-.cell-email {
-  font-weight: 500;
-  color: #1e293b;
-}
-
-.cell-name {
-  font-weight: 500;
-  color: #1e293b;
-}
-
-.cell-muted {
-  color: #94a3b8;
-  font-size: 0.85rem;
-}
-
-.cell-separator {
-  color: #cbd5e1;
-  margin: 0 4px;
-}
-
-.roles-chips {
+.usuario-card {
+  background: white;
+  border: 1px solid var(--fich-border);
+  border-radius: 14px;
+  padding: 16px;
   display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
+  flex-direction: column;
+  gap: 12px;
+  transition: all 0.15s ease;
 }
 
-.role-chip {
-  display: inline-block;
-  padding: 2px 10px;
-  border-radius: 6px;
-  font-size: 0.72rem;
+.usuario-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--fich-est-verificacion-border);
+  box-shadow: 0 6px 16px rgba(14, 165, 233, 0.1);
+}
+
+.usuario-main {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: white;
+  flex-shrink: 0;
+}
+
+.avatar mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.av-alumno { background: linear-gradient(135deg, #0891b2, #22d3ee); }
+.av-docente { background: linear-gradient(135deg, #0d9488, #2dd4bf); }
+.av-admin { background: linear-gradient(135deg, #0284c7, #38bdf8); }
+.av-sin { background: var(--fich-border); color: var(--fich-text-x-faint); }
+
+.usuario-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.usuario-nombre {
   font-weight: 600;
-  background: #eef2ff;
-  color: #4338ca;
+  font-size: 0.92rem;
+  color: var(--fich-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.usuario-email {
+  font-size: 0.78rem;
+  color: var(--fich-text-x-faint);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.estado-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--fich-border-light);
+  color: var(--fich-text-faint);
+  flex-shrink: 0;
   white-space: nowrap;
 }
 
-.action-btns {
+.estado-pill .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--fich-text-x-faint);
+}
+
+.estado-pill.activo {
+  background: var(--fich-success-light);
+  color: var(--fich-success);
+}
+
+.estado-pill.activo .dot {
+  background: var(--fich-success);
+}
+
+.usuario-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.perfil-chip {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+.perfil-chip.av-alumno { background: #ecfeff; color: #0891b2; }
+.perfil-chip.av-docente { background: #f0fdfa; color: #0d9488; }
+.perfil-chip.av-admin { background: var(--fich-est-verificacion-bg); color: #0284c7; }
+.perfil-chip.av-sin { background: var(--fich-border-light); color: var(--fich-text-x-faint); }
+
+.rol-pill {
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.rol-alumno { background: #ecfeff; color: #0e7490; border-color: #a5f3fc; }
+.rol-docente { background: #f0fdfa; color: #0f766e; border-color: #99f6e4; }
+.rol-admin { background: var(--fich-est-convocatoria-bg); color: var(--fich-est-convocatoria); border-color: var(--fich-est-convocatoria-border); }
+.rol-otro { background: var(--fich-border-light); color: var(--fich-text-muted); border-color: var(--fich-border); }
+
+.usuario-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 10px;
+  border-top: 1px solid var(--fich-border-light);
+}
+
+.alta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.72rem;
+  color: var(--fich-text-x-faint);
+}
+
+.alta mat-icon {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+}
+
+.acciones {
   display: flex;
   gap: 2px;
 }
 
-.action-btns button {
+.acciones button {
   width: 32px;
   height: 32px;
 }
 
-.action-btns button mat-icon {
+.acciones button mat-icon {
   font-size: 18px;
   width: 18px;
   height: 18px;
@@ -105,7 +255,7 @@
   align-items: center;
   padding: 48px;
   gap: 8px;
-  color: #94a3b8;
+  color: var(--fich-text-x-faint);
 }
 
 .empty-state mat-icon {
@@ -117,7 +267,7 @@
 .empty-state h4 {
   margin: 0;
   font-weight: 600;
-  color: #64748b;
+  color: var(--fich-text-faint);
 }
 
 .empty-state p {
@@ -134,7 +284,7 @@
 
 .page-info {
   font-size: 0.8rem;
-  color: #94a3b8;
+  color: var(--fich-text-x-faint);
 }
 
 .page-controls {
@@ -156,5 +306,5 @@
 }
 
 .page-controls button:not(.active):not(:disabled):hover {
-  background: #f1f5f9;
+  background: var(--fich-border-light);
 }

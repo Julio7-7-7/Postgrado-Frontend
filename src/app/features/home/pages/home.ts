@@ -8,7 +8,9 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ProgramaService } from '../../programa/services/programa.service';
+import { ProgramaFormComponent } from '../../programa/pages/programa-form/programa-form';
 import { DocenteService } from '../../docente/services/docente.service';
 import { TipoProgramaService } from '../../tipo-programa/services/tipo-programa.service';
 import { AlumnoService } from '../../alumno/services/alumno.service';
@@ -33,7 +35,7 @@ const CARD_STEP = 380;
   imports: [
     CommonModule, RouterLink,
     MatButtonModule, MatIconModule, MatCardModule, MatDividerModule,
-    MatTooltipModule, MatSnackBarModule,
+    MatTooltipModule, MatSnackBarModule, MatDialogModule,
   ],
   templateUrl: './home.html',
   styleUrl: './home.css',
@@ -45,6 +47,7 @@ export class HomeComponent implements OnInit {
   private alumnoService = inject(AlumnoService);
   private edicionService = inject(EdicionService);
   private dashboardService = inject(DashboardService);
+  private dialog = inject(MatDialog);
   private router = inject(Router);
   private snackBar = inject(MatSnackBar);
   private destroyRef = inject(DestroyRef);
@@ -80,6 +83,16 @@ export class HomeComponent implements OnInit {
     this.cargarStats();
     this.cargarEdiciones();
     this.destroyRef.onDestroy(() => this.detenerAutoScroll());
+  }
+
+  abrirNuevoPrograma(): void {
+    const ref = this.dialog.open(ProgramaFormComponent, {
+      width: '640px',
+      data: null,
+    });
+    ref.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(result => {
+      if (result) this.cargarStats();
+    });
   }
 
   private cargarStats() {

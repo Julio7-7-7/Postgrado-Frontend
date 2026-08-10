@@ -1,28 +1,22 @@
-.page-container { width: 90%; max-width: 1920px; margin: 0 auto; padding: 24px; }
+.page-container {
+  max-width: 1920px;
+}
 
 .header-section {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  margin-bottom: 24px;
-}
-
-.header-section h1 { margin: 0; font-size: 1.5rem; font-weight: 700; }
-.subtitle { margin: 4px 0 0; color: #94a3b8; font-size: 0.88rem; }
-
-.loading-state, .empty-state {
-  display: flex;
-  flex-direction: column;
   align-items: center;
+  justify-content: space-between;
   gap: 12px;
-  padding: 48px;
-  color: #94a3b8;
+  flex-wrap: wrap;
 }
 
-.empty-state mat-icon { font-size: 48px; width: 48px; height: 48px; }
+.filters-bar {
+  margin-bottom: 16px;
+}
 
-.search-bar { margin-bottom: 16px; }
-.search-field { width: 100%; }
+.search-field {
+  flex: 1;
+}
 
 .entity-table {
   display: flex;
@@ -36,13 +30,13 @@
   justify-content: space-between;
   padding: 14px 18px;
   background: white;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--fich-border);
   border-radius: 10px;
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 
 .entity-row:hover {
-  border-color: #c7d2fe;
+  border-color: var(--fich-est-convocatoria-border);
   box-shadow: 0 2px 8px rgba(99, 102, 241, 0.08);
 }
 
@@ -62,8 +56,8 @@
   transition: color 0.12s;
 }
 
-.entity-main:hover { color: #4338ca; }
-.entity-main:hover .entity-name { color: #4338ca; }
+.entity-main:hover { color: var(--fich-est-convocatoria); }
+.entity-main:hover .entity-name { color: var(--fich-est-convocatoria); }
 
 .entity-arrow {
   margin-left: 12px;
@@ -71,13 +65,13 @@
   font-size: 18px;
   width: 18px;
   height: 18px;
-  color: #94a3b8;
+  color: var(--fich-text-x-faint);
   flex-shrink: 0;
   transition: color 0.12s, transform 0.15s;
 }
 
 .entity-main:hover .entity-arrow {
-  color: #6366f1;
+  color: var(--fich-primary);
   transform: translateX(3px);
 }
 
@@ -85,7 +79,7 @@
   width: 40px;
   height: 40px;
   border-radius: 10px;
-  background: #f1f5f9;
+  background: var(--fich-border-light);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -93,14 +87,14 @@
 }
 
 .entity-icon.active {
-  background: #ecfdf5;
-  color: #059669;
+  background: var(--fich-est-en-curso-bg);
+  color: var(--fich-success);
 }
 
 .entity-icon mat-icon { font-size: 20px; width: 20px; height: 20px; }
 
 .entity-name { font-weight: 600; font-size: 0.95rem; transition: color 0.12s; }
-.entity-meta { font-size: 0.78rem; color: #94a3b8; }
+.entity-meta { font-size: 0.78rem; color: var(--fich-text-x-faint); }
 
 .entity-actions {
   display: flex;

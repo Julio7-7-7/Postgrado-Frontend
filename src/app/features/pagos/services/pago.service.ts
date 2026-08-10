@@ -2,7 +2,8 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from '../../../core/services/api.service';
 import {
-  PagoCreate, PagoUpdate, PagoResponse, MisPagosResponse, PagosEdicionData,
+  MisPagosResponse, PagosEdicionData, PreviewResponse, TransaccionPagoBaja,
+  TransaccionPagoCreate, TransaccionPagoResponse, TranscriptPagosResponse,
 } from '../models/pago.model';
 
 @Injectable({ providedIn: 'root' })
@@ -16,11 +17,19 @@ export class PagoService extends ApiService {
     return this.http.get<MisPagosResponse>(`${this.baseUrl}/pagos/mis-pagos/${idDetalle}`);
   }
 
-  create(data: PagoCreate): Observable<{ pagos: PagoResponse[] }> {
-    return this.http.post<{ pagos: PagoResponse[] }>(`${this.baseUrl}/pagos/`, data);
+  getTranscriptPagos(idAlumno: number): Observable<TranscriptPagosResponse> {
+    return this.http.get<TranscriptPagosResponse>(`${this.baseUrl}/pagos/transcript/${idAlumno}`);
   }
 
-  update(id: number, data: PagoUpdate): Observable<PagoResponse> {
-    return this.http.patch<PagoResponse>(`${this.baseUrl}/pagos/${id}`, data);
+  preview(data: TransaccionPagoCreate): Observable<PreviewResponse> {
+    return this.http.post<PreviewResponse>(`${this.baseUrl}/pagos/preview`, data);
+  }
+
+  create(data: TransaccionPagoCreate): Observable<TransaccionPagoResponse> {
+    return this.http.post<TransaccionPagoResponse>(`${this.baseUrl}/pagos/`, data);
+  }
+
+  anular(idTransaccion: number, data: TransaccionPagoBaja): Observable<TransaccionPagoResponse> {
+    return this.http.patch<TransaccionPagoResponse>(`${this.baseUrl}/pagos/transacciones/${idTransaccion}/anular`, data);
   }
 }

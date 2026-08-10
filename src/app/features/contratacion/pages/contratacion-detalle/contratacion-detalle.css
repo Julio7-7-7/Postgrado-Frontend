@@ -128,11 +128,11 @@
 }
 
 .docente-card::before {
-  background: linear-gradient(90deg, var(--fich-primary), #6366f1);
+  background: linear-gradient(90deg, var(--fich-primary), var(--fich-primary));
 }
 
 .modulo-card::before {
-  background: linear-gradient(90deg, #059669, #10b981);
+  background: linear-gradient(90deg, var(--fich-success), var(--fich-success));
 }
 
 .info-card:hover {
@@ -157,12 +157,12 @@
 }
 
 .docente-avatar {
-  background: linear-gradient(135deg, var(--fich-primary), #6366f1);
+  background: linear-gradient(135deg, var(--fich-primary), var(--fich-primary));
   box-shadow: 0 2px 8px rgba(30, 58, 138, 0.3);
 }
 
 .modulo-avatar {
-  background: linear-gradient(135deg, #059669, #10b981);
+  background: linear-gradient(135deg, var(--fich-success), var(--fich-success));
   box-shadow: 0 2px 8px rgba(5, 150, 105, 0.3);
 }
 
@@ -626,43 +626,7 @@
   font-size: 16px;
   width: 16px;
   height: 16px;
-  color: #dc2626;
-}
-
-.doc-upload .file-input {
-  display: none;
-}
-
-.doc-upload button {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  border-radius: var(--fich-radius-md);
-  font-size: 0.85rem;
-  padding: 0 16px;
-}
-
-.upload-progress {
-  margin-top: 6px;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  animation: fadeSlideIn 0.25s ease;
-}
-
-.upload-progress mat-progress-bar {
-  border-radius: 4px;
-  height: 6px;
-}
-
-.upload-progress mat-progress-bar.complete {
-  --mdc-linear-progress-active-indicator-color: var(--fich-success);
-}
-
-.upload-status {
-  font-size: 0.75rem;
-  color: var(--fich-text-muted);
-  font-weight: 500;
+  color: var(--fich-danger);
 }
 
 .doc-bloqueado-msg {
@@ -731,22 +695,6 @@
   flex-wrap: wrap;
 }
 
-.reemplazar-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 0.78rem;
-  padding: 0 12px;
-  min-height: 32px;
-  border-radius: var(--fich-radius-sm);
-}
-
-.reemplazar-btn mat-icon {
-  font-size: 16px;
-  width: 16px;
-  height: 16px;
-}
-
 .versiones-link {
   display: flex;
   align-items: center;
@@ -805,26 +753,6 @@
   color: var(--fich-text-faint);
   font-style: italic;
 }
-
-/* Pending upload bar */
-.pending-upload-bar {
-  display: flex; align-items: center; justify-content: space-between; gap: 12px;
-  padding: 10px 16px; margin-top: 10px;
-  background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px;
-}
-.pending-upload-info {
-  display: flex; align-items: center; gap: 8px; min-width: 0;
-}
-.pending-upload-info mat-icon { font-size: 20px; width: 20px; height: 20px; flex-shrink: 0; }
-.pending-filename {
-  display: block; font-size: 0.85rem; font-weight: 500; color: #1e293b;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.pending-filesize { display: block; font-size: 0.75rem; color: #94a3b8; }
-.pending-upload-actions {
-  display: flex; align-items: center; gap: 8px; flex-shrink: 0;
-}
-.cancel-btn { color: #64748b; }
 
 @keyframes fadeSlideIn {
   from {

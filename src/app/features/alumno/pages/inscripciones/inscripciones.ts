@@ -80,6 +80,19 @@ export class InscripcionesComponent implements OnInit {
     return colors[estado] || '#6b7280';
   }
 
+  estadoLabel(estado: EstadoDetalleAlumno): string {
+    const labels: Record<string, string> = {
+      postulante: 'Postulante',
+      observado: 'Observado',
+      inscrito: 'Inscrito',
+      incorporado: 'Incorporado',
+      finalizado: 'Finalizado',
+      graduado: 'Graduado',
+      retirado: 'Retirado',
+    };
+    return labels[estado] || estado;
+  }
+
   convertirFecha(fecha: string | null): string {
     if (!fecha) return '—';
     const d = new Date(fecha + 'T12:00:00');
@@ -91,5 +104,13 @@ export class InscripcionesComponent implements OnInit {
     const total = ins.control_documentacion.filter(c => c.obligatorio).length;
     const aceptados = ins.control_documentacion.filter(c => c.obligatorio && c.estado === 'aceptado').length;
     return `${aceptados}/${total}`;
+  }
+
+  docsPct(ins: DetalleProgramaAlumno): number {
+    if (!ins.control_documentacion || ins.control_documentacion.length === 0) return 0;
+    const total = ins.control_documentacion.filter(c => c.obligatorio).length;
+    if (total === 0) return 0;
+    const aceptados = ins.control_documentacion.filter(c => c.obligatorio && c.estado === 'aceptado').length;
+    return Math.round((aceptados / total) * 100);
   }
 }

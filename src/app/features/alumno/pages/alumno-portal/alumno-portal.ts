@@ -17,7 +17,7 @@ import { MatIconModule } from '@angular/material/icon';
     </div>
   `,
   styles: [`
-    .portal-shell { padding: 24px; max-width: 1100px; margin: 0 auto; }
+    .portal-shell { padding: 24px; width: 90%; max-width: 1560px; margin: 0 auto; }
     .portal-header { margin-bottom: 24px; }
     .portal-header h1 { margin: 0; font-size: 1.5rem; display: flex; align-items: center; gap: 8px; }
   `],

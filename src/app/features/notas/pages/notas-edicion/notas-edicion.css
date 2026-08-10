@@ -91,12 +91,12 @@
   flex: 0 0 auto;
 }
 
-.leyenda-dot.cal-abandono { background: #94a3b8; }
-.leyenda-dot.cal-insuficiente { background: #dc2626; }
-.leyenda-dot.cal-suficiente { background: #d97706; }
+.leyenda-dot.cal-abandono { background: var(--fich-text-x-faint); }
+.leyenda-dot.cal-insuficiente { background: var(--fich-danger); }
+.leyenda-dot.cal-suficiente { background: var(--fich-warning); }
 .leyenda-dot.cal-bueno { background: #0284c7; }
-.leyenda-dot.cal-distinguido { background: #059669; }
-.leyenda-dot.cal-sobresaliente { background: #4338ca; }
+.leyenda-dot.cal-distinguido { background: var(--fich-success); }
+.leyenda-dot.cal-sobresaliente { background: var(--fich-est-convocatoria); }
 
 .matriz-scroll {
   overflow-x: auto;
@@ -407,12 +407,12 @@
 }
 
 /* ----- Clasificación (burbujas + anillos) ----- */
-.cal-abandono { --prom-color: #94a3b8; background: #f1f5f9; color: #64748b; }
-.cal-insuficiente { --prom-color: #dc2626; background: #fef2f2; color: #b91c1c; }
-.cal-suficiente { --prom-color: #d97706; background: #fffbeb; color: #b45309; }
-.cal-bueno { --prom-color: #0284c7; background: #eff6ff; color: #0369a1; }
-.cal-distinguido { --prom-color: #059669; background: #ecfdf5; color: #047857; }
-.cal-sobresaliente { --prom-color: #4338ca; background: #eef2ff; color: #4338ca; }
+.cal-abandono { --prom-color: var(--fich-text-x-faint); background: var(--fich-border-light); color: var(--fich-text-faint); }
+.cal-insuficiente { --prom-color: var(--fich-danger); background: var(--fich-est-truncado-bg); color: var(--fich-est-truncado); }
+.cal-suficiente { --prom-color: var(--fich-warning); background: var(--fich-est-pendiente-bg); color: var(--fich-est-pendiente); }
+.cal-bueno { --prom-color: #0284c7; background: var(--fich-est-programado-bg); color: var(--fich-est-verificacion); }
+.cal-distinguido { --prom-color: var(--fich-success); background: var(--fich-est-en-curso-bg); color: var(--fich-est-en-curso); }
+.cal-sobresaliente { --prom-color: var(--fich-est-convocatoria); background: var(--fich-est-convocatoria-bg); color: var(--fich-est-convocatoria); }
 
 /* Hover de fila: se pinta toda la fila, incluida la columna Alumno */
 .matriz tbody tr:hover td {
@@ -434,14 +434,14 @@
 }
 
 .row-retirado .alumno-avatar {
-  background: #f1f5f9;
-  border-color: #e2e8f0;
-  color: #64748b;
+  background: var(--fich-border-light);
+  border-color: var(--fich-border);
+  color: var(--fich-text-faint);
 }
 
 .row-retirado .alumno-nombre {
   text-decoration: line-through;
-  text-decoration-color: #cbd5e1;
+  text-decoration-color: var(--fich-border);
 }
 
 .retirados-section {

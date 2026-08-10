@@ -1,50 +1,3 @@
-.toolbar-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.toolbar-left {
-  display: flex;
-  align-items: baseline;
-  gap: 10px;
-}
-
-.toolbar-left h3 {
-  margin: 0;
-  font-size: 1.15rem;
-  font-weight: 600;
-}
-
-.toolbar-count {
-  font-size: 0.8rem;
-  color: #94a3b8;
-  font-weight: 500;
-}
-
-.loading-container,
-.error-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 48px;
-  gap: 12px;
-  color: #64748b;
-}
-
-.error-container mat-icon {
-  font-size: 40px;
-  width: 40px;
-  height: 40px;
-  color: #ef4444;
-}
-
-.error-container p {
-  margin: 0;
-  font-weight: 500;
-}
-
 .roles-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
@@ -53,14 +6,14 @@
 
 .rol-card {
   background: white;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--fich-border);
   border-radius: 12px;
   padding: 16px;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .rol-card:hover {
-  border-color: #cbd5e1;
+  border-color: var(--fich-border);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
@@ -74,7 +27,7 @@
   width: 40px;
   height: 40px;
   border-radius: 10px;
-  background: #eef2ff;
+  background: var(--fich-est-convocatoria-bg);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -85,7 +38,7 @@
   font-size: 20px;
   width: 20px;
   height: 20px;
-  color: #4f46e5;
+  color: var(--fich-primary-hover);
 }
 
 .rol-info {
@@ -97,14 +50,14 @@
   margin: 0 0 2px;
   font-size: 0.95rem;
   font-weight: 600;
-  color: #1e293b;
+  color: var(--fich-text);
   text-transform: capitalize;
 }
 
 .rol-info p {
   margin: 0;
   font-size: 0.8rem;
-  color: #64748b;
+  color: var(--fich-text-faint);
   line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -118,7 +71,7 @@
   justify-content: space-between;
   margin-top: 12px;
   padding-top: 10px;
-  border-top: 1px solid #f1f5f9;
+  border-top: 1px solid var(--fich-border-light);
 }
 
 .permiso-count {
@@ -126,7 +79,7 @@
   align-items: center;
   gap: 4px;
   font-size: 0.78rem;
-  color: #94a3b8;
+  color: var(--fich-text-x-faint);
   font-weight: 500;
 }
 
@@ -134,32 +87,6 @@
   font-size: 14px;
   width: 14px;
   height: 14px;
-}
-
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 48px;
-  gap: 8px;
-  color: #94a3b8;
-}
-
-.empty-state mat-icon {
-  font-size: 48px;
-  width: 48px;
-  height: 48px;
-}
-
-.empty-state h4 {
-  margin: 0;
-  font-weight: 600;
-  color: #64748b;
-}
-
-.empty-state p {
-  margin: 0;
-  font-size: 0.85rem;
 }
 
 @media (max-width: 600px) {

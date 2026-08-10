@@ -7,13 +7,8 @@ export const MODULO_ROUTES: Routes = [
       import('../pages/modulo-list/modulo-list').then(m => m.ModuloListComponent),
   },
   {
-    path: 'nuevo',
+    path: 'masiva',
     loadComponent: () =>
       import('../pages/modulo-batch/modulo-batch').then(m => m.ModuloBatchComponent),
-  },
-  {
-    path: 'editar/:moduloId',
-    loadComponent: () =>
-      import('../pages/modulo-form/modulo-form').then(m => m.ModuloFormComponent),
   },
 ];

@@ -1,19 +1,27 @@
-<div class="detail-page">
+<div class="page-container">
   @if (cargando()) {
-    <div class="loading">
+    <div class="loading-state">
       <mat-spinner diameter="40"></mat-spinner>
       <p>Cargando documento...</p>
     </div>
   } @else {
     @if (requisito(); as r) {
-      <div class="detail-card">
-        <div class="card-header">
+      <div class="header-section">
+        <div class="header-left">
           <button mat-icon-button class="back-btn" (click)="volver()">
             <mat-icon>arrow_back</mat-icon>
           </button>
-          <span class="header-label">Detalle del documento</span>
+          <div>
+            <h1><mat-icon>description</mat-icon> Requisito</h1>
+            <p class="subtitle">Detalle del requisito documental</p>
+          </div>
         </div>
+        <div class="header-right">
+          <span class="estado-pill" [class]="r.estado">{{ r.estado === 'activo' ? 'Vigente' : 'Inactivo' }}</span>
+        </div>
+      </div>
 
+      <div class="fich-card detail-card">
         @if (getImagenUrl(); as url) {
           <div class="imagen-container">
             <img [src]="url" [alt]="r.nombre" class="doc-image" />
@@ -26,19 +34,12 @@
           @if (r.descripcion) {
             <p class="doc-desc">{{ r.descripcion }}</p>
           }
-
-          <div class="meta-row">
-            <span class="meta-item">
-              <mat-icon>info</mat-icon>
-              {{ r.estado === 'activo' ? 'Documento vigente' : 'Documento inactivo' }}
-            </span>
-          </div>
         </div>
       </div>
     } @else {
-      <div class="empty">
+      <div class="empty-state">
         <mat-icon>help_outline</mat-icon>
-        <h2>Documento no encontrado</h2>
+        <h4>Documento no encontrado</h4>
         <p>El requisito que buscás no existe o fue removido.</p>
         <button mat-raised-button color="primary" (click)="volver()">
           <mat-icon>arrow_back</mat-icon> Volver al inicio

@@ -1,24 +1,6 @@
-.dialog-header {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 20px 24px 0;
-}
-
 .header-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #0d9488, #14b8a6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background: linear-gradient(135deg, var(--fich-feature-requisitos), #34d399);
 }
-
-.header-icon mat-icon { color: white; font-size: 22px; }
-
-h2 { margin: 0; font-size: 1.15rem; font-weight: 700; }
-.header-sub { margin: 2px 0 0; font-size: 0.82rem; color: #94a3b8; }
 
 mat-dialog-content { padding: 16px 24px; }
 
@@ -36,7 +18,7 @@ mat-dialog-actions button mat-spinner {
   display: block;
   font-size: 0.8rem;
   font-weight: 600;
-  color: #64748b;
+  color: var(--fich-text-muted);
   margin-bottom: 8px;
 }
 
@@ -51,7 +33,7 @@ mat-dialog-actions button mat-spinner {
   width: 100%;
   height: 160px;
   object-fit: cover;
-  border-radius: 10px;
+  border-radius: var(--fich-radius-sm);
   display: block;
 }
 
@@ -59,8 +41,8 @@ mat-dialog-actions button mat-spinner {
   position: absolute;
   top: -10px;
   right: -10px;
-  background: white !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+  background: var(--fich-bg-card) !important;
+  box-shadow: var(--fich-shadow-sm) !important;
   width: 32px;
   height: 32px;
 }
@@ -77,17 +59,17 @@ mat-dialog-actions button mat-spinner {
   align-items: center;
   gap: 8px;
   padding: 24px;
-  border: 2px dashed #cbd5e1;
-  border-radius: 10px;
+  border: 2px dashed var(--fich-text-x-faint);
+  border-radius: var(--fich-radius-sm);
   cursor: pointer;
   transition: all 0.2s;
-  color: #94a3b8;
+  color: var(--fich-text-faint);
 }
 
 .upload-zone:hover {
-  border-color: #0d9488;
-  background: #f0fdfa;
-  color: #0d9488;
+  border-color: var(--fich-feature-requisitos);
+  background: var(--fich-feature-requisitos-light);
+  color: var(--fich-feature-requisitos);
 }
 
 .upload-zone mat-icon {

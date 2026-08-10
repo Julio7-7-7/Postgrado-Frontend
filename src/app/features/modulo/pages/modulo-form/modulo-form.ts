@@ -1,19 +1,24 @@
 import { Component, OnInit, signal, inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { ModuloService } from '../../services/modulo.service';
 import { ProgramaVersionService } from '../../../programa-version/services/programa-version.service';
-import { ModuloCreate } from '../../models/modulo.model';
+import { ModuloCreate, Modulo } from '../../models/modulo.model';
+
+export interface ModuloDialogData {
+  id_programa: number;
+  id_version: number;
+  modulo: Modulo | null;
+}
 
 @Component({
   selector: 'app-modulo-form',
@@ -21,13 +26,13 @@ import { ModuloCreate } from '../../models/modulo.model';
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    MatDialogModule,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
     MatButtonModule,
-    MatCardModule,
-    MatDividerModule,
     MatIconModule,
+    MatProgressSpinnerModule,
     MatSnackBarModule,
   ],
   templateUrl: './modulo-form.html',
@@ -37,10 +42,11 @@ export class ModuloFormComponent implements OnInit {
   private fb = inject(FormBuilder);
   private moduloService = inject(ModuloService);
   private versionService = inject(ProgramaVersionService);
-  private router = inject(Router);
-  private route = inject(ActivatedRoute);
   private snackbar = inject(MatSnackBar);
   private destroyRef = inject(DestroyRef);
+  private dialogRef = inject(MatDialogRef<ModuloFormComponent>);
+
+  data: ModuloDialogData = inject(MAT_DIALOG_DATA);
 
   form: FormGroup;
   idPrograma = signal<number>(0);
@@ -62,23 +68,14 @@ export class ModuloFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const match = this.router.url.match(/\/versiones\/(\d+)\/modulos/);
-    if (!match) {
-      this.snackbar.open('Versión no especificada', 'Cerrar', { duration: 4000 });
-      this.router.navigate(['/programas']);
-      return;
-    }
-    this.idVersion.set(+match[1]);
-
-    const progMatch = this.router.url.match(/\/programas\/(\d+)\/versiones/);
-    this.idPrograma.set(progMatch ? +progMatch[1] : 0);
+    this.idPrograma.set(this.data?.id_programa ?? 0);
+    this.idVersion.set(this.data?.id_version ?? 0);
 
     this.cargarVersion(this.idVersion());
 
-    const moduloId = this.route.snapshot.paramMap.get('moduloId');
-    if (moduloId) {
-      this.idEditando = +moduloId;
-      this.cargarDatosParaEditar(this.idEditando);
+    if (this.data?.modulo) {
+      this.idEditando = this.data.modulo.id_modulo;
+      this.form.patchValue(this.data.modulo);
     }
   }
 
@@ -88,39 +85,18 @@ export class ModuloFormComponent implements OnInit {
         this.infoVersion.set(`${data.programa.nombre_programa} — V${data.version}`);
         if (data.programa.estado !== 'activo' && !this.idEditando) {
           this.snackbar.open('No se pueden agregar módulos a un programa inactivo', 'Cerrar', { duration: 4000 });
-          this.router.navigate(['/programas', data.id_programa, 'versiones', id, 'modulos']);
+          this.dialogRef.close();
         }
         if (data.ediciones_count > 0 && !this.idEditando) {
           this.snackbar.open('Esta versión ya tiene ediciones registradas. No es posible añadir nuevos módulos.', 'Cerrar', { duration: 5000 });
-          this.router.navigate(['/programas', data.id_programa, 'versiones', id, 'modulos']);
+          this.dialogRef.close();
         }
       },
-      error: () => this.router.navigate(['/programas']),
-    });
-  }
-
-  private cargarDatosParaEditar(id: number) {
-    this.cargandoDatos.set(true);
-    this.moduloService.getById(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (data) => {
-        this.form.patchValue(data);
-        this.cargandoDatos.set(false);
-      },
       error: () => {
-        this.cargandoDatos.set(false);
-        this.snackbar.open('Error al cargar los datos del módulo', 'Cerrar', { duration: 4000 });
-        this.router.navigate(['/programas', this.idPrograma(), 'versiones', this.idVersion(), 'modulos']);
+        this.snackbar.open('No se pudo cargar la versión', 'Cerrar', { duration: 4000 });
+        this.dialogRef.close();
       },
     });
-  }
-
-  volverALista(): void {
-    const idx = this.router.url.indexOf('/modulos');
-    if (idx !== -1) {
-      this.router.navigateByUrl(this.router.url.substring(0, idx + '/modulos'.length));
-    } else {
-      this.router.navigate(['/programas']);
-    }
   }
 
   guardar() {
@@ -141,7 +117,7 @@ export class ModuloFormComponent implements OnInit {
         this.loading.set(false);
         const mensaje = this.idEditando ? 'Módulo actualizado con éxito' : 'Módulo creado con éxito';
         this.snackbar.open(mensaje, 'OK', { duration: 3000 });
-        this.router.navigate(['/programas', this.idPrograma(), 'versiones', this.idVersion(), 'modulos'], { replaceUrl: true });
+        this.dialogRef.close(true);
       },
       error: (err) => {
         this.loading.set(false);

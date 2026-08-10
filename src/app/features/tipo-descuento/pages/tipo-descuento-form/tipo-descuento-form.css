@@ -1,24 +1,6 @@
-.dialog-header {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 20px 24px 0;
-}
-
 .header-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #b45309, #f59e0b);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background: linear-gradient(135deg, var(--fich-feature-descuentos), var(--fich-warning));
 }
-
-.header-icon mat-icon { color: white; font-size: 22px; }
-
-h2 { margin: 0; font-size: 1.15rem; font-weight: 700; }
-.header-sub { margin: 2px 0 0; font-size: 0.82rem; color: #94a3b8; }
 
 mat-dialog-content { padding: 16px 24px; }
 
@@ -35,7 +17,7 @@ mat-dialog-content { padding: 16px 24px; }
 
 .section-divider {
   height: 1px;
-  background: #e2e8f0;
+  background: var(--fich-border);
   margin: 16px 0;
 }
 
@@ -45,20 +27,20 @@ mat-dialog-content { padding: 16px 24px; }
   gap: 8px;
   font-size: 0.92rem;
   font-weight: 600;
-  color: #475569;
+  color: var(--fich-text-secondary);
 }
 
 .section-header mat-icon {
   font-size: 18px;
   width: 18px;
   height: 18px;
-  color: #0d9488;
+  color: var(--fich-feature-modalidades);
 }
 
 .section-hint {
   margin: 4px 0 12px;
   font-size: 0.78rem;
-  color: #94a3b8;
+  color: var(--fich-text-muted);
 }
 
 .selected-chips {
@@ -73,7 +55,7 @@ mat-dialog-content { padding: 16px 24px; }
   align-items: center;
   gap: 4px;
   padding: 4px 8px 4px 10px;
-  background: #f0fdfa;
+  background: var(--fich-feature-modalidades-light);
   border: 1px solid #99f6e4;
   border-radius: 16px;
   font-size: 0.78rem;

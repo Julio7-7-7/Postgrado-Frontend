@@ -323,49 +323,18 @@
 
                 @if (expandedDocId() === doc.id_solicitud_documento) {
                   <div class="doc-upload-area">
-                    @if (subiendoDoc()) {
-                      <div class="uploading-state">
-                        <mat-spinner diameter="28"></mat-spinner>
-                        <span>Subiendo documento...</span>
-                      </div>
-                    } @else if (uploadFile()) {
-                      <div class="confirm-preview">
-                        <div class="confirm-file">
-                          @if (uploadIsPdf()) {
-                            <mat-icon class="file-icon pdf">picture_as_pdf</mat-icon>
-                          } @else if (uploadPreviewUrl()) {
-                            <img [src]="uploadPreviewUrl()" class="preview-thumb" />
-                          } @else {
-                            <mat-icon class="file-icon img">image</mat-icon>
-                          }
-                          <div class="confirm-info">
-                            <span class="file-name">{{ uploadFileName() }}</span>
-                            <span class="file-size">{{ uploadFileSize() }}</span>
-                          </div>
-                        </div>
-                        <div class="confirm-actions">
-                          <button mat-button (click)="limpiarUpload()">
-                            <mat-icon>close</mat-icon> Cancelar
-                          </button>
-                          <button mat-flat-button color="primary" (click)="confirmarSubida()">
-                            <mat-icon>send</mat-icon> Subir
-                          </button>
-                        </div>
-                      </div>
-                    } @else {
-                      <div class="drop-zone" [class.drag-over]="uploadDragOver()"
-                           (dragover)="onDocUploadDragOver($event)" (dragleave)="onDocUploadDragLeave($event)"
-                           (drop)="onDocUploadDrop($event)" (click)="docFileInput.click()">
-                        <div class="drop-icon">
-                          <mat-icon>cloud_upload</mat-icon>
-                        </div>
-                        <h4>Seleccion&aacute; o arrastr&aacute; el archivo</h4>
-                        <p>PDF, JPG, PNG, GIF o WebP &mdash; m&aacute;x. 10 MB</p>
-                        <input #docFileInput type="file"
-                               accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
-                               hidden (change)="onDocUploadFileSelected($event)">
-                      </div>
-                    }
+                    <app-upload-box
+                      accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
+                      [file]="uploadFile()"
+                      [fileName]="uploadFileName()"
+                      [fileSize]="uploadFileSize()"
+                      [uploading]="subiendoDoc()"
+                      [uploadLabel]="'Subiendo documento...'"
+                      label="Seleccion&aacute; o arrastr&aacute; el archivo"
+                      hint="PDF, JPG, PNG, GIF o WebP &mdash; m&aacute;x. 10 MB"
+                      (picked)="onDocUploadFileSelected($event)"
+                      (confirm)="confirmarSubida()"
+                      (cancel)="limpiarUpload()"></app-upload-box>
                   </div>
                 }
               }

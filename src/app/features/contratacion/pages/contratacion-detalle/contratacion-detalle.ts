@@ -15,6 +15,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatExpansionModule } from '@angular/material/expansion';
 
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog';
+import { UploadBoxComponent } from '../../../../shared/components/upload-box/upload-box';
 import { ContratacionService } from '../../services/contratacion.service';
 import { DocumentoService } from '../../services/documento.service';
 import { DetalleService } from '../../../detalle-programa-modulo/services/detalle.service';
@@ -29,7 +30,7 @@ import { DetalleProgramaModulo } from '../../../detalle-programa-modulo/models/d
     CommonModule,
     MatButtonModule, MatIconModule, MatCardModule, MatDividerModule,
     MatSnackBarModule, MatProgressSpinnerModule, MatDialogModule, MatTooltipModule,
-    MatProgressBarModule, MatExpansionModule,
+    MatProgressBarModule, MatExpansionModule, UploadBoxComponent,
   ],
   templateUrl: './contratacion-detalle.html',
   styleUrl: './contratacion-detalle.css',
@@ -197,14 +198,9 @@ export class ContratacionDetalleComponent implements OnInit {
     return !c || c.estado === 'truncado' || c.estado === 'formalizado';
   }
 
-  onFileSelected(event: Event, ordenReemplazo?: number): void {
-    const input = event.target as HTMLInputElement;
-    if (!input.files || input.files.length === 0) return;
-
-    const file = input.files[0];
+  onFileSelected(file: File, ordenReemplazo?: number): void {
     if (file.type !== 'application/pdf') {
       this.snackbar.open('Solo se aceptan archivos PDF', 'Cerrar', { duration: 4000 });
-      input.value = '';
       return;
     }
 
@@ -212,7 +208,6 @@ export class ContratacionDetalleComponent implements OnInit {
     this.pendingFileName.set(file.name);
     this.pendingFileSize.set(this.formatSize(file.size));
     this.pendingOrdenReemplazo.set(ordenReemplazo);
-    input.value = '';
   }
 
   confirmUpload(): void {

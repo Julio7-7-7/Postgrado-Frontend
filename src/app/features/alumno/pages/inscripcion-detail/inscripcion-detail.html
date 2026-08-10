@@ -23,9 +23,97 @@
       </p>
     </div>
 
+    <div class="kpi-strip">
+      <div class="kpi-tile">
+        <div class="kpi-icon" [style.background]="estadoColor(ins.estado) + '15'"
+             [style.color]="estadoColor(ins.estado)">
+          <mat-icon>how_to_reg</mat-icon>
+        </div>
+        <div class="kpi-body">
+          <span class="kpi-label">Estado</span>
+          <span class="kpi-value">{{ estadoLabel(ins.estado) }}</span>
+          <span class="kpi-sub" [style.color]="edicionEstadoColor(edicionEstado())">
+            Edición {{ edicionEstadoLabel(edicionEstado()) }}
+          </span>
+        </div>
+      </div>
+
+      <div class="kpi-tile">
+        <div class="kpi-icon" [style.background]="(promColor()) + '15'" [style.color]="promColor()">
+          <mat-icon>auto_graph</mat-icon>
+        </div>
+        <div class="kpi-body">
+          <span class="kpi-label">Promedio general</span>
+          @if (cargandoNotas()) {
+            <span class="kpi-value muted">—</span>
+          } @else if (promedioRedondo() != null) {
+            <span class="kpi-value">{{ promedioRedondo() }}</span>
+            <span class="kpi-sub" [style.color]="promColor()">{{ promLabel() }}</span>
+          } @else {
+            <span class="kpi-value muted">—</span>
+            <span class="kpi-sub">Sin notas aún</span>
+          }
+        </div>
+      </div>
+
+      <div class="kpi-tile">
+        <div class="kpi-icon" [style.background]="'#0d948815'" [style.color]="'#0d9488'">
+          <mat-icon>fact_check</mat-icon>
+        </div>
+        <div class="kpi-body">
+          <span class="kpi-label">Documentación</span>
+          @if (progresoDocs().total > 0) {
+            <span class="kpi-value">{{ progresoDocs().aceptados }}<span class="kpi-unit">/{{ progresoDocs().total }}</span></span>
+            <div class="kpi-bar">
+              <div class="kpi-bar-fill" [style.width.%]="progresoDocs().pct"
+                   [style.background]="'#0d9488'"></div>
+            </div>
+          } @else {
+            <span class="kpi-value muted">—</span>
+            <span class="kpi-sub">Sin requisitos</span>
+          }
+        </div>
+      </div>
+
+      <div class="kpi-tile">
+        <div class="kpi-icon" [style.background]="'#16a34a15'" [style.color]="'#16a34a'">
+          <mat-icon>payments</mat-icon>
+        </div>
+        <div class="kpi-body">
+          <span class="kpi-label">Pagos</span>
+          @if (cargandoPagos()) {
+            <span class="kpi-value muted">—</span>
+          } @else if (financiero()) {
+            <span class="kpi-value">Bs {{ fmt(financiero()!.total_pagado) }}</span>
+            <div class="kpi-bar">
+              <div class="kpi-bar-fill" [style.width.%]="pctPagos()"
+                   [style.background]="'#16a34a'"></div>
+            </div>
+            <span class="kpi-sub">de Bs {{ fmt(financiero()!.total_esperado) }}</span>
+          } @else {
+            <span class="kpi-value muted">—</span>
+            <span class="kpi-sub">Sin pagos</span>
+          }
+        </div>
+      </div>
+    </div>
+
     <div class="detail-grid">
       <div class="main-col">
 
+        <div class="tabs-bar">
+          @for (t of tabsVisibles(); track t.id) {
+            <button class="tab-btn" [class.active]="activeTab() === t.id" (click)="cambiarTab(t.id)">
+              <mat-icon>{{ t.icon }}</mat-icon>
+              <span>{{ t.label }}</span>
+              @if (tabCounts()[t.id] > 0) {
+                <span class="tab-count" [class.active]="activeTab() === t.id">{{ tabCounts()[t.id] }}</span>
+              }
+            </button>
+          }
+        </div>
+
+        @if (activeTab() === 'recorrido') {
         <mat-card class="section-card stepper-card">
           <div class="stepper-header">
             <mat-icon [style.color]="estadoColor(ins.estado)">timeline</mat-icon>
@@ -80,7 +168,232 @@
             }
           </div>
         </mat-card>
+        }
 
+        @if (activeTab() === 'notas') {
+        <mat-card class="section-card notas-card">
+          <div class="section-header">
+            <mat-icon [style.color]="'#0891b2'">grading</mat-icon>
+            <div>
+              <h3>Mis Notas</h3>
+              <p class="section-sub">Avance académico en esta edición</p>
+            </div>
+          </div>
+
+          @if (cargandoNotas()) {
+            <div class="panel-loading">
+              <mat-spinner diameter="22"></mat-spinner>
+              <span>Cargando notas...</span>
+            </div>
+          } @else if (errorNotas()) {
+            <div class="panel-error">
+              <mat-icon>error_outline</mat-icon>
+              <span>No se pudieron cargar tus notas.</span>
+            </div>
+          } @else if (misNotas(); as notas) {
+            @if (notas.modulos.length === 0) {
+              <div class="panel-empty">
+                <mat-icon>insights</mat-icon>
+                <span>Todavía no hay notas registradas en esta edición.</span>
+              </div>
+            } @else {
+              <div class="notas-body">
+                <div class="notas-grid">
+                  @for (mod of notas.modulos; track mod.id_detalle_programa_modulo) {
+                    <div class="mod-card">
+                      <div class="mod-num" [class.aprobado]="aprobado(mod)">{{ mod.modulo_orden }}</div>
+                      <span class="mod-name"
+                            matTooltip="Módulo {{ mod.modulo_orden }} — {{ mod.modulo_nombre }}"
+                            matTooltipPosition="above">{{ mod.modulo_nombre }}</span>
+                      <div class="mod-nota-wrap">
+                        @let nota = notaDe(mod);
+                        @if (nota != null) {
+                          <span class="nota-bubble {{ notaClase(nota) }}" matTooltip="{{ notaLabel(nota) }}">{{ nota }}</span>
+                        } @else {
+                          <span class="nota-bubble vacia" matTooltip="Sin nota">—</span>
+                        }
+                      </div>
+                    </div>
+                  }
+                </div>
+                <div class="promedio-box">
+                  <span class="promedio-label">Promedio general</span>
+                  <div class="promedio-ring" [style.background]="promRingBg()">
+                    <div class="promedio-inner">
+                      @if (promedioRedondo() != null) {
+                        <span class="promedio-num">{{ promedioRedondo() }}</span>
+                      } @else {
+                        <span class="promedio-num vacio">—</span>
+                      }
+                    </div>
+                  </div>
+                  <span class="promedio-chip" [style.color]="promColor()" [style.background]="promColor() + '15'">
+                    {{ promLabel() || 'Sin promedio' }}
+                  </span>
+                </div>
+              </div>
+            }
+          }
+        </mat-card>
+        }
+
+        @if (activeTab() === 'pagos') {
+        <mat-card class="section-card pagos-card">
+          <div class="section-header">
+            <mat-icon [style.color]="'#16a34a'">receipt_long</mat-icon>
+            <div>
+              <h3>Mis Pagos</h3>
+              <p class="section-sub">Estado financiero en esta edición</p>
+            </div>
+          </div>
+
+          @if (cargandoPagos()) {
+            <div class="panel-loading">
+              <mat-spinner diameter="22"></mat-spinner>
+              <span>Cargando pagos...</span>
+            </div>
+          } @else if (errorPagos()) {
+            <div class="panel-error">
+              <mat-icon>error_outline</mat-icon>
+              <span>No se pudieron cargar tus pagos.</span>
+            </div>
+          } @else if (misPagos(); as pagos) {
+            @if (pagos.financiero; as fin) {
+              <div class="financiero">
+                <div class="fin-total">
+                  <div class="fin-total-row">
+                    <div>
+                      <span class="fin-total-label">Total pagado</span>
+                      <span class="fin-total-val">Bs {{ fmt(fin.total_pagado) }}</span>
+                    </div>
+                    <div class="fin-total-right">
+                      <span class="fin-total-esp">de Bs {{ fmt(fin.total_esperado) }}</span>
+                      <span class="fin-pct-chip" [class.fin-pct-ok]="fin.pct >= 100">{{ fin.pct }}%</span>
+                    </div>
+                  </div>
+                  <div class="fin-bar total">
+                    <div class="fin-bar-fill total" [style.width.%]="pctBar(fin.total_esperado, fin.total_pagado)"></div>
+                  </div>
+
+                  @if (saldoAFavor()) {
+                    <div class="fin-saldo a-favor">
+                      <mat-icon>savings</mat-icon>
+                      <span>Saldo a favor de Bs {{ fmt(-fin.saldo) }}</span>
+                    </div>
+                  } @else {
+                    <div class="fin-saldo pendiente">
+                      <mat-icon>schedule</mat-icon>
+                      <span>Pendiente de pago: Bs {{ fmt(fin.saldo) }}</span>
+                    </div>
+                  }
+                </div>
+
+                <div class="fin-rows">
+                  <div class="fin-row">
+                    <div class="fin-row-head">
+                      <span class="fin-row-label"><mat-icon>school</mat-icon> Matrícula</span>
+                      <span class="fin-row-monto">{{ fmt(fin.matricula.pagado) }} / {{ fmt(fin.matricula.esperado) }} Bs</span>
+                    </div>
+                    <div class="fin-bar">
+                      <div class="fin-bar-fill matricula" [style.width.%]="pctBar(fin.matricula.esperado, fin.matricula.pagado)"></div>
+                    </div>
+                  </div>
+                  <div class="fin-row">
+                    <div class="fin-row-head">
+                      <span class="fin-row-label"><mat-icon>view_module</mat-icon> Cuotas</span>
+                      <span class="fin-row-monto">{{ fmt(fin.cuotas.pagado) }} / {{ fmt(fin.cuotas.esperado) }} Bs</span>
+                    </div>
+                    <div class="fin-bar">
+                      <div class="fin-bar-fill cuotas" [style.width.%]="pctBar(fin.cuotas.esperado, fin.cuotas.pagado)"></div>
+                    </div>
+                  </div>
+                  @if (fin.otros_pagado > 0) {
+                    <div class="fin-row">
+                      <div class="fin-row-head">
+                        <span class="fin-row-label"><mat-icon>more_horiz</mat-icon> Otros conceptos</span>
+                        <span class="fin-row-monto">{{ fmt(fin.otros_pagado) }} Bs</span>
+                      </div>
+                    </div>
+                  }
+                </div>
+
+                @if (fin.descuento_aplicado > 0 && fin.beca_activa) {
+                  <span class="fin-descuento-chip">
+                    <mat-icon>percent</mat-icon>
+                    Descuento aplicado: {{ fin.descuento_aplicado }}%
+                  </span>
+                }
+                @if (!fin.beca_activa && fin.beca_motivo) {
+                  <div class="fin-beca-note">
+                    <mat-icon>warning</mat-icon>
+                    <span>{{ fin.beca_motivo }}</span>
+                  </div>
+                }
+              </div>
+            }
+
+            <mat-divider class="boletas-divider"></mat-divider>
+
+            <div class="boletas-header">
+              <h4 class="docs-group-title">Boletas de pago</h4>
+              <span class="boletas-count">{{ pagos.transacciones.length }}</span>
+            </div>
+
+            @if (pagos.transacciones.length === 0) {
+              <div class="panel-empty compact">
+                <mat-icon>receipt</mat-icon>
+                <span>Todavía no registraste pagos en esta edición.</span>
+              </div>
+            } @else {
+              <div class="boletas-list">
+                @for (t of pagos.transacciones; track t.id_transaccion) {
+                  <div class="boleta-item" [class.anulada]="t.estado === 'anulado'">
+                    <div class="boleta-head">
+                      <span class="boleta-date">
+                        <mat-icon>calendar_today</mat-icon>
+                        {{ fechaPago(t.fecha_pago) }}
+                      </span>
+                      <span class="boleta-monto">Bs {{ fmt(t.monto_total) }}</span>
+                      <span class="boleta-estado"
+                            [class.confirmado]="t.estado === 'confirmado'"
+                            [class.pendiente]="t.estado === 'pendiente'"
+                            [class.anulado]="t.estado === 'anulado'">
+                        {{ transaccionEstadoLabel(t.estado) }}
+                      </span>
+                      @if (t.comprobante) {
+                        <a class="boleta-comprobante" [href]="apiUrl + t.comprobante" target="_blank" matTooltip="Ver comprobante">
+                          <mat-icon>image</mat-icon>
+                        </a>
+                      }
+                    </div>
+                    <div class="boleta-desglose">
+                      @for (a of t.asignaciones; track a.id_pago) {
+                        <span class="boleta-asig">
+                          <span class="boleta-asig-concepto">
+                            {{ a.concepto }}{{ a.modulo_nombre ? ' — ' + a.modulo_nombre : '' }}
+                          </span>
+                          <span class="boleta-asig-monto">Bs {{ fmt(a.monto) }}</span>
+                        </span>
+                      }
+                    </div>
+                    @if (t.estado === 'anulado') {
+                      <div class="boleta-anulado-note">
+                        <mat-icon>block</mat-icon>
+                        <div>
+                          <strong>Boleta anulada</strong>
+                          <p>{{ t.motivo_anulacion || 'Sin motivo registrado' }}{{ t.anulado_fecha ? ' — ' + fechaPago(t.anulado_fecha) : '' }}</p>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            }
+          }
+        </mat-card>
+        }
+
+        @if (activeTab() === 'solicitudes') {
         @if (mostrarReincorporacion()) {
           <mat-card class="section-card reincorporacion-apartado">
             <div class="reincorporacion-apartado-header"
@@ -131,22 +444,16 @@
                             </div>
                           </div>
                           <div class="reinc-req-right">
-                            @if (reincReqFiles()[req.id_requisito]) {
-                              <div class="reinc-req-chip">
-                                <span class="reinc-req-chip-name">{{ reincReqFiles()[req.id_requisito].name }}</span>
-                                <button mat-icon-button class="reinc-req-chip-remove"
-                                        (click)="quitarReincReqFile(req.id_requisito)" matTooltip="Quitar archivo">
-                                  <mat-icon>close</mat-icon>
-                                </button>
-                              </div>
-                            } @else {
-                              <label class="doc-upload-btn reinc-req-upload" matTooltip="Subir imagen o PDF">
-                                <mat-icon>cloud_upload</mat-icon>
-                                <span>Subir</span>
-                                <input type="file" accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
-                                       hidden (change)="onReincReqFileSelected($event, req.id_requisito)">
-                              </label>
-                            }
+                            <app-upload-box class="reinc-req-upload"
+                              accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
+                              [showConfirmButtons]="false"
+                              [file]="reincReqFiles()[req.id_requisito]?.file ?? null"
+                              [fileName]="reincReqFiles()[req.id_requisito]?.name ?? ''"
+                              [fileSize]="reincReqFiles()[req.id_requisito]?.size ?? ''"
+                              label="Seleccionar o arrastrar archivo"
+                              hint="Imagen o PDF, m&aacute;x. 10 MB"
+                              (picked)="onReincReqFileSelected($event, req.id_requisito)"
+                              (remove)="quitarReincReqFile(req.id_requisito)"></app-upload-box>
                           </div>
                         </div>
                       }
@@ -219,32 +526,20 @@
                           </a>
                         }
                         @if (doc.estado === 'pendiente') {
-                          @if (pendingReincDocId() === doc.id_solicitud_documento) {
-                            <div class="pending-confirm-inline">
-                              <span class="pending-filename-inline">{{ pendingReincFileName() }}</span>
-                              <span class="pending-size-inline">{{ pendingReincFileSize() }}</span>
-                            </div>
-                          } @else if (isReincUploading(doc.id_solicitud_documento)) {
-                            <div class="upload-progress-inline">
-                              @if (uploadReincState() === 'completado') {
-                                <mat-icon class="upload-done">check_circle</mat-icon>
-                                <span class="upload-done-text">Listo!</span>
-                              } @else {
-                                <mat-spinner diameter="18"></mat-spinner>
-                                <span class="upload-status-text">
-                                  @if (uploadReincState() === 'leyendo') { Leyendo... }
-                                  @else { Subiendo... }
-                                </span>
-                              }
-                            </div>
-                          } @else {
-                            <label class="doc-upload-btn" matTooltip="Subir imagen o PDF">
-                              <mat-icon>cloud_upload</mat-icon>
-                              <span>Subir</span>
-                              <input type="file" accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
-                                     hidden (change)="onReincFileSelected($event, doc)">
-                            </label>
-                          }
+                          <app-upload-box
+                            accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
+                            [file]="pendingReincDocId() === doc.id_solicitud_documento ? pendingReincFile() : null"
+                            [fileName]="pendingReincFileName()"
+                            [fileSize]="pendingReincFileSize()"
+                            [uploading]="isReincUploading(doc.id_solicitud_documento)"
+                            [uploadDone]="uploadReincState() === 'completado' && isReincUploading(doc.id_solicitud_documento)"
+                            [uploadLabel]="uploadReincState() === 'leyendo' ? 'Leyendo...' : 'Subiendo...'"
+                            [disabled]="isReincUploading(doc.id_solicitud_documento)"
+                            label="Seleccionar o arrastrar archivo"
+                            hint="Imagen o PDF, m&aacute;x. 10 MB"
+                            (picked)="onReincFileSelected($event, doc)"
+                            (confirm)="confirmReincUpload()"
+                            (cancel)="cancelReincUpload()"></app-upload-box>
                         }
                         @if (doc.estado === 'entregado') {
                           <span class="doc-approved-badge">
@@ -254,28 +549,6 @@
                         }
                       </div>
                     </div>
-
-                    @if (pendingReincDocId() === doc.id_solicitud_documento && uploadReincState() === 'ninguno') {
-                      <div class="doc-pending-actions">
-                        <mat-progress-bar mode="determinate" [value]="0" class="pending-progress"></mat-progress-bar>
-                        <div class="doc-pending-buttons">
-                          <button mat-button class="cancel-pending-btn" (click)="cancelReincUpload()">
-                            <mat-icon>close</mat-icon>
-                            Cancelar
-                          </button>
-                          <button mat-flat-button color="primary" class="confirm-pending-btn" (click)="confirmReincUpload()">
-                            <mat-icon>cloud_upload</mat-icon>
-                            Subir
-                          </button>
-                        </div>
-                      </div>
-                    }
-
-                    @if (isReincUploading(doc.id_solicitud_documento) && uploadReincState() !== 'completado') {
-                      <div class="doc-upload-progress">
-                        <mat-progress-bar mode="determinate" [value]="uploadReincProgress()"></mat-progress-bar>
-                      </div>
-                    }
                   </div>
                 }
               </div>
@@ -338,32 +611,20 @@
                           </a>
                         }
                         @if (doc.estado === 'pendiente') {
-                          @if (pendingReincDocId() === doc.id_solicitud_documento) {
-                            <div class="pending-confirm-inline">
-                              <span class="pending-filename-inline">{{ pendingReincFileName() }}</span>
-                              <span class="pending-size-inline">{{ pendingReincFileSize() }}</span>
-                            </div>
-                          } @else if (isReincUploading(doc.id_solicitud_documento)) {
-                            <div class="upload-progress-inline">
-                              @if (uploadReincState() === 'completado') {
-                                <mat-icon class="upload-done">check_circle</mat-icon>
-                                <span class="upload-done-text">Listo!</span>
-                              } @else {
-                                <mat-spinner diameter="18"></mat-spinner>
-                                <span class="upload-status-text">
-                                  @if (uploadReincState() === 'leyendo') { Leyendo... }
-                                  @else { Subiendo... }
-                                </span>
-                              }
-                            </div>
-                          } @else {
-                            <label class="doc-upload-btn" matTooltip="Subir imagen o PDF">
-                              <mat-icon>cloud_upload</mat-icon>
-                              <span>Subir</span>
-                              <input type="file" accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
-                                     hidden (change)="onReincFileSelected($event, doc)">
-                            </label>
-                          }
+                          <app-upload-box
+                            accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
+                            [file]="pendingReincDocId() === doc.id_solicitud_documento ? pendingReincFile() : null"
+                            [fileName]="pendingReincFileName()"
+                            [fileSize]="pendingReincFileSize()"
+                            [uploading]="isReincUploading(doc.id_solicitud_documento)"
+                            [uploadDone]="uploadReincState() === 'completado' && isReincUploading(doc.id_solicitud_documento)"
+                            [uploadLabel]="uploadReincState() === 'leyendo' ? 'Leyendo...' : 'Subiendo...'"
+                            [disabled]="isReincUploading(doc.id_solicitud_documento)"
+                            label="Seleccionar o arrastrar archivo"
+                            hint="Imagen o PDF, m&aacute;x. 10 MB"
+                            (picked)="onReincFileSelected($event, doc)"
+                            (confirm)="confirmReincUpload()"
+                            (cancel)="cancelReincUpload()"></app-upload-box>
                         }
                         @if (doc.estado === 'entregado') {
                           <span class="doc-approved-badge">
@@ -373,28 +634,6 @@
                         }
                       </div>
                     </div>
-
-                    @if (pendingReincDocId() === doc.id_solicitud_documento && uploadReincState() === 'ninguno') {
-                      <div class="doc-pending-actions">
-                        <mat-progress-bar mode="determinate" [value]="0" class="pending-progress"></mat-progress-bar>
-                        <div class="doc-pending-buttons">
-                          <button mat-button class="cancel-pending-btn" (click)="cancelReincUpload()">
-                            <mat-icon>close</mat-icon>
-                            Cancelar
-                          </button>
-                          <button mat-flat-button color="primary" class="confirm-pending-btn" (click)="confirmReincUpload()">
-                            <mat-icon>cloud_upload</mat-icon>
-                            Subir
-                          </button>
-                        </div>
-                      </div>
-                    }
-
-                    @if (isReincUploading(doc.id_solicitud_documento) && uploadReincState() !== 'completado') {
-                      <div class="doc-upload-progress">
-                        <mat-progress-bar mode="determinate" [value]="uploadReincProgress()"></mat-progress-bar>
-                      </div>
-                    }
                   </div>
                 }
               </div>
@@ -521,6 +760,131 @@
           </mat-card>
         }
 
+        @if (showMigracionCard()) {
+          <mat-card class="section-card migracion-card">
+            @if (!showMigracionForm()) {
+              <div class="reincorporacion-content">
+                <mat-icon [style.color]="'#0ea5e9'">swap_horiz</mat-icon>
+                <div class="reincorporacion-text">
+                  <h3>Solicitar migración</h3>
+                  <p>{{ textoMigracion() }}</p>
+                </div>
+                <button mat-flat-button color="primary" (click)="solicitarMigracion()">
+                  <mat-icon>send</mat-icon>
+                  Solicitar
+                </button>
+              </div>
+            } @else {
+              <div class="reincorporacion-form">
+                <div class="reincorporacion-form-header">
+                  <mat-icon [style.color]="'#0ea5e9'">edit_note</mat-icon>
+                  <h3>¿Algo que quieras indicar al admin?</h3>
+                </div>
+                <p class="reincorporacion-form-hint">Opcional — el admin elegirá la edición destino según disponibilidad de módulos.</p>
+
+                <div class="migracion-info-note">
+                  <mat-icon>fact_check</mat-icon>
+                  <div>
+                    <strong>Qué se migra:</strong> tus notas aprobadas, tus pagos y tu documentación.
+                    Los módulos que te faltan los continuás en la edición destino.
+                  </div>
+                </div>
+
+                <textarea class="motivo-textarea" rows="3"
+                          [value]="motivoMigracion()"
+                          (input)="motivoMigracion.set($any($event.target).value)"
+                          placeholder="Ej: Quisiera continuar en la edición más reciente..."></textarea>
+
+                @if (requisitosMigracion().length > 0) {
+                  <div class="reincorporacion-docs">
+                    <div class="reincorporacion-docs-header">
+                      <span class="reincorporacion-field-label">Documentos requeridos</span>
+                      <span class="reincorporacion-docs-count">{{ migrReqSubidos() }} / {{ requisitosMigracion().length }}</span>
+                    </div>
+                    <div class="reincorporacion-docs-list">
+                      @for (req of requisitosMigracion(); track req.id_solicitud_requisito) {
+                        <div class="reinc-req-item">
+                          <div class="reinc-req-left">
+                            <div class="reinc-req-status-icon"
+                                 [style.background]="migrReqFiles()[req.id_requisito] ? '#0ea5e920' : '#94a3b815'"
+                                 [style.color]="migrReqFiles()[req.id_requisito] ? '#0284c7' : '#94a3b8'">
+                              <mat-icon>{{ migrReqFiles()[req.id_requisito] ? 'attach_file' : 'description' }}</mat-icon>
+                            </div>
+                            <div class="reinc-req-info">
+                              <span class="reinc-req-name">{{ req.requisito_nombre }}</span>
+                            </div>
+                          </div>
+                          <div class="reinc-req-right">
+                            <app-upload-box class="reinc-req-upload"
+                              accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
+                              [showConfirmButtons]="false"
+                              [file]="migrReqFiles()[req.id_requisito]?.file ?? null"
+                              [fileName]="migrReqFiles()[req.id_requisito]?.name ?? ''"
+                              [fileSize]="migrReqFiles()[req.id_requisito]?.size ?? ''"
+                              label="Seleccionar o arrastrar archivo"
+                              hint="Imagen o PDF, m&aacute;x. 10 MB"
+                              (picked)="onMigrReqFileSelected($event, req.id_requisito)"
+                              (remove)="quitarMigrReqFile(req.id_requisito)"></app-upload-box>
+                          </div>
+                        </div>
+                      }
+                    </div>
+                  </div>
+                }
+
+                <div class="reincorporacion-form-actions">
+                  <button mat-button (click)="cancelarMigracion()" [disabled]="enviandoMigracion()">
+                    Cancelar
+                  </button>
+                  <button mat-flat-button color="primary" (click)="confirmarMigracion()"
+                          [disabled]="enviandoMigracion()">
+                    @if (enviandoMigracion()) {
+                      <mat-spinner diameter="16"></mat-spinner>
+                    } @else {
+                      <mat-icon>send</mat-icon>
+                    }
+                    Enviar solicitud
+                  </button>
+                </div>
+              </div>
+            }
+          </mat-card>
+        }
+
+        @if (showMigracionPendiente()) {
+          <mat-card class="section-card migracion-card pendiente">
+            <div class="reincorporacion-content">
+              <mat-icon [style.color]="'#f59e0b'">schedule</mat-icon>
+              <div class="reincorporacion-text">
+                <h3>Solicitud de migración pendiente</h3>
+                <p>Tu solicitud está siendo revisada por el administrador.</p>
+              </div>
+              <span class="carta-status-badge pendiente">Pendiente</span>
+            </div>
+          </mat-card>
+        }
+
+        @if (showMigracionRechazada()) {
+          <mat-card class="section-card migracion-card rechazada">
+            <div class="reincorporacion-content">
+              <mat-icon [style.color]="'#ef4444'">cancel</mat-icon>
+              <div class="reincorporacion-text">
+                <h3>Solicitud rechazada</h3>
+                <p>Tu solicitud de migración fue rechazada.</p>
+                @if (solicitudMigracion()?.motivo_rechazo) {
+                  <p class="rechazo-reason">{{ solicitudMigracion()?.motivo_rechazo }}</p>
+                }
+              </div>
+              <button mat-flat-button color="primary" (click)="solicitarMigracion()">
+                <mat-icon>replay</mat-icon>
+                Volver a solicitar
+              </button>
+            </div>
+          </mat-card>
+        }
+        }
+
+        @if (activeTab() === 'docs') {
         <mat-card class="section-card docs-card">
           <div class="section-header">
             <mat-icon [style.color]="'#0d9488'">description</mat-icon>
@@ -579,32 +943,20 @@
                         </a>
                       }
                       @if (doc.estado === 'pendiente' || doc.estado === 'rechazado') {
-                        @if (pendingDocId() === doc.id_control_documentacion) {
-                          <div class="pending-confirm-inline">
-                            <span class="pending-filename-inline">{{ pendingFileName() }}</span>
-                            <span class="pending-size-inline">{{ pendingFileSize() }}</span>
-                          </div>
-                        } @else if (isUploading(doc.id_control_documentacion)) {
-                          <div class="upload-progress-inline">
-                            @if (uploadState() === 'completado') {
-                              <mat-icon class="upload-done">check_circle</mat-icon>
-                              <span class="upload-done-text">Listo!</span>
-                            } @else {
-                              <mat-spinner diameter="18"></mat-spinner>
-                              <span class="upload-status-text">
-                                @if (uploadState() === 'leyendo') { Leyendo... }
-                                @else { Subiendo... }
-                              </span>
-                            }
-                          </div>
-                        } @else {
-                          <label class="doc-upload-btn" matTooltip="Subir imagen o PDF">
-                            <mat-icon>cloud_upload</mat-icon>
-                            <span>{{ doc.estado === 'rechazado' ? 'Reenviar' : 'Subir' }}</span>
-                            <input type="file" accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
-                                   hidden (change)="onFileSelected($event, doc)">
-                          </label>
-                        }
+                        <app-upload-box
+                          accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
+                          [file]="pendingDocId() === doc.id_control_documentacion ? pendingFile() : null"
+                          [fileName]="pendingFileName()"
+                          [fileSize]="pendingFileSize()"
+                          [uploading]="isUploading(doc.id_control_documentacion)"
+                          [uploadDone]="uploadState() === 'completado' && isUploading(doc.id_control_documentacion)"
+                          [uploadLabel]="uploadState() === 'leyendo' ? 'Leyendo...' : 'Subiendo...'"
+                          [disabled]="isUploading(doc.id_control_documentacion)"
+                          label="Seleccionar o arrastrar archivo"
+                          hint="Imagen o PDF, m&aacute;x. 10 MB"
+                          (picked)="onFileSelected($event, doc)"
+                          (confirm)="confirmUpload()"
+                          (cancel)="cancelUpload()"></app-upload-box>
                       }
                       @if (doc.estado === 'entregado') {
                         <span class="doc-waiting-badge">
@@ -620,28 +972,6 @@
                       }
                     </div>
                   </div>
-
-                  @if (pendingDocId() === doc.id_control_documentacion && uploadState() === 'ninguno') {
-                    <div class="doc-pending-actions">
-                      <mat-progress-bar mode="determinate" [value]="0" class="pending-progress"></mat-progress-bar>
-                      <div class="doc-pending-buttons">
-                        <button mat-button class="cancel-pending-btn" (click)="cancelUpload()" [disabled]="isUploading(doc.id_control_documentacion)">
-                          <mat-icon>close</mat-icon>
-                          Cancelar
-                        </button>
-                        <button mat-flat-button color="primary" class="confirm-pending-btn" (click)="confirmUpload()" [disabled]="isUploading(doc.id_control_documentacion)">
-                          <mat-icon>cloud_upload</mat-icon>
-                          Subir
-                        </button>
-                      </div>
-                    </div>
-                  }
-
-                  @if (isUploading(doc.id_control_documentacion) && uploadState() !== 'completado') {
-                    <div class="doc-upload-progress">
-                      <mat-progress-bar mode="determinate" [value]="uploadProgress()"></mat-progress-bar>
-                    </div>
-                  }
                 </div>
               }
             </div>
@@ -683,28 +1013,20 @@
                         </a>
                       }
                       @if (doc.estado === 'pendiente' || doc.estado === 'rechazado') {
-                        @if (pendingDocId() === doc.id_control_documentacion) {
-                          <div class="pending-confirm-inline">
-                            <span class="pending-filename-inline">{{ pendingFileName() }}</span>
-                            <span class="pending-size-inline">{{ pendingFileSize() }}</span>
-                          </div>
-                        } @else if (isUploading(doc.id_control_documentacion)) {
-                          <div class="upload-progress-inline">
-                            @if (uploadState() === 'completado') {
-                              <mat-icon class="upload-done">check_circle</mat-icon>
-                              <span class="upload-done-text">Listo!</span>
-                            } @else {
-                              <mat-spinner diameter="18"></mat-spinner>
-                            }
-                          </div>
-                        } @else {
-                          <label class="doc-upload-btn" matTooltip="Subir imagen o PDF">
-                            <mat-icon>cloud_upload</mat-icon>
-                            <span>Subir</span>
-                            <input type="file" accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
-                                   hidden (change)="onFileSelected($event, doc)">
-                          </label>
-                        }
+                        <app-upload-box
+                          accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
+                          [file]="pendingDocId() === doc.id_control_documentacion ? pendingFile() : null"
+                          [fileName]="pendingFileName()"
+                          [fileSize]="pendingFileSize()"
+                          [uploading]="isUploading(doc.id_control_documentacion)"
+                          [uploadDone]="uploadState() === 'completado' && isUploading(doc.id_control_documentacion)"
+                          [uploadLabel]="uploadState() === 'leyendo' ? 'Leyendo...' : 'Subiendo...'"
+                          [disabled]="isUploading(doc.id_control_documentacion)"
+                          label="Seleccionar o arrastrar archivo"
+                          hint="Imagen o PDF, m&aacute;x. 10 MB"
+                          (picked)="onFileSelected($event, doc)"
+                          (confirm)="confirmUpload()"
+                          (cancel)="cancelUpload()"></app-upload-box>
                       }
                       @if (doc.estado === 'entregado') {
                         <span class="doc-waiting-badge">
@@ -714,33 +1036,13 @@
                       }
                     </div>
                   </div>
-
-                  @if (pendingDocId() === doc.id_control_documentacion && uploadState() === 'ninguno') {
-                    <div class="doc-pending-actions">
-                      <div class="doc-pending-buttons">
-                        <button mat-button class="cancel-pending-btn" (click)="cancelUpload()">
-                          <mat-icon>close</mat-icon>
-                          Cancelar
-                        </button>
-                        <button mat-flat-button color="primary" class="confirm-pending-btn" (click)="confirmUpload()">
-                          <mat-icon>cloud_upload</mat-icon>
-                          Subir
-                        </button>
-                      </div>
-                    </div>
-                  }
-
-                  @if (isUploading(doc.id_control_documentacion) && uploadState() !== 'completado') {
-                    <div class="doc-upload-progress">
-                      <mat-progress-bar mode="determinate" [value]="uploadProgress()"></mat-progress-bar>
-                    </div>
-                  }
                 </div>
               }
             </div>
           }
 
         </mat-card>
+        }
       </div>
 
       <div class="side-col">
@@ -801,135 +1103,6 @@
             }
           </div>
         </mat-card>
-
-        @if (showMigracionCard()) {
-          <mat-card class="section-card migracion-card">
-            @if (!showMigracionForm()) {
-              <div class="reincorporacion-content">
-                <mat-icon [style.color]="'#0ea5e9'">swap_horiz</mat-icon>
-                <div class="reincorporacion-text">
-                  <h3>Solicitar migración</h3>
-                  <p>{{ textoMigracion() }}</p>
-                </div>
-                <button mat-flat-button color="primary" (click)="solicitarMigracion()">
-                  <mat-icon>send</mat-icon>
-                  Solicitar
-                </button>
-              </div>
-            } @else {
-              <div class="reincorporacion-form">
-                <div class="reincorporacion-form-header">
-                  <mat-icon [style.color]="'#0ea5e9'">edit_note</mat-icon>
-                  <h3>¿Algo que quieras indicar al admin?</h3>
-                </div>
-                <p class="reincorporacion-form-hint">Opcional — el admin elegirá la edición destino según disponibilidad de módulos.</p>
-
-                <div class="migracion-info-note">
-                  <mat-icon>fact_check</mat-icon>
-                  <div>
-                    <strong>Qué se migra:</strong> tus notas aprobadas, tus pagos y tu documentación.
-                    Los módulos que te faltan los continuás en la edición destino.
-                  </div>
-                </div>
-
-                <textarea class="motivo-textarea" rows="3"
-                          [value]="motivoMigracion()"
-                          (input)="motivoMigracion.set($any($event.target).value)"
-                          placeholder="Ej: Quisiera continuar en la edición más reciente..."></textarea>
-
-                @if (requisitosMigracion().length > 0) {
-                  <div class="reincorporacion-docs">
-                    <div class="reincorporacion-docs-header">
-                      <span class="reincorporacion-field-label">Documentos requeridos</span>
-                      <span class="reincorporacion-docs-count">{{ migrReqSubidos() }} / {{ requisitosMigracion().length }}</span>
-                    </div>
-                    <div class="reincorporacion-docs-list">
-                      @for (req of requisitosMigracion(); track req.id_solicitud_requisito) {
-                        <div class="reinc-req-item">
-                          <div class="reinc-req-left">
-                            <div class="reinc-req-status-icon"
-                                 [style.background]="migrReqFiles()[req.id_requisito] ? '#0ea5e920' : '#94a3b815'"
-                                 [style.color]="migrReqFiles()[req.id_requisito] ? '#0284c7' : '#94a3b8'">
-                              <mat-icon>{{ migrReqFiles()[req.id_requisito] ? 'attach_file' : 'description' }}</mat-icon>
-                            </div>
-                            <div class="reinc-req-info">
-                              <span class="reinc-req-name">{{ req.requisito_nombre }}</span>
-                            </div>
-                          </div>
-                          <div class="reinc-req-right">
-                            @if (migrReqFiles()[req.id_requisito]) {
-                              <div class="reinc-req-chip">
-                                <span class="reinc-req-chip-name">{{ migrReqFiles()[req.id_requisito].name }}</span>
-                                <button mat-icon-button class="reinc-req-chip-remove"
-                                        (click)="quitarMigrReqFile(req.id_requisito)" matTooltip="Quitar archivo">
-                                  <mat-icon>close</mat-icon>
-                                </button>
-                              </div>
-                            } @else {
-                              <label class="doc-upload-btn reinc-req-upload" matTooltip="Subir imagen o PDF">
-                                <mat-icon>cloud_upload</mat-icon>
-                                <span>Subir</span>
-                                <input type="file" accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
-                                       hidden (change)="onMigrReqFileSelected($event, req.id_requisito)">
-                              </label>
-                            }
-                          </div>
-                        </div>
-                      }
-                    </div>
-                  </div>
-                }
-
-                <div class="reincorporacion-form-actions">
-                  <button mat-button (click)="cancelarMigracion()" [disabled]="enviandoMigracion()">
-                    Cancelar
-                  </button>
-                  <button mat-flat-button color="primary" (click)="confirmarMigracion()"
-                          [disabled]="enviandoMigracion()">
-                    @if (enviandoMigracion()) {
-                      <mat-spinner diameter="16"></mat-spinner>
-                    } @else {
-                      <mat-icon>send</mat-icon>
-                    }
-                    Enviar solicitud
-                  </button>
-                </div>
-              </div>
-            }
-          </mat-card>
-        }
-
-        @if (showMigracionPendiente()) {
-          <mat-card class="section-card migracion-card pendiente">
-            <div class="reincorporacion-content">
-              <mat-icon [style.color]="'#f59e0b'">schedule</mat-icon>
-              <div class="reincorporacion-text">
-                <h3>Solicitud de migración pendiente</h3>
-                <p>Tu solicitud está siendo revisada por el administrador.</p>
-              </div>
-              <span class="carta-status-badge pendiente">Pendiente</span>
-            </div>
-          </mat-card>
-        }
-
-        @if (showMigracionRechazada()) {
-          <mat-card class="section-card migracion-card rechazada">
-            <div class="reincorporacion-content">
-              <mat-icon [style.color]="'#ef4444'">cancel</mat-icon>
-              <div class="reincorporacion-text">
-                <h3>Solicitud rechazada</h3>
-                <p>Tu solicitud de migración fue rechazada.</p>
-                @if (solicitudMigracion()?.motivo_rechazo) {
-                  <p class="rechazo-reason">{{ solicitudMigracion()?.motivo_rechazo }}</p>
-                }
-              </div>
-              <button mat-flat-button color="primary" (click)="solicitarMigracion()">
-                <mat-icon>replay</mat-icon>
-                Volver a solicitar
-              </button>
-            </div>
-          </mat-card>
-        }
 
       </div>
     </div>

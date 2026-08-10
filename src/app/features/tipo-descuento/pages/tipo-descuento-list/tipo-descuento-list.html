@@ -1,12 +1,16 @@
 <div class="page-container">
   <div class="header-section">
-    <div>
-      <h1>Tipos de Descuento</h1>
-      <p class="subtitle">Gestioná becas, descuentos y los documentos que requieren</p>
+    <div class="header-left">
+      <div>
+        <h1>Tipos de Descuento</h1>
+        <p class="subtitle">Gestioná becas, descuentos y los documentos que requieren</p>
+      </div>
     </div>
-    <button mat-flat-button color="primary" (click)="abrirFormulario()">
-      <mat-icon>add</mat-icon> Nuevo Descuento
-    </button>
+    <div class="header-right">
+      <button mat-flat-button color="primary" class="btn-nuevo" (click)="abrirFormulario()">
+        <mat-icon>add</mat-icon> Nuevo Descuento
+      </button>
+    </div>
   </div>
 
   @if (isLoading()) {

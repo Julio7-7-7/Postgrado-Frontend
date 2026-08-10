@@ -368,12 +368,12 @@
 
 /* Paleta de clasificación (unificada con notas-edicion) */
 .sin-nota { background: var(--fich-border-light); color: var(--fich-text-muted); border-color: var(--fich-border); }
-.abandono { background: #f1f5f9; color: #64748b; border-color: #e2e8f0; }
-.insuficiente { background: #fef2f2; color: #b91c1c; border-color: #fecaca; }
-.suficiente { background: #fffbeb; color: #b45309; border-color: #fde68a; }
-.bueno { background: #eff6ff; color: #0369a1; border-color: #bfdbfe; }
-.distinguido { background: #ecfdf5; color: #047857; border-color: #a7f3d0; }
-.sobresaliente { background: #eef2ff; color: #4338ca; border-color: #c7d2fe; }
+.abandono { background: var(--fich-border-light); color: var(--fich-text-faint); border-color: var(--fich-border); }
+.insuficiente { background: var(--fich-est-truncado-bg); color: var(--fich-est-truncado); border-color: var(--fich-est-truncado-border); }
+.suficiente { background: var(--fich-est-pendiente-bg); color: var(--fich-est-pendiente); border-color: var(--fich-est-pendiente-border); }
+.bueno { background: var(--fich-est-programado-bg); color: var(--fich-est-verificacion); border-color: var(--fich-est-programado-border); }
+.distinguido { background: var(--fich-est-en-curso-bg); color: var(--fich-est-en-curso); border-color: var(--fich-est-en-curso-border); }
+.sobresaliente { background: var(--fich-est-convocatoria-bg); color: var(--fich-est-convocatoria); border-color: var(--fich-est-convocatoria-border); }
 
 .cal-badge.abandono, .cal-badge.insuficiente, .cal-badge.suficiente,
 .cal-badge.bueno, .cal-badge.distinguido, .cal-badge.sobresaliente {
@@ -452,12 +452,12 @@
   flex: 0 0 auto;
 }
 
-.leyenda-dot.cal-abandono { background: #94a3b8; }
-.leyenda-dot.cal-insuficiente { background: #dc2626; }
-.leyenda-dot.cal-suficiente { background: #d97706; }
+.leyenda-dot.cal-abandono { background: var(--fich-text-x-faint); }
+.leyenda-dot.cal-insuficiente { background: var(--fich-danger); }
+.leyenda-dot.cal-suficiente { background: var(--fich-warning); }
 .leyenda-dot.cal-bueno { background: #0284c7; }
-.leyenda-dot.cal-distinguido { background: #059669; }
-.leyenda-dot.cal-sobresaliente { background: #4338ca; }
+.leyenda-dot.cal-distinguido { background: var(--fich-success); }
+.leyenda-dot.cal-sobresaliente { background: var(--fich-est-convocatoria); }
 
 .calificar-table .mat-mdc-cell {
   border-bottom: 1px solid #e9edf4;

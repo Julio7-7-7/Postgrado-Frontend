@@ -94,12 +94,12 @@ export class EdicionPostulantesComponent implements OnInit {
 
   estadoClass(estado: string): string {
     const map: Record<string, string> = {
-      postulante: 'estado-postulante',
-      observado: 'estado-observado',
-      inscrito: 'estado-inscrito',
-      incorporado: 'estado-incorporado',
-      finalizado: 'estado-finalizado',
-      retirado: 'estado-retirado',
+      postulante: 'pendiente',
+      observado: 'pendiente',
+      inscrito: 'activo',
+      incorporado: 'programado',
+      finalizado: 'finalizado',
+      retirado: 'truncado',
     };
     return map[estado] || '';
   }

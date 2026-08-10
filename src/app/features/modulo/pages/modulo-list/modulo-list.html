@@ -16,17 +16,27 @@
       </div>
     </div>
 
-    @if (!bloqueado()) {
-      <button
-        mat-raised-button
-        color="primary"
-        routerLink="nuevo"
-        class="btn-nuevo"
-      >
-        <mat-icon>add</mat-icon>
-        <span>Nuevo Módulo</span>
-      </button>
-    }
+    <div class="header-right">
+      @if (!bloqueado()) {
+        <button
+          mat-raised-button
+          color="primary"
+          (click)="abrirFormulario()"
+          class="btn-nuevo"
+        >
+          <mat-icon>add</mat-icon>
+          <span>Nuevo Módulo</span>
+        </button>
+        <a
+          mat-stroked-button
+          routerLink="masiva"
+          class="btn-carga-masiva"
+        >
+          <mat-icon>playlist_add</mat-icon>
+          <span>Carga masiva</span>
+        </a>
+      }
+    </div>
   </div>
 
   @if (bloqueado()) {
@@ -37,13 +47,13 @@
   }
 
   @if (isLoading()) {
-    <div class="loading-container">
+    <div class="loading-state">
       <mat-spinner diameter="50" color="primary"></mat-spinner>
       <p>Cargando módulos...</p>
     </div>
   } @else if (error()) {
-    <div class="error-state">
-      <mat-icon color="warn">error_outline</mat-icon>
+    <div class="empty-state error">
+      <mat-icon>error_outline</mat-icon>
       <p>{{ error() }}</p>
       <button mat-flat-button color="primary" (click)="cargarModulos()">
         <mat-icon>refresh</mat-icon> Reintentar
@@ -96,7 +106,7 @@
             <button
               mat-icon-button
               color="primary"
-              [routerLink]="['editar', element.id_modulo]"
+              (click)="abrirFormulario(element)"
               matTooltip="Editar módulo"
             >
               <mat-icon>edit</mat-icon>
@@ -113,7 +123,7 @@
           <mat-icon>bookmark_border</mat-icon>
           <p>Esta versión aún no tiene módulos.</p>
           @if (!bloqueado()) {
-            <button mat-stroked-button color="primary" routerLink="nuevo">
+            <button mat-stroked-button color="primary" (click)="abrirFormulario()">
               <mat-icon>add</mat-icon> Crear primer módulo
             </button>
           }

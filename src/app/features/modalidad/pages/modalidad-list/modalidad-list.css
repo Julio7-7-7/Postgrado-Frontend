@@ -1,25 +1,14 @@
-.page-container { width: 90%; max-width: 1920px; margin: 0 auto; padding: 24px; }
+.page-container {
+  max-width: 1920px;
+}
 
 .header-section {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  margin-bottom: 24px;
-}
-
-.header-section h1 { margin: 0; font-size: 1.5rem; font-weight: 700; }
-.subtitle { margin: 4px 0 0; color: #94a3b8; font-size: 0.88rem; }
-
-.loading-state, .empty-state {
-  display: flex;
-  flex-direction: column;
   align-items: center;
+  justify-content: space-between;
   gap: 12px;
-  padding: 48px;
-  color: #94a3b8;
+  flex-wrap: wrap;
 }
-
-.empty-state mat-icon { font-size: 48px; width: 48px; height: 48px; }
 
 .entity-table {
   display: flex;
@@ -33,12 +22,12 @@
   justify-content: space-between;
   padding: 14px 18px;
   background: white;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--fich-border);
   border-radius: 10px;
   transition: border-color 0.15s;
 }
 
-.entity-row:hover { border-color: #c7d2fe; }
+.entity-row:hover { border-color: var(--fich-est-convocatoria-border); }
 
 .entity-row.inactive {
   opacity: 0.65;
@@ -58,7 +47,7 @@
   width: 40px;
   height: 40px;
   border-radius: 10px;
-  background: #f1f5f9;
+  background: var(--fich-border-light);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -66,14 +55,14 @@
 }
 
 .entity-icon.active {
-  background: #ecfdf5;
-  color: #059669;
+  background: var(--fich-est-en-curso-bg);
+  color: var(--fich-success);
 }
 
 .entity-icon mat-icon { font-size: 20px; width: 20px; height: 20px; }
 
 .entity-name { font-weight: 600; font-size: 0.95rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.entity-meta { font-size: 0.78rem; color: #94a3b8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.entity-meta { font-size: 0.78rem; color: var(--fich-text-x-faint); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 .entity-info {
   min-width: 0;
@@ -96,10 +85,10 @@
   gap: 6px;
   padding: 10px 18px;
   margin-top: 4px;
-  background: #f8fafc;
-  border: 1px dashed #cbd5e1;
+  background: var(--fich-bg-subtle);
+  border: 1px dashed var(--fich-border);
   border-radius: 10px;
-  color: #64748b;
+  color: var(--fich-text-faint);
   font-size: 0.85rem;
   font-weight: 500;
   cursor: pointer;
@@ -108,9 +97,9 @@
 }
 
 .inactivos-toggle:hover {
-  background: #f1f5f9;
-  border-color: #94a3b8;
-  color: #334155;
+  background: var(--fich-border-light);
+  border-color: var(--fich-text-x-faint);
+  color: var(--fich-text-secondary);
 }
 
 .toggle-chevron {

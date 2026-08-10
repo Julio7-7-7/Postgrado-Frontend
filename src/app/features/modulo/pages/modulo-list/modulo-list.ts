@@ -13,6 +13,7 @@ import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog';
+import { ModuloFormComponent } from '../modulo-form/modulo-form';
 import { ModuloService } from '../../services/modulo.service';
 import { ProgramaVersionService } from '../../../programa-version/services/programa-version.service';
 import { Modulo } from '../../models/modulo.model';
@@ -99,6 +100,20 @@ export class ModuloListComponent implements OnInit {
         this.isLoading.set(false);
         this.snackbar.open('Error al sincronizar datos', 'Cerrar', { duration: 4000 });
       },
+    });
+  }
+
+  abrirFormulario(modulo?: Modulo): void {
+    const ref = this.dialog.open(ModuloFormComponent, {
+      width: '720px',
+      data: {
+        id_programa: this.idPrograma(),
+        id_version: this.idVersion(),
+        modulo: modulo ?? null,
+      },
+    });
+    ref.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(result => {
+      if (result) this.cargarModulos();
     });
   }
 

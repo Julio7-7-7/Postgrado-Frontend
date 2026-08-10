@@ -11,17 +11,24 @@ export interface UserAdminResponse {
   roles: string[];
   id_roles: number[];
   perfiles: ProfileInfo[];
+  password_inicial?: string | null;
   created_at: string;
 }
 
 export interface UserAdminCreate {
   email: string;
-  password: string;
+  tipo_persona: 'alumno' | 'docente' | 'administrativo';
   roles: number[];
   ci: string;
   nombre: string;
   apellido: string;
   celular?: string | null;
+  cargo?: string | null;
+  fecha_nacimiento?: string | null;
+  genero?: string | null;
+  extension?: string | null;
+  grado?: string | null;
+  titulo?: string | null;
 }
 
 export interface UserAdminUpdate {

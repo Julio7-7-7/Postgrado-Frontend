@@ -193,7 +193,7 @@
 }
 
 .school-icon {
-  background: linear-gradient(135deg, #4f46e5, #6366f1);
+  background: linear-gradient(135deg, var(--fich-primary-hover), var(--fich-primary));
 }
 
 .docs-icon {
@@ -201,7 +201,7 @@
 }
 
 .discount-icon {
-  background: linear-gradient(135deg, #b45309, #f59e0b);
+  background: linear-gradient(135deg, var(--fich-est-pendiente), var(--fich-warning));
 }
 
 .section-card-header h3 {
@@ -363,8 +363,8 @@
   justify-content: center;
   font-size: 0.85rem;
   font-weight: 700;
-  background: #e2e8f0;
-  color: #94a3b8;
+  background: var(--fich-border);
+  color: var(--fich-text-x-faint);
   transition: all 0.3s ease;
 }
 
@@ -388,7 +388,7 @@
 .step-label {
   font-size: 0.75rem;
   font-weight: 600;
-  color: #94a3b8;
+  color: var(--fich-text-x-faint);
   text-transform: uppercase;
   letter-spacing: 0.03em;
 }
@@ -404,7 +404,7 @@
 .step-line {
   width: 60px;
   height: 2px;
-  background: #e2e8f0;
+  background: var(--fich-border);
   margin: 0 8px;
   margin-bottom: 20px;
   transition: background 0.3s ease;
@@ -589,7 +589,7 @@
 }
 
 .status-icon.pending {
-  color: #94a3b8;
+  color: var(--fich-text-x-faint);
 }
 
 .doc-info {
@@ -622,7 +622,7 @@
 }
 
 .doc-status-label.pending-label {
-  color: #94a3b8;
+  color: var(--fich-text-x-faint);
 }
 
 .upload-btn {
@@ -643,7 +643,7 @@
   border-color: #0d9488;
 }
 .doc-arrow {
-  color: #94a3b8;
+  color: var(--fich-text-x-faint);
   font-size: 20px;
   width: 20px;
   height: 20px;
@@ -666,198 +666,6 @@
   background: var(--fich-bg-card);
   margin-top: -8px;
   margin-bottom: 8px;
-}
-
-.drop-zone {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  padding: 24px 16px;
-  border: 2px dashed var(--fich-border);
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s;
-  text-align: center;
-}
-.drop-zone:hover { border-color: #0d9488; background: #f0fdfa; }
-.drop-zone.drag-over { border-color: #0d9488; background: #ccfbf1; border-style: solid; }
-.drop-zone .drop-icon mat-icon { font-size: 32px; width: 32px; height: 32px; color: #0d9488; }
-.drop-zone h4 { margin: 0; font-size: 0.88rem; font-weight: 600; color: var(--fich-text); }
-.drop-zone p { margin: 0; font-size: 0.78rem; color: var(--fich-text-muted); }
-
-.doc-upload-area .confirm-preview {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 12px;
-  background: #ecfeff;
-  border: 1px solid #0891b2;
-  border-radius: 8px;
-}
-.doc-upload-area .confirm-file {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
-}
-.doc-upload-area .file-icon {
-  width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
-}
-.doc-upload-area .file-icon.pdf { background: #fef2f2; color: #dc2626; }
-.doc-upload-area .file-icon.img { background: #eff6ff; color: #2563eb; }
-.doc-upload-area .preview-thumb { width: 36px; height: 36px; object-fit: cover; border-radius: 6px; flex-shrink: 0; }
-.doc-upload-area .confirm-info { display: flex; flex-direction: column; min-width: 0; }
-.doc-upload-area .file-name { font-size: 0.82rem; font-weight: 600; color: var(--fich-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.doc-upload-area .file-size { font-size: 0.72rem; color: var(--fich-text-muted); }
-.doc-upload-area .confirm-actions { display: flex; gap: 6px; flex-shrink: 0; }
-.doc-upload-area .confirm-actions button { height: 32px !important; font-size: 0.78rem !important; }
-.doc-upload-area .confirm-actions mat-icon { font-size: 16px; width: 16px; height: 16px; }
-
-.doc-upload-area .uploading-state {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: 16px 0;
-  color: var(--fich-text-muted);
-  font-size: 0.85rem;
-}
-
-.uploading-state h3 {
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--fich-text);
-}
-
-.uploading-state p {
-  margin: 0;
-  font-size: 0.82rem;
-  color: var(--fich-text-muted);
-}
-
-.file-preview {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 16px;
-  background: var(--fich-bg-subtle);
-  border: 1px solid var(--fich-border-light);
-  border-radius: var(--fich-radius-sm);
-  margin-bottom: 16px;
-}
-
-.file-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.file-icon.pdf {
-  background: #fef2f2;
-  color: #dc2626;
-}
-
-.file-thumb {
-  width: 48px;
-  height: 48px;
-  object-fit: cover;
-  border-radius: 8px;
-  flex-shrink: 0;
-}
-
-.file-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.file-info h3 {
-  margin: 0;
-  font-size: 0.88rem;
-  font-weight: 600;
-  color: var(--fich-text);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.file-info p {
-  margin: 2px 0 0;
-  font-size: 0.78rem;
-  color: var(--fich-text-muted);
-}
-
-.file-actions {
-  flex-shrink: 0;
-}
-
-.remove-btn {
-  color: var(--fich-text-muted);
-}
-
-.upload-confirm {
-  display: flex;
-  justify-content: flex-end;
-}
-
-.enviar-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 0 24px;
-  height: 42px;
-  font-weight: 600;
-}
-
-.drop-area {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  padding: 40px 24px;
-  border: 2px dashed var(--fich-border);
-  border-radius: var(--fich-radius-md);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  text-align: center;
-}
-
-.drop-area:hover {
-  border-color: #0d9488;
-  background: #f0fdfa;
-}
-
-.drop-icon mat-icon {
-  font-size: 40px;
-  width: 40px;
-  height: 40px;
-  color: #0d9488;
-}
-
-.drop-area h3 {
-  margin: 0;
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: var(--fich-text);
-}
-
-.drop-area p {
-  margin: 0;
-  font-size: 0.82rem;
-  color: var(--fich-text-muted);
-}
-
-.formats {
-  font-size: 0.75rem;
-  color: #94a3b8;
-  margin-top: 4px;
 }
 
 .upload-actions-bottom {

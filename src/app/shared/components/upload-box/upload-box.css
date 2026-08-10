@@ -1,0 +1,138 @@
+.upload-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 56px;
+  padding: 10px 16px;
+  border: 1.5px dashed var(--fich-success);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--fich-success-light) 55%, white);
+  cursor: pointer;
+  transition: border-color 0.18s ease, background 0.18s ease;
+  text-align: center;
+  box-sizing: border-box;
+}
+.upload-box:hover {
+  border-color: var(--fich-success);
+  background: var(--fich-success-light);
+}
+.upload-box.drag-over {
+  border-style: solid;
+  border-color: var(--fich-success);
+  background: var(--fich-success-lighter);
+}
+.upload-box.disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.upload-box-idle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.upload-box-cloud {
+  color: var(--fich-success);
+  font-size: 22px;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+}
+.upload-box-idle-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.upload-box-label {
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--fich-text);
+}
+.upload-box-hint {
+  font-size: 0.75rem;
+  color: var(--fich-text-muted);
+}
+
+.upload-box.state-file {
+  justify-content: space-between;
+  cursor: default;
+  background: var(--fich-success-light);
+  border-style: solid;
+}
+.upload-box-file {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.upload-box-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--fich-success-light);
+  color: var(--fich-success);
+}
+.upload-box-icon.pdf {
+  background: var(--fich-est-truncado-bg);
+  color: var(--fich-danger);
+}
+.upload-box-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.upload-box-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--fich-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 260px;
+}
+.upload-box-size {
+  font-size: 0.72rem;
+  color: var(--fich-text-muted);
+}
+
+.upload-box-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+  align-items: center;
+}
+.upload-box-actions button {
+  height: 34px !important;
+  font-size: 0.78rem !important;
+}
+.upload-box-actions mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+.upload-box-cancel {
+  color: var(--fich-text-muted);
+}
+.upload-box-remove {
+  color: var(--fich-text-muted);
+}
+
+.upload-box.state-uploading,
+.upload-box.state-done {
+  justify-content: center;
+  cursor: default;
+  background: var(--fich-success-light);
+}
+.upload-box-done-icon {
+  color: var(--fich-success);
+  font-size: 22px;
+  width: 22px;
+  height: 22px;
+}

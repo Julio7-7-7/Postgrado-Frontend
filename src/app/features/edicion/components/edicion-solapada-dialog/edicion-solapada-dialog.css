@@ -4,11 +4,11 @@
   gap: 10px;
   font-size: 1.2rem;
   font-weight: 700;
-  color: var(--fich-warning, #d97706);
+  color: var(--fich-warning, var(--fich-warning));
 }
 
 .title-icon {
-  color: var(--fich-warning, #d97706);
+  color: var(--fich-warning, var(--fich-warning));
   font-size: 24px;
   width: 24px;
   height: 24px;
@@ -16,7 +16,7 @@
 
 .dialog-desc {
   font-size: 0.9rem;
-  color: var(--fich-text-secondary, #64748b);
+  color: var(--fich-text-secondary, var(--fich-text-faint));
   margin: 0 0 20px;
 }
 
@@ -31,7 +31,7 @@
 
 .tl-label {
   font-size: 0.7rem;
-  color: var(--fich-text-faint, #94a3b8);
+  color: var(--fich-text-faint, var(--fich-text-x-faint));
   font-family: 'Roboto Mono', monospace;
 }
 
@@ -51,7 +51,7 @@
 .tl-bar-container {
   position: relative;
   height: 24px;
-  background: var(--fich-bg-subtle, #f1f5f9);
+  background: var(--fich-bg-subtle, var(--fich-border-light));
   border-radius: 4px;
   overflow: hidden;
 }
@@ -66,7 +66,7 @@
 .tl-bar-fill {
   width: 100%;
   height: 100%;
-  background: var(--fich-primary, #4338ca);
+  background: var(--fich-primary, var(--fich-est-convocatoria));
   opacity: 0.15;
   border-radius: 3px;
 }
@@ -75,12 +75,12 @@
   position: absolute;
   top: 0;
   height: 24px;
-  background: var(--fich-warning, #d97706);
+  background: var(--fich-warning, var(--fich-warning));
   opacity: 0.35;
   border-radius: 3px;
   z-index: 1;
-  border-left: 2px solid var(--fich-warning, #d97706);
-  border-right: 2px solid var(--fich-warning, #d97706);
+  border-left: 2px solid var(--fich-warning, var(--fich-warning));
+  border-right: 2px solid var(--fich-warning, var(--fich-warning));
 }
 
 .tl-label-group {
@@ -92,29 +92,29 @@
 
 .tl-name {
   font-weight: 600;
-  color: var(--fich-text, #1e293b);
+  color: var(--fich-text, var(--fich-text));
 }
 
 .tl-dates {
   font-family: 'Roboto Mono', monospace;
   font-size: 0.75rem;
-  color: var(--fich-text-muted, #64748b);
+  color: var(--fich-text-muted, var(--fich-text-faint));
 }
 
 .is-nueva .tl-bar-fill {
   opacity: 0.4;
-  background: var(--fich-primary, #4338ca);
+  background: var(--fich-primary, var(--fich-est-convocatoria));
 }
 
 .is-nueva .tl-name {
-  color: var(--fich-primary, #4338ca);
+  color: var(--fich-primary, var(--fich-est-convocatoria));
 }
 
 /* ─── Overlap details ─── */
 
 .overlap-details {
-  background: #fffbeb;
-  border: 1px solid #fde68a;
+  background: var(--fich-est-pendiente-bg);
+  border: 1px solid var(--fich-est-pendiente-border);
   border-radius: 8px;
   padding: 12px 16px;
   margin-bottom: 16px;
@@ -148,6 +148,6 @@
 .dialog-question {
   font-size: 0.9rem;
   font-weight: 500;
-  color: var(--fich-text, #1e293b);
+  color: var(--fich-text, var(--fich-text));
   margin: 0;
 }

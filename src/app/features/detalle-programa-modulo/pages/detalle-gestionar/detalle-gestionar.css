@@ -254,7 +254,7 @@
 
 .horario-item.conflicto {
   border-color: var(--fich-warning);
-  background: #fffbeb;
+  background: var(--fich-est-pendiente-bg);
 }
 
 .conflicto-icon {

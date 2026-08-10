@@ -1,19 +1,18 @@
 import { Component, OnInit, signal, inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { ProgramaService } from '../../services/programa.service';
 import { TipoProgramaService } from '../../../tipo-programa/services/tipo-programa.service';
-import { ProgramaCreate } from '../../models/programa.model';
+import { ProgramaCreate, Programa } from '../../models/programa.model';
 import { TipoPrograma } from '../../../tipo-programa/models/tipo-programa.model';
 import { environment } from '../../../../../environments/environment';
 
@@ -23,14 +22,13 @@ import { environment } from '../../../../../environments/environment';
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    RouterLink,
+    MatDialogModule,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
     MatButtonModule,
-    MatCardModule,
-    MatDividerModule,
     MatIconModule,
+    MatProgressSpinnerModule,
     MatSnackBarModule,
   ],
   templateUrl: './programa-form.html',
@@ -40,10 +38,11 @@ export class ProgramaFormComponent implements OnInit {
   private fb = inject(FormBuilder);
   private service = inject(ProgramaService);
   private tipoProgramaService = inject(TipoProgramaService);
-  private router = inject(Router);
-  private route = inject(ActivatedRoute);
   private snackbar = inject(MatSnackBar);
   private destroyRef = inject(DestroyRef);
+  private dialogRef = inject(MatDialogRef<ProgramaFormComponent>);
+
+  data: Programa | null = inject(MAT_DIALOG_DATA);
 
   form: FormGroup;
   idEditando: number | null = null;
@@ -65,11 +64,9 @@ export class ProgramaFormComponent implements OnInit {
 
   ngOnInit(): void {
     this.cargarTiposPrograma();
-
-    const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
-      this.idEditando = +id;
-      this.cargarDatosParaEditar(this.idEditando);
+    if (this.data) {
+      this.idEditando = this.data.id_programa;
+      this.cargarDatosParaEditar(this.data);
     }
   }
 
@@ -81,32 +78,23 @@ export class ProgramaFormComponent implements OnInit {
     });
   }
 
-  private cargarDatosParaEditar(id: number) {
+  private cargarDatosParaEditar(programa: Programa) {
     this.cargandoDatos.set(true);
-    this.service.getById(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (data) => {
-        const { nombre_programa, id_tipo_programa, estado, foto } = data;
-        this.form.patchValue({ nombre_programa, id_tipo_programa, estado });
+    const { nombre_programa, id_tipo_programa, estado, foto } = programa;
+    this.form.patchValue({ nombre_programa, id_tipo_programa, estado });
 
-        if (foto) {
-          this.fotoPreview.set(`${environment.apiUrl}${foto}`);
-          this.fotoActual.set(foto);
-        }
+    if (foto) {
+      this.fotoPreview.set(`${environment.apiUrl}${foto}`);
+      this.fotoActual.set(foto);
+    }
 
-        const activos = this.tiposPrograma();
-        const existe = activos.some(t => t.id_tipo_programa === id_tipo_programa);
-        if (!existe && data.tipo_programa) {
-          this.tiposPrograma.set([data.tipo_programa, ...activos]);
-        }
+    const activos = this.tiposPrograma();
+    const existe = activos.some(t => t.id_tipo_programa === id_tipo_programa);
+    if (!existe && programa.tipo_programa) {
+      this.tiposPrograma.set([programa.tipo_programa, ...activos]);
+    }
 
-        this.cargandoDatos.set(false);
-      },
-      error: () => {
-        this.cargandoDatos.set(false);
-        this.snackbar.open('Error al cargar los datos del registro', 'Cerrar', { duration: 4000 });
-        this.router.navigate(['/programas']);
-      },
-    });
+    this.cargandoDatos.set(false);
   }
 
   onFotoSeleccionada(event: Event): void {
@@ -162,7 +150,7 @@ export class ProgramaFormComponent implements OnInit {
         this.loading.set(false);
         const mensaje = this.idEditando ? 'Programa actualizado con éxito' : 'Programa creado con éxito';
         this.snackbar.open(mensaje, 'OK', { duration: 3000 });
-        this.router.navigate(['/programas'], { replaceUrl: true });
+        this.dialogRef.close(true);
       },
       error: (err) => {
         this.loading.set(false);

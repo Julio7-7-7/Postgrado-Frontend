@@ -152,7 +152,7 @@
   background: var(--fich-feature-modulo); border-color: var(--fich-feature-modulo);
   color: #fff; box-shadow: 0 4px 10px rgba(13, 148, 136, .3);
 }
-.hito-migrada { background: #d97706; border-color: #d97706; color: #fff; }
+.hito-migrada { background: var(--fich-warning); border-color: var(--fich-warning); color: #fff; }
 .hito-reprobado {
   background: var(--fich-bg-card); border-color: var(--fich-danger);
   color: var(--fich-danger);
@@ -175,7 +175,7 @@
 .hito-migdot {
   position: absolute; top: -4px; right: -4px;
   width: 12px; height: 12px; border-radius: 50%;
-  background: #f59e0b; border: 2px solid #fff;
+  background: var(--fich-warning); border: 2px solid #fff;
 }
 .hito-marker {
   position: absolute;
@@ -230,8 +230,8 @@
 .stat-label { font-size: 10.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .4px; color: var(--fich-text-faint); }
 .stat-aprobado .stat-icon { background: #f0fdfa; color: #0d9488; }
 .stat-encurso .stat-icon { background: #ecfeff; color: #0891b2; }
-.stat-pendiente .stat-icon { background: #f1f5f9; color: #64748b; }
-.stat-migrado .stat-icon { background: #fffbeb; color: #d97706; }
+.stat-pendiente .stat-icon { background: var(--fich-border-light); color: var(--fich-text-faint); }
+.stat-migrado .stat-icon { background: var(--fich-est-pendiente-bg); color: var(--fich-warning); }
 
 /* ─── Caption de situación ─── */
 .hero-caption {
@@ -262,13 +262,13 @@
   letter-spacing: .4px; white-space: nowrap; text-transform: uppercase;
   flex-shrink: 0;
 }
-.estado-postulante { color: #b45309; background: #fffbeb; }
+.estado-postulante { color: var(--fich-est-pendiente); background: var(--fich-est-pendiente-bg); }
 .estado-observado { color: var(--fich-danger); background: var(--fich-danger-lighter); }
-.estado-inscrito { color: #1d4ed8; background: #eff6ff; }
-.estado-incorporado { color: #6d28d9; background: #ede9fe; }
-.estado-finalizado { color: #047857; background: #d1fae5; }
-.estado-retirado { color: #64748b; background: #f1f5f9; }
-.estado-graduado { color: #065f46; background: #d1fae5; }
+.estado-inscrito { color: var(--fich-est-programado); background: var(--fich-est-programado-bg); }
+.estado-incorporado { color: var(--fich-est-reprogramado); background: #ede9fe; }
+.estado-finalizado { color: var(--fich-est-en-curso); background: var(--fich-success-lighter); }
+.estado-retirado { color: var(--fich-text-faint); background: var(--fich-border-light); }
+.estado-graduado { color: var(--fich-success); background: var(--fich-success-lighter); }
 
 /* ─── Trayectoria (integrada en la ruta de hitos del hero) ─── */
 
@@ -297,7 +297,7 @@
   padding: 4px 10px; border-radius: var(--fich-radius-full);
   white-space: nowrap;
 }
-.mig-chip { background: #fef3c7; color: #92400e; }
+.mig-chip { background: var(--fich-warning-lighter); color: #92400e; }
 .mig-chip mat-icon { font-size: 14px; width: 14px; height: 14px; }
 
 .prog-label {
@@ -362,7 +362,7 @@
 .mig-badge {
   font-size: 9.5px; font-weight: 700; letter-spacing: .02em;
   padding: 2px 8px; border-radius: var(--fich-radius-full);
-  background: #fef3c7; color: #92400e; white-space: nowrap;
+  background: var(--fich-warning-lighter); color: #92400e; white-space: nowrap;
 }
 
 /* ─── Chips de estado de módulo ─── */
@@ -382,7 +382,7 @@
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: .35; transform: scale(.75); }
 }
-.chip-saltado { background: #f1f5f9; color: #64748b; }
+.chip-saltado { background: var(--fich-border-light); color: var(--fich-text-faint); }
 .chip-saltado mat-icon { font-size: 13px; width: 13px; height: 13px; }
 .chip-pendiente { background: var(--fich-bg-card); color: var(--fich-text-muted); border: 1px dashed var(--fich-border); }
 
@@ -416,17 +416,21 @@
   border-radius: 10px; font-size: 10px; font-weight: 600;
   text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 8px;
 }
-.tipo-migracion { background: #fef3c7; color: #92400e; }
-.tipo-reincorporacion { background: #e0e7ff; color: #3730a3; }
-.tipo-incorporacion { background: #d1fae5; color: #065f46; }
-.tipo-transferencia { background: #e2e8f0; color: #334155; }
+.tipo-migracion { background: var(--fich-warning-lighter); color: #92400e; }
+.tipo-reincorporacion { background: var(--fich-primary-lighter); color: var(--fich-primary-dark); }
+.tipo-incorporacion { background: var(--fich-success-lighter); color: var(--fich-success); }
+.tipo-transferencia { background: var(--fich-border); color: var(--fich-text-secondary); }
+.tipo-retiro { background: var(--fich-est-truncado-border); color: var(--fich-est-truncado); }
 .movimiento-flow { display: flex; align-items: stretch; gap: 10px; }
 .movimiento-edicion { flex: 1; padding: 10px 12px; border-radius: var(--fich-radius-xs); }
 .movimiento-edicion.origen { background: var(--fich-bg-subtle); border: 1px solid var(--fich-border); }
 .movimiento-edicion.destino { background: #f0fdfa; border: 1px solid #ccfbf1; }
+.movimiento-edicion.solo { background: #f0fdfa; border: 1px solid #ccfbf1; }
 .ed-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; color: var(--fich-text-faint); display: block; margin-bottom: 3px; }
 .ed-nombre { font-size: 13px; font-weight: 600; color: var(--fich-text-secondary); display: block; }
 .ed-info { font-size: 11px; color: var(--fich-text-muted); display: block; margin-top: 2px; }
+.ed-modulo { font-size: 11px; color: var(--fich-feature-modulo); font-weight: 600; display: block; margin-top: 2px; }
+.ed-modulo::before { content: ''; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--fich-feature-modulo); margin-right: 5px; vertical-align: 1px; }
 .ed-estado { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 3px; margin-top: 4px; }
 .movimiento-arrow { display: flex; align-items: center; color: var(--fich-text-faint); flex-shrink: 0; font-size: 20px; width: 20px; height: 20px; }
 .movimiento-motivo { display: flex; align-items: flex-start; gap: 6px; margin-top: 6px; font-size: 12px; color: var(--fich-text-muted); }
@@ -437,9 +441,192 @@
 /* ═══════════════════════════════════════════════════════════════
    CALIFICACIÓN — 6 niveles (burbujas + anillos)
    ═══════════════════════════════════════════════════════════════ */
-.cal-abandono { --prom-color: #94a3b8; background: #f1f5f9; color: #64748b; }
-.cal-insuficiente { --prom-color: #dc2626; background: #fef2f2; color: #b91c1c; }
-.cal-suficiente { --prom-color: #d97706; background: #fffbeb; color: #b45309; }
-.cal-bueno { --prom-color: #0284c7; background: #eff6ff; color: #0369a1; }
-.cal-distinguido { --prom-color: #059669; background: #ecfdf5; color: #047857; }
-.cal-sobresaliente { --prom-color: #4338ca; background: #eef2ff; color: #4338ca; }
+.cal-abandono { --prom-color: var(--fich-text-x-faint); background: var(--fich-border-light); color: var(--fich-text-faint); }
+.cal-insuficiente { --prom-color: var(--fich-danger); background: var(--fich-est-truncado-bg); color: var(--fich-est-truncado); }
+.cal-suficiente { --prom-color: var(--fich-warning); background: var(--fich-est-pendiente-bg); color: var(--fich-est-pendiente); }
+.cal-bueno { --prom-color: #0284c7; background: var(--fich-est-programado-bg); color: var(--fich-est-verificacion); }
+.cal-distinguido { --prom-color: var(--fich-success); background: var(--fich-est-en-curso-bg); color: var(--fich-est-en-curso); }
+.cal-sobresaliente { --prom-color: var(--fich-est-convocatoria); background: var(--fich-est-convocatoria-bg); color: var(--fich-est-convocatoria); }
+
+/* ═══════════ PAGOS DEL ALUMNO ═══════════ */
+.pagos-card {
+  margin-top: 22px;
+  border: 1px solid var(--fich-border-light);
+  border-radius: 18px;
+  padding: 18px 20px;
+  background: linear-gradient(180deg, #fcfdfd, var(--fich-bg-subtle));
+  box-shadow: var(--fich-shadow-sm);
+}
+
+.pagos-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.pagos-header mat-icon {
+  color: var(--fich-feature-pagos);
+}
+
+.pagos-header h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--fich-text);
+}
+
+.pagos-sub {
+  margin-left: auto;
+  font-size: 0.72rem;
+  color: var(--fich-text-muted);
+}
+
+.pagos-inscripcion {
+  border: 1px solid var(--fich-border-light);
+  border-radius: 14px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  background: #fff;
+}
+
+.pagos-inscripcion:last-child {
+  margin-bottom: 0;
+}
+
+.pagos-ins-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.pagos-ins-titulo {
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--fich-text);
+}
+
+.pagos-ins-total {
+  margin-left: auto;
+  font-size: 0.78rem;
+  color: var(--fich-text-muted);
+}
+
+.pagos-ins-total b {
+  color: var(--fich-feature-pagos);
+  font-variant-numeric: tabular-nums;
+}
+
+.pagos-vacio {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  color: var(--fich-text-muted);
+  padding: 10px 2px;
+}
+
+.pagos-vacio mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.pagos-trans-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pago-trans {
+  border: 1px solid var(--fich-border-light);
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: linear-gradient(180deg, #fbfefc, var(--fich-bg-subtle));
+}
+
+.pago-trans.anulado {
+  opacity: 0.62;
+  background: var(--fich-bg-subtle);
+}
+
+.pago-trans-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pago-trans-fecha {
+  font-size: 0.75rem;
+  color: var(--fich-text-muted);
+}
+
+.pago-trans-monto {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--fich-feature-pagos);
+  font-variant-numeric: tabular-nums;
+}
+
+.pago-trans-pill {
+  margin-left: auto;
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 2px 8px;
+  border-radius: var(--fich-radius-full);
+}
+
+.pago-trans-pill.confirmado {
+  background: var(--fich-success-lighter);
+  color: #166534;
+}
+
+.pago-trans-pill.anulado {
+  background: var(--fich-est-truncado-border);
+  color: var(--fich-est-truncado);
+}
+
+.pago-asig {
+  margin-top: 8px;
+}
+
+.pago-asig-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 3px 2px;
+  border-bottom: 1px dashed var(--fich-border-light);
+  font-size: 0.78rem;
+}
+
+.pago-asig-row:last-child {
+  border-bottom: none;
+}
+
+.pago-asig-monto {
+  font-weight: 700;
+  color: var(--fich-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.pago-anulado-note {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  font-size: 0.72rem;
+  color: var(--fich-est-truncado);
+  background: var(--fich-est-truncado-bg);
+  border-radius: 8px;
+  padding: 5px 9px;
+}
+
+.pago-anulado-note mat-icon {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+}

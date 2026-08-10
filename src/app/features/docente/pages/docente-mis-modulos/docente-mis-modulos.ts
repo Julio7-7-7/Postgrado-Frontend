@@ -69,20 +69,20 @@ export class DocenteMisModulosComponent implements OnInit {
 
   estadoModuloClass(estado: string): string {
     const map: Record<string, string> = {
-      programado: 'estado-programado',
-      en_curso: 'estado-en_curso',
-      reprogramado: 'estado-reprogramado',
-      finalizado: 'estado-finalizado',
+      programado: 'programado',
+      en_curso: 'en-curso',
+      reprogramado: 'reprogramado',
+      finalizado: 'finalizado',
     };
     return map[estado] || '';
   }
 
   estadoEdicionClass(estado: string): string {
     const map: Record<string, string> = {
-      programado: 'ed-estado-programado',
-      en_curso: 'ed-estado-en_curso',
-      reprogramado: 'ed-estado-reprogramado',
-      finalizado: 'ed-estado-finalizado',
+      programado: 'programado',
+      en_curso: 'en-curso',
+      reprogramado: 'reprogramado',
+      finalizado: 'finalizado',
     };
     return map[estado] || '';
   }

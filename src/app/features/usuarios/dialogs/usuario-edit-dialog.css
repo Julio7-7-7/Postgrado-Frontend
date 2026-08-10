@@ -1,6 +1,6 @@
 .edit-email {
   font-size: 0.82rem;
-  color: #94a3b8;
+  color: var(--fich-text-x-faint);
   margin-bottom: 16px;
 }
 

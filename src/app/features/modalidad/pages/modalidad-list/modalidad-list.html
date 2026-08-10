@@ -1,12 +1,16 @@
 <div class="page-container">
   <div class="header-section">
-    <div>
-      <h1>Modalidades Académicas</h1>
-      <p class="subtitle">Gestioná las modalidades de admisión y sus requisitos documentales</p>
+    <div class="header-left">
+      <div>
+        <h1>Modalidades Académicas</h1>
+        <p class="subtitle">Gestioná las modalidades de admisión y sus requisitos documentales</p>
+      </div>
     </div>
-    <button mat-flat-button color="primary" (click)="abrirFormulario()">
-      <mat-icon>add</mat-icon> Nueva Modalidad
-    </button>
+    <div class="header-right">
+      <button mat-flat-button color="primary" class="btn-nuevo" (click)="abrirFormulario()">
+        <mat-icon>add</mat-icon> Nueva Modalidad
+      </button>
+    </div>
   </div>
 
   @if (isLoading()) {
