@@ -5,10 +5,11 @@
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
-  <button mat-button (click)="onNoClick()">
+  <button mat-button type="button" (click)="onNoClick()">
     Cancelar
   </button>
   <button mat-flat-button 
+          type="button"
           color="primary" 
           [mat-dialog-close]="true">
     Confirmar

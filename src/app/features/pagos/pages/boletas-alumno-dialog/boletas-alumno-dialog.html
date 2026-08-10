@@ -70,7 +70,7 @@
 
           @if (puedeAnularTransaccion(t)) {
             <div class="boleta-actions">
-              <button mat-stroked-button color="warn" class="anular-btn" (click)="anular(t)">
+              <button mat-stroked-button type="button" color="warn" class="anular-btn" (click)="anular(t)">
                 <mat-icon>block</mat-icon> Anular boleta
               </button>
             </div>
@@ -82,5 +82,5 @@
 </div>
 
 <div mat-dialog-actions align="end">
-  <button mat-button (click)="cerrar()">Cerrar</button>
+  <button mat-button type="button" (click)="cerrar()">Cerrar</button>
 </div>

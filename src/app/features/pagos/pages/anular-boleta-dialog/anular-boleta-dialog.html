@@ -20,8 +20,8 @@
 </div>
 
 <div mat-dialog-actions align="end">
-  <button mat-button (click)="dialogRef.close(false)">Cancelar</button>
-  <button mat-flat-button color="warn" (click)="anular()" [disabled]="isSubmitting()">
+  <button mat-button type="button" (click)="dialogRef.close(false)">Cancelar</button>
+  <button mat-flat-button type="button" color="warn" (click)="anular()" [disabled]="isSubmitting()">
     @if (isSubmitting()) {
       <mat-icon class="spinner-icon">sync</mat-icon>
     } @else {

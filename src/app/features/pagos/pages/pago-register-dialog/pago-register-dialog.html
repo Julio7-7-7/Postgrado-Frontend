@@ -38,6 +38,11 @@
       <div class="preview-title">Reparto automático</div>
       <div class="preview-loading"><mat-icon class="spinner-icon">sync</mat-icon> Calculando reparto...</div>
     </div>
+  } @else if (previewError()) {
+    <div class="preview-box preview-error">
+      <div class="preview-title">Reparto automático</div>
+      <div class="preview-error-msg"><mat-icon>error_outline</mat-icon> {{ previewError() }}</div>
+    </div>
   } @else if (previewAsig().length > 0) {
     <div class="preview-box">
       <div class="preview-title">Reparto automático</div>
@@ -76,8 +81,8 @@
 </div>
 
 <div mat-dialog-actions align="end">
-  <button mat-button (click)="dialogRef.close(false)">Cancelar</button>
-  <button mat-flat-button color="primary" (click)="guardar()" [disabled]="isSubmitting()">
+  <button mat-button type="button" (click)="dialogRef.close(false)">Cancelar</button>
+  <button mat-flat-button type="button" color="primary" (click)="guardar()" [disabled]="isSubmitting()">
     @if (isSubmitting()) {
       <mat-icon class="spinner-icon">sync</mat-icon>
     } @else {

@@ -99,6 +99,20 @@ h2[mat-dialog-title] mat-icon {
   color: var(--fich-text-muted);
 }
 
+.preview-box.preview-error {
+  border-color: var(--fich-danger);
+  background: var(--fich-danger-light);
+}
+
+.preview-error-msg {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: var(--fich-danger);
+  font-weight: 500;
+}
+
 .preview-loading {
   display: flex;
   align-items: center;

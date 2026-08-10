@@ -44,6 +44,7 @@ export class BoletasAlumnoDialog implements OnInit {
   transacciones = signal<TransaccionTranscript[]>([]);
   isLoading = signal(true);
   totalPagado = signal(0);
+  cambios = signal(false);
 
   puedeAnular = computed(() => this.auth.hasPermiso('pagos.anular'));
 
@@ -99,11 +100,12 @@ export class BoletasAlumnoDialog implements OnInit {
       this.transacciones.set(list);
       const still = list.filter(x => x.estado === 'confirmado');
       this.totalPagado.set(still.reduce((acc, x) => acc + x.monto_total, 0));
+      this.cambios.set(true);
       this.snackbar.open('Boleta anulada con éxito', 'Cerrar', { duration: 3000 });
     });
   }
 
   cerrar(): void {
-    this.dialogRef.close();
+    this.dialogRef.close(this.cambios() ? true : undefined);
   }
 }

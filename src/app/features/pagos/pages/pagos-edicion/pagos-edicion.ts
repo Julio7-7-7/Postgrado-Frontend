@@ -203,7 +203,9 @@ export class PagosEdicionComponent implements OnInit {
       },
     });
 
-    dialogRef.afterClosed().subscribe(() => this.cargarDatos());
+    dialogRef.afterClosed().subscribe((result: boolean | undefined) => {
+      if (result) this.cargarDatos();
+    });
   }
 
   iniciales(a: AlumnoPagosMatrix): string {

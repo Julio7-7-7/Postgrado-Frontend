@@ -54,6 +54,7 @@ export class PagoRegisterDialog {
   isSubmitting = signal(false);
   previewAsig = signal<PreviewAsignacion[]>([]);
   previewLoading = signal(false);
+  previewError = signal<string | null>(null);
 
   modulos = () => [...this.data.modulos].sort((a, b) => a.orden - b.orden);
 
@@ -91,6 +92,7 @@ export class PagoRegisterDialog {
     const monto = this.monto();
     if (!monto || monto <= 0) {
       this.previewAsig.set([]);
+      this.previewError.set(null);
       return;
     }
     this.previewLoading.set(true);
@@ -101,10 +103,12 @@ export class PagoRegisterDialog {
     }).subscribe({
       next: resp => {
         this.previewAsig.set(resp.asignaciones);
+        this.previewError.set(null);
         this.previewLoading.set(false);
       },
-      error: () => {
+      error: err => {
         this.previewAsig.set([]);
+        this.previewError.set(err.error?.detail || 'No se pudo calcular el reparto');
         this.previewLoading.set(false);
       },
     });
@@ -154,6 +158,10 @@ export class PagoRegisterDialog {
     }
     if (!this.comprobante()) {
       this.snackbar.open('Debés adjuntar el comprobante del pago', 'Cerrar', { duration: 3000 });
+      return;
+    }
+    if (this.previewError()) {
+      this.snackbar.open(this.previewError()!, 'Cerrar', { duration: 4000 });
       return;
     }
 
