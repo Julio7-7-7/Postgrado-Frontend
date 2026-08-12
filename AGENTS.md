@@ -51,22 +51,22 @@ Eres un **mentor crítico y compañero de código**. Tu rol no es ejecutar órde
 |---|---|---|
 | programa | `#1e3a8a` | `#eef2ff` |
 | tipo-programa | `#7c3aed` | `#f5f3ff` |
-| docente | `#0d9488` | `#f0fdfa` |
-| contratacion | `#d97706` | `#fffbeb` |
-| alumno | `#0891b2` | `#ecfeff` |
+| docente | `#0f766e` | `#f0fdfa` |
+| contratacion | `#b45309` | `#fffbeb` |
+| alumno | `#0e7490` | `#ecfeff` |
 | edicion | `#4f46e5` | `#eef2ff` |
-| modulo | `#0d9488` | `#f0fdfa` |
+| modulo | `#0f766e` | `#f0fdfa` |
 | home | `#1e3a8a` | — |
-| requisitos | `#0d9488` | `#f0fdfa` |
-| modalidades | `#059669` | `#ecfdf5` |
+| requisitos | `#0f766e` | `#f0fdfa` |
+| modalidades | `#047857` | `#ecfdf5` |
 | descuentos | `#b45309` | `#fffbeb` |
-| documentacion | `#0284c7` | `#f0f9ff` |
+| documentacion | `#0369a1` | `#f0f9ff` |
 | inscripciones | `#4f46e5` | `#eef2ff` |
-| pagos | `#16a34a` | `#f0fdf4` |
+| pagos | `#15803d` | `#f0fdf4` |
 | notas | `#9333ea` | `#faf5ff` |
 | solicitudes | `#2563eb` | `#eff6ff` |
 | roles | `#7c3aed` | `#f5f3ff` |
-| usuarios | `#0ea5e9` | `#f0f9ff` |
+| usuarios | `#075985` | `#f0f9ff` |
 
 ## Módulos del frontend
 
@@ -171,11 +171,19 @@ Lenguaje visual consolidado (lo aprobado por Julio iterativamente):
 
 ## Pendientes
 
-- **Refinar contraste y diferenciación visual general**
-- **Subida de documentos por parte del alumno** — funcionalidad completa (subir archivo al servidor, no solo ver requisitos)
+- ~~**Refinar contraste y diferenciación visual general**~~ → hecho (2026-08-10, ver historial)
+- ~~**Subida de documentos por parte del alumno**~~ → obsoleto: ya implementado (portal `inscripcion-detail`, `inscribir`, `UploadBoxComponent`, `POST /control-documentacion/{id}/subir-documento` sin permiso admin)
 - **Matriz visual rol × permiso** (opcional, postergable)
 
 ## Historial de decisiones por feature (resumen durable, más reciente arriba)
+
+- **Auditoría backend: limpieza de dead code + seguridad (2026-08-10)**: (1) **Eliminados 3 endpoints DELETE** — todos sin uso en el frontend y 2 físicos (violaban la regla de no-DELETE): `DELETE /roles/{id_rol}` (físico), `DELETE /control-documentacion/{id}` (físico), `DELETE /detalle-programa-alumno/{id}` (soft pero duplicaba `PATCH /retirar`). Se eliminó también `delete()` del `RolesService` (nunca invocado). (2) **Rate limit en /auth** — `POST /auth/registro` y `POST /auth/seleccionar-rol` ahora pasan por `check_rate_limit` (comparten el bucket de login por IP, 5 intentos/15min) y `record_failed_attempt` en cada 4xx de validación (email/CI/pasaporte duplicado, rol inválido, usuario inactivo). (3) **Imports/variables muertas limpiadas con pyflakes**: routers (solicitud, roles, auth, nota, control_documentacion, requisito, horario, detalle_programa_modulo, detalle_programa_alumno, programa_version_edicion), models (requisito, documento_solicitud), schemas (documentos_contratacion, auth); se eliminó `schemas/historial_inscripcion.py` (vacío). Falsos positivos conservados: `models/__init__.py` (re-exports para metadata) y `models/pago.py` (`TransaccionPago` usado por `relationship`). (4) **Datos residuales corregidos en BD local**: 33 registros `control_documentacion.estado='aprobado'` (valor viejo de un refactor) → `'aceptado'` (el enum del schema solo acepta `pendiente/entregado/aceptado/rechazado`; esto causaba ResponseValidationError 500 en `GET /detalle-programa-alumno/`). Verificado: backend 8000/8001 (todos los endpoints 200, login OK, rate limit 429 tras 5 fallos, registro duplicado 400) + `ng build --configuration development` OK + Playwright (explorador con counts y botones por nivel sin errores; el `NG0100` del login es preexistente, `[disabled]="loading"`).
+- **Explorador unificado: fixes de iteración (2026-08-10)**: (1) **Contadores al primer render** — el bug era que `total` se leía de la paginación que solo se pedía al expandir. Ahora `cargarDatos()` dispara `precargarVersiones()` (un `GET /programas-version/` que trae TODAS las versiones con `ediciones_count` del backend) y llena `versionesMap` completo (`page:1/pages:1`); los counts de versión por programa y de ediciones por versión usan esos datos (`version.ediciones_count` en vez de `paginacionEdiciones().total`). (2) **Botones en la cabecera de cada nivel** — el problema era que las acciones vivían dentro del cuerpo expandido y se confundían de nivel. Ahora cada nivel tiene sus acciones en su propia fila SIEMPRE visibles (wrapper `(click)="$event.stopPropagation()"`): programa → "Versión" (stroked) + editar (icono); versión → "Edición" + editar + módulos + **botón vigente explícito**; edición → Editar/Postulantes/Historial/Módulos inline. (3) **Toggle vigencia sin estrella** — se reemplazó el icono `star`/`star_border` (confuso) por un botón pill `vigente-btn` con icono `check_circle`/`radio_button_unchecked` + texto "Vigente"/"Marcar vigente", estado `.on` tintado verde. (4) **Más vida visual** — strip de resumen en header (N programas · N versiones · N ediciones, computed `totalProgramas/totalVersiones/totalEdiciones`), animación `panel-in` en `.programa-body`/`.version-body` al expandir, glow `.expandido` en el card, chip de semestre `Sem. N`, y "N cupos" por edición. Deep-link simplificado (sin setTimeout por defecto; solo fallback 600ms si la versión aún no cargó). Verificado: `ng build --configuration development` OK + Playwright (counts visibles sin expandir, botones de cada nivel en su fila, toggle vigente desde la cabecera con confirm + snackbar, deep-link redirige/expande, animación aplicada).
+- **Explorador unificado: vida visual en niveles versión/edición (2026-08-10)**: nivel programa ya tenía foto+icono; se dotó de jerarquía y micro-interacciones a los niveles internos sin romper el canon FICH. Versiones: monograma `V{n}` con gradiente feature-programa (`#1e3a8a→#312e81`, radius 10px, sombra sutil), título "Versión N", pill "Vigente" con **dot pulsante** (`@keyframes pulse-dot`, box-shadow spread 2.2s), contador "N edic.", star de vigencia con hover scale. Ediciones: **rail timeline** (`::before` 2px gradiente `#eef2ff→border`, conector horizontal por fila), avatar tintado con el color del estado + icono por modalidad (`groups`/`videocam`/`laptop`), título `E{n}` + gestión, subtítulo modalidad·fechas, precio en `#047857` bold, pills de estado con `pill-dot` (el dot de "En Curso" también late), acciones con opacity 0.55→1 al hover, fila con lift `translateY(-1px)`. Helpers nuevos en el componente: `modalidadIcono()`, `modalidadLabel()`, `edicionColor()` (estado→hex). Tokens: se usan los del feature programa (`--fich-feature-programa`, `--fich-feature-programa-light`) y se corrigieron dos tokens inexistentes (`fich-text-soft`→`fich-text-secondary`, `fich-bg-subtle-soft`→`fich-bg-subtle`). Verificado: `ng build --configuration development` OK + Playwright (monograma gradiente azul, rail presente, avatar tintado 12% alpha, pill+dot renderizados, dot de vigente con animación activa, precio Bs 6600 en verde).
+
+
+
+- **Contraste y diferenciación visual global (2026-08-10)**: auditoría WCAG (ratio programático) + DOM render real. Tokens oscurecidos para ≥4.5:1 en texto: `--fich-text-x-faint` #94a3b8→#64748b (estaba en ~70 lugares como texto de metadata/fechas a 0.72-0.78rem), feature colors como texto sobre sus fondos claros (docente/modulo/requisitos #0d9488→#0f766e, contratacion #d97706→#b45309, alumno #0891b2→#0e7490, modalidades #059669→#047857, documentacion #0284c7→#0369a1, pagos #16a34a→#15803d, usuarios #0ea5e9→#075985), semánticos sobre blanco (success #059669→#047857, warning #d97706→#b45309, info #0284c7→#0369a1), pill pausado #a16207→#854d0e. Diferenciación: canvas `--fich-bg` #f4f6f9→#eef1f6 (cards/tablas ya no se funden), token nuevo `--fich-border-strong` #dbe1ea para bordes de card y header de tabla, header de `.fich-table` a `--fich-bg-hover` + borde fuerte, zebra invisible eliminada de `.fich-table`, hover de fila unificado a `--fich-bg-active` (antes `--fich-primary-light` azul arbitrario vs `--fich-bg-hover`, inconsistentes). Navbar: link activo ahora pinta el label con el feature color (`--nav-accent`) vía regla explícita sobre `.mdc-button__label` (antes el texto activo medía #0f172a, igual al inactivo; solo lo diferenciaba el bg #eef2ff). Snackbar: botón fijado a #cbd5e1 (sobre fondo oscuro). Literales hardcodeados en componentes (login role colors, estado-color maps de inscripciones/inscripcion-detail, chips teal/cyan en css, fallbacks `#94a3b8` de gestionar-requisitos) oscurecidos a los valores token. Se conservaron los gradientes bicolor decorativos (`linear-gradient(135deg, #0d9488, #0f766e)` en home/inscribir/public-home). Verificado: `ng build --configuration development` OK + Playwright (canvas #eef1f6, nav activo #1e3a8a/#0f766e/#15803d, "En curso" #0f766e, "Ed. X" #64748b, header de tabla #f1f5f9 + borde #dbe1ea). Ratios: #0f766e 5.25/#0e7490 5.15/#047857 5.21/#0369a1 5.57/#15803d 4.79/#075985 7.09/#b45309 4.84/#854d0e 6.15/#64748b 4.76 sobre sus fondos.
 
 - **Pagos: dialogs sin recarga al cancelar (2026-08-10)**: `pagos-edicion.verBoletas()` recargaba la matriz incondicionalmente al cerrar el dialog (refetch + spinner = parecía recarga de página y perdía estado). `BoletasAlumnoDialog` ahora devuelve `true` al cerrar solo si hubo anulación (signal `cambios`); la página recarga con `if (result)`. Botones de acción de dialogs de pagos con `type="button"` (defensivo anti-submit). Verificado: Playwright en `/pagos/2` — cancelar boletas y registrar-pago sin `framenavigated`, sin refetch de `por-edicion`, sin spinner.
 - **Pagos: validación de sobrepago (2026-08-10)**: `_planificar_cobro` (backend) ya NO acumula el sobrante en el último bucket. Calcula el saldo pendiente cobrable (matrícula + cuotas desde el target) y rechaza con `400 "El monto excede el saldo pendiente (X Bs)"` si `monto_total` lo supera. Aplica igual en `POST /pagos/preview` y `POST /pagos/` (ambos pasan por `_planificar_cobro`). Beca: se mantiene el comportamiento actual — al perderla (insuficiente/abandono en un módulo finalizado) TODAS las cuotas pasan a precio pleno; texto `beca_motivo` alineado ("todas las cuotas pasan a precio pleno"). Frontend: `pago-register-dialog` muestra el error del preview en caja roja (`previewError` signal) y `guardar()` bloquea si hay error. Verificado: backend en 8000 (preview/crear sobrepago → 400 sin insertar; casos límite target tardío OK; matriz/transcript/obtener 200) + `ng build --configuration development` OK.
