@@ -1,8 +1,8 @@
 import { Routes } from '@angular/router';
-import { ProgramaVersionListComponent } from '../pages/programa-version-list/programa-version-list';
+import { RedirectExplorerComponent } from '../../../shared/components/redirect-explorer/redirect-explorer';
 
 export const PROGRAMA_VERSION_ROUTES: Routes = [
-  { path: '', component: ProgramaVersionListComponent },
+  { path: '', component: RedirectExplorerComponent },
   {
     path: ':versionId/modulos',
     loadChildren: () =>

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ApiService } from '../../../core/services/api.service';
-import { ProgramaVersionEdicion, ProgramaVersionEdicionCreate } from '../models/edicion.model';
+import { ProgramaVersionEdicion, ProgramaVersionEdicionCreate, PaginatedProgramaVersionEdicion } from '../models/edicion.model';
 import { PostulanteResponse } from '../../documentacion/models/documentacion.model';
 
 @Injectable({ providedIn: 'root' })
@@ -14,6 +14,14 @@ export class EdicionService extends ApiService {
     if (programa_version_id) params = params.set('programa_version_id', programa_version_id);
     if (activas) params = params.set('activas', 'true');
     return this.http.get<ProgramaVersionEdicion[]>(`${this.baseUrl}/${this.endpoint}/`, { params });
+  }
+
+  getPaginadas(programaVersionId: number, page: number, perPage: number): Observable<PaginatedProgramaVersionEdicion> {
+    const params = new HttpParams()
+      .set('programa_version_id', programaVersionId)
+      .set('page', page)
+      .set('per_page', perPage);
+    return this.http.get<PaginatedProgramaVersionEdicion>(`${this.baseUrl}/${this.endpoint}/paginadas/`, { params });
   }
 
   getById(id: number): Observable<ProgramaVersionEdicion> {

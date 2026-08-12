@@ -1,10 +1,10 @@
 import { Routes } from '@angular/router';
+import { RedirectExplorerComponent } from '../../../shared/components/redirect-explorer/redirect-explorer';
 
 export const EDICION_ROUTES: Routes = [
   {
     path: '',
-    loadComponent: () =>
-      import('../pages/edicion-list/edicion-list').then(m => m.EdicionListComponent),
+    component: RedirectExplorerComponent,
   },
   {
     path: 'nuevo',

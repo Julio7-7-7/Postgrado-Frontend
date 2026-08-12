@@ -19,3 +19,11 @@ export interface ProgramaVersionCreate {
   foto?: string | null;
   vigente?: boolean;
 }
+
+export interface PaginatedProgramaVersion {
+  items: ProgramaVersion[];
+  total: number;
+  page: number;
+  per_page: number;
+  pages: number;
+}
