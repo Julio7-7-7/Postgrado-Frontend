@@ -94,7 +94,7 @@
 .leyenda-dot.cal-abandono { background: var(--fich-text-x-faint); }
 .leyenda-dot.cal-insuficiente { background: var(--fich-danger); }
 .leyenda-dot.cal-suficiente { background: var(--fich-warning); }
-.leyenda-dot.cal-bueno { background: #0284c7; }
+.leyenda-dot.cal-bueno { background: #0369a1; }
 .leyenda-dot.cal-distinguido { background: var(--fich-success); }
 .leyenda-dot.cal-sobresaliente { background: var(--fich-est-convocatoria); }
 
@@ -410,7 +410,7 @@
 .cal-abandono { --prom-color: var(--fich-text-x-faint); background: var(--fich-border-light); color: var(--fich-text-faint); }
 .cal-insuficiente { --prom-color: var(--fich-danger); background: var(--fich-est-truncado-bg); color: var(--fich-est-truncado); }
 .cal-suficiente { --prom-color: var(--fich-warning); background: var(--fich-est-pendiente-bg); color: var(--fich-est-pendiente); }
-.cal-bueno { --prom-color: #0284c7; background: var(--fich-est-programado-bg); color: var(--fich-est-verificacion); }
+.cal-bueno { --prom-color: #0369a1; background: var(--fich-est-programado-bg); color: var(--fich-est-verificacion); }
 .cal-distinguido { --prom-color: var(--fich-success); background: var(--fich-est-en-curso-bg); color: var(--fich-est-en-curso); }
 .cal-sobresaliente { --prom-color: var(--fich-est-convocatoria); background: var(--fich-est-convocatoria-bg); color: var(--fich-est-convocatoria); }
 

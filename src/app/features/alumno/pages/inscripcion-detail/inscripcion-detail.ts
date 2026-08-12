@@ -48,7 +48,7 @@ const ESTADO_COLORS: Record<string, string> = {
   postulante: '#f59e0b',
   observado: '#f97316',
   inscrito: '#3b82f6',
-  incorporado: '#0ea5e9',
+  incorporado: '#0369a1',
   finalizado: '#10b981',
   graduado: '#8b5cf6',
   retirado: '#ef4444',
@@ -64,7 +64,7 @@ const EDICION_ESTADO_LABELS: Record<string, string> = {
 const EDICION_ESTADO_COLORS: Record<string, string> = {
   programado: '#64748b',
   en_curso: '#10b981',
-  reprogramado: '#d97706',
+  reprogramado: '#b45309',
   finalizado: '#6366f1',
 };
 
@@ -384,12 +384,12 @@ export class InscripcionDetailComponent implements OnInit {
 
   docEstadoColor(estado: string): string {
     const colors: Record<string, string> = {
-      pendiente: '#94a3b8',
+      pendiente: '#64748b',
       entregado: '#f59e0b',
       aceptado: '#10b981',
       rechazado: '#ef4444',
     };
-    return colors[estado] || '#94a3b8';
+    return colors[estado] || '#64748b';
   }
 
   docEstadoLabel(estado: string): string {
@@ -698,7 +698,7 @@ export class InscripcionDetailComponent implements OnInit {
 
   promColor(): string {
     const key = this.promClasifKey();
-    return key ? CLASIF_COLOR[key] || '#0891b2' : '#0891b2';
+    return key ? CLASIF_COLOR[key] || '#0e7490' : '#0e7490';
   }
 
   promRingBg(): string {

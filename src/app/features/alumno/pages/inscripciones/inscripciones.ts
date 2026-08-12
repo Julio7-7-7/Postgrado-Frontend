@@ -72,7 +72,7 @@ export class InscripcionesComponent implements OnInit {
       postulante: '#f59e0b',
       observado: '#f97316',
       inscrito: '#3b82f6',
-      incorporado: '#0ea5e9',
+      incorporado: '#0369a1',
       finalizado: '#6b7280',
       graduado: '#8b5cf6',
       retirado: '#ef4444',

@@ -98,7 +98,7 @@ export interface CredencialesDocenteData {
       font-size: 18px;
       width: 18px;
       height: 18px;
-      color: #d97706;
+      color: #b45309;
       margin-top: 1px;
     }
     mat-dialog-actions {

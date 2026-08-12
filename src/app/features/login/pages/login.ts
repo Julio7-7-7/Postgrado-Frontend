@@ -197,11 +197,11 @@ export class LoginComponent implements OnInit {
     const colors: Record<string, string> = {
       'adm_informatico': '#1e3a8a',
       'adm_legal': '#7c3aed',
-      'adm_contable': '#d97706',
-      'adm_director': '#0d9488',
+      'adm_contable': '#b45309',
+      'adm_director': '#0f766e',
       'adm_pasante': '#6b7280',
-      'docente': '#0d9488',
-      'alumno': '#0891b2',
+      'docente': '#0f766e',
+      'alumno': '#0e7490',
     };
     return colors[nombre] || '#4338ca';
   }

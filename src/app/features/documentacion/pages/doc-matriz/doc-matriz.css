@@ -160,7 +160,7 @@
   color: white;
 }
 
-.section-icon[data-modalidad="1"] { background: linear-gradient(135deg, #0891b2, #06b6d4); }
+.section-icon[data-modalidad="1"] { background: linear-gradient(135deg, #0e7490, #06b6d4); }
 .section-icon[data-modalidad="2"] { background: linear-gradient(135deg, #7c3aed, var(--fich-est-reprogramado)); }
 .section-icon[data-modalidad="3"] { background: linear-gradient(135deg, var(--fich-warning), var(--fich-warning)); }
 .section-icon[data-modalidad="4"] { background: linear-gradient(135deg, var(--fich-success), var(--fich-success)); }
@@ -263,7 +263,7 @@
   width: 32px;
   height: 32px;
   border-radius: 8px;
-  background: linear-gradient(135deg, #0d9488, #14b8a6);
+  background: linear-gradient(135deg, #0f766e, #14b8a6);
   color: white;
   display: flex;
   align-items: center;
@@ -349,7 +349,7 @@
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #0d9488, #14b8a6);
+  background: linear-gradient(90deg, #0f766e, #14b8a6);
   border-radius: 4px;
   transition: width 0.3s;
 }

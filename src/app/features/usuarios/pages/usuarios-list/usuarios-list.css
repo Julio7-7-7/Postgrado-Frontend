@@ -24,7 +24,7 @@
   width: 40px;
   height: 40px;
   border-radius: 12px;
-  background: linear-gradient(135deg, #0ea5e9, #38bdf8);
+  background: linear-gradient(135deg, #075985, #38bdf8);
   color: white;
   display: flex;
   align-items: center;
@@ -118,9 +118,9 @@
   height: 20px;
 }
 
-.av-alumno { background: linear-gradient(135deg, #0891b2, #22d3ee); }
-.av-docente { background: linear-gradient(135deg, #0d9488, #2dd4bf); }
-.av-admin { background: linear-gradient(135deg, #0284c7, #38bdf8); }
+.av-alumno { background: linear-gradient(135deg, #0e7490, #22d3ee); }
+.av-docente { background: linear-gradient(135deg, #0f766e, #2dd4bf); }
+.av-admin { background: linear-gradient(135deg, #0369a1, #38bdf8); }
 .av-sin { background: var(--fich-border); color: var(--fich-text-x-faint); }
 
 .usuario-info {
@@ -192,9 +192,9 @@
   white-space: nowrap;
 }
 
-.perfil-chip.av-alumno { background: #ecfeff; color: #0891b2; }
-.perfil-chip.av-docente { background: #f0fdfa; color: #0d9488; }
-.perfil-chip.av-admin { background: var(--fich-est-verificacion-bg); color: #0284c7; }
+.perfil-chip.av-alumno { background: #ecfeff; color: #0e7490; }
+.perfil-chip.av-docente { background: #f0fdfa; color: #0f766e; }
+.perfil-chip.av-admin { background: var(--fich-est-verificacion-bg); color: #0369a1; }
 .perfil-chip.av-sin { background: var(--fich-border-light); color: var(--fich-text-x-faint); }
 
 .rol-pill {

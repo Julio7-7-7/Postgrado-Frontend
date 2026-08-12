@@ -128,7 +128,7 @@ export interface ReordenarModulosData {
     .reorden-fechas-cambiada mat-icon { color: var(--fich-primary); }
     .reorden-estado { font-size: 0.72rem; font-weight: 700; padding: 2px 10px; border-radius: var(--fich-radius-full); text-transform: uppercase; letter-spacing: 0.03em; }
     .r-estado-programado { background: #eff6ff; color: #2563eb; }
-    .r-estado-en_curso { background: #f0fdf4; color: #16a34a; }
+    .r-estado-en_curso { background: #f0fdf4; color: #15803d; }
     .r-estado-reprogramado { background: #f5f3ff; color: #7c3aed; }
     .r-estado-finalizado { background: #f1f5f9; color: #64748b; }
     .reorden-handle { color: var(--fich-text-faint); cursor: grab; }

@@ -115,7 +115,7 @@ export interface SolicitudIncorporacionDialogData {
     .header-left { display: flex; align-items: center; gap: 14px; min-width: 0; }
     .avatar-lg {
       width: 48px; height: 48px; border-radius: 12px;
-      background: linear-gradient(135deg, #0d9488, #14b8a6);
+      background: linear-gradient(135deg, #0f766e, #14b8a6);
       color: white; display: flex; align-items: center; justify-content: center;
       font-weight: 700; font-size: 1rem; flex-shrink: 0;
     }
@@ -162,7 +162,7 @@ export interface SolicitudIncorporacionDialogData {
     .doc-status { flex-shrink: 0; }
     .status-icon { font-size: 22px; width: 22px; height: 22px; }
     .icon-uploaded { color: #10b981; }
-    .icon-pending { color: #94a3b8; }
+    .icon-pending { color: #64748b; }
 
     .doc-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
     .doc-name { font-weight: 600; color: var(--fich-text); font-size: 0.9rem; }

@@ -22,7 +22,7 @@
   gap: 8px;
 }
 
-.header-section h1 mat-icon { color: #0d9488; }
+.header-section h1 mat-icon { color: #0f766e; }
 
 .subtitle {
   margin: 2px 0 0;
@@ -92,7 +92,7 @@
 .stat-chip.migracion:hover,
 .stat-chip.migracion.active {
   background: var(--fich-est-verificacion-border);
-  box-shadow: 0 0 0 2px #0ea5e9;
+  box-shadow: 0 0 0 2px #0e7490;
 }
 
 .stat-chip.reincorporacion {
@@ -186,7 +186,7 @@
 
 /* Avatar by tipo */
 .avatar-inc { background: linear-gradient(135deg, #3b82f6, #60a5fa); }
-.avatar-migr { background: linear-gradient(135deg, #0ea5e9, #38bdf8); }
+.avatar-migr { background: linear-gradient(135deg, #0e7490, #38bdf8); }
 .avatar-reincorporacion { background: linear-gradient(135deg, var(--fich-primary), #818cf8); }
 
 /* Table */
@@ -284,7 +284,7 @@
   width: 26px;
   height: 26px;
   border-radius: 50%;
-  background: #0d9488;
+  background: #0f766e;
   color: white;
   display: flex;
   align-items: center;
@@ -505,10 +505,10 @@
 }
 .paginator-page:hover { background: var(--fich-border-light); }
 .paginator-page.active {
-  background: #0d9488;
+  background: #0f766e;
   color: white;
   font-weight: 600;
-  border-color: #0d9488;
+  border-color: #0f766e;
 }
 
 .paginator-perpage {

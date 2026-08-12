@@ -154,7 +154,7 @@
 
 .meta-tag.tipo { background: #ede9fe; color: var(--fich-est-reprogramado); }
 .meta-tag.gestion { background: var(--fich-est-programado-border); color: #1e40af; }
-.meta-tag.modalidad { background: #f0fdfa; color: #0d9488; }
+.meta-tag.modalidad { background: #f0fdfa; color: #0f766e; }
 
 .action-btn {
   width: 100%;

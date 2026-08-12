@@ -58,7 +58,7 @@ export class PublicHomeComponent implements OnInit, AfterViewInit {
       icon: 'assured_workload',
       titulo: 'Gestión de la Calidad',
       desc: 'Estándares académicos rigurosos, mejora continua y seguimiento personalizado para asegurar la excelencia educativa.',
-      color: '#0d9488',
+      color: '#0f766e',
     },
     {
       icon: 'laptop',
@@ -70,7 +70,7 @@ export class PublicHomeComponent implements OnInit, AfterViewInit {
       icon: 'automation',
       titulo: 'Digitalización',
       desc: 'Gestión documental y de trámites 100% digital, eliminando barreras burocráticas y agilizando los procesos institucionales.',
-      color: '#d97706',
+      color: '#b45309',
     },
   ];
 

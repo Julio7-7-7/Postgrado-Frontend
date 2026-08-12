@@ -67,7 +67,7 @@
             <mat-card-content>
               <div class="card-info">
                 <div class="card-tags">
-                  <span class="card-estado" [style.background]="getBannerGradient(ed.estado) + '20'" [style.color]="getBannerGradient(ed.estado).includes('0d9488') ? '#0d9488' : getBannerGradient(ed.estado).includes('1e3a8a') ? '#1e3a8a' : getBannerGradient(ed.estado).includes('ca8a04') ? '#ca8a04' : '#1e3a8a'">
+                  <span class="card-estado" [style.background]="getBannerGradient(ed.estado) + '20'" [style.color]="getBannerGradient(ed.estado).includes('0d9488') ? '#0f766e' : getBannerGradient(ed.estado).includes('1e3a8a') ? '#1e3a8a' : getBannerGradient(ed.estado).includes('ca8a04') ? '#b45309' : '#1e3a8a'">
                     {{ ed.estado === 'en_curso' ? 'En curso' : ed.estado === 'programado' ? 'Próximo' : ed.estado }}
                   </span>
                   <span class="card-edicion">Ed. {{ ed.edicion }} — {{ ed.gestion }}</span>
