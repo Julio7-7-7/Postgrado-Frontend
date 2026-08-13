@@ -21,10 +21,6 @@ export class RolesService extends ApiService {
     return this.http.put<RolResponse>(`${this.baseUrl}/roles/${id}`, data);
   }
 
-  delete(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/roles/${id}`);
-  }
-
   getAllPermisos(): Observable<PermisoResponse[]> {
     return this.http.get<PermisoResponse[]>(`${this.baseUrl}/permisos/`);
   }

@@ -79,7 +79,7 @@
   font-size: 16px;
   width: 16px;
   height: 16px;
-  color: #0891b2;
+  color: #0e7490;
 }
 
 .roles-badge {
@@ -89,7 +89,7 @@
   padding: 2px 8px;
   border-radius: 6px;
   background: #ecfeff;
-  color: #0891b2;
+  color: #0e7490;
 }
 
 .full-width { width: 100%; }
@@ -125,7 +125,7 @@
 }
 
 .role-chip.selected {
-  border-color: #0891b2;
+  border-color: #0e7490;
   background: #ecfeff;
 }
 
@@ -191,7 +191,7 @@ mat-card-actions button mat-spinner {
 }
 
 .wizard-step.active .step-circle {
-  background: #0891b2;
+  background: #0e7490;
   color: white;
 }
 
@@ -207,7 +207,7 @@ mat-card-actions button mat-spinner {
 }
 
 .wizard-step.active .step-label {
-  color: #0891b2;
+  color: #0e7490;
 }
 
 .step-line {
@@ -276,11 +276,11 @@ mat-card-actions button mat-spinner {
   color: var(--fich-success);
 }
 
-.tc-alumno .tipo-icon { color: #0891b2; }
-.tc-alumno.selected { border-color: #0891b2; background: #ecfeff; }
+.tc-alumno .tipo-icon { color: #0e7490; }
+.tc-alumno.selected { border-color: #0e7490; background: #ecfeff; }
 
-.tc-docente .tipo-icon { color: #0d9488; }
-.tc-docente.selected { border-color: #0d9488; background: #f0fdfa; }
+.tc-docente .tipo-icon { color: #0f766e; }
+.tc-docente.selected { border-color: #0f766e; background: #f0fdfa; }
 
 .tc-administrativo .tipo-icon { color: var(--fich-primary-hover); }
 .tc-administrativo.selected { border-color: var(--fich-primary-hover); background: var(--fich-est-convocatoria-bg); }
@@ -304,7 +304,7 @@ mat-card-actions button mat-spinner {
   padding: 2px 8px;
   border-radius: 6px;
   background: #ecfeff;
-  color: #0891b2;
+  color: #0e7490;
 }
 
 /* ===== Roles aviso ===== */
@@ -324,7 +324,7 @@ mat-card-actions button mat-spinner {
   font-size: 16px;
   width: 16px;
   height: 16px;
-  color: #0891b2;
+  color: #0e7490;
 }
 
 .roles-aviso.muted mat-icon {
@@ -388,7 +388,7 @@ mat-card-actions button mat-spinner {
   font-size: 15px;
   width: 15px;
   height: 15px;
-  color: #0891b2;
+  color: #0e7490;
 }
 
 .cred-right {
@@ -406,7 +406,7 @@ mat-card-actions button mat-spinner {
 .cred-value {
   font-size: 0.85rem;
   font-weight: 700;
-  color: #0891b2;
+  color: #0e7490;
   background: #ecfeff;
   padding: 4px 10px;
   border-radius: 6px;

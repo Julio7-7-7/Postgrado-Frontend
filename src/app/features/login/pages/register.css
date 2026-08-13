@@ -151,13 +151,13 @@ button.full-width[type="submit"] mat-icon {
 }
 
 .wizard-step.active .step-circle {
-  background: #0d9488;
+  background: #0f766e;
   color: white;
   box-shadow: 0 0 0 4px rgba(13, 148, 136, 0.15);
 }
 
 .wizard-step.done .step-circle {
-  background: #0d9488;
+  background: #0f766e;
   color: white;
 }
 
@@ -176,11 +176,11 @@ button.full-width[type="submit"] mat-icon {
 }
 
 .wizard-step.active .step-label {
-  color: #0d9488;
+  color: #0f766e;
 }
 
 .wizard-step.done .step-label {
-  color: #0d9488;
+  color: #0f766e;
 }
 
 .step-line {
@@ -193,7 +193,7 @@ button.full-width[type="submit"] mat-icon {
 }
 
 .step-line.done {
-  background: #0d9488;
+  background: #0f766e;
 }
 
 /* ─── Paneles del wizard ─── */

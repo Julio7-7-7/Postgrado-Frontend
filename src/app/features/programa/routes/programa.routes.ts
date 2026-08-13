@@ -1,8 +1,8 @@
 import { Routes } from '@angular/router';
-import { ProgramaListComponent } from '../pages/programa-list/programa-list';
+import { ProgramaExplorerComponent } from '../pages/programa-explorer/programa-explorer';
 
 export const PROGRAMA_ROUTES: Routes = [
-  { path: '', component: ProgramaListComponent },
+  { path: '', component: ProgramaExplorerComponent },
   {
     path: ':id/versiones',
     loadChildren: () =>

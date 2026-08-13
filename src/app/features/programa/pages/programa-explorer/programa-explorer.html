@@ -1,0 +1,354 @@
+<div class="page-container">
+  <div class="header-section">
+    <div class="header-left">
+      <div>
+        <h2>Programas Académicos</h2>
+        <p class="subtitle">Explorá la oferta académica completa</p>
+      </div>
+      @if (!isLoading()) {
+        <div class="summary-strip">
+          <span class="summary-chip">
+            <mat-icon>school</mat-icon>
+            {{ totalProgramas() }} programas
+          </span>
+          <span class="summary-sep"></span>
+          <span class="summary-chip">
+            <mat-icon>layers</mat-icon>
+            {{ totalVersiones() }} versiones
+          </span>
+          <span class="summary-sep"></span>
+          <span class="summary-chip">
+            <mat-icon>event</mat-icon>
+            {{ totalEdiciones() }} ediciones
+          </span>
+        </div>
+      }
+    </div>
+    <div class="header-right">
+      <button mat-raised-button color="primary" (click)="abrirFormulario()" class="btn-nuevo">
+        <mat-icon>add</mat-icon>
+        <span>Nuevo Programa</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="filters-bar">
+    <mat-form-field appearance="outline" class="search-field" subscriptSizing="dynamic">
+      <mat-icon matPrefix>search</mat-icon>
+      <mat-label>Buscar programa</mat-label>
+      <input
+        matInput
+        type="text"
+        placeholder="Ej: Diplomado"
+        [ngModel]="terminoBusqueda()"
+        (ngModelChange)="terminoBusqueda.set($event)"
+      />
+      @if (terminoBusqueda()) {
+        <button mat-icon-button matSuffix aria-label="Limpiar búsqueda" (click)="terminoBusqueda.set('')">
+          <mat-icon>close</mat-icon>
+        </button>
+      }
+    </mat-form-field>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading-state">
+      <mat-spinner diameter="50" color="primary"></mat-spinner>
+      <p>Cargando programas...</p>
+    </div>
+  } @else if (error()) {
+    <div class="empty-state error-state">
+      <mat-icon>cloud_off</mat-icon>
+      <h3>No se pudo conectar</h3>
+      <p>{{ error() }}</p>
+      <button mat-raised-button color="primary" (click)="cargarDatos()">Reintentar</button>
+    </div>
+  } @else {
+    <div class="explorer-list stagger-list">
+      @for (programa of listaActivos(); track programa.id_programa) {
+        <mat-card class="explorer-card" [class.expandido]="esProgramaExpandido(programa.id_programa)">
+          <div class="programa-head" (click)="togglePrograma(programa)">
+            <div class="programa-foto">
+              @if (getFotoUrl(programa.foto)) {
+                <img [src]="getFotoUrl(programa.foto)" (error)="onImgError($event)" alt="Foto del programa" />
+              } @else {
+                <mat-icon>school</mat-icon>
+              }
+            </div>
+            <div class="programa-info">
+              <h3>{{ programa.nombre_programa }}</h3>
+              <p class="programa-tipo">{{ programa.tipo_programa.nombre }}</p>
+            </div>
+            <div class="spacer"></div>
+            <div class="head-actions" (click)="$event.stopPropagation()">
+              <button mat-stroked-button color="primary" (click)="nuevaVersion(programa)" class="head-btn">
+                <mat-icon>add</mat-icon> Versión
+              </button>
+              <button mat-icon-button matTooltip="Editar programa" (click)="editarPrograma(programa)" class="head-icon-btn">
+                <mat-icon>edit</mat-icon>
+              </button>
+            </div>
+            <div class="programa-stats">
+              <span class="count-chip">
+                <mat-icon>layers</mat-icon>
+                {{ versionesDe(programa.id_programa).length }} vers.
+              </span>
+              <mat-icon class="chevron" [class.abierto]="esProgramaExpandido(programa.id_programa)">expand_more</mat-icon>
+            </div>
+          </div>
+
+          @if (esProgramaExpandido(programa.id_programa)) {
+            <div class="programa-body">
+              @if (cargandoVersiones(programa.id_programa)) {
+                <div class="inline-loading">
+                  <mat-spinner diameter="28" color="primary"></mat-spinner>
+                  <span>Cargando versiones...</span>
+                </div>
+              }
+
+              @for (version of versionesDe(programa.id_programa); track version.id_programa_version) {
+                <div class="version-row" [class.abierto]="esVersionExpandida(version.id_programa_version)">
+                  <div class="version-head" (click)="toggleVersion(version)">
+                    <div class="version-monogram">
+                      <mat-icon>layers</mat-icon>
+                      <span>V{{ version.version }}</span>
+                    </div>
+                    <div class="version-main">
+                      <div class="version-title-row">
+                        <span class="version-title">Versión {{ version.version }}</span>
+                        @if (version.vigente) {
+                          <span class="vigente-pill">
+                            <span class="vigente-dot"></span>
+                            Vigente
+                          </span>
+                        }
+                      </div>
+                      <span class="version-desc">{{ version.descripcion || 'Sin descripción' }}</span>
+                    </div>
+                    <div class="spacer"></div>
+                    <div class="head-actions" (click)="$event.stopPropagation()">
+                      <button
+                        mat-stroked-button
+                        color="primary"
+                        (click)="toggleVigente(version, programa)"
+                        class="vigente-btn"
+                        [class.on]="version.vigente"
+                        [matTooltip]="version.vigente ? 'Quitar el estado vigente' : 'Marcar como versión vigente'"
+                      >
+                        <mat-icon>{{ version.vigente ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+                        <span>{{ version.vigente ? 'Vigente' : 'Marcar vigente' }}</span>
+                      </button>
+                      <button mat-stroked-button (click)="nuevaEdicion(programa.id_programa, version.id_programa_version)" class="head-btn">
+                        <mat-icon>add</mat-icon> Edición
+                      </button>
+                      <button mat-icon-button matTooltip="Editar versión" (click)="editarVersion(programa, version)" class="head-icon-btn">
+                        <mat-icon>edit</mat-icon>
+                      </button>
+                      <button mat-icon-button matTooltip="Módulos de la versión" (click)="irAModulosVersion(programa.id_programa, version.id_programa_version)" class="head-icon-btn">
+                        <mat-icon>menu_book</mat-icon>
+                      </button>
+                    </div>
+                    <div class="version-stats">
+                      <span class="count-chip">
+                        <mat-icon>event</mat-icon>
+                        {{ version.ediciones_count }} edic.
+                      </span>
+                      <mat-icon class="chevron" [class.abierto]="esVersionExpandida(version.id_programa_version)">expand_more</mat-icon>
+                    </div>
+                  </div>
+
+                  @if (esVersionExpandida(version.id_programa_version)) {
+                    <div class="version-body">
+                      @if (cargandoEdiciones(version.id_programa_version)) {
+                        <div class="inline-loading">
+                          <mat-spinner diameter="26" color="primary"></mat-spinner>
+                          <span>Cargando ediciones...</span>
+                        </div>
+                      }
+
+                      <div class="ediciones-rail">
+                        @for (edicion of edicionesDe(version.id_programa_version); track edicion.id_programa_version_edicion) {
+                          <div class="edicion-row" (click)="irAModulos(programa.id_programa, version.id_programa_version, edicion.id_programa_version_edicion)">
+                            <span class="edicion-bar" [style.background]="edicionColor(edicion)"></span>
+                            <div class="edicion-avatar" [style.background]="edicionColor(edicion) + '1f'">
+                              <mat-icon [style.color]="edicionColor(edicion)">{{ modalidadIcono(edicion.modalidad) }}</mat-icon>
+                            </div>
+                            <div class="edicion-main">
+                              <div class="edicion-title">
+                                <span class="edicion-badge">E{{ edicion.edicion }}</span>
+                                <span class="edicion-gestion">{{ edicion.gestion }}</span>
+                                @if (edicion.semestre) {
+                                  <span class="semestre-chip">Sem. {{ edicion.semestre }}</span>
+                                }
+                              </div>
+                              <div class="edicion-sub">
+                                <span class="edicion-modalidad">{{ modalidadLabel(edicion.modalidad) }}</span>
+                                <span class="edicion-dot">·</span>
+                                <span class="edicion-fechas">
+                                  {{ edicion.fecha_inicio ? (edicion.fecha_inicio | date: 'd MMM yyyy') : '—' }}
+                                  – {{ edicion.fecha_fin ? (edicion.fecha_fin | date: 'd MMM yyyy') : '—' }}
+                                </span>
+                                @if (edicion.cupo_maximo != null) {
+                                  <span class="edicion-dot">·</span>
+                                  <span class="edicion-cupo">
+                                    <mat-icon>group</mat-icon>
+                                    {{ edicion.cupo_maximo }} cupos
+                                  </span>
+                                }
+                              </div>
+                            </div>
+                            <div class="spacer"></div>
+                            @if (edicion.precio != null) {
+                              <span class="edicion-precio">Bs {{ edicion.precio }}</span>
+                            }
+                            <span class="estado-pill" [class]="estadoClass(edicion.estado)">
+                              <span class="pill-dot"></span>
+                              {{ estadoLabel(edicion.estado) }}
+                            </span>
+                            <div class="edicion-acciones" (click)="$event.stopPropagation()">
+                              <button mat-icon-button matTooltip="Editar edición" (click)="editarEdicion(programa.id_programa, version.id_programa_version, edicion.id_programa_version_edicion)">
+                                <mat-icon>edit</mat-icon>
+                              </button>
+                              <button mat-icon-button matTooltip="Postulantes" (click)="verPostulantes(programa.id_programa, version.id_programa_version, edicion.id_programa_version_edicion)">
+                                <mat-icon>people</mat-icon>
+                              </button>
+                              <button mat-icon-button matTooltip="Historial" (click)="verHistorial(programa.id_programa, version.id_programa_version, edicion.id_programa_version_edicion)">
+                                <mat-icon>history</mat-icon>
+                              </button>
+                              <button mat-icon-button matTooltip="Módulos" (click)="irAModulos(programa.id_programa, version.id_programa_version, edicion.id_programa_version_edicion)">
+                                <mat-icon>menu_book</mat-icon>
+                              </button>
+                            </div>
+                          </div>
+                        }
+
+                        @if (paginacionEdiciones(version.id_programa_version).page < paginacionEdiciones(version.id_programa_version).pages) {
+                          <button class="cargar-mas" (click)="cargarMasEdiciones(version.id_programa_version)">
+                            <mat-icon>expand_more</mat-icon>
+                            Cargar más ediciones
+                          </button>
+                        }
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+
+              @if (versionesDe(programa.id_programa).length === 0 && !cargandoVersiones(programa.id_programa)) {
+                <div class="empty-state mini">
+                  <mat-icon>layers_clear</mat-icon>
+                  <p>Este programa aún no tiene versiones.</p>
+                </div>
+              }
+
+              @if (paginacionVersiones(programa.id_programa).page < paginacionVersiones(programa.id_programa).pages) {
+                <button class="cargar-mas" (click)="cargarMasVersiones(programa.id_programa)">
+                  <mat-icon>expand_more</mat-icon>
+                  Cargar más versiones
+                </button>
+              }
+            </div>
+          }
+        </mat-card>
+      } @empty {
+        <div class="empty-state">
+          <mat-icon>school_outlined</mat-icon>
+          <h3>No hay programas registrados</h3>
+          <p>Creá tu primer programa para comenzar</p>
+          <button mat-raised-button color="primary" (click)="abrirFormulario()">Crear programa</button>
+        </div>
+      }
+
+      @if (listaInactivos().length > 0) {
+        <div class="inactive-section">
+          <button mat-button class="btn-inactivos" (click)="showInactivos.set(!showInactivos())">
+            <mat-icon>{{ showInactivos() ? 'expand_less' : 'expand_more' }}</mat-icon>
+            Programas inactivos ({{ listaInactivos().length }})
+          </button>
+          @if (showInactivos()) {
+            <div class="inactive-list stagger-list">
+              @for (programa of listaInactivos(); track programa.id_programa) {
+                <mat-card class="explorer-card inactivo">
+                  <div class="programa-head" (click)="togglePrograma(programa)">
+                    <div class="programa-foto">
+                      @if (getFotoUrl(programa.foto)) {
+                        <img [src]="getFotoUrl(programa.foto)" (error)="onImgError($event)" alt="Foto del programa" />
+                      } @else {
+                        <mat-icon>school</mat-icon>
+                      }
+                    </div>
+                    <div class="programa-info">
+                      <h3>{{ programa.nombre_programa }}</h3>
+                      <p class="programa-tipo">{{ programa.tipo_programa.nombre }}</p>
+                    </div>
+                    <div class="spacer"></div>
+                    <div class="programa-stats">
+                      <span class="count-chip">{{ programa.estado }}</span>
+                      <mat-icon class="chevron" [class.abierto]="esProgramaExpandido(programa.id_programa)">expand_more</mat-icon>
+                    </div>
+                  </div>
+                  @if (esProgramaExpandido(programa.id_programa)) {
+                    <div class="programa-body">
+                      @for (version of versionesDe(programa.id_programa); track version.id_programa_version) {
+                        <div class="version-row">
+                          <div class="version-head" (click)="toggleVersion(version)">
+                            <div class="version-monogram">
+                              <mat-icon>layers</mat-icon>
+                              <span>V{{ version.version }}</span>
+                            </div>
+                            <div class="version-main">
+                              <div class="version-title-row">
+                                <span class="version-title">Versión {{ version.version }}</span>
+                              </div>
+                              <span class="version-desc">{{ version.descripcion || 'Sin descripción' }}</span>
+                            </div>
+                            <div class="spacer"></div>
+                            <div class="version-stats">
+                              <span class="count-chip">
+                                <mat-icon>event</mat-icon>
+                                {{ version.ediciones_count }} edic.
+                              </span>
+                              <mat-icon class="chevron" [class.abierto]="esVersionExpandida(version.id_programa_version)">expand_more</mat-icon>
+                            </div>
+                          </div>
+                          @if (esVersionExpandida(version.id_programa_version)) {
+                            <div class="version-body">
+                              @for (edicion of edicionesDe(version.id_programa_version); track edicion.id_programa_version_edicion) {
+                                <div class="edicion-row inactiva" (click)="irAModulos(programa.id_programa, version.id_programa_version, edicion.id_programa_version_edicion)">
+                                  <span class="edicion-bar" [style.background]="edicionColor(edicion)"></span>
+                                  <div class="edicion-avatar" [style.background]="edicionColor(edicion) + '1f'">
+                                    <mat-icon [style.color]="edicionColor(edicion)">{{ modalidadIcono(edicion.modalidad) }}</mat-icon>
+                                  </div>
+                                  <div class="edicion-main">
+                                    <div class="edicion-title">
+                                      <span class="edicion-badge">E{{ edicion.edicion }}</span>
+                                      <span class="edicion-gestion">{{ edicion.gestion }}</span>
+                                    </div>
+                                    <div class="edicion-sub">
+                                      <span class="edicion-modalidad">{{ modalidadLabel(edicion.modalidad) }}</span>
+                                      <span class="edicion-dot">·</span>
+                                      <span class="edicion-fechas">{{ edicion.fecha_inicio ? (edicion.fecha_inicio | date: 'd MMM yyyy') : '—' }} – {{ edicion.fecha_fin ? (edicion.fecha_fin | date: 'd MMM yyyy') : '—' }}</span>
+                                    </div>
+                                  </div>
+                                  <div class="spacer"></div>
+                                  <span class="estado-pill" [class]="estadoClass(edicion.estado)">
+                                    <span class="pill-dot"></span>
+                                    {{ estadoLabel(edicion.estado) }}
+                                  </span>
+                                </div>
+                              }
+                            </div>
+                          }
+                        </div>
+                      }
+                    </div>
+                  }
+                </mat-card>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>

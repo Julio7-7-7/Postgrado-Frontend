@@ -1,5 +1,7 @@
 /* ===== Transacciones de pago (boletas) ===== */
 
+import { OrdenPagoResponse } from './orden-pago.model';
+
 export interface PagoItemResponse {
   id_pago: number;
   id_transaccion: number;
@@ -11,6 +13,8 @@ export interface PagoItemResponse {
 export interface TransaccionPagoResponse {
   id_transaccion: number;
   id_detalle_programa_alumno: number;
+  id_orden_pago: number | null;
+  orden_numero: string | null;
   monto_total: number;
   fecha_pago: string;
   comprobante: string | null;
@@ -24,27 +28,8 @@ export interface TransaccionPagoResponse {
   pagos: PagoItemResponse[];
 }
 
-export interface TransaccionPagoCreate {
-  id_detalle_programa_alumno: number;
-  id_detalle_programa_modulo?: number | null;
-  monto: number;
-  fecha_pago: string;
-  comprobante?: string | null;
-}
-
 export interface TransaccionPagoBaja {
   motivo_anulacion: string;
-}
-
-export interface PreviewAsignacion {
-  tipo: 'matricula' | 'cuota';
-  id_detalle_programa_modulo: number | null;
-  concepto: string;
-  monto: number;
-}
-
-export interface PreviewResponse {
-  asignaciones: PreviewAsignacion[];
 }
 
 export interface MisPagosResponse {
@@ -56,6 +41,8 @@ export interface MisPagosResponse {
 
 export interface TransaccionTranscript {
   id_transaccion: number;
+  id_orden_pago: number | null;
+  orden_numero: string | null;
   fecha_pago: string;
   monto_total: number;
   comprobante: string | null;
@@ -159,6 +146,7 @@ export interface OtrosPagos {
 
 export interface AlumnoPagosMatrix {
   id_detalle_programa_alumno: number;
+  orden_activa: OrdenPagoResponse | null;
   alumno: {
     id_alumno: number;
     nombre: string;

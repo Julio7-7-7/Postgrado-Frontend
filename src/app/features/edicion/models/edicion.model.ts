@@ -38,3 +38,11 @@ export interface ProgramaVersionEdicionCreate {
   precio?: number | null;
   matricula?: number | null;
 }
+
+export interface PaginatedProgramaVersionEdicion {
+  items: ProgramaVersionEdicion[];
+  total: number;
+  page: number;
+  per_page: number;
+  pages: number;
+}

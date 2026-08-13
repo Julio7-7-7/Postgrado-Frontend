@@ -58,7 +58,7 @@
 .tab-btn mat-icon { font-size: 18px; width: 18px; height: 18px; }
 .tab-btn:hover { background: var(--fich-bg-hover, var(--fich-border-light)); color: var(--fich-text, var(--fich-text)); }
 .tab-btn.active {
-  background: #fff; color: #0891b2; box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  background: #fff; color: #0e7490; box-shadow: 0 1px 3px rgba(0,0,0,0.08);
 }
 .tab-count {
   min-width: 22px; height: 22px; padding: 0 6px; border-radius: 9999px;
@@ -181,10 +181,10 @@
 .progress-bar-wrapper { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
 .progress-bar { flex: 1; height: 6px; background: var(--fich-border); border-radius: 3px; overflow: hidden; }
 .progress-fill {
-  height: 100%; background: linear-gradient(90deg, #0d9488, #14b8a6);
+  height: 100%; background: linear-gradient(90deg, #0f766e, #14b8a6);
   border-radius: 3px; transition: width 0.5s ease;
 }
-.progress-text { font-size: 0.8rem; font-weight: 600; color: #0d9488; min-width: 36px; }
+.progress-text { font-size: 0.8rem; font-weight: 600; color: #0f766e; min-width: 36px; }
 
 .docs-group-title {
   font-size: 0.8rem; font-weight: 600; color: var(--fich-text-faint); text-transform: uppercase;
@@ -205,10 +205,10 @@
 .doc-item.doc-aceptado { border-left-color: var(--fich-success); }
 .doc-item.doc-rechazado { border-left-color: var(--fich-danger); }
 .doc-item.doc-entregado { border-left-color: var(--fich-warning); }
-.doc-item.doc-uploading { background: #f0fdfa; border-color: #99f6e4; border-left-color: #0d9488; }
-.doc-item.doc-success { background: #f0fdfa; border-color: #0d9488; border-left-color: #0d9488; animation: successFlash 0.4s; }
+.doc-item.doc-uploading { background: #f0fdfa; border-color: #99f6e4; border-left-color: #0f766e; }
+.doc-item.doc-success { background: #f0fdfa; border-color: #0f766e; border-left-color: #0f766e; animation: successFlash 0.4s; }
 .doc-item.doc-pending-confirm { background: var(--fich-est-programado-bg); border-color: var(--fich-est-programado-border); border-left-color: #3b82f6; }
-@keyframes successFlash { 0% { border-color: #0d9488; box-shadow: 0 0 0 3px rgba(13,148,136,0.15); } 100% { box-shadow: none; } }
+@keyframes successFlash { 0% { border-color: #0f766e; box-shadow: 0 0 0 3px rgba(13,148,136,0.15); } 100% { box-shadow: none; } }
 
 .doc-left { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
 .doc-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
@@ -226,7 +226,7 @@
   text-decoration: underline; text-decoration-color: transparent;
   transition: text-decoration-color 0.2s; display: block;
 }
-.doc-name:hover { text-decoration-color: #0d9488; }
+.doc-name:hover { text-decoration-color: #0f766e; }
 .doc-meta { display: flex; align-items: center; gap: 4px; margin-top: 2px; }
 .doc-status-text { font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; }
 .doc-date { font-size: 0.72rem; color: var(--fich-text-x-faint); }
@@ -436,7 +436,7 @@
 .migracion-card .reincorporacion-text h3 { color: var(--fich-est-verificacion); }
 .migracion-card.pendiente .reincorporacion-text h3 { color: #92400e; }
 .migracion-card.rechazada .reincorporacion-text h3 { color: var(--fich-danger); }
-.migracion-card .reincorporacion-text p { color: #0284c7; }
+.migracion-card .reincorporacion-text p { color: #0369a1; }
 .migracion-card.pendiente .reincorporacion-text p { color: var(--fich-warning); }
 .migracion-card.rechazada .reincorporacion-text p { color: var(--fich-danger); }
 
@@ -446,7 +446,7 @@
   padding: 10px 12px; font-size: 0.78rem; line-height: 1.5; color: #0e7490;
 }
 .migracion-info-note mat-icon {
-  font-size: 18px; width: 18px; height: 18px; color: #0891b2; flex-shrink: 0; margin-top: 1px;
+  font-size: 18px; width: 18px; height: 18px; color: #0e7490; flex-shrink: 0; margin-top: 1px;
 }
 
 /* ===== Mis Notas (tablero del alumno) ===== */
@@ -469,7 +469,7 @@
   background: #ecfeff; border: 2px solid #a5f3fc;
   font-variant-numeric: tabular-nums;
 }
-.mod-num.aprobado { background: #0891b2; border-color: #0891b2; color: #fff; }
+.mod-num.aprobado { background: #0e7490; border-color: #0e7490; color: #fff; }
 .mod-name {
   font-size: 0.72rem; color: var(--fich-text-secondary); text-align: center; line-height: 1.25;
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
@@ -535,7 +535,7 @@
 .fin-bar { height: 8px; border-radius: 4px; background: var(--fich-border); overflow: hidden; }
 .fin-bar-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
 .fin-bar-fill.total { background: linear-gradient(90deg, var(--fich-success), #4ade80); }
-.fin-bar-fill.matricula { background: #0ea5e9; }
+.fin-bar-fill.matricula { background: #0e7490; }
 .fin-bar-fill.cuotas { background: var(--fich-success); }
 .fin-saldo { display: flex; align-items: center; gap: 8px; margin-top: 10px; font-size: 0.82rem; font-weight: 600; }
 .fin-saldo.pendiente { color: var(--fich-est-pendiente); }

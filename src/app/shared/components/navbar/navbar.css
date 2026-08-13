@@ -221,8 +221,14 @@
 
 :host ::ng-deep .nav-active.mat-mdc-button {
   background: var(--fich-primary-light) !important;
-  --mdc-text-button-label-text-color: var(--fich-primary) !important;
+  border-color: var(--fich-primary-lighter) !important;
+  --mdc-text-button-label-text-color: var(--nav-accent, var(--fich-primary)) !important;
   font-weight: 600;
+}
+
+:host ::ng-deep .nav-active.mat-mdc-button .mdc-button__label,
+:host ::ng-deep .nav-active .nav-label {
+  color: var(--nav-accent, var(--fich-primary)) !important;
 }
 
 :host ::ng-deep .nav-active::after {

@@ -189,7 +189,7 @@
 }
 
 .person-icon {
-  background: linear-gradient(135deg, #0891b2, #06b6d4);
+  background: linear-gradient(135deg, #0e7490, #06b6d4);
 }
 
 .school-icon {
@@ -197,7 +197,7 @@
 }
 
 .docs-icon {
-  background: linear-gradient(135deg, #0d9488, #14b8a6);
+  background: linear-gradient(135deg, #0f766e, #14b8a6);
 }
 
 .discount-icon {
@@ -369,13 +369,13 @@
 }
 
 .wizard-step.active .step-circle {
-  background: #0d9488;
+  background: #0f766e;
   color: white;
   box-shadow: 0 0 0 4px rgba(13, 148, 136, 0.15);
 }
 
 .wizard-step.done .step-circle {
-  background: #0d9488;
+  background: #0f766e;
   color: white;
 }
 
@@ -394,11 +394,11 @@
 }
 
 .wizard-step.active .step-label {
-  color: #0d9488;
+  color: #0f766e;
 }
 
 .wizard-step.done .step-label {
-  color: #0d9488;
+  color: #0f766e;
 }
 
 .step-line {
@@ -411,7 +411,7 @@
 }
 
 .step-line.done {
-  background: #0d9488;
+  background: #0f766e;
 }
 
 /* ─── Gate card ─── */
@@ -439,7 +439,7 @@
   font-size: 28px;
   width: 28px;
   height: 28px;
-  color: #0d9488;
+  color: #0f766e;
 }
 
 .gate-card h3 {
@@ -481,7 +481,7 @@
 }
 
 .gate-list li mat-icon {
-  color: #0d9488;
+  color: #0f766e;
   flex-shrink: 0;
   margin-top: 2px;
 }
@@ -544,7 +544,7 @@
 
 .progress-count {
   font-weight: 700;
-  color: #0d9488;
+  color: #0f766e;
 }
 
 /* ─── Docs list ─── */
@@ -572,7 +572,7 @@
 }
 
 .doc-item.doc-uploading {
-  border-color: #0d9488;
+  border-color: #0f766e;
   background: #f0fdfa;
 }
 
@@ -585,7 +585,7 @@
 }
 
 .status-icon.done {
-  color: #0d9488;
+  color: #0f766e;
 }
 
 .status-icon.pending {
@@ -614,11 +614,11 @@
 }
 
 .doc-status-label.uploaded {
-  color: #0d9488;
+  color: #0f766e;
 }
 
 .doc-status-label.uploading {
-  color: #0d9488;
+  color: #0f766e;
 }
 
 .doc-status-label.pending-label {
@@ -640,7 +640,7 @@
 }
 .doc-clickable:hover {
   background: var(--fich-bg-card, #fff);
-  border-color: #0d9488;
+  border-color: #0f766e;
 }
 .doc-arrow {
   color: var(--fich-text-x-faint);
@@ -651,10 +651,10 @@
   transition: color 0.15s;
 }
 .doc-clickable:hover .doc-arrow {
-  color: #0d9488;
+  color: #0f766e;
 }
 .doc-arrow.expanded {
-  color: #0d9488;
+  color: #0f766e;
 }
 
 /* ─── Inline upload area ─── */
@@ -704,7 +704,7 @@
   font-size: 32px;
   width: 32px;
   height: 32px;
-  color: #0d9488;
+  color: #0f766e;
 }
 
 .success-card h3 {

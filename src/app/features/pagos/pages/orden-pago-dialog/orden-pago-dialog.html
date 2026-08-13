@@ -1,0 +1,351 @@
+<h2 mat-dialog-title>
+  <span class="dialog-header">
+    <span class="header-icon"><mat-icon>receipt</mat-icon></span>
+    <span class="header-texts">
+      <span class="header-title">
+        @if (esEmitir()) {
+          Nueva orden de pago
+        } @else {
+          Orden {{ orden()?.numero }}
+        }
+      </span>
+      <span class="dialog-subtitle">{{ nombreAlumno() }}</span>
+    </span>
+  </span>
+</h2>
+
+<div mat-dialog-content class="orden-content">
+  <div class="orden-canvas">
+
+    <section class="orden-block">
+      <header class="block-head">
+        <mat-icon>account_balance_wallet</mat-icon> Situación financiera
+      </header>
+      <div class="resumen-financiero">
+        <div class="fin-card total">
+          <span class="fin-icon"><mat-icon>school</mat-icon></span>
+          <span class="fin-label">Total del programa</span>
+          <span class="fin-val">{{ fmt(totalPrograma()) }} Bs</span>
+        </div>
+        <div class="fin-card descuento">
+          <span class="fin-icon"><mat-icon>percent</mat-icon></span>
+          <span class="fin-label">Descuento</span>
+          <span class="fin-val">{{ descuento() > 0 ? descuento() + '%' : '—' }}</span>
+        </div>
+        <div class="fin-card pagado">
+          <span class="fin-icon"><mat-icon>payments</mat-icon></span>
+          <span class="fin-label">Ya pagado</span>
+          <span class="fin-val">{{ fmt(totalPagado()) }} Bs</span>
+        </div>
+        <div class="fin-card debe">
+          <span class="fin-icon"><mat-icon>account_balance_wallet</mat-icon></span>
+          <span class="fin-label">Debe</span>
+          <span class="fin-val">{{ fmt(saldoPendiente()) }} Bs</span>
+        </div>
+      </div>
+
+      @if (becaActiva() || becaMotivo()) {
+        <div class="beca-row">
+          @if (becaActiva()) {
+            <span class="beca-chip activa"><mat-icon>workspace_premium</mat-icon> Beca activa</span>
+          }
+          @if (becaMotivo()) {
+            <span class="beca-chip perdida" [matTooltip]="becaMotivo()" [matTooltipPosition]="'above'">
+              <mat-icon>info_outline</mat-icon> Beca perdida
+            </span>
+          }
+        </div>
+      }
+    </section>
+
+    @if (esEmitir()) {
+      <section class="orden-block">
+        <header class="block-head">
+          <mat-icon>playlist_add_check</mat-icon> Qué se cobra
+        </header>
+        @if (matriculaPendiente() > 0) {
+          <div class="matricula-row pendiente">
+            <span class="matricula-label">
+              <mat-icon>assignment</mat-icon> Matrícula
+            </span>
+            <span class="matricula-monto">{{ fmt(matriculaPendiente()) }} Bs</span>
+            <span class="estado-pill pendiente">Se incluye</span>
+          </div>
+        }
+
+        @if (maxModulos() > 0) {
+          <div class="stepper-row">
+            <span class="stepper-label">
+              Cuotas de módulos sin pagar
+              <span class="stepper-hint">({{ maxModulos() }} disponible{{ maxModulos() !== 1 ? 's' : '' }})</span>
+            </span>
+            <span class="stepper">
+              <button mat-icon-button type="button" (click)="cambiarCantidad(-1)" [disabled]="cantidadModulos() === 0"
+                      matTooltip="Quitar módulo" [matTooltipPosition]="'above'">
+                <mat-icon>remove_circle_outline</mat-icon>
+              </button>
+              <span class="stepper-count">{{ cantidadModulos() }}</span>
+              <button mat-icon-button type="button" (click)="cambiarCantidad(1)" [disabled]="cantidadModulos() >= maxModulos()"
+                      matTooltip="Agregar módulo" [matTooltipPosition]="'above'">
+                <mat-icon>add_circle_outline</mat-icon>
+              </button>
+            </span>
+          </div>
+        }
+
+        @if (matriculaPendiente() > 0 || maxModulos() > 0) {
+          <p class="block-hint">
+            Todo se cobra junto en una sola orden y el monto queda fijo al emitirla.
+          </p>
+        } @else {
+          <div class="preview-box preview-empty">
+            <mat-icon>check_circle_outline</mat-icon>
+            <span>Este alumno no tiene montos pendientes de cobro.</span>
+          </div>
+        }
+      </section>
+
+      @if (maxModulos() > 0 || matriculaPendiente() > 0) {
+        <section class="orden-block">
+          <header class="block-head">
+            <mat-icon>receipt_long</mat-icon> Desglose de la orden
+          </header>
+          @if (previewError()) {
+            <div class="preview-box preview-error">
+              <div class="preview-title">Desglose de la orden</div>
+              <div class="preview-error-msg"><mat-icon>error_outline</mat-icon> {{ previewError() }}</div>
+            </div>
+          } @else if (previewLoading() && previewItems().length === 0) {
+            <div class="preview-box">
+              <div class="preview-loading"><mat-icon class="spinner-icon">sync</mat-icon> Calculando...</div>
+            </div>
+          } @else if (previewItems().length > 0) {
+            <div class="preview-box">
+              <div class="preview-head">
+                <span class="preview-title">Detalle</span>
+                <span class="preview-count">{{ previewItems().length }} concepto{{ previewItems().length !== 1 ? 's' : '' }}</span>
+              </div>
+              @for (item of previewItems(); track $index) {
+                <div class="preview-row" [class.matricula]="item.tipo === 'matricula'">
+                  <span class="preview-concepto">
+                    <span class="asig-dot" [class.matricula]="item.tipo === 'matricula'"></span>
+                    {{ item.concepto }}
+                  </span>
+                  <span class="preview-monto">{{ fmt(item.monto) }} Bs</span>
+                </div>
+              }
+              <div class="preview-total">
+                <span>Total de la orden</span>
+                <b>{{ fmt(previewTotal()) }} Bs</b>
+              </div>
+            </div>
+          }
+        </section>
+      }
+    } @else {
+      <section class="orden-block">
+        <header class="block-head">
+          <mat-icon>description</mat-icon> Orden emitida
+        </header>
+        <div class="orden-resumen" [class.anulada]="orden()?.estado === 'anulada'">
+          <div class="orden-head">
+            <span class="orden-numero">
+              <mat-icon>receipt_long</mat-icon> {{ orden()?.numero }}
+            </span>
+            <span class="estado-pill" [class.pagada]="orden()?.estado === 'pagada'"
+                  [class.anulada]="orden()?.estado === 'anulada'">
+              {{ orden()?.estado === 'pagada' ? 'Pagada' : orden()?.estado === 'anulada' ? 'Anulada' : 'Emitida' }}
+            </span>
+          </div>
+          <div class="orden-meta">
+            <span class="meta-item">Emitida el {{ fechaDisplay(orden()?.fecha_emision || '') }}</span>
+            @if (orden()?.estado === 'anulada' && orden()?.motivo_anulacion) {
+              <span class="meta-item motivo" [matTooltip]="orden()?.motivo_anulacion || ''">
+                <mat-icon>info_outline</mat-icon> {{ orden()?.motivo_anulacion }}
+              </span>
+            }
+          </div>
+
+          <div class="orden-items">
+            @for (item of orden()?.items ?? []; track $index) {
+              <div class="preview-row" [class.matricula]="item.tipo === 'matricula'">
+                <span class="preview-concepto">
+                  <span class="asig-dot" [class.matricula]="item.tipo === 'matricula'"></span>
+                  {{ item.concepto }}
+                </span>
+                <span class="preview-monto">{{ fmt(item.monto) }} Bs</span>
+              </div>
+            }
+            <div class="preview-total">
+              <span>Total</span>
+              <b>{{ fmt(orden()?.monto_total || 0) }} Bs</b>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      @if (esEmitida()) {
+        <section class="orden-block">
+          <header class="block-head">
+            <mat-icon>point_of_sale</mat-icon> Registrar cobro
+          </header>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Fecha de pago (caja)</mat-label>
+            <input matInput [matDatepicker]="picker" [(ngModel)]="fechaPago">
+            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+          </mat-form-field>
+
+          <div class="upload-section">
+            <div class="upload-title">Comprobante de caja (obligatorio)</div>
+            <app-upload-box
+              accept="image/jpeg,image/png,image/webp,application/pdf"
+              [showConfirmButtons]="false"
+              [file]="comprobanteFile()"
+              [fileName]="comprobante()?.name ?? ''"
+              [fileSize]="comprobante() ? (comprobante()!.size / 1024 / 1024).toFixed(2) + ' MB' : ''"
+              label="Seleccionar comprobante"
+              hint="Foto o PDF de la boleta de pago (m&aacute;x. 10 MB)"
+              (picked)="onFileSelected($event)"
+              (remove)="quitarComprobante()"></app-upload-box>
+          </div>
+        </section>
+      }
+    }
+
+    @if (anulando()) {
+      <section class="orden-block danger">
+        <header class="block-head">
+          <mat-icon>block</mat-icon> Anular orden
+        </header>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Motivo de la anulación</mat-label>
+          <textarea matInput rows="3" [(ngModel)]="motivoAnulacion"
+                    placeholder="Ej: el alumno no llegó a caja, error en la emisión"></textarea>
+        </mat-form-field>
+      </section>
+    }
+
+  </div>
+</div>
+
+<div mat-dialog-actions align="end" class="orden-actions">
+  @if (esEmitir()) {
+    <button mat-button type="button" (click)="cerrar()">Cancelar</button>
+    <button mat-flat-button type="button" color="primary" (click)="emitir()"
+            [disabled]="isSubmitting() || !puedeEmitir()">
+      @if (isSubmitting()) {
+        <mat-icon class="spinner-icon">sync</mat-icon>
+      } @else {
+        <mat-icon>add</mat-icon>
+      }
+      Emitir orden
+    </button>
+  } @else {
+    <button mat-button type="button" (click)="cerrar()">Cerrar</button>
+    <button mat-stroked-button type="button" (click)="imprimir()" [disabled]="isSubmitting()">
+      <mat-icon>print</mat-icon>
+      Imprimir
+    </button>
+    @if (esEmitida() && puedeAnular() && !anulando()) {
+      <button mat-stroked-button type="button" color="warn" (click)="anulando.set(true)" [disabled]="isSubmitting()">
+        <mat-icon>block</mat-icon>
+        Anular
+      </button>
+    }
+    @if (esEmitida() && anulando()) {
+      <button mat-flat-button type="button" color="warn" (click)="anular()" [disabled]="isSubmitting()">
+        @if (isSubmitting()) {
+          <mat-icon class="spinner-icon">sync</mat-icon>
+        } @else {
+          <mat-icon>block</mat-icon>
+        }
+        Confirmar anulación
+      </button>
+    }
+    @if (esEmitida() && !anulando()) {
+      <button mat-flat-button type="button" color="primary" (click)="cobrar()" [disabled]="isSubmitting()">
+        @if (isSubmitting()) {
+          <mat-icon class="spinner-icon">sync</mat-icon>
+        } @else {
+          <mat-icon>payments</mat-icon>
+        }
+        Registrar pago
+      </button>
+    }
+  }
+</div>
+
+<div class="print-area" id="orden-print">
+  @if (orden(); as ord) {
+    <div class="print-doc">
+      <div class="print-head">
+        <div class="print-logo">FICH</div>
+        <div class="print-head-txt">
+          <div class="print-institucion">Facultad de Ingeniería en Ciencias de la Computación y Telecomunicaciones</div>
+          <div class="print-sub">Universidad Autónoma Gabriel René Moreno · Postgrado</div>
+        </div>
+      </div>
+
+      <div class="print-titulo">ORDEN DE PAGO</div>
+      <div class="print-numero">{{ ord.numero }}</div>
+
+      <div class="print-datos">
+        <div class="print-dato">
+          <span class="print-campo">Alumno</span>
+          <span class="print-valor">{{ ord.alumno?.apellido }} {{ ord.alumno?.nombre }}</span>
+        </div>
+        <div class="print-dato">
+          <span class="print-campo">C.I.</span>
+          <span class="print-valor">{{ ord.alumno?.ci || '—' }}</span>
+        </div>
+        <div class="print-dato">
+          <span class="print-campo">Programa</span>
+          <span class="print-valor">{{ ord.edicion?.programa || '—' }}</span>
+        </div>
+        <div class="print-dato">
+          <span class="print-campo">Edición</span>
+          <span class="print-valor">#{{ ord.edicion?.edicion }} · Semestre {{ ord.edicion?.semestre }}/{{ ord.edicion?.anio }}</span>
+        </div>
+        <div class="print-dato">
+          <span class="print-campo">Fecha de emisión</span>
+          <span class="print-valor">{{ fechaDisplay(ord.fecha_emision) }}</span>
+        </div>
+        <div class="print-dato">
+          <span class="print-campo">Estado</span>
+          <span class="print-valor">{{ ord.estado === 'emitida' ? 'Pendiente de cobro' : ord.estado === 'pagada' ? 'Pagada' : 'Anulada' }}</span>
+        </div>
+      </div>
+
+      <table class="print-tabla">
+        <thead>
+          <tr>
+            <th>Concepto</th>
+            <th class="print-col-monto">Monto (Bs)</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of ord.items; track $index) {
+            <tr>
+              <td>{{ item.concepto }}</td>
+              <td class="print-col-monto">{{ fmt(item.monto) }}</td>
+            </tr>
+          }
+          <tr class="print-total-row">
+            <td>TOTAL</td>
+            <td class="print-col-monto">{{ fmt(ord.monto_total) }} Bs</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="print-nota">
+        Presentar esta orden en caja y volver con la boleta de pago para registrar el cobro.
+      </div>
+
+      <div class="print-footer">
+        <div class="print-firma">Firma y sello de caja</div>
+        <div class="print-firma">Firma del alumno</div>
+      </div>
+    </div>
+  }
+</div>
