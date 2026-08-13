@@ -96,6 +96,7 @@
 .leyenda-dot.pago-vacio { background: var(--fich-border); }
 
 .matriz-scroll {
+  position: relative;
   overflow-x: auto;
   border-radius: 18px;
   border: 1px solid var(--fich-border-light);
@@ -103,6 +104,31 @@
     radial-gradient(900px 160px at 50% -60px, rgba(22, 163, 74, 0.06), transparent 70%),
     linear-gradient(180deg, #fbfefc, var(--fich-bg-card) 220px);
   box-shadow: var(--fich-shadow-sm);
+}
+
+.refresh-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  overflow: hidden;
+  z-index: 2;
+}
+
+.refresh-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 40%;
+  background: var(--fich-feature-pagos);
+  animation: refresh-slide 1s ease-in-out infinite;
+}
+
+@keyframes refresh-slide {
+  0% { left: -40%; }
+  100% { left: 100%; }
 }
 
 .matriz {
@@ -245,7 +271,7 @@
 
 /* ----- Celdas ----- */
 .matriz tbody td {
-  padding: 11px 10px;
+  padding: 14px 12px;
   text-align: center;
   white-space: nowrap;
   vertical-align: middle;
@@ -296,9 +322,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--fich-success-light), var(--fich-success-lighter));
-  border: 1px solid var(--fich-est-en-curso-border);
-  color: var(--fich-feature-pagos);
+  background: linear-gradient(135deg, #eef2f7, #e2e8f0);
+  border: 1px solid #d3dbe5;
+  color: #475569;
   font-weight: 800;
   font-size: 0.7rem;
 }
@@ -327,6 +353,39 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.orden-chip {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
+  padding: 2px 8px;
+  border-radius: var(--fich-radius-full);
+  border: 1px solid var(--fich-est-en-curso-border);
+  background: var(--fich-success-light);
+  color: var(--fich-feature-pagos);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.orden-chip mat-icon {
+  font-size: 13px;
+  width: 13px;
+  height: 13px;
+}
+
+.orden-chip:hover {
+  box-shadow: 0 0 0 3px rgba(21, 128, 61, 0.12);
+  transform: translateY(-1px);
+}
+
+.orden-chip:active {
+  transform: translateY(0);
 }
 
 /* ----- Burbujas de cuota ----- */
@@ -409,15 +468,16 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 46px;
+  height: 46px;
   border-radius: 50%;
+  flex: 0 0 auto;
 }
 
 .prom-ring::before {
   content: '';
   position: absolute;
-  inset: 3px;
+  inset: 4px;
   background: var(--fich-bg-card);
   border-radius: 50%;
 }
@@ -426,8 +486,9 @@
   position: relative;
   z-index: 1;
   font-weight: 800;
-  font-size: 0.66rem;
+  font-size: 0.72rem;
   font-variant-numeric: tabular-nums;
+  line-height: 1;
 }
 
 .prom-ring-vacia {
@@ -446,7 +507,7 @@
 .total-main {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
 .register-btn {
@@ -469,6 +530,22 @@
 
 .register-btn:hover {
   background: var(--fich-success-lighter);
+}
+
+.register-btn.cobrar {
+  background: transparent;
+  color: var(--fich-feature-pagos);
+  box-shadow: inset 0 0 0 1.5px var(--fich-feature-pagos);
+}
+
+.register-btn.cobrar:hover {
+  background: var(--fich-success-light);
+}
+
+.register-btn.cobrar mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
 }
 
 .boletas-btn {

@@ -894,3 +894,51 @@ h1, h2, h3, h4, h5, h6 {
   transform: rotate(180deg);
 }
 
+/* ─── Impresión: documentos de orden de pago ───
+   Deben vivir aquí (global) porque las reglas `@media print` con selectores
+   tipo `body *` se rompen bajo la encapsulación de Angular y no ocultan
+   la UI del dialog (se imprimían los botones). */
+@media print {
+  @page {
+    size: A4;
+    margin: 0;
+  }
+
+  body * {
+    visibility: hidden !important;
+  }
+
+  .print-area,
+  .print-area * {
+    visibility: visible !important;
+  }
+
+  .print-area {
+    display: block !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    right: auto !important;
+    bottom: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+  }
+
+  .cdk-overlay-container,
+  .cdk-overlay-pane,
+  .mat-mdc-dialog-container,
+  .mat-mdc-dialog-surface {
+    position: static !important;
+    inset: auto !important;
+    width: auto !important;
+    max-width: none !important;
+    max-height: none !important;
+    height: auto !important;
+    overflow: visible !important;
+    background: #fff !important;
+    box-shadow: none !important;
+    transform: none !important;
+  }
+}
+

@@ -1,0 +1,740 @@
+h2[mat-dialog-title] {
+  margin: 0;
+}
+
+.dialog-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.header-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--fich-feature-pagos), #166534);
+  color: #fff;
+}
+
+.header-icon mat-icon {
+  color: #fff !important;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.header-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--fich-text);
+}
+
+.dialog-subtitle {
+  font-size: 0.8rem;
+  color: var(--fich-text-muted);
+}
+
+.orden-content {
+  min-width: 500px;
+}
+
+.orden-canvas {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.orden-block {
+  background: #fff;
+  border: 1px solid var(--fich-border-strong);
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.orden-block.danger {
+  background: var(--fich-danger-light);
+  border-color: var(--fich-danger);
+}
+
+.block-head {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--fich-text-secondary);
+  margin-bottom: 14px;
+}
+
+.block-head mat-icon {
+  font-size: 17px;
+  width: 17px;
+  height: 17px;
+  color: var(--fich-feature-pagos);
+}
+
+.orden-block.danger .block-head mat-icon {
+  color: var(--fich-danger);
+}
+
+.full-width {
+  width: 100%;
+}
+
+.spinner-icon {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.alumno-resumen {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.resumen-financiero {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.fin-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--fich-border-light);
+  background: var(--fich-bg-subtle);
+}
+
+.fin-icon {
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 6px;
+}
+
+.fin-icon mat-icon {
+  font-size: 15px;
+  width: 15px;
+  height: 15px;
+}
+
+.fin-card.total .fin-icon {
+  background: #eef2ff;
+  color: var(--fich-feature-programa);
+}
+
+.fin-card.descuento .fin-icon {
+  background: #fffbeb;
+  color: var(--fich-feature-contratacion);
+}
+
+.fin-card.pagado .fin-icon {
+  background: var(--fich-success-light);
+  color: var(--fich-feature-pagos);
+}
+
+.fin-card.debe .fin-icon {
+  background: var(--fich-feature-pagos);
+  color: #fff;
+}
+
+.fin-label {
+  font-size: 0.63rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--fich-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fin-val {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--fich-text);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.fin-card.debe .fin-val {
+  color: var(--fich-feature-pagos);
+}
+
+.beca-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.beca-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  border-radius: var(--fich-radius-full);
+  font-size: 0.74rem;
+  font-weight: 600;
+}
+
+.beca-chip mat-icon {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+}
+
+.beca-chip.activa {
+  background: var(--fich-success-light);
+  border: 1px solid var(--fich-est-en-curso-border);
+  color: #15803d;
+}
+
+.beca-chip.perdida {
+  background: var(--fich-est-truncado-bg);
+  border: 1px solid var(--fich-est-truncado-border);
+  color: var(--fich-est-truncado);
+}
+
+.resumen-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: var(--fich-radius-full);
+  background: var(--fich-bg-subtle);
+  border: 1px solid var(--fich-border-light);
+  font-size: 0.75rem;
+  color: var(--fich-text-secondary);
+}
+
+.resumen-chip b { color: var(--fich-text); }
+
+.resumen-chip.descuento { background: var(--fich-success-light); border-color: var(--fich-est-en-curso-border); color: #15803d; }
+.resumen-chip.descuento b { color: #166534; }
+
+.resumen-chip.beca-perdida { background: var(--fich-est-truncado-bg); border-color: var(--fich-est-truncado-border); color: var(--fich-est-truncado); }
+
+/* ===== Emitir ===== */
+
+.matricula-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--fich-border-light);
+  background: var(--fich-bg-subtle);
+}
+
+.matricula-row.pendiente {
+  background: var(--fich-success-light);
+  border-color: var(--fich-est-en-curso-border);
+}
+
+.matricula-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--fich-text);
+}
+
+.matricula-label mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: var(--fich-feature-pagos);
+}
+
+.matricula-monto {
+  margin-left: auto;
+  font-weight: 700;
+  color: var(--fich-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.estado-pill {
+  padding: 3px 10px;
+  border-radius: var(--fich-radius-full);
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.estado-pill.pendiente {
+  background: var(--fich-est-en-curso-bg);
+  color: var(--fich-est-en-curso);
+}
+
+.estado-pill.pagada {
+  background: var(--fich-success-light);
+  color: #15803d;
+}
+
+.estado-pill.anulada {
+  background: var(--fich-est-truncado-bg);
+  color: var(--fich-est-truncado);
+}
+
+.stepper-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 12px;
+}
+
+.block-hint {
+  margin: 14px 0 0;
+  font-size: 0.76rem;
+  color: var(--fich-text-muted);
+  line-height: 1.5;
+}
+
+.stepper-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--fich-text);
+}
+
+.stepper-hint {
+  font-weight: 400;
+  font-size: 0.72rem;
+  color: var(--fich-text-muted);
+  margin-left: 4px;
+}
+
+.stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px 4px;
+  border-radius: 12px;
+  border: 1px solid var(--fich-border-light);
+  background: var(--fich-bg);
+}
+
+.stepper-count {
+  min-width: 34px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--fich-feature-pagos);
+  font-variant-numeric: tabular-nums;
+}
+
+.stepper button {
+  width: 30px;
+  height: 30px;
+  line-height: 30px;
+}
+
+.stepper button mat-icon {
+  font-size: 18px;
+  color: var(--fich-feature-pagos);
+}
+
+/* ===== Preview ===== */
+
+.preview-box {
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px dashed var(--fich-border);
+  background: linear-gradient(180deg, #fbfefc, var(--fich-bg-subtle));
+}
+
+/* Dentro de un bloque blanco, el preview se integra (sin caja anidada) */
+.orden-block .preview-box {
+  border: none;
+  background: transparent;
+  padding: 0;
+}
+
+.preview-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.preview-count {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--fich-text-muted);
+}
+
+.preview-title {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--fich-text-muted);
+  margin-bottom: 8px;
+}
+
+.preview-head .preview-title {
+  margin-bottom: 0;
+}
+
+.preview-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--fich-border-light);
+  font-size: 0.84rem;
+}
+
+.preview-row:last-of-type { border-bottom: none; }
+
+.preview-concepto {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--fich-text);
+  font-weight: 500;
+}
+
+.asig-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--fich-feature-pagos);
+}
+
+.asig-dot.matricula {
+  background: #0369a1;
+}
+
+.preview-monto {
+  font-weight: 700;
+  color: var(--fich-feature-pagos);
+  font-variant-numeric: tabular-nums;
+}
+
+.preview-row.matricula .preview-monto { color: #0369a1; }
+
+.preview-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 10px;
+  margin-top: 8px;
+  border-top: 1px solid var(--fich-border);
+  font-size: 0.9rem;
+  color: var(--fich-text);
+}
+
+.preview-total b {
+  font-size: 1.05rem;
+  color: var(--fich-feature-pagos);
+  font-variant-numeric: tabular-nums;
+}
+
+.preview-box.preview-error {
+  border-color: var(--fich-danger);
+  background: var(--fich-danger-light);
+}
+
+.preview-error-msg {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: var(--fich-danger);
+  font-weight: 500;
+}
+
+.preview-loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: var(--fich-text-muted);
+}
+
+.preview-box.preview-empty {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  color: var(--fich-text-secondary);
+  border-style: solid;
+  border-color: var(--fich-border-light);
+}
+
+.preview-box.preview-empty mat-icon {
+  color: var(--fich-feature-pagos);
+}
+
+/* ===== Cobrar / resumen ===== */
+
+.orden-resumen {
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid var(--fich-border-light);
+  background: var(--fich-bg-subtle);
+}
+
+.orden-block .orden-resumen {
+  border: none;
+  background: transparent;
+  padding: 0;
+}
+
+.orden-resumen.anulada {
+  opacity: 0.75;
+}
+
+.orden-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.orden-numero {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 800;
+  font-size: 1rem;
+  color: var(--fich-text);
+  letter-spacing: 0.02em;
+}
+
+.orden-numero mat-icon {
+  color: var(--fich-feature-pagos);
+}
+
+.orden-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-bottom: 10px;
+}
+
+.meta-item {
+  font-size: 0.75rem;
+  color: var(--fich-text-muted);
+}
+
+.meta-item.motivo {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--fich-est-truncado);
+}
+
+.orden-items {
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #fff;
+  border: 1px solid var(--fich-border-light);
+}
+
+.upload-section {
+  margin-top: 4px;
+}
+
+.upload-title {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--fich-text-muted);
+  margin-bottom: 10px;
+}
+
+.orden-actions {
+  gap: 6px;
+}
+
+/* ===== Impresión ===== */
+
+.print-area {
+  display: none;
+}
+
+@media print {
+  .print-area {
+    display: block !important;
+  }
+
+  .print-doc {
+    padding: 10mm 14mm;
+    color: #0f172a;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  .print-head {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    border-bottom: 3px double #0f172a;
+    padding-bottom: 12px;
+    margin-bottom: 16px;
+  }
+
+  .print-logo {
+    width: 54px;
+    height: 54px;
+    border: 2px solid #0f172a;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    flex: 0 0 auto;
+  }
+
+  .print-institucion {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    line-height: 1.4;
+  }
+
+  .print-sub {
+    font-size: 10px;
+    color: #475569;
+    margin-top: 3px;
+  }
+
+  .print-titulo {
+    text-align: center;
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: 0.22em;
+    margin: 18px 0 2px;
+  }
+
+  .print-numero {
+    text-align: center;
+    font-size: 15px;
+    font-weight: 700;
+    color: #15803d;
+    margin-bottom: 18px;
+    letter-spacing: 0.04em;
+  }
+
+  .print-datos {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 24px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+  }
+
+  .print-dato {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .print-campo {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #64748b;
+  }
+
+  .print-valor {
+    font-size: 12.5px;
+    font-weight: 600;
+  }
+
+  .print-tabla {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12.5px;
+    margin-bottom: 12px;
+  }
+
+  .print-tabla th {
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    padding: 7px 10px;
+    text-align: left;
+    text-transform: uppercase;
+    font-size: 10.5px;
+    letter-spacing: 0.06em;
+    color: #334155;
+  }
+
+  .print-tabla td {
+    border: 1px solid #cbd5e1;
+    padding: 7px 10px;
+  }
+
+  .print-tabla tbody tr:nth-child(even) {
+    background: #f8fafc;
+  }
+
+  .print-col-monto {
+    text-align: right !important;
+    width: 120px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .print-total-row td {
+    font-weight: 800;
+    font-size: 13.5px;
+    background: #f8fafc;
+  }
+
+  .print-total-row td.print-col-monto {
+    color: #15803d;
+  }
+
+  .print-nota {
+    font-size: 11px;
+    font-style: italic;
+    color: #334155;
+    border: 1px dashed #94a3b8;
+    border-radius: 6px;
+    padding: 9px 12px;
+    margin: 14px 0 30px;
+  }
+
+  .print-footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 40px;
+    margin-top: 38px;
+  }
+
+  .print-firma {
+    flex: 1;
+    border-top: 1px solid #0f172a;
+    padding-top: 7px;
+    text-align: center;
+    font-size: 10.5px;
+    color: #334155;
+  }
+}

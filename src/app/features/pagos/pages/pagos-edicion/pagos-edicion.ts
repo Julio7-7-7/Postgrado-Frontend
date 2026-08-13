@@ -10,7 +10,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { PagoService } from '../../services/pago.service';
 import { AlumnoPagosMatrix, CuotaPagos, PagosEdicionData } from '../../models/pago.model';
-import { PagoRegisterDialog } from '../pago-register-dialog/pago-register-dialog';
+import { OrdenPagoDialog } from '../orden-pago-dialog/orden-pago-dialog';
 import { BoletasAlumnoDialog } from '../boletas-alumno-dialog/boletas-alumno-dialog';
 import { SortDir, sortItems } from '../../../../core/utils/sort-utils';
 import { maxTextWidth } from '../../../../core/utils/measure-text';
@@ -38,6 +38,7 @@ export class PagosEdicionComponent implements OnInit {
 
   data = signal<PagosEdicionData | null>(null);
   isLoading = signal(true);
+  refreshing = signal(false);
   showRetirados = signal(false);
   idEdicion = 0;
   alumnoWidth = signal('auto');
@@ -74,15 +75,22 @@ export class PagosEdicionComponent implements OnInit {
   }
 
   cargarDatos(): void {
-    this.isLoading.set(true);
+    const primeraCarga = this.data() === null;
+    if (primeraCarga) {
+      this.isLoading.set(true);
+    } else {
+      this.refreshing.set(true);
+    }
     this.service.getPagosPorEdicion(this.idEdicion).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: data => {
         this.data.set(data);
         this.isLoading.set(false);
+        this.refreshing.set(false);
         requestAnimationFrame(() => this.medirColumnaAlumno());
       },
       error: () => {
         this.isLoading.set(false);
+        this.refreshing.set(false);
         this.snackbar.open('Error al cargar pagos', 'Cerrar', { duration: 3000 });
       },
     });
@@ -173,15 +181,16 @@ export class PagosEdicionComponent implements OnInit {
     return Number(n || 0).toLocaleString('es-BO', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
   }
 
-  registrarCuota(a: AlumnoPagosMatrix, event: MouseEvent): void {
+  abrirOrden(a: AlumnoPagosMatrix, event: MouseEvent): void {
     event.stopPropagation();
-    const dialogRef = this.dialog.open(PagoRegisterDialog, {
-      width: '520px',
+    const dialogRef = this.dialog.open(OrdenPagoDialog, {
+      width: '560px',
       data: {
         alumno: a,
         modulos: this.modulos(),
         matricula: a.matricula.esperado,
         precio: this.data()?.precio ?? 0,
+        orden: a.orden_activa,
       },
     });
 

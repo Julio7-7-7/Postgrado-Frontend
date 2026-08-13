@@ -1,5 +1,5 @@
 <h2 mat-dialog-title>
-  <mat-icon>receipt_long</mat-icon> Boletas de pago
+  <mat-icon>receipt_long</mat-icon> Pagos y órdenes
   <span class="title-sub">{{ data.nombre }}</span>
 </h2>
 
@@ -7,6 +7,68 @@
   <p class="dialog-subtitle">
     {{ data.edicion }} · Total confirmado: <b>{{ fmt(totalPagado()) }} Bs</b>
   </p>
+
+  <div class="boletas-canvas">
+  @if (ordenesEmitidas().length > 0) {
+    <div class="ordenes-section">
+      <div class="section-title">
+        <mat-icon>receipt</mat-icon> Órdenes pendientes de cobro
+      </div>
+      <p class="section-hint">
+        La orden ya está emitida e impresa. Solo falta cobrarla. Si la orden salió con un error,
+        anulala acá para poder generar una nueva.
+      </p>
+      @for (o of ordenesEmitidas(); track o.id_orden_pago) {
+        <div class="orden-card">
+          <div class="orden-card-head">
+            <span class="boleta-orden"><mat-icon>receipt</mat-icon> {{ o.numero }}</span>
+            <span class="orden-card-total">{{ fmt(ordenTotal(o)) }} Bs</span>
+          </div>
+          <div class="orden-card-meta">
+            Emitida el {{ fecha(o.fecha_emision) }} · {{ o.items.length }} concepto(s)
+          </div>
+          <ul class="asignaciones">
+            @for (it of o.items; track $index) {
+              <li>
+                <span class="asig-concepto">
+                  <span class="asig-dot" [class.matricula]="it.tipo === 'matricula'"></span>
+                  {{ it.concepto }}
+                </span>
+                <span class="asig-monto">{{ fmt(it.monto) }} Bs</span>
+              </li>
+            }
+          </ul>
+          @if (anulandoOrdenId() === o.id_orden_pago) {
+            <div class="anular-orden-box">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Motivo de la anulación</mat-label>
+                <textarea matInput rows="2" [(ngModel)]="motivoAnulacion"
+                          placeholder="Ej: error en la emisión, el alumno no llegó a caja"></textarea>
+              </mat-form-field>
+              <div class="anular-orden-actions">
+                <button mat-button type="button" (click)="anulandoOrdenId.set(null); motivoAnulacion = ''">Cancelar</button>
+                <button mat-flat-button type="button" color="warn" (click)="anularOrden(o)">
+                  Confirmar anulación
+                </button>
+              </div>
+            </div>
+          } @else {
+            @if (puedeAnularOrden(o)) {
+              <div class="boleta-actions">
+                <button mat-stroked-button type="button" color="warn" class="anular-btn" (click)="anulandoOrdenId.set(o.id_orden_pago)">
+                  <mat-icon>block</mat-icon> Anular orden
+                </button>
+              </div>
+            }
+          }
+        </div>
+      }
+    </div>
+  }
+
+  <div class="section-title boletas-title">
+    <mat-icon>receipt_long</mat-icon> Boletas de pago
+  </div>
 
   @if (isLoading()) {
     <div class="loading-state">
@@ -26,6 +88,12 @@
             <span class="boleta-fecha">
               <mat-icon>event</mat-icon> {{ fecha(t.fecha_pago) }}
             </span>
+            @if (t.orden_numero) {
+              <span class="boleta-orden" [matTooltip]="'Cobrada con la orden ' + t.orden_numero"
+                    [matTooltipPosition]="'above'">
+                <mat-icon>receipt</mat-icon> {{ t.orden_numero }}
+              </span>
+            }
             <span class="boleta-total">{{ fmt(t.monto_total) }} Bs</span>
             <span class="estado-pill" [class.confirmado]="t.estado === 'confirmado'"
                   [class.anulado]="t.estado === 'anulado'">
@@ -79,6 +147,7 @@
       }
     </div>
   }
+  </div>
 </div>
 
 <div mat-dialog-actions align="end">

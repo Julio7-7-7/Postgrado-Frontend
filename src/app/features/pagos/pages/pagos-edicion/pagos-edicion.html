@@ -44,6 +44,9 @@
       </div>
 
       <div class="matriz-scroll" #matrizWrap>
+        @if (refreshing()) {
+          <div class="refresh-bar" aria-hidden="true"></div>
+        }
         <table class="matriz">
           <thead>
             <tr class="thead-group">
@@ -84,6 +87,13 @@
                     <span class="alumno-info">
                       <span class="alumno-nombre" [matTooltip]="nombreAlumno(a)" [matTooltipPosition]="'above'">{{ nombreAlumno(a) }}</span>
                       <span class="alumno-ci">CI: {{ a.alumno?.ci || '—' }}</span>
+                      @if (a.orden_activa; as ord) {
+                        <button class="orden-chip" (click)="abrirOrden(a, $event)"
+                                [matTooltip]="'Orden emitida sin cobrar — ' + ord.numero" [matTooltipPosition]="'above'">
+                          <mat-icon>receipt</mat-icon>
+                          {{ ord.numero }}
+                        </button>
+                      }
                     </span>
                   </span>
                 </td>
@@ -127,9 +137,12 @@
                             [matTooltip]="totalTooltip(a)">
                         <span class="prom-num">{{ pctTotal(a) }}%</span>
                       </span>
-                      <button mat-icon-button class="register-btn" matTooltip="Registrar cuota"
-                              (click)="registrarCuota(a, $event)">
-                        <mat-icon>add</mat-icon>
+                      <button mat-icon-button class="register-btn"
+                              [class.cobrar]="a.orden_activa"
+                              [matTooltip]="a.orden_activa ? 'Registrar pago de la orden ' + a.orden_activa.numero : 'Emitir orden de pago'"
+                              [matTooltipPosition]="'above'"
+                              (click)="abrirOrden(a, $event)">
+                        <mat-icon>{{ a.orden_activa ? 'monetization_on' : 'add' }}</mat-icon>
                       </button>
                       <button mat-icon-button class="boletas-btn" matTooltip="Ver boletas y anular"
                               (click)="verBoletas(a, $event)">
