@@ -1,7 +1,60 @@
 <div class="page-container">
   <div class="header-section">
     <h1><mat-icon>payments</mat-icon> Gestión de Pagos</h1>
-    <p class="subtitle">Seleccione una edición para gestionar los pagos de sus postulantes</p>
+    <p class="subtitle">Seleccione una edición o busque a un alumno por apellido, nombre o C.I.</p>
+  </div>
+
+  <div class="busqueda-section">
+    <mat-form-field appearance="outline" class="busqueda-field">
+      <mat-icon matPrefix>search</mat-icon>
+      <input #busquedaInput matInput placeholder="Buscar alumno para generar su orden de pago"
+             (input)="onBusqueda($event)" [value]="busqueda()" autocomplete="off" />
+      @if (busqueda().length > 0) {
+        <button matSuffix mat-icon-button (click)="limpiarBusqueda()" matTooltip="Limpiar búsqueda" type="button">
+          <mat-icon>close</mat-icon>
+        </button>
+      }
+    </mat-form-field>
+
+    @if (buscando()) {
+      <div class="busqueda-state">
+        <mat-spinner diameter="22"></mat-spinner>
+        <span>Buscando...</span>
+      </div>
+    } @else if (busqueda().trim().length >= 2) {
+      @if (resultados().length === 0) {
+        <div class="busqueda-vacia">
+          <mat-icon>person_search</mat-icon>
+          No se encontraron alumnos para «{{ busqueda().trim() }}»
+        </div>
+      } @else {
+        <div class="resultados-panel">
+          @for (r of resultados(); track r.id_detalle_programa_alumno) {
+            <button class="resultado-row" (click)="abrirOrdenBusqueda(r)" type="button">
+              <span class="resultado-avatar">{{ iniciales(r) }}</span>
+              <span class="resultado-info">
+                <span class="resultado-nombre">{{ nombreAlumno(r) }}</span>
+                <span class="resultado-meta">
+                  CI: {{ r.alumno?.ci || '—' }} · {{ r.programa }} — {{ etiquetaEdicion(r) }}
+                  <span class="resultado-modalidad">{{ r.modalidad }}</span>
+                </span>
+              </span>
+              <span class="resultado-deuda">
+                @if (r.orden_activa; as ord) {
+                  <span class="resultado-orden" [matTooltip]="'Orden emitida sin cobrar — ' + ord.numero" [matTooltipPosition]="'above'">
+                    <mat-icon>receipt</mat-icon>
+                    {{ ord.numero }}
+                  </span>
+                }
+                <span class="deuda-label">Debe</span>
+                <span class="deuda-monto">{{ fmt(debe(r)) }} Bs</span>
+              </span>
+              <mat-icon class="resultado-arrow">chevron_right</mat-icon>
+            </button>
+          }
+        </div>
+      }
+    }
   </div>
 
   @if (isLoading()) {

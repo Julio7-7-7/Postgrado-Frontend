@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from '../../../core/services/api.service';
 import {
-  MisPagosResponse, PagosEdicionData, TransaccionPagoBaja,
+  BusquedaPagosResponse, MisPagosResponse, PagosEdicionData, TransaccionPagoBaja,
   TransaccionPagoResponse, TranscriptPagosResponse,
 } from '../models/pago.model';
 
@@ -11,6 +11,10 @@ export class PagoService extends ApiService {
 
   getPagosPorEdicion(idEdicion: number): Observable<PagosEdicionData> {
     return this.http.get<PagosEdicionData>(`${this.baseUrl}/pagos/por-edicion/${idEdicion}`);
+  }
+
+  buscarAlumnos(q: string): Observable<BusquedaPagosResponse> {
+    return this.http.get<BusquedaPagosResponse>(`${this.baseUrl}/pagos/buscar`, { params: { q } });
   }
 
   getMisPagos(idDetalle: number): Observable<MisPagosResponse> {

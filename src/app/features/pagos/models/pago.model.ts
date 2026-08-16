@@ -172,3 +172,22 @@ export interface PagosEdicionData {
   modulos: ModuloPagosInfo[];
   alumnos: AlumnoPagosMatrix[];
 }
+
+/* ===== Búsqueda global de alumno (pagos-admin) ===== */
+
+export interface BusquedaPagosItem extends AlumnoPagosMatrix {
+  id_programa_version_edicion: number;
+  programa: string;
+  tipo_programa: string;
+  edicion: number;
+  anio: number;
+  semestre: number;
+  modalidad: string;
+  precio: number;
+  matricula_precio: number;
+  modulos: ModuloPagosInfo[];
+}
+
+export interface BusquedaPagosResponse {
+  items: BusquedaPagosItem[];
+}
