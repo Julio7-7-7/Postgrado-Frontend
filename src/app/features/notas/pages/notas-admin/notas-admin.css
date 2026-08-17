@@ -3,7 +3,7 @@
   padding: 24px;
 }
 
-.header-section { margin-bottom: 24px; }
+.header-section { margin-bottom: 24px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
 
 .header-section h1 {
   margin: 0;
@@ -17,10 +17,18 @@
 .header-section h1 mat-icon { color: var(--fich-primary); }
 
 .subtitle {
-  margin: 4px 0 0;
+  margin: 0;
   color: var(--fich-text-muted);
   font-size: 0.85rem;
+  flex: 1;
 }
+
+.informe-btn {
+  margin-left: auto; font-size: 0.78rem;
+  border-color: #15803d; color: #15803d;
+}
+.informe-btn:hover { background: #f0fdf4; }
+.informe-btn mat-icon { font-size: 16px; width: 16px; height: 16px; margin-right: 4px; }
 
 .loading-state, .empty-state {
   display: flex;

@@ -25,6 +25,10 @@ export class OrdenPagoService extends ApiService {
     return this.http.get<OrdenPagoResponse[]>(`${this.baseUrl}/ordenes-pago/dpa/${idDpa}`);
   }
 
+  getMisOrdenes(idDpa: number): Observable<OrdenPagoResponse[]> {
+    return this.http.get<OrdenPagoResponse[]>(`${this.baseUrl}/ordenes-pago/mis-ordenes/${idDpa}`);
+  }
+
   pagar(id: number, data: OrdenPagoPagar): Observable<TransaccionPagoResponse> {
     return this.http.post<TransaccionPagoResponse>(`${this.baseUrl}/ordenes-pago/${id}/pagar`, data);
   }
