@@ -1,0 +1,170 @@
+:host {
+  display: block;
+}
+
+.persona-name-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 0.72rem;
+  font-weight: 600;
+  flex-shrink: 0;
+  letter-spacing: 0.5px;
+}
+
+.persona-name {
+  font-weight: 500;
+}
+
+.email-cell {
+  color: var(--fich-text-secondary);
+  font-size: 0.82rem;
+}
+
+.ci-cell {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.82rem;
+}
+
+.roles-cell {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.rol-pill {
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.perfiles-cell {
+  display: flex;
+  gap: 6px;
+}
+
+.perfil-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.perfil-icon.alumno {
+  color: #0e7490;
+}
+
+.perfil-icon.docente {
+  color: #0f766e;
+}
+
+.perfil-icon.admin {
+  color: #7c3aed;
+}
+
+.estado-pill {
+  padding: 3px 10px;
+  border-radius: 10px;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.estado-pill.activo {
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.estado-pill.inactivo {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.fecha-alta {
+  color: var(--fich-text-x-faint);
+  font-size: 0.78rem;
+}
+
+.filter-chips {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.filter-label {
+  color: var(--fich-text-secondary);
+  font-size: 0.82rem;
+}
+
+.filter-chip {
+  border-radius: 16px !important;
+  font-size: 0.78rem !important;
+  padding: 0 12px !important;
+  height: 30px !important;
+}
+
+.filter-chip mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  margin-right: 4px;
+}
+
+.filter-chip.active {
+  background: var(--fich-primary) !important;
+  color: white !important;
+  border-color: var(--fich-primary) !important;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48px 24px;
+  color: var(--fich-text-secondary);
+}
+
+.empty-state mat-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 12px;
+  opacity: 0.5;
+}
+
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48px 24px;
+  color: var(--fich-text-secondary);
+}
+
+.error-state mat-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 12px;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48px 24px;
+  color: var(--fich-text-secondary);
+}
+
+.loading-container p {
+  margin-top: 16px;
+}

@@ -1,0 +1,162 @@
+<div class="page-container">
+
+  <div class="header-section">
+    <div>
+      <h2>Gestión de Personas</h2>
+      <p class="subtitle">Administre usuarios, roles y perfiles del sistema</p>
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="50" color="primary"></mat-spinner>
+      <p>Sincronizando datos con el servidor...</p>
+    </div>
+  }
+  @else if (error()) {
+    <div class="error-state">
+      <mat-icon color="warn">error_outline</mat-icon>
+      <p>{{ error() }}</p>
+      <button mat-flat-button color="primary" (click)="cargarDatos()">
+        <mat-icon>refresh</mat-icon> Reintentar conexión
+      </button>
+    </div>
+  }
+  @else {
+    <div class="toolbar-actions">
+      <mat-form-field appearance="outline" class="search-field" subscriptSizing="dynamic">
+        <mat-icon matPrefix>search</mat-icon>
+        <mat-label>Buscar por nombre, CI o email...</mat-label>
+        <input matInput
+               [ngModel]="terminoBusqueda()"
+               (ngModelChange)="terminoBusqueda.set($event)"
+               (keyup.enter)="onSearch()"
+               placeholder="Ej: Juan Pérez">
+        @if (terminoBusqueda()) {
+          <button mat-icon-button matSuffix (click)="terminoBusqueda.set(''); onSearch()">
+            <mat-icon>close</mat-icon>
+          </button>
+        }
+      </mat-form-field>
+
+      <div class="filter-chips">
+        <span class="filter-label">Filtrar:</span>
+        <button mat-stroked-button
+                [class.active]="filtroRol() === 'docente'"
+                (click)="onFilterRol('docente')"
+                class="filter-chip">
+          <mat-icon>badge</mat-icon> Docentes
+        </button>
+        <button mat-stroked-button
+                [class.active]="filtroRol() === 'alumno'"
+                (click)="onFilterRol('alumno')"
+                class="filter-chip">
+          <mat-icon>school</mat-icon> Alumnos
+        </button>
+        <button mat-stroked-button
+                [class.active]="filtroRol() === 'adm_informatico'"
+                (click)="onFilterRol('adm_informatico')"
+                class="filter-chip">
+          <mat-icon>admin_panel_settings</mat-icon> Admins
+        </button>
+      </div>
+    </div>
+
+    <div class="table-section">
+      <table mat-table [dataSource]="listaTotal()" class="full-width-table">
+
+        <ng-container matColumnDef="nombre">
+          <th mat-header-cell *matHeaderCellDef> Nombre </th>
+          <td mat-cell *matCellDef="let p">
+            <div class="persona-name-cell">
+              <div class="avatar" [style.background]="rolColor(p.roles[0]?.nombre || '')">
+                {{ getIniciales(p) }}
+              </div>
+              <span class="persona-name">{{ getNombre(p) }}</span>
+            </div>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="email">
+          <th mat-header-cell *matHeaderCellDef> Email </th>
+          <td mat-cell *matCellDef="let p">
+            <span class="email-cell">{{ p.email }}</span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="ci">
+          <th mat-header-cell *matHeaderCellDef> CI </th>
+          <td mat-cell *matCellDef="let p">
+            <span class="ci-cell">{{ getCI(p) }}</span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="roles">
+          <th mat-header-cell *matHeaderCellDef> Roles </th>
+          <td mat-cell *matCellDef="let p">
+            <div class="roles-cell">
+              @for (rol of p.roles; track rol.id_rol) {
+                <span class="rol-pill" [style.background]="rolColor(rol.nombre)" [style.color]="'white'">
+                  {{ rolLabel(rol.nombre) }}
+                </span>
+              }
+            </div>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="perfiles">
+          <th mat-header-cell *matHeaderCellDef> Perfiles </th>
+          <td mat-cell *matCellDef="let p">
+            <div class="perfiles-cell">
+              @if (p.alumno) {
+                <mat-icon class="perfil-icon alumno" matTooltip="Alumno">school</mat-icon>
+              }
+              @if (p.docente) {
+                <mat-icon class="perfil-icon docente" matTooltip="Docente">badge</mat-icon>
+              }
+              @if (p.administrativo) {
+                <mat-icon class="perfil-icon admin" matTooltip="Administrativo">admin_panel_settings</mat-icon>
+              }
+            </div>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="estado">
+          <th mat-header-cell *matHeaderCellDef> Estado </th>
+          <td mat-cell *matCellDef="let p">
+            @if (p.activo) {
+              <span class="estado-pill activo">Activo</span>
+            } @else {
+              <span class="estado-pill inactivo">Inactivo</span>
+            }
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="acciones">
+          <th mat-header-cell *matHeaderCellDef> </th>
+          <td mat-cell *matCellDef="let p">
+            <span class="fecha-alta">{{ formatDate(p.created_at) }}</span>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="columnas"></tr>
+        <tr mat-row *matRowDef="let row; columns: columnas;"></tr>
+      </table>
+
+      <mat-paginator [length]="totalItems()"
+                     [pageSize]="pageSize()"
+                     [pageIndex]="pageIndex()"
+                     [pageSizeOptions]="[10, 20, 50]"
+                     (page)="onPageChange($event)"
+                     showFirstLastButtons>
+      </mat-paginator>
+
+      @if (listaTotal().length === 0) {
+        <div class="empty-state">
+          <mat-icon>search_off</mat-icon>
+          <p>No se encontraron personas.</p>
+        </div>
+      }
+    </div>
+  }
+</div>
