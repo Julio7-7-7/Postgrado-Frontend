@@ -180,4 +180,14 @@ export const NAV_ITEMS: NavItem[] = [
     kind: 'component',
     load: () => import('../../features/usuarios/pages/usuarios-list/usuarios-list').then(m => m.UsuariosListComponent),
   },
+  {
+    path: '/personas',
+    label: 'Personas',
+    icon: 'people_alt',
+    feature: 'personas',
+    permiso: 'usuarios.gestionar',
+    group: 'sistema',
+    kind: 'children',
+    load: () => import('../../features/persona/routes/persona.routes').then(m => m.PERSONA_ROUTES),
+  },
 ];

@@ -67,6 +67,7 @@ Eres un **mentor crítico y compañero de código**. Tu rol no es ejecutar órde
 | solicitudes | `#2563eb` | `#eff6ff` |
 | roles | `#7c3aed` | `#f5f3ff` |
 | usuarios | `#075985` | `#f0f9ff` |
+| personas | `#5b21b6` | `#f5f3ff` |
 
 ## Módulos del frontend
 
@@ -90,10 +91,14 @@ Eres un **mentor crítico y compañero de código**. Tu rol no es ejecutar órde
 - Registro público (`POST /auth/registro`): crea el alumno completo de una vez (wizard 3 pasos Cuenta/Identidad/Contacto); valida CI o pasaporte.
 
 ### Junction tables M:N
-- `modalidad_requisito` (requisitos por modalidad), `modalidad_tipo_descuento` (descuentos por modalidad), `tipo_descuento_requisito` (docs por descuento), `modalidad_tipo_programa` (modalidades por tipo), `solicitud_requisito` (docs de solicitud por `id_tipo_solicitud` FK: 1 incorporación / 2 migración / 3 reincorporación).
+- `modalidad_requisito` (requisitos por **modalidad académica** de ingreso), `modalidad_tipo_descuento` (descuentos por **modalidad académica**), `tipo_descuento_requisito` (docs por descuento), `modalidad_tipo_programa` (modalidades académicas por tipo de programa), `solicitud_requisito` (docs de solicitud por `id_tipo_solicitud` FK: 1 incorporación / 2 migración / 3 reincorporación).
+
+### Aclaración de conceptos: "modalidad"
+- **`modalidades_academicas`** (tabla) = tipo de **ingreso** del estudiante: Profesionales, Educación Continua, Libre, etc. Determina qué requisitos se piden y qué descuentos aplican. Cada alumno queda inscrito bajo UNA modalidad académica.
+- **`modalidad`** (campo enum en `programa_version_edicion` y `detalle_programa_modulo`) = modo de **dictado**: presencial, virtual, semipresencial. Es un simple campo de texto, no tiene lógica de requisitos ni descuentos asociada.
 
 ### Flujo de control_documentacion
-1. Alumno elige modalidad → se generan registros por cada requisito de esa modalidad.
+1. Alumno elige **modalidad académica** (tipo de ingreso) → se generan registros por cada requisito de esa modalidad.
 2. Elige descuento → backend verifica `modalidad_tipo_descuento`; si aplica → `control_documentacion` extra (obligatorio) con requisitos del descuento.
 3. Admin checkea: pendiente → entregado → aprobado/rechazado.
 
@@ -167,7 +172,15 @@ Lenguaje visual consolidado (lo aprobado por Julio iterativamente):
 - `~/Programación/PostgradoBackend/` — proyecto FastAPI
 - `~/Programación/PostgradoBackend/routers/utils.py` — uploads (base64 → media/)
 - `~/Programación/PostgradoBackend/models/`, `schemas/`, `migrations/` (aplicar con `psql -f`)
-- `~/Programación/open-design/` — herramienta de diseño AI (daemon: `node apps/daemon/bin/od.mjs --port <puerto> --no-open`; `pnpm tools-dev` no funciona)
+- `~/Programación/open-design/` — herramienta de diseño AI (daemon: `node apps/daemon/bin/od.mjs --port <puerto> —no-open`; `pnpm tools-dev` no funciona)
+
+### Feature personas (listado unificado)
+- **Sin tabla `persona`**: 3 tablas de perfil separadas (`alumnos`, `docentes`, `administrativos`), cada una con `id_usuario` FK → `usuarios`. Multi-rol via `usuario_roles`.
+- **Auto-crear perfiles al asignar rol**: `PUT /usuarios/{id}/roles` detecta roles nuevos y auto-crea/vincula perfiles. Si el rol es "docente" y ya existe un docente con esa CI sin `id_usuario`, se vincula; si no, se crea nuevo desde datos del alumno.
+- **Backend**: `routers/persona.py` — `GET /personas` (listado unificado, búsqueda por nombre/CI/email, filtro por rol, paginación), `GET /personas/{id}`. Schema: `PersonaResponse` con `alumno: AlumnoInfo | null`, `docente: DocenteInfo | null`, `administrativo: AdministrativoInfo | null`.
+- **Frontend**: `features/persona/` — model (`Persona`, `PaginatedPersonas`), service (`PersonaService`), pages (`persona-list` con table, filter chips, pagination), routes (`PERSONA_ROUTES`).
+- **Permisos**: solo `usuarios.gestionar` (adm_informático gestiona roles; adm_académico solo consulta el banco de docentes).
+- **Colores feature**: `--fich-feature-personas: #5b21b6` (violeta), `--fich-feature-personas-light: #f5f3ff`.
 
 ## Despliegue a hosting (PLAN, 2026-08-12 — bloqueado para subir)
 
@@ -198,6 +211,7 @@ Observaciones de la revisión global previa a hosting (ambos repos limpios y com
 
 ## Historial de decisiones por feature (resumen durable, más reciente arriba)
 
+- **Personas: listado unificado + auto-crear perfiles (2026-08-16)**: sin tabla `persona` unificada, 3 tablas de perfil separadas (`alumnos`, `docentes`, `administrativos`). Backend: `routers/persona.py` — `GET /personas` (búsqueda por nombre/CI/email, filtro por rol, paginación), `GET /personas/{id}`. `schemas/persona.py` con `AlumnoInfo`, `DocenteInfo`, `AdministrativoInfo`, `RolInfo`, `PersonaResponse`, `PaginatedPersonasResponse`. Auto-crear perfiles en `PUT /usuarios/{id}/roles`: detecta roles nuevos, auto-crea/vincula. Si el rol es "docente" y ya existe un docente con esa CI sin `id_usuario`, se vincula; si no, se crea nuevo desde datos del alumno. Frontend: `features/persona/` — model, service, `persona-list` (table con avatar, iniciales, pills de rol, filtro chips, paginación), routes. Feature color `#5b21b6`. Verificado: `ng build --configuration development` OK + API `GET /personas` retorna 7 personas con perfiles correctamente vinculados.
 - **Pagos: búsqueda global de alumno para generar órdenes (2026-08-14)**: en `/pagos` (`pagos-admin`) además del grid de ediciones ahora hay una **barra de búsqueda** (debounce 400ms, min 2 caracteres, por apellido/nombre/CI) que encuentra alumnos en **ediciones activas** (excluye PVE `finalizado` y DPAs `retirado` — por eso "guti" no encuentra a los alumnos de la edición finalizada). Cada resultado muestra avatar de iniciales, nombre, CI, programa — Ed. N · Año · Sem., modalidad, chip de orden emitida si existe y el **Debe** (espejo del fin-card del dialog: `max(0, total_esperado - total_pagado)`). Un clic abre el **mismo `OrdenPagoDialog`** en el lugar (modo emitir o cobrar según `orden_activa`) usando el contexto embebido de su edición; al cerrar, re-ejecuta la búsqueda para refrescar el Debe. Backend: nuevo `GET /pagos/buscar?q=&limit=` (permiso `pagos.ver`, límite 20) que devuelve por hit la fila completa de la matriz (`AlumnoPagosMatrix`: cuotas, matrícula, otros, totales, `orden_activa`) + contexto de edición (`id_programa_version_edicion`, programa, tipo, edicion/anio/semestre, modalidad, precio, matricula_precio, modulos). Para no duplicar serialización se extrajo `_serializar_fila(db, detalle, dpm_list, modulos, precio, matricula, ordenes_emitidas)` de `pagos_por_edicion`, reusado por ambos endpoints. Frontend: `BusquedaPagosItem extends AlumnoPagosMatrix` en `pago.model.ts`, `PagoService.buscarAlumnos(q)`, sección `.busqueda-section` con `.busqueda-field`/`.resultados-panel`/`.resultado-row` (hover con border feature-pagos, avatar slate neutro, deuda en verde con tabular-nums). Verificado: API en 8000 (por apellido/nombre/CI, min 2 chars, edición finalizada excluida, `por-edicion` intacto tras el refactor) + `ng build --configuration development` + Playwright (buscar "baldiviezo" → 1 hit con Debe 2.750 y chip ORD-2026-0009 → dialog en modo cobrar; "martinez" → 2 hits (dos ediciones activas) → dialog en modo emitir con stepper 6 disponibles y Debe 7.000; tras cerrar se re-busca; limpiar vacía campo y resultados; sin errores nuevos — el NG0100 del login sigue siendo el preexistente).
 
 - **Pagos: fin del "apagado-encendido" en la matriz (2026-08-13)**: el parpadeo venía de que `cargarDatos()` ponía `isLoading=true` en cada recarga y el `@if (isLoading())` del template desmontaba TODA la matriz (tabla + meta + retirados) para mostrar el spinner ("Cargando pagos...") → la página quedaba en blanco y volvía a montarse al cerrar un dialog tras emitir/cobrar/anular. Solución **stale-while-revalidate**: el spinner solo aparece en la primera carga (`data() === null`); en refrescos posteriores la tabla queda montada y un nuevo signal `refreshing` muestra una **barra fina de 2px** animada (`.refresh-bar`, keyframes `refresh-slide`, color feature-pagos) en el borde superior de `.matriz-scroll` (que ahora es `position: relative`). Además se preserva el scroll (antes el desmontaje lo perdía). Mismo criterio dentro de `orden-pago-dialog`: el preview ya no parpadea "Calculando..." en cada clic del stepper — guard de secuencia (`previewSeq`) + se conservan los `previewItems` previos mientras recalcula (el bloque "Calculando..." solo aparece si no hay datos previos; el error se muestra primero). Verificado: `ng build --configuration development` OK + Playwright (tras emitir y cerrar el dialog: matriz siempre montada `matriz=1`, `spinner=0`, `refreshBar` aparece y desaparece, `MATRIZ_SE_APAGO:false`, refetch 1; cancelar → delta refetch 0 y barra 0; preview: "Calculando" 0 veces en 16 frames con desglose visible, total correcto), sin errores de consola. Órdenes de prueba de la sesión (ORD-2026-0011/12/13) anuladas por API al terminar.
