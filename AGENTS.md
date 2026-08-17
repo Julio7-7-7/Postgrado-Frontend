@@ -258,3 +258,36 @@ Observaciones de la revisión global previa a hosting (ambos repos limpios y com
 - **2026-07-31**: inscripciones-edicion client-side (request 1×500, chips por estado, búsqueda, paginador custom); backend `per_page ≤ 500`.
 - **2026-08-01**: inscripcion-detail hitos horizontales (5 hitos, "Observado"/"Retirado" como avisos aparte), danger-zone GitHub, migración/reincorporación contextual, reincorporación en apartado desplegable único.
 - **2026-08-02**: `revisar-incorporacion` rediseñado (hero-card por tipo, motivo en cita, stats strip, timeline); bugfix import `ProgramaVersion`; entornos Supabase/local vía `DATABASE_URL`.
+
+## Resumen de sesión 2026-08-16 (nueva computadora)
+
+**Cambios completados y commiteados:**
+
+### Backend (commit `2531172`)
+- **`GET /personas`** — listado unificado de todas las personas (alumnos, docentes, administrativos) con búsqueda por nombre/CI/email, filtro por rol, paginación. Archivos: `routers/persona.py`, `schemas/persona.py`.
+- **`PUT /usuarios/{id}/roles` modificado** — auto-crea perfiles al asignar rol nuevo. Si se asigna "docente" a un usuario que no tiene perfil docente, se crea automáticamente. Si el docente ya existe por CI sin `id_usuario`, se vincula. Función `_auto_crear_perfiles` + `_obtener_datos_perfil`.
+- **`contrataciones_docente.py`** — fix de `InFailedSqlTransaction`: eliminadas `@property` del modelo (causa del lazy-loading fallido), `query_base()` ahora hace eager-load completo con `joinedload` profundo para `.modulo` y `.programa_version_edicion.programa_version.programa`. Todos los endpoints con `try/except` + `db.rollback()`.
+- **`docente.py`** — al crear docente con `POST /docentes/`, ahora asigna rol `docente` + `alumno` (antes solo docente).
+- **`usuarios.py`** — al crear usuario con `POST /usuarios/`, siempre asigna rol `alumno` independientemente del tipo (antes solo si tipo == "alumno").
+- **BD**: agregadas columnas faltantes (`matricula` en `programa_version_edicion`, `id_modulo_inicio`/`modulo_inicio`/`es_incorporacion` en `detalle_programa_alumno`, `id_transaccion`/`id_detalle_programa_modulo` en `pagos`, `created_at` en `modalidad_requisito`). Creadas 9 tablas faltantes (`tipo_solicitud`, `solicitud`, `solicitud_requisito`, `solicitud_incorporacion`, `solicitud_migracion`, `documento_solicitud`, `historial_inscripcion`, `orden_pago`, `transaccion_pago`).
+
+### Frontend (commit `a7e01f6`)
+- **`features/persona/`** — componente de gestión de personas: `persona.model.ts`, `persona.service.ts`, `persona-list.ts/.html/.css`, `persona.routes.ts`. Table Material con avatar de iniciales, pills de rol, filtro chips, paginación.
+- **`nav.config.ts`** — item "Personas" en grupo "sistema" con permiso `usuarios.gestionar`.
+- **`material-theme.scss`** — feature color `#5b21b6` (violeta) para personas.
+- **`AGENTS.md`** — actualizado con: personas unificada, aclaración de conceptos "modalidad" (académica vs dictado), feature colors, archivos relevantes.
+
+### Documentación
+- **`Descripcion-del-sistema-por-tablas.docx`** — corregido heading de docentes ("V" → "4.7"), aclarada descripción de `modalidades_academicas` como tipo de ingreso (no presencial/virtual).
+- **Backup BD**: `backup_20260816_191557.dump` + 15 archivos JSON + `schema_20260816.sql`.
+
+### Conceptos clave a recordar
+- **`modalidades_academicas`** = tipo de **ingreso** del estudiante (Profesionales, Educación Continua, Libre). Determina requisitos y descuentos.
+- **`modalidad`** (campo enum) = modo de **dictado** (presencial, virtual, semipresencial). Simple texto, sin lógica asociada.
+- **Todo usuario nuevo** recibe rol `alumno` automáticamente (incluso docentes y administrativos).
+- **`InFailedSqlTransaction`** se resuelve con eager-load completo + rollback explícito en endpoints.
+
+### Pendiente para otra sesión
+- Crear feature module `persona/` completo si se necesita CRUD (actualmente es solo listado).
+- Los 30+ requisitos funcionales (R1-R30) están documentados en la tabla del usuario.
+- Falta decidir si agregar R31-R35 (Dashboard, Portal Alumno, Portal Docente, Explorador, Búsqueda Pagos).
