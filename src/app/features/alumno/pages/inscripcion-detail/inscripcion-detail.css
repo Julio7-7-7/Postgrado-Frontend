@@ -178,6 +178,20 @@
 .section-header h3 { margin: 0; font-size: 1rem; color: var(--fich-text); }
 .section-sub { margin: 2px 0 0; font-size: 0.8rem; color: var(--fich-text-faint); }
 
+.generar-orden-btn {
+  margin-left: auto; font-size: 0.78rem;
+  border-color: #15803d; color: #15803d;
+}
+.generar-orden-btn:hover { background: #f0fdf4; }
+.generar-orden-btn mat-icon { font-size: 16px; width: 16px; height: 16px; margin-right: 4px; }
+
+.orden-activa-chip {
+  margin-left: auto; display: inline-flex; align-items: center; gap: 4px;
+  background: #eff6ff; color: #1e40af; padding: 4px 10px;
+  border-radius: 8px; font-size: 0.78rem; font-weight: 600;
+}
+.orden-activa-chip mat-icon { font-size: 14px; width: 14px; height: 14px; }
+
 .progress-bar-wrapper { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
 .progress-bar { flex: 1; height: 6px; background: var(--fich-border); border-radius: 3px; overflow: hidden; }
 .progress-fill {
@@ -610,6 +624,29 @@
 .boleta-anulado-note mat-icon { font-size: 16px; width: 16px; height: 16px; flex-shrink: 0; margin-top: 1px; }
 .boleta-anulado-note strong { display: block; }
 .boleta-anulado-note p { margin: 2px 0 0; }
+
+.certificados-list { display: flex; flex-direction: column; gap: 8px; }
+.certificado-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 14px; border: 1px solid var(--fich-border);
+  border-radius: 10px; transition: border-color 0.15s;
+}
+.certificado-item:hover { border-color: #9333ea44; }
+.cert-icon {
+  width: 36px; height: 36px; border-radius: 8px;
+  background: #f5f3ff; display: flex; align-items: center; justify-content: center;
+  color: #9333ea; flex-shrink: 0;
+}
+.cert-icon mat-icon { font-size: 20px; width: 20px; height: 20px; }
+.cert-info { display: flex; flex-direction: column; flex: 1; }
+.cert-title { font-size: 0.85rem; font-weight: 500; }
+.cert-date { font-size: 0.78rem; color: var(--fich-text-faint); margin-top: 2px; }
+.cert-download {
+  color: #9333ea; padding: 6px; border-radius: 6px;
+  transition: background 0.15s;
+}
+.cert-download:hover { background: #f5f3ff; }
+.cert-download mat-icon { font-size: 20px; width: 20px; height: 20px; }
 
 .panel-loading, .panel-error, .panel-empty {
   display: flex; align-items: center; justify-content: center; gap: 10px;

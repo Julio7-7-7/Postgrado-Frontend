@@ -6,8 +6,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { NotaService } from '../../services/nota.service';
 import { ProgramaVersionEdicionResponse } from '../../../documentacion/models/documentacion.model';
+import { InformeNotasDialogComponent } from '../../../informes-notas/pages/informe-notas-dialog/informe-notas-dialog';
 import { environment } from '../../../../../environments/environment';
 
 @Component({
@@ -15,7 +17,7 @@ import { environment } from '../../../../../environments/environment';
   standalone: true,
   imports: [
     CommonModule,
-    MatIconModule, MatButtonModule, MatProgressSpinnerModule, MatSnackBarModule,
+    MatIconModule, MatButtonModule, MatProgressSpinnerModule, MatSnackBarModule, MatDialogModule,
   ],
   templateUrl: './notas-admin.html',
   styleUrl: './notas-admin.css',
@@ -24,6 +26,7 @@ export class NotasAdminComponent implements OnInit {
   private notaService = inject(NotaService);
   private router = inject(Router);
   private snackbar = inject(MatSnackBar);
+  private dialog = inject(MatDialog);
   private destroyRef = inject(DestroyRef);
 
   apiUrl = environment.apiUrl;
@@ -88,5 +91,17 @@ export class NotasAdminComponent implements OnInit {
 
   onImgError(event: Event): void {
     (event.target as HTMLImageElement).style.display = 'none';
+  }
+
+  abrirInformeNotas(): void {
+    const dialogRef = this.dialog.open(InformeNotasDialogComponent, {
+      width: '560px',
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.snackbar.open('Informe generado correctamente', 'Cerrar', { duration: 3000 });
+      }
+    });
   }
 }

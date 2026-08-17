@@ -2,6 +2,9 @@
   <div class="header-section">
     <h1><mat-icon>grading</mat-icon> Gestión de Notas</h1>
     <p class="subtitle">Seleccione una edición para gestionar las notas de los alumnos</p>
+    <button mat-stroked-button class="informe-btn" (click)="abrirInformeNotas()" type="button">
+      <mat-icon>summarize</mat-icon> Informe de Notas
+    </button>
   </div>
 
   @if (isLoading()) {

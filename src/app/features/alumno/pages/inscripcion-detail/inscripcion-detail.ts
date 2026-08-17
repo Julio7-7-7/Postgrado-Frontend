@@ -19,7 +19,11 @@ import { SolicitudRequisito } from '../../../inscripciones/models/solicitud-requ
 import { InscripcionEdicionService } from '../../../inscripciones/services/inscripcion-edicion.service';
 import { InscripcionTranscript, ModuloTranscript } from '../../../inscripciones/models/inscripcion-edicion.model';
 import { PagoService } from '../../../pagos/services/pago.service';
+import { OrdenPagoService } from '../../../pagos/services/orden-pago.service';
 import { TranscriptPagosInscripcion, TransaccionTranscript } from '../../../pagos/models/pago.model';
+import { OrdenPagoResponse } from '../../../pagos/models/orden-pago.model';
+import { OrdenEstudianteDialogComponent, OrdenEstudianteData } from '../../../pagos/pages/orden-estudiante-dialog/orden-estudiante-dialog';
+import { InformeNotasService, CertificadoNotas } from '../../../informes-notas/services/informe-notas.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { clasificarNota } from '../../../../core/utils/nota-utils';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog';
@@ -92,12 +96,13 @@ const TRANSACCION_ESTADO_LABELS: Record<string, string> = {
   anulado: 'Anulado',
 };
 
-type TabId = 'recorrido' | 'notas' | 'pagos' | 'docs' | 'solicitudes';
+type TabId = 'recorrido' | 'notas' | 'pagos' | 'certificados' | 'docs' | 'solicitudes';
 
 const TABS: { id: TabId; label: string; icon: string }[] = [
   { id: 'recorrido', label: 'Recorrido', icon: 'timeline' },
   { id: 'notas', label: 'Notas', icon: 'grading' },
   { id: 'pagos', label: 'Pagos', icon: 'receipt_long' },
+  { id: 'certificados', label: 'Certificados', icon: 'workspace_premium' },
   { id: 'docs', label: 'Documentación', icon: 'description' },
   { id: 'solicitudes', label: 'Solicitudes', icon: 'swap_horiz' },
 ];
@@ -120,6 +125,8 @@ export class InscripcionDetailComponent implements OnInit {
   private solicitudRequisitoService = inject(SolicitudRequisitoService);
   private inscripcionEdicionService = inject(InscripcionEdicionService);
   private pagoService = inject(PagoService);
+  private ordenService = inject(OrdenPagoService);
+  private informeService = inject(InformeNotasService);
   private auth = inject(AuthService);
   private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
@@ -172,6 +179,8 @@ export class InscripcionDetailComponent implements OnInit {
   cargandoPagos = signal(false);
   errorNotas = signal(false);
   errorPagos = signal(false);
+  ordenActivaAlumno = signal<OrdenPagoResponse | null>(null);
+  misCertificados = signal<CertificadoNotas[]>([]);
 
   financiero = computed(() => this.misPagos()?.financiero ?? null);
   pctPagos = computed(() => {
@@ -213,6 +222,7 @@ export class InscripcionDetailComponent implements OnInit {
     recorrido: 0,
     notas: this.misNotas()?.modulos.length ?? 0,
     pagos: this.misPagos()?.transacciones.length ?? 0,
+    certificados: this.misCertificados().length,
     docs: this.docsObligatorios().length + this.docsExtras().length,
     solicitudes: this.solicitudesActivas(),
   }));
@@ -652,6 +662,17 @@ export class InscripcionDetailComponent implements OnInit {
         this.errorPagos.set(true);
       },
     });
+
+    this.ordenService.getMisOrdenes(idDpa).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (ordenes) => {
+        const activa = ordenes.find(o => o.estado === 'emitida');
+        this.ordenActivaAlumno.set(activa ?? null);
+      },
+    });
+
+    this.informeService.getMisCertificados(idAlumno).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (certs) => this.misCertificados.set(certs),
+    });
   }
 
   notaDe(mod: ModuloTranscript): number | null {
@@ -729,6 +750,58 @@ export class InscripcionDetailComponent implements OnInit {
   saldoAFavor(): boolean {
     const f = this.misPagos()?.financiero;
     return !!f && f.saldo < 0;
+  }
+
+  saldoPendiente(): number {
+    const f = this.misPagos()?.financiero;
+    return f ? Math.max(0, f.total_esperado - f.total_pagado) : 0;
+  }
+
+  abrirGenerarOrden(): void {
+    const dpa = this.inscripcion();
+    const pagos = this.misPagos();
+    const notas = this.misNotas();
+    if (!dpa || !pagos) return;
+
+    const edicion = dpa.programa_version_edicion;
+    const precio = edicion?.precio || 0;
+    const matricula = edicion?.matricula || 0;
+    const matriculaPendiente = pagos.financiero ? pagos.financiero.matricula.saldo > 0 : false;
+
+    const modulosTranscript = notas?.modulos || [];
+    const precioPorModulo = modulosTranscript.length > 0 ? precio / modulosTranscript.length : precio;
+    const cuotasPendientes = pagos.financiero ? Math.ceil(pagos.financiero.cuotas.saldo / (precioPorModulo || 1)) : 0;
+
+    const modulosPendientes = modulosTranscript.slice(0, cuotasPendientes).map(m => ({
+      nombre: m.modulo_nombre,
+      sigla: m.modulo_nombre.substring(0, 6).toUpperCase(),
+      orden: m.modulo_orden,
+      precio: precioPorModulo,
+    }));
+
+    const data: OrdenEstudianteData = {
+      idDetalleProgramaAlumno: dpa.id_detalle_programa_alumno,
+      alumnoNombre: `${dpa.alumno?.apellido || ''} ${dpa.alumno?.nombre || ''}`.trim(),
+      programaNombre: edicion?.programa_version?.programa?.nombre_programa || 'Programa',
+      edicionLabel: `Ed. ${edicion?.edicion || ''} · ${edicion?.anio || ''}`,
+      matriculaPendiente,
+      precioMatricula: matricula,
+      modulosPendientes,
+      totalEsperado: pagos.financiero?.total_esperado || 0,
+      totalPagado: pagos.financiero?.total_pagado || 0,
+    };
+
+    const dialogRef = this.dialog.open(OrdenEstudianteDialogComponent, {
+      width: '500px',
+      data,
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this._cargarNotasYPagos(dpa.id_detalle_programa_alumno);
+        this.ordenActivaAlumno.set(result);
+      }
+    });
   }
 
   showMigracionCard = computed(() => {
