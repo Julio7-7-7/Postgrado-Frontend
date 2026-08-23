@@ -1,0 +1,217 @@
+<div class="page-container">
+
+  <!-- HEADER -->
+  <div class="header-section">
+    <div class="header-left">
+      <button mat-icon-button (click)="irAtras()" class="back-btn">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div>
+        <h2>Ruta Documental</h2>
+        <p class="subtitle">Configure las etapas y requisitos de contratación para este tipo de programa</p>
+      </div>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-state">
+      <mat-spinner diameter="48" color="primary"></mat-spinner>
+      <p>Cargando configuración...</p>
+    </div>
+  } @else {
+
+    <div class="layout-2col">
+
+      <!-- ═══ PANEL IZQUIERDO: ETAPAS ═══ -->
+      <aside class="panel-etapas">
+        <div class="panel-header">
+          <h3>Etapas</h3>
+          <span class="badge-count">{{ etapas().length }}</span>
+        </div>
+
+        <!-- Nueva etapa -->
+        <div class="nueva-etapa-row">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic" class="nueva-etapa-field">
+            <mat-label>Nueva etapa</mat-label>
+            <input matInput
+                   [ngModel]="nuevaEtapaNombre()"
+                   (ngModelChange)="nuevaEtapaNombre.set($event)"
+                   (keydown.enter)="agregarEtapa()"
+                   placeholder="Ej: Verificación de Documentos">
+          </mat-form-field>
+          <button mat-fab color="primary"
+                  [disabled]="!nuevaEtapaNombre().trim() || guardando()"
+                  (click)="agregarEtapa()"
+                  class="fab-add"
+                  matTooltip="Agregar etapa">
+            <mat-icon>add</mat-icon>
+          </button>
+        </div>
+
+        <!-- Lista de etapas -->
+        <div class="etapas-list">
+          @for (etapa of etapas(); track etapa.id_etapa; let i = $index; let last = $last) {
+            <div class="etapa-card"
+                 [class.selected]="etapa.id_etapa === etapaSeleccionadaId()"
+                 (click)="seleccionarEtapa(etapa.id_etapa)">
+
+              <!-- Modo lectura -->
+              @if (editandoEtapaId() !== etapa.id_etapa) {
+                <div class="etapa-card-body">
+                  <span class="etapa-orden">{{ etapa.orden }}</span>
+                  <div class="etapa-info">
+                    <span class="etapa-nombre">{{ etapa.nombre }}</span>
+                    <span class="etapa-requisitos-count">
+                      {{ etapa.requisitos.length }} requisito{{ etapa.requisitos.length !== 1 ? 's' : '' }}
+                    </span>
+                  </div>
+                  <div class="etapa-actions" (click)="$event.stopPropagation()">
+                    <button mat-icon-button matTooltip="Subir" [disabled]="i === 0" (click)="moverEtapa(etapa, -1, $event)">
+                      <mat-icon>expand_less</mat-icon>
+                    </button>
+                    <button mat-icon-button matTooltip="Bajar" [disabled]="last" (click)="moverEtapa(etapa, 1, $event)">
+                      <mat-icon>expand_more</mat-icon>
+                    </button>
+                    <button mat-icon-button matTooltip="Editar" (click)="iniciarEdicion(etapa, $event)">
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                    <button mat-icon-button color="warn" matTooltip="Eliminar" (click)="eliminarEtapa(etapa, $event)">
+                      <mat-icon>delete_outline</mat-icon>
+                    </button>
+                  </div>
+                </div>
+              } @else {
+                <!-- Modo edición inline -->
+                <div class="etapa-card-body editando">
+                  <span class="etapa-orden">{{ etapa.orden }}</span>
+                  <mat-form-field appearance="outline" subscriptSizing="dynamic" class="edit-field">
+                    <input matInput
+                           [ngModel]="editandoEtapaNombre()"
+                           (ngModelChange)="editandoEtapaNombre.set($event)"
+                           (keydown.enter)="guardarEdicion(etapa)"
+                           (keydown.escape)="cancelarEdicion()"
+                           autofocus>
+                  </mat-form-field>
+                  <div class="edit-actions">
+                    <button mat-icon-button color="primary" matTooltip="Guardar" (click)="guardarEdicion(etapa)">
+                      <mat-icon>check</mat-icon>
+                    </button>
+                    <button mat-icon-button matTooltip="Cancelar" (click)="cancelarEdicion()">
+                      <mat-icon>close</mat-icon>
+                    </button>
+                  </div>
+                </div>
+              }
+            </div>
+          } @empty {
+            <div class="empty-panel">
+              <mat-icon>playlist_add</mat-icon>
+              <p>Sin etapas configuradas</p>
+              <p class="hint">Agregá la primera etapa arriba</p>
+            </div>
+          }
+        </div>
+      </aside>
+
+      <!-- ═══ PANEL DERECHO: REQUISITOS ═══ -->
+      <section class="panel-requisitos">
+        @if (etapaSeleccionada(); as etapa) {
+          <div class="panel-header">
+            <div class="panel-header-text">
+              <h3>{{ etapa.nombre }}</h3>
+              <span class="badge-count">{{ etapa.requisitos.length }}</span>
+            </div>
+          </div>
+
+          <!-- Sección: Asociados a esta etapa -->
+          @if (etapa.requisitos.length > 0) {
+            <div class="req-section">
+              <h4 class="section-title">
+                <mat-icon>link</mat-icon>
+                Requisitos asociados
+              </h4>
+              <div class="req-list associated">
+                @for (req of etapa.requisitos; track req.id_requisito; let i = $index; let last = $last) {
+                  <div class="req-chip associated">
+                    <div class="req-chip-left">
+                      <span class="req-orden">{{ req.orden }}</span>
+                      <span class="req-nombre">{{ req.nombre }}</span>
+                    </div>
+                    <div class="req-chip-actions">
+                      <button mat-icon-button class="reorder-btn" matTooltip="Subir" [disabled]="i === 0"
+                              (click)="moverRequisito(req, -1)">
+                        <mat-icon>expand_less</mat-icon>
+                      </button>
+                      <button mat-icon-button class="reorder-btn" matTooltip="Bajar" [disabled]="last"
+                              (click)="moverRequisito(req, 1)">
+                        <mat-icon>expand_more</mat-icon>
+                      </button>
+                      <button mat-icon-button class="remove-btn" matTooltip="Desasociar"
+                              (click)="toggleRequisito({id_requisito: req.id_requisito, nombre: req.nombre, descripcion: null, imagen_url: null, estado: 'activo', created_at: '', updated_at: ''})">
+                        <mat-icon>close</mat-icon>
+                      </button>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
+          <mat-divider></mat-divider>
+
+          <!-- Sección: Disponibles -->
+          <div class="req-section">
+            <h4 class="section-title">
+              <mat-icon>add_circle_outline</mat-icon>
+              Agregar requisitos
+            </h4>
+
+            <!-- Buscador -->
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="search-field">
+              <mat-icon matPrefix>search</mat-icon>
+              <mat-label>Buscar requisito...</mat-label>
+              <input matInput
+                     [ngModel]="busquedaRequisito()"
+                     (ngModelChange)="busquedaRequisito.set($event)"
+                     placeholder="Nombre del requisito">
+              @if (busquedaRequisito()) {
+                <button mat-icon-button matSuffix (click)="busquedaRequisito.set('')">
+                  <mat-icon>close</mat-icon>
+                </button>
+              }
+            </mat-form-field>
+
+            <div class="req-list available">
+              @for (req of noAsociados(); track req.id_requisito) {
+                <div class="req-chip available" (click)="toggleRequisito(req)">
+                  <mat-icon class="add-icon">add_circle</mat-icon>
+                  <span class="req-nombre">{{ req.nombre }}</span>
+                </div>
+              } @empty {
+                @if (busquedaRequisito()) {
+                  <div class="empty-hint">
+                    <mat-icon>search_off</mat-icon>
+                    <p>No se encontraron requisitos</p>
+                  </div>
+                } @else {
+                  <div class="empty-hint">
+                    <mat-icon>check_circle</mat-icon>
+                    <p>Todos los requisitos están asociados</p>
+                  </div>
+                }
+              }
+            </div>
+          </div>
+
+        } @else {
+          <div class="empty-panel center">
+            <mat-icon>touch_app</mat-icon>
+            <p>Seleccioná una etapa del panel izquierdo</p>
+            <p class="hint">Ahí podés agregar y configurar los requisitos de cada etapa</p>
+          </div>
+        }
+      </section>
+
+    </div>
+  }
+</div>

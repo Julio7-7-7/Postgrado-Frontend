@@ -12,15 +12,15 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatExpansionModule } from '@angular/material/expansion';
 
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog';
 import { UploadBoxComponent } from '../../../../shared/components/upload-box/upload-box';
 import { ContratacionService } from '../../services/contratacion.service';
-import { DocumentoService } from '../../services/documento.service';
+import { DocContratacionService } from '../../services/doc-contratacion.service';
 import { DetalleService } from '../../../detalle-programa-modulo/services/detalle.service';
 import { ContratacionDocente } from '../../models/contratacion.model';
-import { DocumentoContratacion, ETAPAS_DOCUMENTALES } from '../../models/documento.model';
+import { ControlDocContratacion, EtapaContratacion } from '../../models/etapa.model';
+import { EtapaService } from '../../services/etapa.service';
 import { DetalleProgramaModulo } from '../../../detalle-programa-modulo/models/detalle.model';
 
 @Component({
@@ -30,7 +30,7 @@ import { DetalleProgramaModulo } from '../../../detalle-programa-modulo/models/d
     CommonModule,
     MatButtonModule, MatIconModule, MatCardModule, MatDividerModule,
     MatSnackBarModule, MatProgressSpinnerModule, MatDialogModule, MatTooltipModule,
-    MatProgressBarModule, MatExpansionModule, UploadBoxComponent,
+    MatProgressBarModule, UploadBoxComponent,
   ],
   templateUrl: './contratacion-detalle.html',
   styleUrl: './contratacion-detalle.css',
@@ -39,89 +39,54 @@ export class ContratacionDetalleComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private service = inject(ContratacionService);
-  private documentoService = inject(DocumentoService);
+  private docService = inject(DocContratacionService);
   private detalleService = inject(DetalleService);
+  private etapaService = inject(EtapaService);
   private dialog = inject(MatDialog);
   private snackbar = inject(MatSnackBar);
   private destroyRef = inject(DestroyRef);
 
   contratacion = signal<ContratacionDocente | null>(null);
-  documentos = signal<DocumentoContratacion[]>([]);
+  documentos = signal<ControlDocContratacion[]>([]);
   detalle = signal<DetalleProgramaModulo | null>(null);
+  etapas = signal<EtapaContratacion[]>([]);
   loading = signal(true);
   subiendo = signal<'ninguno' | 'file-read' | 'subiendo' | 'completado'>('ninguno');
-  progresoSubida = signal(0);
   pendingFile = signal<File | null>(null);
   pendingFileName = signal('');
   pendingFileSize = signal('');
-  pendingOrdenReemplazo = signal<number | undefined>(undefined);
+  pendingDocId = signal<number | null>(null);
   error = signal<string | null>(null);
-  etapaExpandida = signal<string | null>(null);
+  etapaExpandida = signal<number | null>(null);
   montoEditando = signal(false);
   montoInput = signal<number | null>(null);
+  inicializandoDocs = signal(false);
+  avanzando = signal(false);
 
-  documentosPorOrden = computed(() => {
-    const map = new Map<number, DocumentoContratacion>();
+  documentosPorEtapa = computed(() => {
+    const map = new Map<number, ControlDocContratacion[]>();
     for (const doc of this.documentos()) {
-      map.set(doc.orden, doc);
-    }
-    return map;
-  });
-
-  versionesPorOrden = computed(() => {
-    const map = new Map<number, DocumentoContratacion[]>();
-    for (const doc of this.documentos()) {
-      const arr = map.get(doc.orden) ?? [];
+      const arr = map.get(doc.id_etapa) ?? [];
       arr.push(doc);
-      map.set(doc.orden, arr);
+      map.set(doc.id_etapa, arr);
     }
     return map;
   });
-
-  siguienteOrden = computed(() => {
-    const docs = this.documentos();
-    if (docs.length === 0) return 0;
-    return new Set(docs.map(d => d.orden)).size;
-  });
-
-  versionesAnteriores(orden: number): DocumentoContratacion[] {
-    const docs = this.versionesPorOrden().get(orden) ?? [];
-    if (docs.length <= 1) return [];
-    return docs.slice(0, -1);
-  }
-
-  mostrarVersionesAnteriores = signal<number | null>(null);
-
-  toggleVersiones(orden: number): void {
-    this.mostrarVersionesAnteriores.set(
-      this.mostrarVersionesAnteriores() === orden ? null : orden
-    );
-  }
 
   etapasConEstado = computed(() => {
-    const docsPorOrden = this.documentosPorOrden();
-    const orden = this.siguienteOrden();
-    let docIdx = 0;
-    return ETAPAS_DOCUMENTALES.map(etapa => {
-      const inicioEtapa = docIdx;
-      const docsEnEtapa = etapa.documentos.map((d, i) => ({
-        info: d,
-        doc: docsPorOrden.get(inicioEtapa + i) ?? null,
-        ordenGlobal: inicioEtapa + i,
-      }));
-      docIdx += etapa.documentos.length;
+    const etapas = this.etapas();
+    const docsPorEtapa = this.documentosPorEtapa();
+    const etapaActual = this.contratacion()?.id_etapa_actual;
 
-      const completados = docsEnEtapa.filter(d => d.doc !== null).length;
-      const total = docsEnEtapa.length;
-      const todosCompletados = completados === total;
-      const algunoCompletado = completados > 0;
-      const activa = !todosCompletados && algunoCompletado
-        ? false
-        : orden >= inicioEtapa && (orden < inicioEtapa + total || todosCompletados);
-      const esActual = orden >= inicioEtapa && orden < inicioEtapa + total && !todosCompletados;
-      const bloqueada = orden <= inicioEtapa ? false : orden > inicioEtapa + total;
+    return etapas.map(etapa => {
+      const docs = docsPorEtapa.get(etapa.id_etapa) ?? [];
+      const completados = docs.filter(d => d.estado === 'aceptado' || d.url_documento).length;
+      const total = docs.length;
+      const esActual = etapaActual === etapa.id_etapa;
+      const estaCompletada = completados === total && total > 0;
+      const estaBloqueada = etapaActual != null && etapa.orden > (etapas.find(e => e.id_etapa === etapaActual)?.orden ?? 0);
 
-      return { etapa, docsEnEtapa, completados, total, esActual, bloqueada, activa };
+      return { etapa, docs, completados, total, esActual, estaCompletada, estaBloqueada };
     });
   });
 
@@ -145,34 +110,14 @@ export class ContratacionDetalleComponent implements OnInit {
       next: (c) => {
         this.contratacion.set(c);
         this.cargarDetalle(c.id_detalle_modulo);
+        this.cargarEtapas(c.id_programa);
+        this.cargarDocumentos();
       },
       error: () => {
         this.error.set('No se pudo cargar la contratación');
         this.loading.set(false);
       },
     });
-
-    this.documentoService.getAll(this.contratacionId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (docs) => {
-        this.documentos.set(docs);
-        this.autoExpandirEtapa();
-      },
-    });
-  }
-
-  private autoExpandirEtapa(): void {
-    const orden = this.siguienteOrden();
-    let docIdx = 0;
-    for (const etapa of ETAPAS_DOCUMENTALES) {
-      if (orden >= docIdx && orden < docIdx + etapa.documentos.length) {
-        this.etapaExpandida.set(etapa.nombre);
-        return;
-      }
-      docIdx += etapa.documentos.length;
-    }
-    if (orden >= docIdx) {
-      this.etapaExpandida.set(ETAPAS_DOCUMENTALES[ETAPAS_DOCUMENTALES.length - 1]?.nombre ?? null);
-    }
   }
 
   private cargarDetalle(id: number): void {
@@ -187,18 +132,62 @@ export class ContratacionDetalleComponent implements OnInit {
     });
   }
 
-  pasoActual(orden: number): boolean {
-    return orden === this.siguienteOrden()
-      && this.contratacion()?.estado !== 'truncado'
-      && this.contratacion()?.estado !== 'formalizado';
+  private cargarEtapas(tipoProgramaId: number): void {
+    this.etapaService.getAll(tipoProgramaId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (etapas: EtapaContratacion[]) => {
+        this.etapas.set(etapas.sort((a: EtapaContratacion, b: EtapaContratacion) => a.orden - b.orden));
+        if (etapas.length > 0 && this.etapaExpandida() === null) {
+          this.etapaExpandida.set(etapas[0].id_etapa);
+        }
+      },
+    });
   }
 
-  pasosBloqueados(): boolean {
-    const c = this.contratacion();
-    return !c || c.estado === 'truncado' || c.estado === 'formalizado';
+  private cargarDocumentos(): void {
+    this.docService.getAll(this.contratacionId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (docs: ControlDocContratacion[]) => {
+        this.documentos.set(docs);
+        if (docs.length > 0) {
+          const etapaIds = [...new Set(docs.map(d => d.id_etapa))];
+          this.etapaExpandida.set(etapaIds[0] ?? null);
+        }
+      },
+    });
   }
 
-  onFileSelected(file: File, ordenReemplazo?: number): void {
+  inicializarDocumentos(): void {
+    this.inicializandoDocs.set(true);
+    this.docService.inicializar(this.contratacionId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (docs) => {
+        this.documentos.set(docs);
+        this.snackbar.open('Documentos inicializados correctamente', 'OK', { duration: 3000 });
+        this.inicializandoDocs.set(false);
+        this.cargarDatos();
+      },
+      error: (err) => {
+        this.snackbar.open(err.error?.detail || 'Error al inicializar documentos', 'Cerrar', { duration: 4000 });
+        this.inicializandoDocs.set(false);
+      },
+    });
+  }
+
+  avanzarEtapa(): void {
+    this.avanzando.set(true);
+    this.docService.avanzarEtapa(this.contratacionId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (docs) => {
+        this.documentos.set(docs);
+        this.snackbar.open('Etapa avanzada correctamente', 'OK', { duration: 3000 });
+        this.avanzando.set(false);
+        this.cargarDatos();
+      },
+      error: (err) => {
+        this.snackbar.open(err.error?.detail || 'Error al avanzar etapa', 'Cerrar', { duration: 4000 });
+        this.avanzando.set(false);
+      },
+    });
+  }
+
+  onFileSelected(file: File, docId?: number): void {
     if (file.type !== 'application/pdf') {
       this.snackbar.open('Solo se aceptan archivos PDF', 'Cerrar', { duration: 4000 });
       return;
@@ -207,65 +196,51 @@ export class ContratacionDetalleComponent implements OnInit {
     this.pendingFile.set(file);
     this.pendingFileName.set(file.name);
     this.pendingFileSize.set(this.formatSize(file.size));
-    this.pendingOrdenReemplazo.set(ordenReemplazo);
+    this.pendingDocId.set(docId ?? null);
   }
 
   confirmUpload(): void {
     const file = this.pendingFile();
-    const ordenReemplazo = this.pendingOrdenReemplazo();
-    if (!file) return;
+    const docId = this.pendingDocId();
+    if (!file || !docId) return;
 
     this.pendingFile.set(null);
     this.pendingFileName.set('');
     this.pendingFileSize.set('');
-    this.pendingOrdenReemplazo.set(undefined);
+    this.pendingDocId.set(null);
 
     this.subiendo.set('file-read');
+    this.subiendo.set('subiendo');
 
-    const reader = new FileReader();
-    reader.onprogress = (e) => {
-      if (e.lengthComputable) {
-        this.progresoSubida.set(Math.round((e.loaded / e.total) * 40));
-      }
-    };
-    reader.onload = () => {
-      this.progresoSubida.set(40);
-      this.subiendo.set('subiendo');
-      this.documentoService.subirPdf(this.contratacionId, file, ordenReemplazo).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-        next: (doc) => {
-          this.documentos.update(docs => [...docs, doc]);
-          this.progresoSubida.set(80);
-          this.service.getById(this.contratacionId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-            next: (c) => this.contratacion.set(c),
-          });
-          this.progresoSubida.set(100);
-          this.subiendo.set('completado');
-          this.snackbar.open('Documento subido correctamente', 'OK', { duration: 3000 });
-          setTimeout(() => {
-            this.subiendo.set('ninguno');
-            this.progresoSubida.set(0);
-          }, 800);
-        },
-        error: (err) => {
+    this.docService.subirDocumento(docId, file).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (doc) => {
+        this.documentos.update(docs => {
+          const idx = docs.findIndex(d => d.id_control_doc_contratacion === doc.id_control_doc_contratacion);
+          if (idx >= 0) {
+            const copy = [...docs];
+            copy[idx] = doc;
+            return copy;
+          }
+          return [...docs, doc];
+        });
+        this.subiendo.set('completado');
+        this.snackbar.open('Documento subido correctamente', 'OK', { duration: 3000 });
+        setTimeout(() => {
           this.subiendo.set('ninguno');
-          this.progresoSubida.set(0);
-          this.snackbar.open(err.error?.detail || 'Error al subir documento', 'Cerrar', { duration: 4000 });
-        },
-      });
-    };
-    reader.onerror = () => {
-      this.subiendo.set('ninguno');
-      this.progresoSubida.set(0);
-      this.snackbar.open('Error al leer el archivo', 'Cerrar', { duration: 4000 });
-    };
-    reader.readAsDataURL(file);
+        }, 800);
+      },
+      error: (err) => {
+        this.subiendo.set('ninguno');
+        this.snackbar.open(err.error?.detail || 'Error al subir documento', 'Cerrar', { duration: 4000 });
+      },
+    });
   }
 
   cancelUpload(): void {
     this.pendingFile.set(null);
     this.pendingFileName.set('');
     this.pendingFileSize.set('');
-    this.pendingOrdenReemplazo.set(undefined);
+    this.pendingDocId.set(null);
   }
 
   formatSize(bytes: number): string {
@@ -347,28 +322,35 @@ export class ContratacionDetalleComponent implements OnInit {
   estadoLabel(estado: string): string {
     const map: Record<string, string> = {
       pendiente: 'Pendiente',
-      verificacion: 'Verificación Presupuestaria',
-      convocatoria: 'Convocatoria',
-      seleccion: 'Selección',
-      resolucion: 'Resolución',
-      legal: 'Gestión Legal',
+      en_curso: 'En curso',
       formalizado: 'Formalizado',
       truncado: 'Truncado',
+      cancelado: 'Cancelado',
     };
     return map[estado] ?? estado;
   }
 
-  totalDocs = computed(() =>
-    ETAPAS_DOCUMENTALES.reduce((acc, e) => acc + e.documentos.length, 0)
-  );
+  totalDocs = computed(() => this.documentos().length);
 
   progresoGlobal = computed(() => {
     const total = this.totalDocs();
     if (total === 0) return 0;
-    const completados = new Set(this.documentos().map(d => d.orden)).size;
+    const completados = this.documentos().filter(d => d.estado === 'aceptado' || d.url_documento).length;
     return Math.round((completados / total) * 100);
   });
 
-  protected readonly ETAPAS_DOCUMENTALES = ETAPAS_DOCUMENTALES;
-  protected readonly urlPdf = (ruta: string | null) => this.documentoService.urlPdf(ruta);
+  puedeAvanzar = computed(() => {
+    const c = this.contratacion();
+    if (!c || c.estado === 'truncado' || c.estado === 'formalizado') return false;
+    const etapaActual = c.id_etapa_actual;
+    if (!etapaActual) return false;
+
+    const docsEtapa = this.documentos().filter(d => d.id_etapa === etapaActual);
+    const docsPendientes = docsEtapa.filter(d => d.estado !== 'aceptado' && !d.url_documento);
+    return docsPendientes.length === 0;
+  });
+
+  hayDocumentos = computed(() => this.documentos().length > 0);
+
+  protected readonly urlPdf = (ruta: string | null) => this.docService.urlPdf(ruta);
 }

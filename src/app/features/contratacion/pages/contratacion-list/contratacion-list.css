@@ -18,6 +18,18 @@
   letter-spacing: -0.5px;
 }
 
+.header-left { flex: 1; }
+.header-right { display: flex; gap: 8px; align-items: center; }
+
+.btn-route-doc {
+  border-color: var(--fich-feature-contratacion, #b45309);
+  color: var(--fich-feature-contratacion, #b45309);
+  font-weight: 600;
+}
+.btn-route-doc:hover {
+  background: var(--fich-feature-contratacion-light, #fffbeb);
+}
+
 .subtitle {
   color: var(--fich-text-muted);
   font-size: 0.9rem;

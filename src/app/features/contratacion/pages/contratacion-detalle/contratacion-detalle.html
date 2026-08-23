@@ -23,17 +23,14 @@
     <div class="header-section">
       <div class="header-left">
         <h2>Contratación #{{ c?.id_contratacion }}</h2>
-        <span class="estado-badge"
-              [class.estado-pendiente]="c?.estado === 'pendiente'"
-              [class.estado-verificacion]="c?.estado === 'verificacion'"
-              [class.estado-convocatoria]="c?.estado === 'convocatoria'"
-              [class.estado-seleccion]="c?.estado === 'seleccion'"
-              [class.estado-resolucion]="c?.estado === 'resolucion'"
-              [class.estado-legal]="c?.estado === 'legal'"
-              [class.estado-formalizado]="c?.estado === 'formalizado'"
-              [class.estado-truncado]="c?.estado === 'truncado'">
+        <span class="estado-badge" [class]="'estado-' + c?.estado">
           {{ estadoLabel(c?.estado ?? '') }}
         </span>
+        @if (c?.etapa_actual_nombre) {
+          <span class="etapa-actual-chip">
+            <mat-icon>flag</mat-icon> {{ c?.etapa_actual_nombre }}
+          </span>
+        }
       </div>
       <div class="header-actions">
         @if (c?.estado !== 'truncado' && c?.estado !== 'formalizado') {
@@ -107,15 +104,12 @@
         <mat-card-content>
           <div class="info-row">
             <span class="info-label">Programa</span>
-            <span class="info-value">{{ d?.id_programa }}</span>
+            <span class="info-value">{{ c?.programa_nombre }}</span>
           </div>
           <div class="info-row">
             <span class="info-label">Estado del módulo</span>
             <span class="info-value">
-              <span class="modulo-estado-badge" [class.estado-programado]="d?.estado === 'programado'"
-                    [class.estado-en_curso]="d?.estado === 'en_curso'"
-                    [class.estado-reprogramado]="d?.estado === 'reprogramado'"
-                    [class.estado-finalizado]="d?.estado === 'finalizado'">
+              <span class="modulo-estado-badge" [class]="'estado-' + d?.estado">
                 {{ d?.estado === 'en_curso' ? 'En curso' : (d?.estado === 'reprogramado' ? 'Reprogramado' : (d?.estado === 'finalizado' ? 'Finalizado' : 'Programado')) }}
               </span>
             </span>
@@ -145,167 +139,154 @@
         <mat-card-title>Ruta documental</mat-card-title>
       </mat-card-header>
       <mat-card-content>
-        <div class="global-progress">
-          <div class="global-progress-header">
-            <span class="global-progress-label">Progreso general</span>
-            <span class="global-progress-count">{{ siguienteOrden() }}/{{ totalDocs() }} documentos</span>
+        @if (!hayDocumentos()) {
+          <div class="empty-ruta">
+            <mat-icon>folder_open</mat-icon>
+            <p>No se han inicializado los documentos de esta contratación.</p>
+            <button mat-flat-button color="primary" (click)="inicializarDocumentos()" [disabled]="inicializandoDocs()">
+              @if (inicializandoDocs()) {
+                <mat-spinner diameter="18" class="inline-spinner"></mat-spinner>
+              } @else {
+                <mat-icon>add_task</mat-icon>
+              }
+              Inicializar documentos
+            </button>
           </div>
-          <mat-progress-bar mode="determinate" [value]="progresoGlobal()"
-                           [class.progress-complete]="progresoGlobal() === 100"
-                           class="global-progress-bar"></mat-progress-bar>
-          @if (c?.estado === 'formalizado') {
-            <span class="global-hint global-hint-success">Todos los documentos han sido subidos y la contratación está formalizada</span>
-          } @else if (c?.estado === 'truncado') {
-            <span class="global-hint global-hint-muted">Proceso truncado — los documentos quedan como historial</span>
-          } @else {
-            <span class="global-hint">Siga la secuencia para completar la contratación</span>
-          }
-        </div>
+        } @else {
+          <div class="global-progress">
+            <div class="global-progress-header">
+              <span class="global-progress-label">Progreso general</span>
+              <span class="global-progress-count">{{ totalDocs() }} documentos</span>
+            </div>
+            <mat-progress-bar mode="determinate" [value]="progresoGlobal()"
+                             [class.progress-complete]="progresoGlobal() === 100"
+                             class="global-progress-bar"></mat-progress-bar>
+            @if (c?.estado === 'formalizado') {
+              <span class="global-hint global-hint-success">Todos los documentos han sido subidos y la contratación está formalizada</span>
+            } @else if (c?.estado === 'truncado') {
+              <span class="global-hint global-hint-muted">Proceso truncado — los documentos quedan como historial</span>
+            } @else {
+              <span class="global-hint">Siga la secuencia para completar la contratación</span>
+            }
+          </div>
 
-        <div class="etapas-container">
-          @for (etapaState of etapasConEstado(); track etapaState.etapa.nombre; let ei = $index) {
-            <div class="etapa-wrapper"
-                 [class.etapa-bloqueada]="etapaState.bloqueada && !etapaState.esActual"
-                 [class.etapa-completada]="etapaState.completados === etapaState.total && etapaState.total > 0">
-              <div class="etapa-header" (click)="etapaExpandida.set(etapaExpandida() === etapaState.etapa.nombre ? null : etapaState.etapa.nombre)"
-                   [class.etapa-header-actual]="etapaState.esActual"
-                   [class.etapa-header-completada]="etapaState.completados === etapaState.total && etapaState.total > 0">
-                <div class="etapa-header-left">
-                  @if (etapaState.completados === etapaState.total && etapaState.total > 0) {
-                    <mat-icon class="etapa-icon-completada">check_circle</mat-icon>
-                  } @else if (etapaState.esActual) {
-                    <mat-icon class="etapa-icon-actual">play_circle</mat-icon>
-                  } @else {
-                    <mat-icon class="etapa-icon-bloqueada">radio_button_unchecked</mat-icon>
-                  }
-                  <span class="etapa-nombre">{{ etapaState.etapa.label }}</span>
+          <div class="etapas-container">
+            @for (etapaState of etapasConEstado(); track etapaState.etapa.id_etapa) {
+              <div class="etapa-wrapper"
+                   [class.etapa-bloqueada]="etapaState.estaBloqueada && !etapaState.esActual"
+                   [class.etapa-completada]="etapaState.estaCompletada">
+                <div class="etapa-header" (click)="etapaExpandida.set(etapaExpandida() === etapaState.etapa.id_etapa ? null : etapaState.etapa.id_etapa)"
+                     [class.etapa-header-actual]="etapaState.esActual"
+                     [class.etapa-header-completada]="etapaState.estaCompletada">
+                  <div class="etapa-header-left">
+                    @if (etapaState.estaCompletada) {
+                      <mat-icon class="etapa-icon-completada">check_circle</mat-icon>
+                    } @else if (etapaState.esActual) {
+                      <mat-icon class="etapa-icon-actual">play_circle</mat-icon>
+                    } @else {
+                      <mat-icon class="etapa-icon-bloqueada">radio_button_unchecked</mat-icon>
+                    }
+                    <span class="etapa-nombre">{{ etapaState.etapa.nombre }}</span>
+                  </div>
+                  <div class="etapa-header-right">
+                    <span class="etapa-progreso">{{ etapaState.completados }}/{{ etapaState.total }}</span>
+                    <mat-icon class="etapa-expand-icon">
+                      {{ etapaExpandida() === etapaState.etapa.id_etapa ? 'expand_less' : 'expand_more' }}
+                    </mat-icon>
+                  </div>
                 </div>
-                <div class="etapa-header-right">
-                  <span class="etapa-progreso">{{ etapaState.completados }}/{{ etapaState.total }}</span>
-                  <mat-icon class="etapa-expand-icon">
-                    {{ etapaExpandida() === etapaState.etapa.nombre ? 'expand_less' : 'expand_more' }}
-                  </mat-icon>
-                </div>
-              </div>
 
-              @if (etapaExpandida() === etapaState.etapa.nombre) {
-                <div class="etapa-docs"
-                     [class.etapa-docs-completada]="etapaState.completados === etapaState.total && etapaState.total > 0">
-                  @for (docState of etapaState.docsEnEtapa; track docState.ordenGlobal; let di = $index) {
-                    @let completado = docState.doc !== null;
-                    @let activo = pasoActual(docState.ordenGlobal);
-                    @let bloqueado = !completado && !activo;
-
-                    <div class="doc-item"
-                         [class.doc-completado]="completado"
-                         [class.doc-activo]="activo"
-                         [class.doc-bloqueado]="bloqueado">
-                      <div class="doc-indicador">
-                        @if (completado) {
-                          <mat-icon class="doc-icon-ok">check_circle</mat-icon>
-                        } @else if (activo) {
-                          <mat-icon class="doc-icon-current">radio_button_checked</mat-icon>
-                        } @else {
-                          <mat-icon class="doc-icon-locked">radio_button_unchecked</mat-icon>
-                        }
-                      </div>
-                      <div class="doc-contenido">
-                        <div class="doc-titulo">{{ docState.info.label }}</div>
-                        @if (completado) {
-                          <div class="doc-meta">
-                            <span class="doc-fecha">Subido el {{ (docState.doc!.fecha_subida | date:'dd/MM/yyyy HH:mm') || '—' }}</span>
-                            @if (docState.doc!.tipo) {
-                              <span class="doc-filename">{{ docState.doc!.tipo }}</span>
-                            }
-                            <div class="doc-actions">
-                              @if (docState.doc!.archivo_pdf) {
-                                <a [href]="urlPdf(docState.doc!.archivo_pdf)" target="_blank" class="doc-link" matTooltip="Ver PDF">
+                @if (etapaExpandida() === etapaState.etapa.id_etapa) {
+                  <div class="etapa-docs" [class.etapa-docs-completada]="etapaState.estaCompletada">
+                    @for (doc of etapaState.docs; track doc.id_control_doc_contratacion; let di = $index) {
+                      <div class="doc-item"
+                           [class.doc-completado]="doc.url_documento"
+                           [class.doc-pendiente]="!doc.url_documento && etapaState.esActual"
+                           [class.doc-bloqueado]="!doc.url_documento && !etapaState.esActual">
+                        <div class="doc-indicador">
+                          @if (doc.url_documento) {
+                            <mat-icon class="doc-icon-ok">check_circle</mat-icon>
+                          } @else if (etapaState.esActual) {
+                            <mat-icon class="doc-icon-current">radio_button_checked</mat-icon>
+                          } @else {
+                            <mat-icon class="doc-icon-locked">radio_button_unchecked</mat-icon>
+                          }
+                        </div>
+                        <div class="doc-contenido">
+                          <div class="doc-titulo">{{ doc.requisito_nombre }}</div>
+                          @if (doc.url_documento) {
+                            <div class="doc-meta">
+                              <span class="doc-fecha">Registrado el {{ (doc.created_at | date:'dd/MM/yyyy') || '—' }}</span>
+                              <div class="doc-actions">
+                                <a [href]="urlPdf(doc.url_documento)" target="_blank" class="doc-link" matTooltip="Ver PDF">
                                   <mat-icon>picture_as_pdf</mat-icon> Ver PDF
                                 </a>
-                              }
-                              @if (!pasosBloqueados()) {
-                                <app-upload-box
-                                  accept="application/pdf"
-                                  [file]="pendingOrdenReemplazo() === docState.ordenGlobal ? pendingFile() : null"
-                                  [fileName]="pendingFileName()"
-                                  [fileSize]="pendingFileSize()"
-                                  [uploading]="subiendo() !== 'ninguno' && subiendo() !== 'completado'"
-                                  [uploadDone]="subiendo() === 'completado'"
-                                  [uploadLabel]="subiendo() === 'file-read' ? 'Leyendo archivo...' : 'Subiendo al servidor...'"
-                                  [disabled]="subiendo() !== 'ninguno'"
-                                  label="Reemplazar"
-                                  hint="Solo PDF"
-                                  (picked)="onFileSelected($event, docState.ordenGlobal)"
-                                  (confirm)="confirmUpload()"
-                                  (cancel)="cancelUpload()"></app-upload-box>
-                              }
-                            </div>
-                            @if (versionesAnteriores(docState.ordenGlobal).length > 0) {
-                              <div class="versiones-link">
-                                <mat-icon>history</mat-icon>
-                                <span class="versiones-text" (click)="toggleVersiones(docState.ordenGlobal)"
-                                      role="button" tabindex="0"
-                                      (keydown.enter)="toggleVersiones(docState.ordenGlobal)">
-                                  {{ versionesAnteriores(docState.ordenGlobal).length }} versión(es) anterior(es)
-                                </span>
+                                @if (etapaState.esActual && c?.estado !== 'truncado' && c?.estado !== 'formalizado') {
+                                  <app-upload-box
+                                    accept="application/pdf"
+                                    [file]="pendingDocId() === doc.id_control_doc_contratacion ? pendingFile() : null"
+                                    [fileName]="pendingDocId() === doc.id_control_doc_contratacion ? pendingFileName() : ''"
+                                    [fileSize]="pendingDocId() === doc.id_control_doc_contratacion ? pendingFileSize() : ''"
+                                    [uploading]="subiendo() !== 'ninguno' && subiendo() !== 'completado'"
+                                    [uploadDone]="subiendo() === 'completado'"
+                                    [uploadLabel]="subiendo() === 'file-read' ? 'Leyendo archivo...' : 'Subiendo al servidor...'"
+                                    [disabled]="subiendo() !== 'ninguno'"
+                                    label="Reemplazar"
+                                    hint="Solo PDF"
+                                    (picked)="onFileSelected($event, doc.id_control_doc_contratacion)"
+                                    (confirm)="confirmUpload()"
+                                    (cancel)="cancelUpload()"></app-upload-box>
+                                }
                               </div>
-                              @if (mostrarVersionesAnteriores() === docState.ordenGlobal) {
-                                <div class="versiones-lista">
-                                  @for (v of versionesAnteriores(docState.ordenGlobal); track v.id_documento) {
-                                    <div class="version-item">
-                                      <span class="version-fecha">{{ (v.fecha_subida | date:'dd/MM/yyyy HH:mm') || '—' }}</span>
-                                      @if (v.tipo) {
-                                        <span class="version-filename">{{ v.tipo }}</span>
-                                      }
-                                      @if (v.archivo_pdf) {
-                                        <a [href]="urlPdf(v.archivo_pdf)" target="_blank" class="doc-link" matTooltip="Ver PDF anterior">
-                                          <mat-icon>picture_as_pdf</mat-icon> Ver
-                                        </a>
-                                      }
-                                    </div>
-                                  }
-                                </div>
-                              }
-                            }
-                          </div>
-                        } @else if (activo) {
-                          <div class="doc-upload">
-                            <app-upload-box
-                              accept="application/pdf"
-                              [file]="pendingOrdenReemplazo() === undefined ? pendingFile() : null"
-                              [fileName]="pendingFileName()"
-                              [fileSize]="pendingFileSize()"
-                              [uploading]="subiendo() !== 'ninguno' && subiendo() !== 'completado'"
-                              [uploadDone]="subiendo() === 'completado'"
-                              [uploadLabel]="subiendo() === 'file-read' ? 'Leyendo archivo...' : 'Subiendo al servidor...'"
-                              [disabled]="pasosBloqueados() || subiendo() !== 'ninguno'"
-                              label="Seleccionar o arrastrar PDF"
-                              hint="Solo PDF"
-                              (picked)="onFileSelected($event)"
-                              (confirm)="confirmUpload()"
-                              (cancel)="cancelUpload()"></app-upload-box>
-                          </div>
-                        } @else {
-                          <span class="doc-bloqueado-msg">
-                            <mat-icon>lock</mat-icon> Complete el paso anterior
-                          </span>
-                        }
+                            </div>
+                          } @else if (etapaState.esActual) {
+                            <div class="doc-upload">
+                              <app-upload-box
+                                accept="application/pdf"
+                                [file]="pendingDocId() === doc.id_control_doc_contratacion ? pendingFile() : null"
+                                [fileName]="pendingDocId() === doc.id_control_doc_contratacion ? pendingFileName() : ''"
+                                [fileSize]="pendingDocId() === doc.id_control_doc_contratacion ? pendingFileSize() : ''"
+                                [uploading]="subiendo() !== 'ninguno' && subiendo() !== 'completado'"
+                                [uploadDone]="subiendo() === 'completado'"
+                                [uploadLabel]="subiendo() === 'file-read' ? 'Leyendo archivo...' : 'Subiendo al servidor...'"
+                                [disabled]="subiendo() !== 'ninguno'"
+                                label="Seleccionar o arrastrar PDF"
+                                hint="Solo PDF"
+                                (picked)="onFileSelected($event, doc.id_control_doc_contratacion)"
+                                (confirm)="confirmUpload()"
+                                (cancel)="cancelUpload()"></app-upload-box>
+                            </div>
+                          } @else {
+                            <span class="doc-bloqueado-msg">
+                              <mat-icon>lock</mat-icon> Complete la etapa anterior
+                            </span>
+                          }
+                        </div>
                       </div>
-                    </div>
-                    @if (di < etapaState.docsEnEtapa.length - 1) {
-                      <div class="doc-conector"
-                           [class.doc-conector-ok]="completado && etapaState.docsEnEtapa[di + 1]?.doc !== null"></div>
+                      @if (di < etapaState.docs.length - 1) {
+                        <div class="doc-conector"
+                             [class.doc-conector-ok]="doc.url_documento && etapaState.docs[di + 1]?.url_documento"></div>
+                      }
                     }
-                  }
-                </div>
-              }
-            </div>
 
-            @if (ei < etapasConEstado().length - 1) {
-              <div class="etapa-divider"></div>
+                    @if (etapaState.esActual && puedeAvanzar()) {
+                      <div class="avanzar-section">
+                        <button mat-flat-button color="primary" (click)="avanzarEtapa()" [disabled]="avanzando()">
+                          @if (avanzando()) {
+                            <mat-spinner diameter="18" class="inline-spinner"></mat-spinner>
+                          } @else {
+                            <mat-icon>arrow_forward</mat-icon>
+                          }
+                          Avanzar a siguiente etapa
+                        </button>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
             }
-          }
-        </div>
+          </div>
+        }
       </mat-card-content>
     </mat-card>
   }

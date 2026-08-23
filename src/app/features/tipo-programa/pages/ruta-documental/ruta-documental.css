@@ -1,0 +1,188 @@
+.page-container {
+  padding: var(--fich-space-lg) var(--fich-space-lg) 30px;
+  width: 90%; max-width: 1600px; margin: 0 auto;
+}
+
+.header-section {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: var(--fich-space-lg);
+}
+.header-left { display: flex; align-items: center; gap: 12px; }
+.header-left h2 { margin: 0; color: var(--fich-primary-dark); font-weight: 800; font-size: 1.8rem; letter-spacing: -0.5px; }
+.subtitle { margin: 2px 0 0; color: var(--fich-text-secondary); font-size: 0.88rem; }
+.back-btn { color: var(--fich-text-secondary); }
+
+/* ─── Layout 2 columnas ─── */
+.layout-2col {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: var(--fich-space-lg);
+  min-height: 70vh;
+}
+
+/* ─── Panels ─── */
+.panel-etapas, .panel-requisitos {
+  background: var(--fich-bg-card, #fff);
+  border-radius: 16px;
+  box-shadow: var(--fich-shadow-sm);
+  border: 1px solid var(--fich-border, #e2e8f0);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+
+.panel-header {
+  padding: 18px 22px 14px;
+  border-bottom: 1px solid var(--fich-border, #e2e8f0);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.panel-header h3 {
+  margin: 0; font-size: 1.1rem; font-weight: 700; color: var(--fich-primary-dark);
+}
+.panel-header-text { display: flex; align-items: center; gap: 10px; }
+
+.badge-count {
+  background: var(--fich-feature-contratacion-light, #fffbeb);
+  color: var(--fich-feature-contratacion, #b45309);
+  font-size: 0.75rem; font-weight: 700;
+  padding: 2px 9px; border-radius: 20px;
+}
+
+/* ─── Panel etapas (izq) ─── */
+.panel-etapas { padding-bottom: 12px; }
+
+.nueva-etapa-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 14px 18px 0;
+}
+.nueva-etapa-field { flex: 1; }
+.nueva-etapa-field ::ng-deep .mat-mdc-text-field-wrapper { background: var(--fich-bg-subtle, #f8fafc); border-radius: 10px; }
+.nueva-etapa-field ::ng-deep .mdc-notched-outline__leading,
+.nueva-etapa-field ::ng-deep .mdc-notched-outline__trailing { border-color: var(--fich-border, #e2e8f0); }
+
+.fab-add { width: 42px; height: 42px; flex-shrink: 0; }
+
+.etapas-list {
+  flex: 1; overflow-y: auto;
+  padding: 12px 14px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+
+.etapa-card {
+  border: 1.5px solid transparent;
+  border-radius: 12px;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  background: var(--fich-bg-subtle, #f8fafc);
+}
+.etapa-card:hover { border-color: var(--fich-feature-contratacion, #b45309); background: var(--fich-feature-contratacion-light, #fffbeb); }
+.etapa-card.selected {
+  border-color: var(--fich-feature-contratacion, #b45309);
+  background: var(--fich-feature-contratacion-light, #fffbeb);
+  box-shadow: 0 0 0 3px rgba(180, 83, 9, 0.10);
+}
+
+.etapa-card-body { display: flex; align-items: center; gap: 10px; }
+.etapa-card-body.editando { gap: 6px; }
+
+.etapa-orden {
+  width: 28px; height: 28px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--fich-feature-contratacion, #b45309);
+  color: #fff; font-weight: 700; font-size: 0.8rem;
+  border-radius: 8px; flex-shrink: 0;
+}
+
+.etapa-info { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.etapa-nombre { font-weight: 600; font-size: 0.92rem; color: var(--fich-text-primary, #0f172a); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.etapa-requisitos-count { font-size: 0.75rem; color: var(--fich-text-secondary, #64748b); margin-top: 1px; }
+
+.etapa-actions { display: flex; gap: 0; margin-left: auto; opacity: 0.4; transition: opacity 0.15s; }
+.etapa-card:hover .etapa-actions { opacity: 1; }
+.etapa-actions button { width: 30px; height: 30px; }
+.etapa-actions button mat-icon { font-size: 18px; width: 18px; height: 18px; }
+
+.edit-field { flex: 1; }
+.edit-field ::ng-deep .mat-mdc-text-field-wrapper { background: #fff; }
+.edit-actions { display: flex; gap: 0; }
+
+/* ─── Panel requisitos (der) ─── */
+.panel-requisitos { padding-bottom: 12px; overflow-y: auto; }
+
+.req-section { padding: 16px 22px; }
+.section-title {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+  color: var(--fich-text-secondary, #64748b); margin: 0 0 12px;
+}
+.section-title mat-icon { font-size: 18px; width: 18px; height: 18px; }
+
+.search-field { width: 100%; margin-bottom: 8px; }
+.search-field ::ng-deep .mat-mdc-text-field-wrapper { background: var(--fich-bg-subtle, #f8fafc); border-radius: 10px; }
+
+.req-list { display: flex; flex-direction: column; gap: 5px; }
+.req-list.associated { margin-bottom: 8px; }
+
+.req-chip {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 12px; border-radius: 10px;
+  transition: all 0.15s ease;
+}
+.req-chip.associated {
+  background: var(--fich-bg-subtle, #f8fafc);
+  border: 1px solid var(--fich-border, #e2e8f0);
+}
+.req-chip.available {
+  background: var(--fich-bg-subtle, #f8fafc);
+  border: 1px dashed var(--fich-border, #e2e8f0);
+  cursor: pointer;
+}
+.req-chip.available:hover {
+  border-color: var(--fich-success, #047857);
+  background: var(--fich-success-light, #ecfdf5);
+}
+
+.req-chip-left { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
+
+.req-orden {
+  width: 22px; height: 22px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--fich-primary-light, #eef2ff);
+  color: var(--fich-primary, #1e3a8a);
+  font-size: 0.7rem; font-weight: 700;
+  border-radius: 6px; flex-shrink: 0;
+}
+
+.req-nombre { font-size: 0.88rem; font-weight: 500; color: var(--fich-text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.req-chip-actions { display: flex; align-items: center; gap: 0; margin-left: auto; }
+
+.reorder-btn, .remove-btn { width: 28px; height: 28px; }
+.reorder-btn mat-icon, .remove-btn mat-icon { font-size: 18px; width: 18px; height: 18px; color: var(--fich-text-faint, #94a3b8); }
+.reorder-btn:hover mat-icon { color: var(--fich-text-primary); }
+
+.add-icon { color: var(--fich-success, #047857); font-size: 20px; width: 20px; height: 20px; flex-shrink: 0; }
+
+/* ─── Empty states ─── */
+.empty-panel {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  flex: 1; padding: 40px 20px; text-align: center; color: var(--fich-text-secondary);
+}
+.empty-panel mat-icon { font-size: 48px; width: 48px; height: 48px; color: var(--fich-text-faint); margin-bottom: 12px; }
+.empty-panel p { margin: 0; font-size: 0.95rem; }
+.empty-panel .hint { font-size: 0.82rem; color: var(--fich-text-faint); margin-top: 4px; }
+.empty-panel.center { justify-content: center; }
+
+.empty-hint {
+  display: flex; flex-direction: column; align-items: center; padding: 20px; text-align: center;
+  color: var(--fich-text-secondary); font-size: 0.85rem;
+}
+.empty-hint mat-icon { color: var(--fich-success, #047857); margin-bottom: 6px; }
+
+.loading-state {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 80px; color: var(--fich-text-secondary);
+}
+.loading-state p { margin-top: 16px; }
+
+mat-divider { margin: 0 22px; }
