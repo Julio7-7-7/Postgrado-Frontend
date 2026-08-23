@@ -271,35 +271,7 @@ export class InscribirComponent implements OnInit {
 
     this.guardando.set(true);
 
-    const perfilActual = this.alumno();
-    const hayCambios = perfilActual && (
-      perfilActual.nombre !== this.editData.nombre ||
-      perfilActual.apellido !== this.editData.apellido ||
-      perfilActual.correo !== this.editData.correo ||
-      perfilActual.ci !== this.editData.ci ||
-      perfilActual.pasaporte !== this.editData.pasaporte ||
-      perfilActual.fecha_nacimiento !== this.editData.fecha_nacimiento ||
-      perfilActual.genero !== this.editData.genero ||
-      perfilActual.celular !== this.editData.celular ||
-      perfilActual.direccion !== this.editData.direccion
-    );
-
-    const actualizar$ = hayCambios
-      ? this.alumnoService.actualizarMiPerfil(this.editData)
-      : undefined;
-
-    if (actualizar$) {
-      actualizar$.subscribe({
-        next: () => this._confirmarInscripcion(ed),
-        error: (err) => {
-          this.guardando.set(false);
-          const msg = err.error?.detail || 'Error al guardar datos personales';
-          this.snackBar.open(msg, 'Cerrar', { duration: 4000 });
-        },
-      });
-    } else {
-      this._confirmarInscripcion(ed);
-    }
+    this._confirmarInscripcion(ed);
   }
 
   private _confirmarInscripcion(ed: ProgramaVersionEdicion): void {

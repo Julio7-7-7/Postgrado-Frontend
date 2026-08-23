@@ -26,6 +26,7 @@ export interface UserInfo {
   must_change_password: boolean;
   permisos: PermisoInfo[];
   roles: RolInfo[];
+  password_changed_at?: string | null;
 }
 
 export interface TokenResponse {

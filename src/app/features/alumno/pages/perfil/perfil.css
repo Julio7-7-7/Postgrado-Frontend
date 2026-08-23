@@ -125,6 +125,25 @@
   margin: 0;
 }
 
+.readonly-badge {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--fich-text-muted);
+  background: var(--fich-border-light);
+  padding: 3px 10px;
+  border-radius: 9999px;
+}
+
+.section-note {
+  margin: 16px 0 0;
+  padding: 10px 14px;
+  font-size: 0.8rem;
+  color: var(--fich-text-muted);
+  background: var(--fich-bg-hover);
+  border-radius: 8px;
+  border-left: 3px solid var(--fich-border-strong);
+}
+
 /* Info grid */
 .info-grid {
   display: flex;

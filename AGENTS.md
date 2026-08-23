@@ -299,7 +299,41 @@ Observaciones de la revisión global previa a hosting (ambos repos limpios y com
 - **Todo usuario nuevo** recibe rol `alumno` automáticamente (incluso docentes y administrativos).
 - **`InFailedSqlTransaction`** se resuelve con eager-load completo + rollback explícito en endpoints.
 
+## Refactor de Contrataciones de Docentes (2026-08-21)
+
+### Modelo nuevo
+- **`etapa_contratacion`** — etapas configurables por `tipo_programa` (ej: Diplomado → Verificación, Resolución, Legal, Formalización). Cada etapa tiene `nombre`, `orden`.
+- **`etapa_requisito`** — junction table: qué requisitos (del banco global) pertenecen a cada etapa. `orden` + `obligatorio`.
+- **`control_documentacion_contratacion`** — tracking de documentos subidos por contratación. Reemplaza a `documentos_contratacion` (que se mantiene como respaldo). Cada registro vincula: `id_contratacion`, `id_requisito`, `id_etapa`, `url_documento`, `estado`.
+- **`contratacion_docente`** ganó `id_etapa_actual` FK → `etapa_contratacion`. Los estados now son: `pendiente`, `en_curso`, `formalizado`, `truncado`, `cancelado`.
+
+### Backend
+- **Router `etapas-contratacion`** — CRUD completo + `PATCH /{id}/requisitos` para gestionar requisitos por etapa. Permisos: `contrataciones.crear`, `contrataciones.editar`, `contrataciones.ver`.
+- **Router `doc-contratacion`** — `POST /inicializar/{id_contratacion}` (crea registros base desde etapas del tipo de programa), `POST /{id}/subir` (upload PDF), `PATCH /{id}` (estado), `POST /{id_contratacion}/avanzar-etapa` (valida docs obligatorios, avanza o formaliza).
+- **Migración**: `018_contrataciones_etapas.sql`.
+- **Archivos nuevos**: `models/etapa_contratacion.py`, `models/etapa_requisito.py`, `models/control_documentacion_contratacion.py`, `schemas/etapa_contratacion.py`, `schemas/control_documentacion_contratacion.py`, `routers/etapa_contratacion.py`, `routers/control_documentacion_contratacion.py`.
+- **Archivos modificados**: `models/contratacion_docente.py` (nueva FK + relación), `models/requisito.py` (relación inversa), `models/__init__.py`, `schemas/contrataciones_docente.py` (nuevos campos), `routers/contrataciones_docente.py` (eager-load etapa_actual), `routers/__init__.py`.
+
+### Frontend
+- **Modelos nuevos**: `contratacion/models/etapa.model.ts` (`EtapaContratacion`, `EtapaRequisitoInfo`, `ControlDocContratacion`).
+- **Services nuevos**: `contratacion/services/etapa.service.ts`, `contratacion/services/doc-contratacion.service.ts`.
+- **Dialog `EtapaContratacionDialogComponent`** — gestión de etapas por tipo de programa (CRUD + asociar requisitos vía chips). Accesible desde botón `route` en la lista de tipos de programa.
+- **`contratacion-detalle`** — reescrito para usar etapas del backend en vez de `ETAPAS_DOCUMENTALES` hardcodeadas. Incluye: "Inicializar documentos" (botón cuando no hay docs), "Avanzar etapa" (cuando todos los docs obligatorios están subidos), badge de etapa actual en el header.
+- **`contratacion-list`** — `progresoTexto()` ahora muestra `etapa_actual_nombre` en vez del enum viejo.
+- **`contratacion.model.ts`** — `ContratacionEstado` simplificado a `pendiente | en_curso | formalizado | truncado | cancelado`. Nuevos campos `id_etapa_actual` y `etapa_actual_nombre`.
+- **Archivos nuevos**: `contratacion/pages/etapa-contratacion-dialog/` (ts, html, css).
+- **Archivos modificados**: `contratacion-detalle.*`, `contratacion-list.*`, `contratacion.model.ts`.
+
+### Flujo de usuario
+1. **Configuración (una vez por tipo de programa)**: Admin → Tipos de Programa → botón `route` → Dialog de etapas → crear etapas + asociar requisitos del banco global.
+2. **Al crear contratación**: Se selecciona docente + módulo. El sistema crea la contratación en estado `pendiente`.
+3. **Inicializar documentos**: Desde el detalle, se hace clic en "Inicializar documentos" → backend crea registros en `control_documentacion_contratacion` basándose en las etapas del tipo de programa.
+4. **Subir documentos**: Por cada etapa, se suben los PDFs requeridos.
+5. **Avanzar etapa**: Cuando todos los docs obligatorios de la etapa actual están subidos, se puede avanzar a la siguiente.
+6. **Formalización**: Al completar la última etapa, la contratación pasa a `formalizado`.
+
 ### Pendiente para otra sesión
+- Eliminar `documentos_contratacion` (tabla vieja) una vez verificado que todo funciona.
 - Crear feature module `persona/` completo si se necesita CRUD (actualmente es solo listado).
 - Los 30+ requisitos funcionales (R1-R30) están documentados en la tabla del usuario.
 - Falta decidir si agregar R31-R35 (Dashboard, Portal Alumno, Portal Docente, Explorador, Búsqueda Pagos).
