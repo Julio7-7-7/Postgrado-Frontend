@@ -10,6 +10,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DocumentacionService } from '../../services/documentacion.service';
+import { AuthService } from '../../../../core/services/auth.service';
 import {
   PostulanteResponse,
   ControlDocumentacionResponse,
@@ -35,6 +36,7 @@ export interface DocMatrizDialogData {
 })
 export class DocMatrizDialogComponent {
   private service = inject(DocumentacionService);
+  private auth = inject(AuthService);
   private snackbar = inject(MatSnackBar);
   private destroyRef = inject(DestroyRef);
   private cdr = inject(ChangeDetectorRef);
@@ -120,6 +122,10 @@ export class DocMatrizDialogComponent {
 
   canApprove(doc: ControlDocumentacionResponse): boolean {
     return doc.estado === 'entregado' || (doc.estado === 'rechazado' && doc.url_documento != null);
+  }
+
+  get canAprobar(): boolean {
+    return this.auth.hasPermiso('documentos.aprobar');
   }
 
   approveDoc(doc: ControlDocumentacionResponse): void {

@@ -68,7 +68,7 @@
             <mat-icon>visibility</mat-icon> Ver
           </button>
         }
-        @if (doc && canApprove(doc)) {
+        @if (doc && canApprove(doc) && canAprobar) {
           <button mat-flat-button color="primary" class="action-btn" (click)="approveDoc(doc)">
             <mat-icon>check</mat-icon> Aprobar
           </button>
