@@ -75,6 +75,9 @@ export class ProgramaFormComponent implements OnInit {
       next: (data) => {
         this.tiposPrograma.set(data.filter(t => t.estado === 'activo'));
       },
+      error: () => {
+        this.snackbar.open('No se pudieron cargar los tipos de programa', 'Cerrar', { duration: 3000 });
+      },
     });
   }
 

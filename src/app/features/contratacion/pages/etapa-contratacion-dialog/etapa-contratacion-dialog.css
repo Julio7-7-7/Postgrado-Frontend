@@ -1,0 +1,242 @@
+.dialog-shell {
+  min-width: 560px;
+  max-width: 680px;
+}
+
+.dialog-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 20px 24px 12px;
+}
+
+.header-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #b45309, #d97706);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex-shrink: 0;
+}
+
+.header-icon mat-icon {
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+}
+
+.header-text h2 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--fich-text);
+}
+
+.header-subtitle {
+  margin: 2px 0 0;
+  font-size: 0.82rem;
+  color: var(--fich-text-muted);
+}
+
+.loading-state {
+  display: flex;
+  justify-content: center;
+  padding: 40px;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px 20px;
+  color: var(--fich-text-muted);
+  text-align: center;
+  gap: 8px;
+}
+
+.empty-state mat-icon {
+  font-size: 40px;
+  width: 40px;
+  height: 40px;
+  color: var(--fich-text-faint);
+}
+
+.empty-state .hint {
+  font-size: 0.8rem;
+  color: var(--fich-text-faint);
+}
+
+.etapas-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.etapa-item {
+  border: 1px solid var(--fich-border-light);
+  border-radius: var(--fich-radius-md);
+  overflow: hidden;
+}
+
+.etapa-display {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  background: var(--fich-bg-subtle);
+  transition: background 0.15s;
+}
+
+.etapa-display:hover {
+  background: var(--fich-bg-hover);
+}
+
+.etapa-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.etapa-orden {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--fich-primary);
+  color: white;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.etapa-nombre {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--fich-text);
+}
+
+.etapa-requisitos-count {
+  font-size: 0.75rem;
+  color: var(--fich-text-muted);
+  background: var(--fich-bg-card);
+  padding: 2px 8px;
+  border-radius: var(--fich-radius-full);
+  border: 1px solid var(--fich-border);
+}
+
+.etapa-actions {
+  display: flex;
+  gap: 2px;
+}
+
+.etapa-actions button {
+  width: 32px;
+  height: 32px;
+  line-height: 32px;
+  --mdc-icon-button-state-layer-size: 32px;
+}
+
+.etapa-actions button mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.etapa-actions button.active {
+  background: var(--fich-primary-light);
+  color: var(--fich-primary);
+}
+
+.danger-btn:hover {
+  color: var(--fich-danger) !important;
+}
+
+.etapa-edit {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: var(--fich-primary-light);
+}
+
+.etapa-edit-actions {
+  display: flex;
+  gap: 2px;
+}
+
+.etapa-input {
+  flex: 1;
+}
+
+.etapa-input ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+  display: none;
+}
+
+.requisitos-panel {
+  padding: 12px 14px;
+  background: var(--fich-bg-card);
+  border-top: 1px solid var(--fich-border-light);
+}
+
+.requisitos-header {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--fich-text);
+  margin-bottom: 10px;
+}
+
+.requisitos-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.requisito-chip {
+  font-size: 0.78rem;
+  height: 32px;
+  border-radius: var(--fich-radius-full) !important;
+  padding: 0 10px !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.requisito-chip mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+.requisito-chip.selected {
+  background: var(--fich-primary-light);
+  border-color: var(--fich-primary);
+  color: var(--fich-primary);
+}
+
+.requisitos-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.nueva-etapa {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--fich-border-light);
+}
+
+.nueva-etapa .etapa-input {
+  flex: 1;
+}
+
+.inline-spinner {
+  display: inline-block;
+}

@@ -25,10 +25,12 @@
       }
     </div>
     <div class="header-right">
-      <button mat-raised-button color="primary" (click)="abrirFormulario()" class="btn-nuevo">
-        <mat-icon>add</mat-icon>
-        <span>Nuevo Programa</span>
-      </button>
+      @if (canCrear) {
+        <button mat-raised-button color="primary" (click)="abrirFormulario()" class="btn-nuevo">
+          <mat-icon>add</mat-icon>
+          <span>Nuevo Programa</span>
+        </button>
+      }
     </div>
   </div>
 
@@ -255,7 +257,9 @@
           <mat-icon>school_outlined</mat-icon>
           <h3>No hay programas registrados</h3>
           <p>Creá tu primer programa para comenzar</p>
-          <button mat-raised-button color="primary" (click)="abrirFormulario()">Crear programa</button>
+          @if (canCrear) {
+            <button mat-raised-button color="primary" (click)="abrirFormulario()">Crear programa</button>
+          }
         </div>
       }
 

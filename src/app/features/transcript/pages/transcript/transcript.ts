@@ -6,13 +6,14 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { InscripcionEdicionService } from '../../../inscripciones/services/inscripcion-edicion.service';
 import { NotaService } from '../../../notas/services/nota.service';
 import { PagoService } from '../../../pagos/services/pago.service';
 import { TranscriptResponse, InscripcionTranscript, ModuloTranscript } from '../../../inscripciones/models/inscripcion-edicion.model';
 import { HistorialMovimiento } from '../../../notas/models/nota.model';
-import { TransaccionTranscript, TranscriptPagosResponse } from '../../../pagos/models/pago.model';
+import { TranscriptPagosResponse, TranscriptPagosInscripcion } from '../../../pagos/models/pago.model';
 import { clasificarNota } from '../../../../core/utils/nota-utils';
 
 const CLASIF_LABELS: Record<string, string> = {
@@ -35,7 +36,7 @@ interface CaptionPart {
   imports: [
     CommonModule,
     MatIconModule, MatButtonModule, MatTooltipModule,
-    MatProgressSpinnerModule, MatSnackBarModule,
+    MatProgressSpinnerModule, MatSelectModule, MatSnackBarModule,
   ],
   templateUrl: './transcript.html',
   styleUrl: './transcript.css',
@@ -54,16 +55,41 @@ export class TranscriptComponent implements OnInit {
   pagosData = signal<TranscriptPagosResponse | null>(null);
   isLoading = signal(true);
   idAlumno = 0;
+  selectedDpaId = signal<number | null>(null);
 
   lastInscripcion = computed<InscripcionTranscript | null>(() => {
     const t = this.transcript();
     if (!t || t.inscripciones.length === 0) return null;
+    const dpaId = this.selectedDpaId();
+    if (dpaId != null) {
+      return t.inscripciones.find(i => i.id_detalle_programa_alumno === dpaId) ?? t.inscripciones[t.inscripciones.length - 1];
+    }
     return t.inscripciones[t.inscripciones.length - 1];
   });
 
   tieneTrayectoria = computed(() => {
     const t = this.transcript();
     return t !== null && t.inscripciones.length > 1;
+  });
+
+  pagosInscripcion = computed<TranscriptPagosInscripcion | null>(() => {
+    const pagos = this.pagosData();
+    if (!pagos) return null;
+    const dpaId = this.selectedDpaId();
+    if (dpaId != null) {
+      return pagos.inscripciones.find(p => p.id_detalle_programa_alumno === dpaId) ?? null;
+    }
+    return pagos.inscripciones[pagos.inscripciones.length - 1] ?? null;
+  });
+
+  movimientosFiltrados = computed<HistorialMovimiento[]>(() => {
+    const movs = this.movimientos();
+    const dpaId = this.selectedDpaId();
+    if (dpaId == null) return movs;
+    return movs.filter(m =>
+      m.origen.id_detalle_programa_alumno === dpaId ||
+      m.destino.id_detalle_programa_alumno === dpaId
+    );
   });
 
   migradasInfo = computed<{ de: number | null; cuantas: number } | null>(() => {
@@ -89,6 +115,15 @@ export class TranscriptComponent implements OnInit {
     ];
   });
 
+  promedioInscripcion = computed<number | null>(() => {
+    const ins = this.lastInscripcion();
+    if (!ins || ins.modulos.length === 0) return null;
+    const conNota = ins.modulos.filter(m => m.nota !== null);
+    if (conNota.length === 0) return null;
+    const sum = conNota.reduce((acc, m) => acc + m.nota!, 0);
+    return sum / conNota.length;
+  });
+
   situacion = computed<{ icono: string; partes: CaptionPart[] }>(() => {
     const P = (t: string, hi = false): CaptionPart => ({ t, hi });
     const t = this.transcript();
@@ -102,7 +137,9 @@ export class TranscriptComponent implements OnInit {
     const migradas = ins.modulos.filter(m => m.es_migrada);
     const pendientes = this.modulosPendientes(ins);
     const cur = this.currentModOrden(ins);
-    const origen = t.inscripciones[t.inscripciones.length - 2]?.edicion_numero ?? '';
+
+    const insIdx = t.inscripciones.findIndex(i => i.id_detalle_programa_alumno === ins.id_detalle_programa_alumno);
+    const origen = insIdx > 0 ? t.inscripciones[insIdx - 1]?.edicion_numero : null;
 
     if (ins.estado === 'postulante' || ins.estado === 'observado') {
       return { icono: 'hourglass_empty', partes: [P('Postulante en la '), P(ed, true), P(' — aún no cursa módulos.')] };
@@ -116,13 +153,14 @@ export class TranscriptComponent implements OnInit {
         P(' — completó '), P(`${aprobados} de ${total}`, true),
         P(' módulos'),
       ];
-      if (t.promedio_general !== null) {
-        partes.push(P(' con un promedio de '), P(String(this.round(t.promedio_general)), true));
+      const prom = this.promedioInscripcion();
+      if (prom !== null) {
+        partes.push(P(' con un promedio de '), P(String(this.round(prom)), true));
       }
       partes.push(P('.'));
       return { icono: 'workspace_premium', partes };
     }
-    if (migradas.length > 0 && this.tieneTrayectoria()) {
+    if (migradas.length > 0 && origen !== null) {
       const aprobadasMigradas = migradas.filter(m => this.aprobado(m)).length;
       const partes: CaptionPart[] = [
         P('Viene de la '), P(`Ed. ${origen}`, true),
@@ -156,6 +194,10 @@ export class TranscriptComponent implements OnInit {
     if (!this.idAlumno) {
       this.router.navigate(['/inscripciones']);
       return;
+    }
+    const dpaParam = Number(this.route.snapshot.queryParamMap.get('idDpa'));
+    if (dpaParam) {
+      this.selectedDpaId.set(dpaParam);
     }
     this.loadTranscript(this.idAlumno);
   }
@@ -212,6 +254,11 @@ export class TranscriptComponent implements OnInit {
 
   volver(): void {
     this.router.navigate(['/inscripciones']);
+  }
+
+  seleccionarInscripcion(idDpa: number): void {
+    this.selectedDpaId.set(idDpa);
+    this.router.navigate([], { relativeTo: this.route, queryParams: { idDpa }, queryParamsHandling: 'merge' });
   }
 
   estadoClass(estado: string): string {

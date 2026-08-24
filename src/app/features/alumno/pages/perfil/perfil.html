@@ -21,136 +21,66 @@
       </div>
     </div>
 
-    <!-- Datos personales -->
+    <!-- Datos personales (solo lectura) -->
     <mat-card class="section-card">
       <div class="section-header">
         <div class="section-title">
           <mat-icon>person</mat-icon>
           <h2>Datos Personales</h2>
         </div>
-        @if (!editando()) {
-          <button mat-stroked-button (click)="iniciarEdicion()">
-            <mat-icon>edit</mat-icon> Editar
-          </button>
-        }
+        <span class="readonly-badge">Solo lectura</span>
       </div>
 
-      @if (!editando()) {
-        <div class="info-grid">
-          <div class="info-row">
-            <div class="info-item">
-              <span class="info-label">Nombre</span>
-              <span class="info-value">{{ alumno()!.nombre }}</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">Apellido</span>
-              <span class="info-value">{{ alumno()!.apellido }}</span>
-            </div>
+      <div class="info-grid">
+        <div class="info-row">
+          <div class="info-item">
+            <span class="info-label">Nombre</span>
+            <span class="info-value">{{ alumno()!.nombre }}</span>
           </div>
-          <div class="info-row">
-            <div class="info-item">
-              <span class="info-label">CI</span>
-              <span class="info-value">{{ alumno()!.ci || '—' }}</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">Pasaporte</span>
-              <span class="info-value">{{ alumno()!.pasaporte || '—' }}</span>
-            </div>
-          </div>
-          <div class="info-row">
-            <div class="info-item">
-              <span class="info-label">Correo</span>
-              <span class="info-value">{{ alumno()!.correo }}</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">Celular</span>
-              <span class="info-value">{{ alumno()!.celular || '—' }}</span>
-            </div>
-          </div>
-          <div class="info-row">
-            <div class="info-item">
-              <span class="info-label">Fecha de Nacimiento</span>
-              <span class="info-value">{{ alumno()!.fecha_nacimiento ? (alumno()!.fecha_nacimiento | date:'dd/MM/yyyy') : '—' }}</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">Género</span>
-              <span class="info-value">{{ alumno()!.genero ? (alumno()!.genero | titlecase) : '—' }}</span>
-            </div>
-          </div>
-          <div class="info-row">
-            <div class="info-item full">
-              <span class="info-label">Dirección</span>
-              <span class="info-value">{{ alumno()!.direccion || '—' }}</span>
-            </div>
+          <div class="info-item">
+            <span class="info-label">Apellido</span>
+            <span class="info-value">{{ alumno()!.apellido }}</span>
           </div>
         </div>
-      }
+        <div class="info-row">
+          <div class="info-item">
+            <span class="info-label">CI</span>
+            <span class="info-value">{{ alumno()!.ci || '—' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Pasaporte</span>
+            <span class="info-value">{{ alumno()!.pasaporte || '—' }}</span>
+          </div>
+        </div>
+        <div class="info-row">
+          <div class="info-item">
+            <span class="info-label">Correo</span>
+            <span class="info-value">{{ alumno()!.correo }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Celular</span>
+            <span class="info-value">{{ alumno()!.celular || '—' }}</span>
+          </div>
+        </div>
+        <div class="info-row">
+          <div class="info-item">
+            <span class="info-label">Fecha de Nacimiento</span>
+            <span class="info-value">{{ alumno()!.fecha_nacimiento ? (alumno()!.fecha_nacimiento | date:'dd/MM/yyyy') : '—' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Género</span>
+            <span class="info-value">{{ alumno()!.genero ? (alumno()!.genero | titlecase) : '—' }}</span>
+          </div>
+        </div>
+        <div class="info-row">
+          <div class="info-item full">
+            <span class="info-label">Dirección</span>
+            <span class="info-value">{{ alumno()!.direccion || '—' }}</span>
+          </div>
+        </div>
+      </div>
 
-      @if (editando()) {
-        <form class="edit-form">
-          <div class="form-row">
-            <mat-form-field appearance="outline">
-              <mat-label>Nombre</mat-label>
-              <input matInput [(ngModel)]="editData.nombre" name="nombre" required>
-            </mat-form-field>
-            <mat-form-field appearance="outline">
-              <mat-label>Apellido</mat-label>
-              <input matInput [(ngModel)]="editData.apellido" name="apellido" required>
-            </mat-form-field>
-          </div>
-          <div class="form-row">
-            <mat-form-field appearance="outline">
-              <mat-label>CI</mat-label>
-              <input matInput [(ngModel)]="editData.ci" name="ci">
-            </mat-form-field>
-            <mat-form-field appearance="outline">
-              <mat-label>Pasaporte</mat-label>
-              <input matInput [(ngModel)]="editData.pasaporte" name="pasaporte">
-            </mat-form-field>
-          </div>
-          <div class="form-row">
-            <mat-form-field appearance="outline">
-              <mat-label>Correo</mat-label>
-              <input matInput [(ngModel)]="editData.correo" name="correo" required type="email">
-            </mat-form-field>
-            <mat-form-field appearance="outline">
-              <mat-label>Celular</mat-label>
-              <input matInput [(ngModel)]="editData.celular" name="celular">
-            </mat-form-field>
-          </div>
-          <div class="form-row">
-            <mat-form-field appearance="outline">
-              <mat-label>Fecha de Nacimiento</mat-label>
-              <input matInput [matDatepicker]="picker" [(ngModel)]="editData.fecha_nacimiento" name="fecha_nacimiento">
-              <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-              <mat-datepicker #picker></mat-datepicker>
-            </mat-form-field>
-            <mat-form-field appearance="outline">
-              <mat-label>Género</mat-label>
-              <mat-select [(ngModel)]="editData.genero" name="genero">
-                <mat-option [value]="null">—</mat-option>
-                @for (g of generos; track g) {
-                  <mat-option [value]="g">{{ g | titlecase }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
-          </div>
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Dirección</mat-label>
-            <input matInput [(ngModel)]="editData.direccion" name="direccion">
-          </mat-form-field>
-          <div class="form-actions">
-            <button mat-button type="button" (click)="cancelarEdicion()">Cancelar</button>
-            <button mat-raised-button color="primary" type="button" (click)="guardar()" [disabled]="guardando()">
-              @if (guardando()) {
-                <ng-container><mat-icon>hourglass_top</mat-icon> Guardando...</ng-container>
-              } @else {
-                <ng-container><mat-icon>save</mat-icon> Guardar Cambios</ng-container>
-              }
-            </button>
-          </div>
-        </form>
-      }
+      <p class="section-note">Si necesitas actualizar tus datos personales, contactá al administrador del sistema.</p>
     </mat-card>
 
     <!-- Cambiar contraseña -->
@@ -168,7 +98,7 @@
       </div>
 
       @if (!editandoPassword()) {
-        <p class="section-desc">Tu contraseña tiene 12 caracteres. Última vez que se cambió hace 30 días.</p>
+        <p class="section-desc">{{ getPasswordChangedText() }}</p>
       }
 
       @if (editandoPassword()) {

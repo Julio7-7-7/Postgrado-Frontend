@@ -1,6 +1,7 @@
 import { Component, OnInit, signal, inject, computed, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 // Angular Material
@@ -48,6 +49,7 @@ export class TipoProgramaListComponent implements OnInit {
   private dialog = inject(MatDialog);
   private snackbar = inject(MatSnackBar);
   private destroyRef = inject(DestroyRef);
+  private router = inject(Router);
 
   // Estados Base
   listaTotal = signal<TipoPrograma[]>([]);
@@ -123,6 +125,10 @@ export class TipoProgramaListComponent implements OnInit {
     ref.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(result => {
       if (result) this.cargarDatos();
     });
+  }
+
+  abrirEtapas(registro: TipoPrograma): void {
+    this.router.navigate(['/tipos-programa', registro.id_tipo_programa, 'ruta-documental']);
   }
 
   toggleEstado(event: MatSlideToggleChange, registro: TipoPrograma): void {

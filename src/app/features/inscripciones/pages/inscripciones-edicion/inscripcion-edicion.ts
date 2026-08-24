@@ -233,6 +233,6 @@ export class InscripcionesEdicionComponent implements OnInit {
   }
 
   verTranscript(item: InscripcionEdicionItem): void {
-    this.router.navigate(['/transcript', item.alumno.id_alumno]);
+    this.router.navigate(['/transcript', item.alumno.id_alumno], { queryParams: { idDpa: item.id_detalle_programa_alumno } });
   }
 }

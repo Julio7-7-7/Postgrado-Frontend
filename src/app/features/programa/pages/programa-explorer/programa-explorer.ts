@@ -23,6 +23,7 @@ import { ProgramaVersionFormComponent } from '../../../programa-version/pages/pr
 import { EdicionService } from '../../../edicion/services/edicion.service';
 import { ProgramaVersionEdicion } from '../../../edicion/models/edicion.model';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog';
+import { AuthService } from '../../../../core/services/auth.service';
 import { environment } from '../../../../../environments/environment';
 
 const VERSIONES_POR_PAGINA = 20;
@@ -64,6 +65,7 @@ export class ProgramaExplorerComponent implements OnInit {
   private programaService = inject(ProgramaService);
   private versionService = inject(ProgramaVersionService);
   private edicionService = inject(EdicionService);
+  private auth = inject(AuthService);
   private snackbar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
   private router = inject(Router);
@@ -71,6 +73,10 @@ export class ProgramaExplorerComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
 
   apiUrl = environment.apiUrl;
+
+  get canCrear(): boolean {
+    return this.auth.hasPermiso('programas.crear');
+  }
 
   listaTotal = signal<Programa[]>([]);
   terminoBusqueda = signal('');

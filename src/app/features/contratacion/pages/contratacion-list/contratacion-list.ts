@@ -19,10 +19,10 @@ import { MatSelectModule } from '@angular/material/select';
 
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog';
 import { ContratacionService } from '../../services/contratacion.service';
-import { ContratacionDocente, ContratacionEstado } from '../../models/contratacion.model';
-import { ETAPAS_DOCUMENTALES } from '../../models/documento.model';
+import { ContratacionDocente } from '../../models/contratacion.model';
 import { ProgramaService } from '../../../programa/services/programa.service';
 import { Programa } from '../../../programa/models/programa.model';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-contratacion-list',
@@ -43,6 +43,9 @@ export class ContratacionListComponent implements OnInit {
   private snackbar = inject(MatSnackBar);
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
+  private auth = inject(AuthService);
+
+  puedeGestionarEtapas = computed(() => this.auth.hasPermiso('contrataciones.editar'));
 
   listaTotal = signal<ContratacionDocente[]>([]);
   programas = signal<Programa[]>([]);
@@ -136,19 +139,11 @@ export class ContratacionListComponent implements OnInit {
     });
   }
 
-  progresoTexto(estado: ContratacionEstado): string {
-    const total = ETAPAS_DOCUMENTALES.flatMap(e => e.documentos).length;
-    const map: Record<ContratacionEstado, string> = {
-      pendiente: '0/' + total,
-      verificacion: 'Verificación',
-      convocatoria: 'Convocatoria',
-      seleccion: 'Selección',
-      resolucion: 'Resolución',
-      legal: 'Gestión Legal',
-      formalizado: total + '/' + total,
-      truncado: 'Truncado',
-    };
-    return map[estado];
+  progresoTexto(c: ContratacionDocente): string {
+    if (c.estado === 'formalizado') return 'Completado';
+    if (c.estado === 'truncado') return 'Truncado';
+    if (c.estado === 'cancelado') return 'Cancelado';
+    return c.etapa_actual_nombre || 'Pendiente';
   }
 
   irADetalle(id: number): void {
@@ -183,5 +178,9 @@ export class ContratacionListComponent implements OnInit {
         });
       }
     });
+  }
+
+  irARutaDocumental(): void {
+    this.router.navigate(['/tipos-programa']);
   }
 }

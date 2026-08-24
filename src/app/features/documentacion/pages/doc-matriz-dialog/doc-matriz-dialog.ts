@@ -10,6 +10,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DocumentacionService } from '../../services/documentacion.service';
+import { AuthService } from '../../../../core/services/auth.service';
 import {
   PostulanteResponse,
   ControlDocumentacionResponse,
@@ -35,6 +36,7 @@ export interface DocMatrizDialogData {
 })
 export class DocMatrizDialogComponent {
   private service = inject(DocumentacionService);
+  private auth = inject(AuthService);
   private snackbar = inject(MatSnackBar);
   private destroyRef = inject(DestroyRef);
   private cdr = inject(ChangeDetectorRef);
@@ -119,7 +121,11 @@ export class DocMatrizDialogComponent {
   }
 
   canApprove(doc: ControlDocumentacionResponse): boolean {
-    return doc.estado === 'entregado' || (doc.estado === 'rechazado' && doc.url_documento != null);
+    return doc.estado === 'entregado';
+  }
+
+  get canAprobar(): boolean {
+    return this.auth.hasPermiso('documentos.aprobar');
   }
 
   approveDoc(doc: ControlDocumentacionResponse): void {
@@ -176,6 +182,10 @@ export class DocMatrizDialogComponent {
 
   private recalcProgress(): void {
     this.p.docs_completados = this.p.control_documentacion.filter(d => d.estado === 'aceptado').length;
+    const obligatorios = this.p.control_documentacion.filter(d => d.obligatorio);
+    if (obligatorios.length > 0 && obligatorios.every(d => d.estado === 'aceptado') && this.p.estado === 'postulante') {
+      this.p.estado = 'inscrito';
+    }
   }
 
   close(): void {

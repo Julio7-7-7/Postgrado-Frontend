@@ -6,14 +6,11 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { AlumnoService } from '../../services/alumno.service';
 import { AuthService } from '../../../../core/services/auth.service';
-import { Alumno, AlumnoUpdate, GeneroAlumno } from '../../models/alumno.model';
+import { Alumno } from '../../models/alumno.model';
 
 @Component({
   selector: 'app-perfil',
@@ -21,8 +18,7 @@ import { Alumno, AlumnoUpdate, GeneroAlumno } from '../../models/alumno.model';
   imports: [
     CommonModule, FormsModule,
     MatCardModule, MatButtonModule, MatIconModule, MatFormFieldModule,
-    MatInputModule, MatSelectModule, MatDatepickerModule, MatNativeDateModule,
-    MatDividerModule, MatSnackBarModule,
+    MatInputModule, MatDividerModule, MatSnackBarModule,
   ],
   templateUrl: './perfil.html',
   styleUrl: './perfil.css',
@@ -33,12 +29,7 @@ export class PerfilComponent implements OnInit {
   private snackBar = inject(MatSnackBar);
 
   alumno = signal<Alumno | null>(null);
-  editando = signal(false);
   cargando = signal(true);
-  guardando = signal(false);
-
-  editData: AlumnoUpdate = {};
-  generos: GeneroAlumno[] = ['masculino', 'femenino', 'otro'];
 
   editandoPassword = signal(false);
   guardandoPassword = signal(false);
@@ -62,50 +53,6 @@ export class PerfilComponent implements OnInit {
       error: () => {
         this.cargando.set(false);
         this.snackBar.open('Error al cargar perfil', 'Cerrar', { duration: 4000 });
-      },
-    });
-  }
-
-  iniciarEdicion(): void {
-    const a = this.alumno();
-    if (!a) return;
-    this.editData = {
-      ci: a.ci,
-      pasaporte: a.pasaporte,
-      nombre: a.nombre,
-      apellido: a.apellido,
-      fecha_nacimiento: a.fecha_nacimiento,
-      genero: a.genero,
-      celular: a.celular,
-      correo: a.correo,
-      direccion: a.direccion,
-    };
-    this.editando.set(true);
-  }
-
-  cancelarEdicion(): void {
-    this.editando.set(false);
-    this.editData = {};
-  }
-
-  guardar(): void {
-    this.guardando.set(true);
-    this.alumnoService.actualizarMiPerfil(this.editData).subscribe({
-      next: (data) => {
-        this.alumno.set(data);
-        this.editando.set(false);
-        this.guardando.set(false);
-        this.snackBar.open('Perfil actualizado', 'Cerrar', { duration: 3000 });
-      },
-      error: (err) => {
-        this.guardando.set(false);
-        let msg = 'Error al actualizar perfil';
-        if (err.error?.detail) {
-          msg = Array.isArray(err.error.detail)
-            ? err.error.detail.map((e: any) => e.msg).join(', ')
-            : err.error.detail;
-        }
-        this.snackBar.open(msg, 'Cerrar', { duration: 4000 });
       },
     });
   }
@@ -157,5 +104,22 @@ export class PerfilComponent implements OnInit {
 
   getUserEmail(): string {
     return this.authService.user()?.email || '';
+  }
+
+  getPasswordChangedText(): string {
+    const user = this.authService.user();
+    if (!user?.password_changed_at) return 'Tu contraseña protege el acceso a tu cuenta.';
+    const changed = new Date(user.password_changed_at);
+    const now = new Date();
+    const diffMs = now.getTime() - changed.getTime();
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    if (diffDays === 0) return 'Contraseña cambiada hoy.';
+    if (diffDays === 1) return 'Contraseña cambiada ayer.';
+    if (diffDays < 30) return `Contraseña cambiada hace ${diffDays} días.`;
+    if (diffDays < 365) {
+      const months = Math.floor(diffDays / 30);
+      return `Contraseña cambiada hace ${months} ${months === 1 ? 'mes' : 'meses'}.`;
+    }
+    return `Contraseña cambiada el ${changed.toLocaleDateString('es-BO')}.`;
   }
 }

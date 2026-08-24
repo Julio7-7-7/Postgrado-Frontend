@@ -1,0 +1,114 @@
+<div class="dialog-shell">
+  <div class="dialog-header">
+    <div class="header-icon">
+      <mat-icon>route</mat-icon>
+    </div>
+    <div class="header-text">
+      <h2 mat-dialog-title>Etapas de Contratación</h2>
+      <p class="header-subtitle">{{ data.tipoProgramaNombre }}</p>
+    </div>
+  </div>
+
+  <mat-dialog-content>
+    @if (loading()) {
+      <div class="loading-state">
+        <mat-spinner diameter="40"></mat-spinner>
+      </div>
+    } @else {
+      @if (etapas().length === 0) {
+        <div class="empty-state">
+          <mat-icon>folder_open</mat-icon>
+          <p>No hay etapas configuradas para este tipo de programa.</p>
+          <p class="hint">Las etapas definen los pasos que debe seguir cada contratación de docente.</p>
+        </div>
+      }
+
+      <div class="etapas-list">
+        @for (etapa of etapas(); track etapa.id_etapa) {
+          <div class="etapa-item">
+            @if (editandoEtapaId() === etapa.id_etapa) {
+              <div class="etapa-edit">
+                <mat-form-field appearance="outline" class="etapa-input">
+                  <mat-label>Nombre de la etapa</mat-label>
+                  <input matInput [value]="editandoEtapaNombre()" (input)="editandoEtapaNombre.set($any($event.target).value)"
+                         (keydown.enter)="guardarEdicion(etapa)" (keydown.escape)="cancelarEdicion()" autofocus>
+                </mat-form-field>
+                <div class="etapa-edit-actions">
+                  <button mat-icon-button color="primary" (click)="guardarEdicion(etapa)" [disabled]="guardando()" matTooltip="Guardar">
+                    <mat-icon>check</mat-icon>
+                  </button>
+                  <button mat-icon-button (click)="cancelarEdicion()" matTooltip="Cancelar">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </div>
+              </div>
+            } @else {
+              <div class="etapa-display">
+                <div class="etapa-info">
+                  <span class="etapa-orden">{{ etapa.orden }}</span>
+                  <span class="etapa-nombre">{{ etapa.nombre }}</span>
+                  <span class="etapa-requisitos-count">{{ etapa.requisitos.length }} requisitos</span>
+                </div>
+                <div class="etapa-actions">
+                  <button mat-icon-button (click)="abrirGestionRequisitos(etapa)" matTooltip="Gestionar requisitos"
+                          [class.active]="gestionandoRequisitos() === etapa.id_etapa">
+                    <mat-icon>assignment</mat-icon>
+                  </button>
+                  <button mat-icon-button (click)="iniciarEdicion(etapa)" matTooltip="Editar nombre">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                  <button mat-icon-button (click)="eliminarEtapa(etapa)" matTooltip="Eliminar etapa" class="danger-btn">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              </div>
+
+              @if (gestionandoRequisitos() === etapa.id_etapa) {
+                <div class="requisitos-panel">
+                  <div class="requisitos-header">
+                    <span>Requisitos de "{{ etapa.nombre }}"</span>
+                  </div>
+                  <div class="requisitos-chips">
+                    @for (req of requisitos(); track req.id_requisito) {
+                      <button mat-stroked-button
+                              [class.selected]="requisitosSeleccionados().has(req.id_requisito)"
+                              (click)="toggleRequisito(req.id_requisito)"
+                              class="requisito-chip">
+                        <mat-icon>{{ requisitosSeleccionados().has(req.id_requisito) ? 'check_box' : 'check_box_outline_blank' }}</mat-icon>
+                        {{ req.nombre }}
+                      </button>
+                    }
+                  </div>
+                  <div class="requisitos-actions">
+                    <button mat-flat-button color="primary" (click)="guardarRequisitos()" [disabled]="guardando()">
+                      @if (guardando()) {
+                        <mat-spinner diameter="16" class="inline-spinner"></mat-spinner>
+                      }
+                      Guardar requisitos
+                    </button>
+                    <button mat-stroked-button (click)="cerrarGestionRequisitos()">Cancelar</button>
+                  </div>
+                </div>
+              }
+            }
+          </div>
+        }
+      </div>
+
+      <div class="nueva-etapa">
+        <mat-form-field appearance="outline" class="etapa-input">
+          <mat-label>Nueva etapa</mat-label>
+          <input matInput [value]="nuevaEtapaNombre()" (input)="nuevaEtapaNombre.set($any($event.target).value)"
+                 (keydown.enter)="agregarEtapa()" placeholder="Ej: Verificación Presupuestaria">
+        </mat-form-field>
+        <button mat-flat-button color="primary" (click)="agregarEtapa()" [disabled]="!nuevaEtapaNombre().trim() || guardando()">
+          <mat-icon>add</mat-icon> Agregar
+        </button>
+      </div>
+    }
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-flat-button color="primary" (click)="cerrar()">Cerrar</button>
+  </mat-dialog-actions>
+</div>
