@@ -138,7 +138,20 @@ export class InscribirComponent implements OnInit {
     };
 
     this.edicionService.getById(idEdicion).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (ed) => this.edicion.set(ed),
+      next: (ed) => {
+        this.edicion.set(ed);
+        const idTipoPrograma = ed.programa_version.programa.id_tipo_programa;
+        this.modalidadService.getAll(idTipoPrograma).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+          next: (mods) => this.modalidades.set(mods.filter(m => m.estado === 'activo')),
+          error: () => { this.snackBar.open('Error al cargar modalidades', 'Cerrar', { duration: 4000 }); onComplete(); },
+          complete: onComplete,
+        });
+        this.descuentoService.getAll(idTipoPrograma).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+          next: (desc) => this.tiposDescuento.set(desc.filter(d => d.estado === 'activo')),
+          error: () => { this.snackBar.open('Error al cargar descuentos', 'Cerrar', { duration: 4000 }); onComplete(); },
+          complete: onComplete,
+        });
+      },
       error: () => {
         this.snackBar.open('Error al cargar programa', 'Cerrar', { duration: 4000 });
         onComplete();
@@ -165,18 +178,6 @@ export class InscribirComponent implements OnInit {
         this.snackBar.open('Error al cargar perfil', 'Cerrar', { duration: 4000 });
         onComplete();
       },
-      complete: onComplete,
-    });
-
-    this.modalidadService.getAll().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (mods) => this.modalidades.set(mods.filter(m => m.estado === 'activo')),
-      error: () => { this.snackBar.open('Error al cargar modalidades', 'Cerrar', { duration: 4000 }); onComplete(); },
-      complete: onComplete,
-    });
-
-    this.descuentoService.getAll().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (desc) => this.tiposDescuento.set(desc.filter(d => d.estado === 'activo')),
-      error: () => { this.snackBar.open('Error al cargar descuentos', 'Cerrar', { duration: 4000 }); onComplete(); },
       complete: onComplete,
     });
 

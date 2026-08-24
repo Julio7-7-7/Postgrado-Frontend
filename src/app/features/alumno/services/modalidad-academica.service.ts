@@ -7,7 +7,9 @@ import { ModalidadAcademica } from '../models/modalidad-academica.model';
 export class ModalidadAcademicaService extends ApiService {
   private readonly endpoint = 'modalidades-academicas';
 
-  getAll(): Observable<ModalidadAcademica[]> {
-    return this.http.get<ModalidadAcademica[]>(`${this.baseUrl}/${this.endpoint}/`);
+  getAll(idTipoPrograma?: number): Observable<ModalidadAcademica[]> {
+    const params: any = {};
+    if (idTipoPrograma != null) params.id_tipo_programa = idTipoPrograma;
+    return this.http.get<ModalidadAcademica[]>(`${this.baseUrl}/${this.endpoint}/`, { params });
   }
 }

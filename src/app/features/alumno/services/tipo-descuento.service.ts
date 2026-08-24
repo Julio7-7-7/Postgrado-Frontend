@@ -7,7 +7,9 @@ import { TipoDescuento } from '../models/tipo-descuento.model';
 export class TipoDescuentoService extends ApiService {
   private readonly endpoint = 'tipos-descuento';
 
-  getAll(): Observable<TipoDescuento[]> {
-    return this.http.get<TipoDescuento[]>(`${this.baseUrl}/${this.endpoint}/`);
+  getAll(idTipoPrograma?: number): Observable<TipoDescuento[]> {
+    const params: any = {};
+    if (idTipoPrograma != null) params.id_tipo_programa = idTipoPrograma;
+    return this.http.get<TipoDescuento[]>(`${this.baseUrl}/${this.endpoint}/`, { params });
   }
 }
