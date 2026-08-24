@@ -121,7 +121,7 @@ export class DocMatrizDialogComponent {
   }
 
   canApprove(doc: ControlDocumentacionResponse): boolean {
-    return doc.estado === 'entregado' || (doc.estado === 'rechazado' && doc.url_documento != null);
+    return doc.estado === 'entregado';
   }
 
   get canAprobar(): boolean {
@@ -182,6 +182,10 @@ export class DocMatrizDialogComponent {
 
   private recalcProgress(): void {
     this.p.docs_completados = this.p.control_documentacion.filter(d => d.estado === 'aceptado').length;
+    const obligatorios = this.p.control_documentacion.filter(d => d.obligatorio);
+    if (obligatorios.length > 0 && obligatorios.every(d => d.estado === 'aceptado') && this.p.estado === 'postulante') {
+      this.p.estado = 'inscrito';
+    }
   }
 
   close(): void {
