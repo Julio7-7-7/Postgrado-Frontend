@@ -16,8 +16,24 @@
       <mat-spinner diameter="40"></mat-spinner>
       <span>Cargando transcript...</span>
     </div>
-  } @else if (transcript(); as t) {
+    } @else if (transcript(); as t) {
     @let sit = situacion();
+
+    @if (t.inscripciones.length > 1) {
+      <div class="inscripcion-selector">
+        <mat-icon>swap_horiz</mat-icon>
+        <span class="selector-label">Ver inscripci&oacute;n:</span>
+        <mat-select [value]="selectedDpaId() ?? t.inscripciones[t.inscripciones.length - 1].id_detalle_programa_alumno"
+                    (selectionChange)="seleccionarInscripcion($event.value)"
+                    class="selector-inline">
+          @for (ins of t.inscripciones; track ins.id_detalle_programa_alumno) {
+            <mat-option [value]="ins.id_detalle_programa_alumno">
+              {{ ins.programa_nombre }} &middot; Ed. {{ ins.edicion_numero }} ({{ semestreLabel(ins.edicion_semestre) }} {{ ins.edicion_anio }}) &mdash; {{ estadoLabel(ins.estado) }}
+            </mat-option>
+          }
+        </mat-select>
+      </div>
+    }
 
     <!-- ═══════════ HERO: panel del recorrido ═══════════ -->
     <div class="hero-card">
@@ -38,15 +54,15 @@
       @if (lastInscripcion(); as ins) {
         <div class="hero-body">
           <div class="hero-donut">
-            <span class="donut-label">Promedio general</span>
-            @if (t.promedio_general !== null) {
-              <div class="donut" [class]="notaClass(t.promedio_general)" [style.background]="promRingBg(t.promedio_general)">
-                <span class="donut-num">{{ round(t.promedio_general) }}</span>
+            <span class="donut-label">Promedio</span>
+            @if (promedioInscripcion(); as prom) {
+              <div class="donut" [class]="notaClass(prom)" [style.background]="promRingBg(prom)">
+                <span class="donut-num">{{ round(prom) }}</span>
               </div>
-              <span class="prom-clasif" [class]="notaClass(t.promedio_general)">{{ promClasifLabel(t.promedio_general) }}</span>
+              <span class="prom-clasif" [class]="notaClass(prom)">{{ promClasifLabel(prom) }}</span>
             } @else {
               <div class="donut donut-vacia"><span class="donut-num">&mdash;</span></div>
-              <span class="prom-clasif prom-clasif-vacia">Sin promedio</span>
+              <span class="prom-clasif prom-clasif-vacia">Sin notas</span>
             }
           </div>
 
@@ -192,14 +208,14 @@
       }
     }
 
-    @if (movimientos().length > 0) {
+    @if (movimientosFiltrados().length > 0) {
       <div class="movimientos-card">
         <div class="movimientos-header">
           <mat-icon>swap_horiz</mat-icon>
           <h3>Historial de Movimientos</h3>
         </div>
         <div class="movimientos-timeline">
-          @for (tr of movimientos(); track tr.id_historial) {
+          @for (tr of movimientosFiltrados(); track tr.id_historial) {
             <div class="movimiento-item">
               <div class="movimiento-fecha">{{ tr.fecha | date:'dd/MM/yyyy HH:mm' }}</div>
               <div class="movimiento-tipo-badge" [class]="'tipo-' + tr.tipo_movimiento">
@@ -254,75 +270,84 @@
       </div>
     }
 
-    @if (pagosData(); as pagos) {
-      @if (pagos.inscripciones.length > 0) {
-        <div class="pagos-card">
-          <div class="pagos-header">
-            <mat-icon>payments</mat-icon>
-            <h3>Pagos del alumno</h3>
-            <span class="pagos-sub">Boletas registradas por inscripción</span>
+    @if (pagosInscripcion(); as pagos) {
+      <div class="pagos-card">
+        <div class="pagos-header">
+          <mat-icon>payments</mat-icon>
+          <h3>Pagos</h3>
+          <span class="pagos-sub">{{ pagos.programa_nombre }} · Ed. {{ pagos.edicion_numero }} ({{ semestreLabel(pagos.edicion_semestre) }} {{ pagos.edicion_anio }})</span>
+        </div>
+
+        @if (pagos.transacciones.length === 0) {
+          <div class="pagos-vacio">
+            <mat-icon>receipt_long</mat-icon>
+            Sin pagos registrados
           </div>
-
-          @for (ins of pagos.inscripciones; track ins.id_detalle_programa_alumno) {
-            <div class="pagos-inscripcion">
-              <div class="pagos-ins-head">
-                <span class="pagos-ins-titulo">
-                  {{ ins.programa_nombre }}
-                  @if (ins.edicion_numero !== null) {
-                    · Ed. {{ ins.edicion_numero }} ({{ semestreLabel(ins.edicion_semestre) }} {{ ins.edicion_anio }})
-                  }
-                </span>
-                <span class="pagos-ins-total">Confirmado: <b>{{ fmt(ins.total_pagado) }} Bs</b></span>
-              </div>
-
-              @if (ins.transacciones.length === 0) {
-                <div class="pagos-vacio">
-                  <mat-icon>receipt_long</mat-icon>
-                  Sin pagos registrados
+        } @else {
+          <div class="pagos-trans-list">
+            @for (trx of pagos.transacciones; track trx.id_transaccion) {
+              <div class="pago-trans" [class.anulado]="trx.estado === 'anulado'">
+                <div class="pago-trans-head">
+                  <span class="pago-trans-fecha">{{ fechaPago(trx.fecha_pago) }}</span>
+                  <span class="pago-trans-monto">{{ fmt(trx.monto_total) }} Bs</span>
+                  <span class="pago-trans-pill" [class.confirmado]="trx.estado === 'confirmado'"
+                        [class.anulado]="trx.estado === 'anulado'">
+                    {{ trx.estado === 'confirmado' ? 'Confirmado' : 'Anulado' }}
+                  </span>
                 </div>
-              } @else {
-                <div class="pagos-trans-list">
-                  @for (t of ins.transacciones; track t.id_transaccion) {
-                    <div class="pago-trans" [class.anulado]="t.estado === 'anulado'">
-                      <div class="pago-trans-head">
-                        <span class="pago-trans-fecha">{{ fechaPago(t.fecha_pago) }}</span>
-                        <span class="pago-trans-monto">{{ fmt(t.monto_total) }} Bs</span>
-                        <span class="pago-trans-pill" [class.confirmado]="t.estado === 'confirmado'"
-                              [class.anulado]="t.estado === 'anulado'">
-                          {{ t.estado === 'confirmado' ? 'Confirmado' : 'Anulado' }}
-                        </span>
-                      </div>
 
-                      <div class="pago-asig">
-                        @for (a of t.asignaciones; track a.id_pago) {
-                          <div class="pago-asig-row">
-                            <span class="pago-asig-label">{{ a.concepto }}</span>
-                            <span class="pago-asig-monto">{{ fmt(a.monto) }} Bs</span>
-                          </div>
-                        }
-                      </div>
-
-                      @if (t.estado === 'anulado') {
-                        <div class="pago-anulado-note">
-                          <mat-icon>block</mat-icon>
-                          @if (t.motivo_anulacion) {
-                            <span>Anulada: {{ t.motivo_anulacion }}</span>
-                          } @else {
-                            <span>Anulada</span>
-                          }
-                          @if (t.anulado_fecha) {
-                            · {{ fechaPago(t.anulado_fecha.split('T')[0]) }}
-                          }
-                        </div>
-                      }
+                <div class="pago-asig">
+                  @for (asig of trx.asignaciones; track asig.id_pago) {
+                    <div class="pago-asig-row">
+                      <span class="pago-asig-label">{{ asig.concepto }}</span>
+                      <span class="pago-asig-monto">{{ fmt(asig.monto) }} Bs</span>
                     </div>
                   }
                 </div>
-              }
+
+                @if (trx.estado === 'anulado') {
+                  <div class="pago-anulado-note">
+                    <mat-icon>block</mat-icon>
+                    @if (trx.motivo_anulacion) {
+                      <span>Anulada: {{ trx.motivo_anulacion }}</span>
+                    } @else {
+                      <span>Anulada</span>
+                    }
+                    @if (trx.anulado_fecha) {
+                      · {{ fechaPago(trx.anulado_fecha.split('T')[0]) }}
+                    }
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        }
+
+        @if (pagos.financiero; as fin) {
+          <div class="pagos-financiero">
+            <div class="fin-row">
+              <span class="fin-label">Total del programa</span>
+              <span class="fin-valor">{{ fmt(fin.total_esperado) }} Bs</span>
             </div>
-          }
-        </div>
-      }
+            <div class="fin-row">
+              <span class="fin-label">Ya pagado</span>
+              <span class="fin-valor fin-pagado">{{ fmt(fin.total_pagado) }} Bs</span>
+            </div>
+            @if (fin.saldo > 0) {
+              <div class="fin-row fin-pendiente">
+                <span class="fin-label">Saldo pendiente</span>
+                <span class="fin-valor">{{ fmt(fin.saldo) }} Bs</span>
+              </div>
+            }
+            @if (fin.saldo < 0) {
+              <div class="fin-row fin-a-favor">
+                <span class="fin-label">Saldo a favor</span>
+                <span class="fin-valor">{{ fmt(-fin.saldo) }} Bs</span>
+              </div>
+            }
+          </div>
+        }
+      </div>
     }
   }
 </div>

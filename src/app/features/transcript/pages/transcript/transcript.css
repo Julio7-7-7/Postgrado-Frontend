@@ -12,6 +12,19 @@
 .back-btn { color: var(--fich-text-muted); }
 .subtitle { margin: 3px 0 0; color: var(--fich-text-faint); font-size: 13px; }
 .loading-state { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 80px 0; color: var(--fich-text-muted); font-size: 14px; }
+
+/* ─── Selector de inscripción ─── */
+.inscripcion-selector {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--fich-bg-card); border: 1px solid var(--fich-border-light);
+  border-radius: 12px; padding: 10px 16px; margin-bottom: 20px;
+  box-shadow: var(--fich-shadow-sm);
+}
+.inscripcion-selector mat-icon { color: var(--fich-primary); font-size: 20px; width: 20px; height: 20px; }
+.selector-label { font-size: 13px; color: var(--fich-text-muted); font-weight: 500; white-space: nowrap; }
+.selector-inline { flex: 1; font-size: 13px; }
+.selector-inline ::ng-deep .mat-mdc-select-value { font-size: 13px; font-weight: 500; }
+
 .empty-state { text-align: center; padding: 64px 0; color: var(--fich-text-faint); }
 .empty-state mat-icon { font-size: 48px; width: 48px; height: 48px; margin-bottom: 16px; }
 .empty-state h4 { margin: 0 0 4px; font-size: 16px; color: var(--fich-text-muted); }
@@ -629,4 +642,44 @@
   font-size: 14px;
   width: 14px;
   height: 14px;
+}
+
+/* ─── Resumen financiero de la inscripción ─── */
+.pagos-financiero {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--fich-border-light);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fin-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.82rem;
+}
+
+.fin-label {
+  color: var(--fich-text-muted);
+}
+
+.fin-valor {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--fich-text-secondary);
+}
+
+.fin-pagado {
+  color: #15803d;
+}
+
+.fin-pendiente .fin-valor {
+  color: var(--fich-est-observado);
+}
+
+.fin-a-favor .fin-valor {
+  color: #15803d;
+  font-style: italic;
 }
