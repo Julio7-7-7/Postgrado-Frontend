@@ -46,6 +46,7 @@ export class ContratacionListComponent implements OnInit {
   private auth = inject(AuthService);
 
   puedeGestionarEtapas = computed(() => this.auth.hasPermiso('contrataciones.editar'));
+  canCrear = computed(() => this.auth.hasPermiso('contrataciones.crear'));
 
   listaTotal = signal<ContratacionDocente[]>([]);
   programas = signal<Programa[]>([]);

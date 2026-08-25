@@ -81,10 +81,12 @@
         <mat-icon>{{ sortDirection() === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
       </button>
 
-      <button mat-raised-button color="primary" routerLink="nuevo" class="btn-nuevo">
-        <mat-icon>add</mat-icon>
-        <span>Nueva Contratación</span>
-      </button>
+      @if (canCrear()) {
+        <button mat-raised-button color="primary" routerLink="nuevo" class="btn-nuevo">
+          <mat-icon>add</mat-icon>
+          <span>Nueva Contratación</span>
+        </button>
+      }
     </div>
 
     <div class="table-wrapper">
@@ -135,7 +137,7 @@
                     (click)="irADetalle(c.id_contratacion)">
               <mat-icon>visibility</mat-icon>
             </button>
-            @if (c.estado !== 'formalizado' && c.estado !== 'truncado') {
+            @if (puedeGestionarEtapas() && c.estado !== 'formalizado' && c.estado !== 'truncado') {
               <button mat-icon-button color="warn" matTooltip="Truncar"
                       (click)="truncar(c, $event)">
                 <mat-icon>cancel</mat-icon>

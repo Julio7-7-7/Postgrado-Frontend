@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject, DestroyRef } from '@angular/core';
+import { Component, OnInit, computed, signal, inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
@@ -6,6 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { AuthService } from '../../../../core/services/auth.service';
 import { RolesService } from '../../services/roles.service';
 import { RolResponse } from '../../models/roles.model';
 import { RolFormComponent } from '../rol-form/rol-form';
@@ -26,6 +27,9 @@ export class RolesListComponent implements OnInit {
   private service = inject(RolesService);
   private dialog = inject(MatDialog);
   private destroyRef = inject(DestroyRef);
+  private auth = inject(AuthService);
+
+  canGestionar = computed(() => this.auth.hasPermiso('roles.gestionar'));
 
   roles = signal<RolResponse[]>([]);
   isLoading = signal(true);

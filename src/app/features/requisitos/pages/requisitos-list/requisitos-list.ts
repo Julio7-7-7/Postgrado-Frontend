@@ -16,6 +16,7 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
 import { RequisitoService } from '../../services/requisito.service';
 import { RequisitoResponse } from '../../models/requisito.model';
 import { RequisitosFormComponent } from '../requisitos-form/requisitos-form';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-requisitos-list',
@@ -34,7 +35,11 @@ export class RequisitosListComponent implements OnInit {
   private service = inject(RequisitoService);
   private dialog = inject(MatDialog);
   private snackbar = inject(MatSnackBar);
+  private auth = inject(AuthService);
   private destroyRef = inject(DestroyRef);
+
+  canCrear = computed(() => this.auth.hasPermiso('requisitos.crear'));
+  canEditar = computed(() => this.auth.hasPermiso('requisitos.editar'));
 
   listaTotal = signal<RequisitoResponse[]>([]);
   terminoBusqueda = signal('');

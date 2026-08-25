@@ -15,6 +15,7 @@ import { RolResponse } from '../../../roles/models/roles.model';
 import { RolesChangeDialog } from '../../dialogs/roles-change-dialog';
 import { UsuarioEditDialog } from '../../dialogs/usuario-edit-dialog';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-usuarios-list',
@@ -34,7 +35,10 @@ export class UsuariosListComponent implements OnInit {
   private dialog = inject(MatDialog);
   private snackbar = inject(MatSnackBar);
   private router = inject(Router);
+  private auth = inject(AuthService);
   private destroyRef = inject(DestroyRef);
+
+  canGestionar = computed(() => this.auth.hasPermiso('usuarios.gestionar'));
 
   usuarios = signal<UserAdminResponse[]>([]);
   roles = signal<RolResponse[]>([]);

@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject, DestroyRef } from '@angular/core';
+import { Component, OnInit, signal, inject, computed, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -15,6 +15,7 @@ import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog';
 import { ModuloFormComponent } from '../modulo-form/modulo-form';
 import { ModuloService } from '../../services/modulo.service';
+import { AuthService } from '../../../../core/services/auth.service';
 import { ProgramaVersionService } from '../../../programa-version/services/programa-version.service';
 import { Modulo } from '../../models/modulo.model';
 import { ProgramaVersion } from '../../../programa-version/models/programa-version.model';
@@ -47,6 +48,10 @@ export class ModuloListComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
+  private auth = inject(AuthService);
+
+  canCrear = computed(() => this.auth.hasPermiso('modulos.crear'));
+  canEditar = computed(() => this.auth.hasPermiso('modulos.editar'));
 
   idVersion = signal<number>(0);
   idPrograma = signal<number>(0);

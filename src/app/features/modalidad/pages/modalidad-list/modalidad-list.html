@@ -7,9 +7,11 @@
       </div>
     </div>
     <div class="header-right">
+      @if (canCrear()) {
       <button mat-flat-button color="primary" class="btn-nuevo" (click)="abrirFormulario()">
         <mat-icon>add</mat-icon> Nueva Modalidad
       </button>
+      }
     </div>
   </div>
 
@@ -52,9 +54,11 @@
               color="primary"
               matTooltip="Desactivar modalidad">
             </mat-slide-toggle>
+            @if (canEditar()) {
             <button mat-icon-button matTooltip="Editar" (click)="abrirFormulario(m)">
               <mat-icon>edit</mat-icon>
             </button>
+            }
           </div>
         </div>
       }
@@ -87,9 +91,11 @@
                   color="primary"
                   matTooltip="Reactivar modalidad">
                 </mat-slide-toggle>
+                @if (canEditar()) {
                 <button mat-icon-button matTooltip="Editar" (click)="abrirFormulario(m)">
                   <mat-icon>edit</mat-icon>
                 </button>
+                }
               </div>
             </div>
           }

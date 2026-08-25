@@ -15,6 +15,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { ProgramaService } from '../../services/programa.service';
 import { Programa } from '../../models/programa.model';
+import { AuthService } from '../../../../core/services/auth.service';
 import { ProgramaFormComponent } from '../programa-form/programa-form';
 import { environment } from '../../../../../environments/environment';
 
@@ -46,6 +47,10 @@ export class ProgramaListComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private destroyRef = inject(DestroyRef);
+  private auth = inject(AuthService);
+
+  canCrear = computed(() => this.auth.hasPermiso('programas.crear'));
+  canEditar = computed(() => this.auth.hasPermiso('programas.editar'));
 
   apiUrl = environment.apiUrl;
   listaTotal = signal<Programa[]>([]);

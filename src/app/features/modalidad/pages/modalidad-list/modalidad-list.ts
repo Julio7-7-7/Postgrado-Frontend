@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject, DestroyRef } from '@angular/core';
+import { Component, OnInit, signal, computed, inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
@@ -12,6 +12,7 @@ import { ModalidadService } from '../../services/modalidad.service';
 import { ModalidadAcademicaResponse } from '../../models/modalidad.model';
 import { ModalidadFormComponent } from '../modalidad-form/modalidad-form';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-modalidad-list',
@@ -29,7 +30,11 @@ export class ModalidadListComponent implements OnInit {
   private service = inject(ModalidadService);
   private dialog = inject(MatDialog);
   private snackbar = inject(MatSnackBar);
+  private auth = inject(AuthService);
   private destroyRef = inject(DestroyRef);
+
+  canCrear = computed(() => this.auth.hasPermiso('modalidades_academicas.crear'));
+  canEditar = computed(() => this.auth.hasPermiso('modalidades_academicas.editar'));
 
   modalidades = signal<ModalidadAcademicaResponse[]>([]);
   isLoading = signal(true);

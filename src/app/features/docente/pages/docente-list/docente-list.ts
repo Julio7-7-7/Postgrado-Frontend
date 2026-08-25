@@ -17,6 +17,7 @@ import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog';
+import { AuthService } from '../../../../core/services/auth.service';
 import { DocenteService } from '../../services/docente.service';
 import { Docente } from '../../models/docente.model';
 
@@ -48,6 +49,10 @@ export class DocenteListComponent implements OnInit {
   private snackbar = inject(MatSnackBar);
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
+  private auth = inject(AuthService);
+
+  canCrear = computed(() => this.auth.hasPermiso('docentes.crear'));
+  canEditar = computed(() => this.auth.hasPermiso('docentes.editar'));
 
   listaTotal = signal<Docente[]>([]);
   terminoBusqueda = signal('');
