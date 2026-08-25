@@ -1,4 +1,4 @@
-import { Component, inject, computed, signal, effect, viewChild, ElementRef, OnDestroy } from '@angular/core';
+import { Component, inject, computed, signal, effect, viewChild, ElementRef, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -8,12 +8,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { AuthService } from '../../../core/services/auth.service';
-import { NAV_ITEMS, NAV_GROUP_LABELS, NavItem } from '../../../core/config/nav.config';
-
-interface NavRow {
-  item: NavItem;
-  sep: string | null;
-}
+import { NAV_MODULES, NAV_ITEMS, NavModuleGroup, NavItem } from '../../../core/config/nav.config';
 
 @Component({
   selector: 'app-navbar',
@@ -29,25 +24,7 @@ export class NavbarComponent implements OnDestroy {
   router = inject(Router);
   auth = inject(AuthService);
 
-  private resizeObs = new ResizeObserver(() => this.checkOverflow());
-  private navScrollRef = viewChild<ElementRef<HTMLDivElement>>('navScroll');
-  hasOverflow = signal(false);
-
-  constructor() {
-    effect(() => {
-      this.navGroups();
-      const el = this.navScrollRef()?.nativeElement;
-      if (el) {
-        this.resizeObs.disconnect();
-        this.resizeObs.observe(el);
-        requestAnimationFrame(() => this.checkOverflow());
-      }
-    });
-  }
-
-  ngOnDestroy(): void {
-    this.resizeObs.disconnect();
-  }
+  openModule = signal<string | null>(null);
 
   user = computed(() => this.auth.user());
   isLogged = computed(() => this.auth.isLogged());
@@ -62,52 +39,87 @@ export class NavbarComponent implements OnDestroy {
   });
 
   docenteItems: NavItem[] = [
-    { path: '/docente', label: 'Mi Perfil', icon: 'badge', exact: true, feature: 'docente', permiso: 'notas.ver', group: 'docentes' },
-    { path: '/docente/mis-modulos', label: 'Mis Módulos', icon: 'menu_book', feature: 'docente', permiso: 'notas.ver', group: 'docentes' },
+    { path: '/docente', label: 'Mi Perfil', icon: 'badge', exact: true, feature: 'docente', permiso: 'notas.ver' },
+    { path: '/docente/mis-modulos', label: 'Mis Módulos', icon: 'menu_book', feature: 'docente', permiso: 'notas.ver' },
   ];
 
-  studentItems: NavItem[] = [
-    { path: '/alumnos/inscripciones', label: 'Mis Inscripciones', icon: 'assignment_ind', feature: 'alumno', permiso: 'dashboard.ver', group: 'estudiantes' },
-    { path: '/', label: 'Oferta Académica', icon: 'school', exact: true, feature: 'alumno', permiso: 'dashboard.ver', group: 'catalogos' },
-  ];
+  studentModules = computed<NavModuleGroup[]>(() => {
+    const items: NavModuleGroup[] = [
+      {
+        key: 'inicio',
+        label: 'Inicio',
+        icon: 'home',
+        permiso: 'dashboard.ver',
+        items: [{ path: '/alumnos/inscripciones', label: 'Mis Inscripciones', icon: 'assignment_ind', feature: 'alumno', permiso: 'dashboard.ver' }],
+      },
+      {
+        key: 'oferta',
+        label: 'Oferta Académica',
+        icon: 'school',
+        permiso: 'dashboard.ver',
+        items: [{ path: '/', label: 'Ver Oferta', icon: 'school', feature: 'alumno', permiso: 'dashboard.ver', exact: true }],
+      },
+    ];
+    return items.filter(m => m.items.some(i => this.auth.hasPermiso(i.permiso)));
+  });
 
-  private navItems = computed(() => {
+  adminModules = computed<NavModuleGroup[]>(() => {
+    return NAV_MODULES.filter(m => {
+      if (m.key === 'inicio') return this.auth.hasPermiso(m.permiso);
+      return m.items.some(i => this.auth.hasPermiso(i.permiso));
+    });
+  });
+
+  docenteModules = computed<NavModuleGroup[]>(() => {
+    return [{
+      key: 'docente',
+      label: 'Docente',
+      icon: 'badge',
+      permiso: 'notas.ver',
+      items: this.docenteItems.filter(i => this.auth.hasPermiso(i.permiso)),
+    }];
+  });
+
+  visibleModules = computed(() => {
     const user = this.auth.user();
-    if (user?.rol === 'alumno') {
-      return this.studentItems.filter(item => this.auth.hasPermiso(item.permiso));
-    }
-    if (user?.rol === 'docente') {
-      return this.docenteItems.filter(item => this.auth.hasPermiso(item.permiso));
-    }
-    return NAV_ITEMS.filter(item => this.auth.hasPermiso(item.permiso));
+    if (user?.rol === 'alumno') return this.studentModules();
+    if (user?.rol === 'docente') return this.docenteModules();
+    return this.adminModules();
   });
 
-  navGroups = computed<NavRow[]>(() => {
-    const items = this.navItems();
-    return items.map((item, i) => ({
-      item,
-      sep: i > 0 && items[i - 1].group !== item.group
-        ? NAV_GROUP_LABELS[item.group ?? 'inicio']
-        : null,
-    }));
-  });
-
-  private checkOverflow(): void {
-    const el = this.navScrollRef()?.nativeElement;
-    this.hasOverflow.set(!!el && el.scrollWidth > el.clientWidth + 1);
+  toggleModule(key: string, event: MouseEvent): void {
+    event.stopPropagation();
+    event.preventDefault();
+    this.openModule.set(this.openModule() === key ? null : key);
   }
 
-  scrollNav(dir: number): void {
-    const el = this.navScrollRef()?.nativeElement;
-    if (el) {
-      el.scrollBy({ left: dir * 260, behavior: 'smooth' });
-    }
+  closeModule(): void {
+    this.openModule.set(null);
+  }
+
+  @HostListener('document:click')
+  onDocumentClick(): void {
+    this.openModule.set(null);
   }
 
   isActive(path: string, exact: boolean = false): boolean {
     if (exact) return this.router.url === path;
     return this.router.url.startsWith(path) && path !== '/';
   }
+
+  isModuleActive(module: NavModuleGroup): boolean {
+    return module.items.some(i => this.isActive(i.path, i.exact));
+  }
+
+  isItemActive(item: NavItem): boolean {
+    return this.isActive(item.path, item.exact);
+  }
+
+  onNavClick(): void {
+    this.openModule.set(null);
+  }
+
+  ngOnDestroy(): void {}
 
   logout() {
     this.auth.logout();

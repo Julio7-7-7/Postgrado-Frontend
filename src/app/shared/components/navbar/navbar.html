@@ -12,47 +12,58 @@
       </div>
     </div>
 
-    <div class="nav-scroll-wrap" [class.has-overflow]="hasOverflow()">
-      @if (hasOverflow()) {
-        <button
-          mat-icon-button
-          class="nav-scroll-btn nav-scroll-prev"
-          (click)="scrollNav(-1)"
-          matTooltip="Anterior"
-        >
-          <mat-icon>chevron_left</mat-icon>
-        </button>
-      }
-      <nav #navScroll class="nav-scroll">
-        @for (row of navGroups(); track row.item.path) {
-          @if (row.sep) {
-            <span class="nav-sep"><span class="nav-sep-label">{{ row.sep }}</span></span>
-          }
+    <nav class="nav-modules">
+      @for (mod of visibleModules(); track mod.key) {
+        @if (mod.items.length === 1) {
           <a
             mat-button
-            [routerLink]="row.item.path"
+            class="nav-module"
+            [class.nav-module-active]="isModuleActive(mod)"
+            [routerLink]="mod.items[0].path"
+            [routerLinkActiveOptions]="{ exact: mod.items[0].exact ?? false }"
             routerLinkActive="nav-active"
-            [routerLinkActiveOptions]="{ exact: row.item.exact ?? false }"
-            class="nav-link"
-            [class]="'nav-link nav-' + row.item.feature"
-            [matTooltip]="row.item.label"
           >
-            <mat-icon>{{ row.item.icon }}</mat-icon>
-            <span class="nav-label">{{ row.item.label }}</span>
+            <mat-icon class="module-icon">{{ mod.icon }}</mat-icon>
+            <span class="module-label">{{ mod.label }}</span>
           </a>
+        } @else {
+          <div
+            class="nav-module"
+            [class.nav-module-active]="isModuleActive(mod)"
+            [class.nav-module-open]="openModule() === mod.key"
+            (click)="toggleModule(mod.key, $event)"
+          >
+            <button
+              mat-button
+              class="module-trigger"
+              [class.module-trigger-active]="isModuleActive(mod)"
+            >
+              <mat-icon class="module-icon">{{ mod.icon }}</mat-icon>
+              <span class="module-label">{{ mod.label }}</span>
+              <mat-icon class="module-chevron" [class.chevron-open]="openModule() === mod.key">expand_more</mat-icon>
+            </button>
+
+            @if (openModule() === mod.key) {
+              <div class="module-dropdown" (click)="$event.stopPropagation()">
+                @for (item of mod.items; track item.path) {
+                  <a
+                    class="dropdown-item"
+                    [class.dropdown-item-active]="isItemActive(item)"
+                    [routerLink]="item.path"
+                    (click)="onNavClick()"
+                  >
+                    <mat-icon class="dropdown-icon">{{ item.icon }}</mat-icon>
+                    <span class="dropdown-label">{{ item.label }}</span>
+                  </a>
+                }
+              </div>
+            }
+          </div>
         }
-      </nav>
-      @if (hasOverflow()) {
-        <button
-          mat-icon-button
-          class="nav-scroll-btn nav-scroll-next"
-          (click)="scrollNav(1)"
-          matTooltip="Siguiente"
-        >
-          <mat-icon>chevron_right</mat-icon>
-        </button>
       }
-    </div>
+    </nav>
+
+    <div class="navbar-spacer"></div>
 
     <div class="navbar-actions">
       <button mat-icon-button [matMenuTriggerFor]="profileMenu" class="profile-btn" matTooltip="Usuario">
