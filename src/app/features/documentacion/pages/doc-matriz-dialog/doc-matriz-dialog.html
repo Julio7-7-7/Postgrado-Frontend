@@ -76,8 +76,18 @@
             <mat-icon>close</mat-icon> Rechazar
           </button>
         }
+        @if (doc?.estado === 'rechazado' && canAprobar) {
+          <button mat-flat-button color="primary" class="action-btn" (click)="approveDoc(doc!)">
+            <mat-icon>check</mat-icon> Aprobar
+          </button>
+        }
         @if (doc?.estado === 'aceptado') {
-          <span class="approved-label"><mat-icon>verified</mat-icon> Aprobado</span>
+          <span class="approved-label">
+            <mat-icon>verified</mat-icon> Aprobado
+            @if (isManualApproval(doc!)) {
+              <span class="manual-badge">sin archivo</span>
+            }
+          </span>
         }
       </div>
 

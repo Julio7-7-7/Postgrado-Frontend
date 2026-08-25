@@ -18,6 +18,7 @@ import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 
 // Componentes compartidos, Servicios y Modelos
+import { AuthService } from '../../../../core/services/auth.service';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog'; 
 import { TipoProgramaFormComponent } from '../tipo-programa-form/tipo-programa-form'; 
 import { TipoProgramaService } from '../../services/tipo-programa.service'; 
@@ -48,6 +49,10 @@ export class TipoProgramaListComponent implements OnInit {
   private service = inject(TipoProgramaService);
   private dialog = inject(MatDialog);
   private snackbar = inject(MatSnackBar);
+  private auth = inject(AuthService);
+
+  canCrear = computed(() => this.auth.hasPermiso('tipos_programa.crear'));
+  canEditar = computed(() => this.auth.hasPermiso('tipos_programa.editar'));
   private destroyRef = inject(DestroyRef);
   private router = inject(Router);
 

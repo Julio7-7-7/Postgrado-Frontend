@@ -7,9 +7,11 @@
       </div>
     </div>
     <div class="header-right">
+      @if (canCrear()) {
       <button mat-flat-button color="primary" class="btn-nuevo" (click)="abrirFormulario()">
         <mat-icon>add</mat-icon> Nuevo Descuento
       </button>
+      }
     </div>
   </div>
 
@@ -61,9 +63,11 @@
               color="primary"
               matTooltip="Desactivar descuento">
             </mat-slide-toggle>
+            @if (canEditar()) {
             <button mat-icon-button matTooltip="Editar" (click)="abrirFormulario(d)">
               <mat-icon>edit</mat-icon>
             </button>
+            }
           </div>
         </div>
       } @empty {

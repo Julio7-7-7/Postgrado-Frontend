@@ -121,7 +121,11 @@ export class DocMatrizDialogComponent {
   }
 
   canApprove(doc: ControlDocumentacionResponse): boolean {
-    return doc.estado === 'entregado';
+    return doc.estado === 'entregado' || doc.estado === 'pendiente';
+  }
+
+  isManualApproval(doc: ControlDocumentacionResponse): boolean {
+    return doc.estado === 'aceptado' && !doc.url_documento;
   }
 
   get canAprobar(): boolean {

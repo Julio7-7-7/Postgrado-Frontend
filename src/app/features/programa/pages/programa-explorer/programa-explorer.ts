@@ -78,6 +78,10 @@ export class ProgramaExplorerComponent implements OnInit {
     return this.auth.hasPermiso('programas.crear');
   }
 
+  get canEditar(): boolean {
+    return this.auth.hasPermiso('programas.editar');
+  }
+
   listaTotal = signal<Programa[]>([]);
   terminoBusqueda = signal('');
   isLoading = signal(true);

@@ -83,12 +83,14 @@
             </div>
             <div class="spacer"></div>
             <div class="head-actions" (click)="$event.stopPropagation()">
-              <button mat-stroked-button color="primary" (click)="nuevaVersion(programa)" class="head-btn">
-                <mat-icon>add</mat-icon> Versión
-              </button>
-              <button mat-icon-button matTooltip="Editar programa" (click)="editarPrograma(programa)" class="head-icon-btn">
-                <mat-icon>edit</mat-icon>
-              </button>
+              @if (canEditar) {
+                <button mat-stroked-button color="primary" (click)="nuevaVersion(programa)" class="head-btn">
+                  <mat-icon>add</mat-icon> Versión
+                </button>
+                <button mat-icon-button matTooltip="Editar programa" (click)="editarPrograma(programa)" class="head-icon-btn">
+                  <mat-icon>edit</mat-icon>
+                </button>
+              }
             </div>
             <div class="programa-stats">
               <span class="count-chip">
@@ -129,26 +131,28 @@
                     </div>
                     <div class="spacer"></div>
                     <div class="head-actions" (click)="$event.stopPropagation()">
-                      <button
-                        mat-stroked-button
-                        color="primary"
-                        (click)="toggleVigente(version, programa)"
-                        class="vigente-btn"
-                        [class.on]="version.vigente"
-                        [matTooltip]="version.vigente ? 'Quitar el estado vigente' : 'Marcar como versión vigente'"
-                      >
-                        <mat-icon>{{ version.vigente ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
-                        <span>{{ version.vigente ? 'Vigente' : 'Marcar vigente' }}</span>
-                      </button>
-                      <button mat-stroked-button (click)="nuevaEdicion(programa.id_programa, version.id_programa_version)" class="head-btn">
-                        <mat-icon>add</mat-icon> Edición
-                      </button>
-                      <button mat-icon-button matTooltip="Editar versión" (click)="editarVersion(programa, version)" class="head-icon-btn">
-                        <mat-icon>edit</mat-icon>
-                      </button>
-                      <button mat-icon-button matTooltip="Módulos de la versión" (click)="irAModulosVersion(programa.id_programa, version.id_programa_version)" class="head-icon-btn">
-                        <mat-icon>menu_book</mat-icon>
-                      </button>
+                      @if (canEditar) {
+                        <button
+                          mat-stroked-button
+                          color="primary"
+                          (click)="toggleVigente(version, programa)"
+                          class="vigente-btn"
+                          [class.on]="version.vigente"
+                          [matTooltip]="version.vigente ? 'Quitar el estado vigente' : 'Marcar como versión vigente'"
+                        >
+                          <mat-icon>{{ version.vigente ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+                          <span>{{ version.vigente ? 'Vigente' : 'Marcar vigente' }}</span>
+                        </button>
+                        <button mat-stroked-button (click)="nuevaEdicion(programa.id_programa, version.id_programa_version)" class="head-btn">
+                          <mat-icon>add</mat-icon> Edición
+                        </button>
+                        <button mat-icon-button matTooltip="Editar versión" (click)="editarVersion(programa, version)" class="head-icon-btn">
+                          <mat-icon>edit</mat-icon>
+                        </button>
+                        <button mat-icon-button matTooltip="Módulos de la versión" (click)="irAModulosVersion(programa.id_programa, version.id_programa_version)" class="head-icon-btn">
+                          <mat-icon>menu_book</mat-icon>
+                        </button>
+                      }
                     </div>
                     <div class="version-stats">
                       <span class="count-chip">
@@ -208,18 +212,20 @@
                               {{ estadoLabel(edicion.estado) }}
                             </span>
                             <div class="edicion-acciones" (click)="$event.stopPropagation()">
-                              <button mat-icon-button matTooltip="Editar edición" (click)="editarEdicion(programa.id_programa, version.id_programa_version, edicion.id_programa_version_edicion)">
-                                <mat-icon>edit</mat-icon>
-                              </button>
-                              <button mat-icon-button matTooltip="Postulantes" (click)="verPostulantes(programa.id_programa, version.id_programa_version, edicion.id_programa_version_edicion)">
-                                <mat-icon>people</mat-icon>
-                              </button>
-                              <button mat-icon-button matTooltip="Historial" (click)="verHistorial(programa.id_programa, version.id_programa_version, edicion.id_programa_version_edicion)">
-                                <mat-icon>history</mat-icon>
-                              </button>
-                              <button mat-icon-button matTooltip="Módulos" (click)="irAModulos(programa.id_programa, version.id_programa_version, edicion.id_programa_version_edicion)">
-                                <mat-icon>menu_book</mat-icon>
-                              </button>
+                              @if (canEditar) {
+                                <button mat-icon-button matTooltip="Editar edición" (click)="editarEdicion(programa.id_programa, version.id_programa_version, edicion.id_programa_version_edicion)">
+                                  <mat-icon>edit</mat-icon>
+                                </button>
+                                <button mat-icon-button matTooltip="Postulantes" (click)="verPostulantes(programa.id_programa, version.id_programa_version, edicion.id_programa_version_edicion)">
+                                  <mat-icon>people</mat-icon>
+                                </button>
+                                <button mat-icon-button matTooltip="Historial" (click)="verHistorial(programa.id_programa, version.id_programa_version, edicion.id_programa_version_edicion)">
+                                  <mat-icon>history</mat-icon>
+                                </button>
+                                <button mat-icon-button matTooltip="Módulos" (click)="irAModulos(programa.id_programa, version.id_programa_version, edicion.id_programa_version_edicion)">
+                                  <mat-icon>menu_book</mat-icon>
+                                </button>
+                              }
                             </div>
                           </div>
                         }

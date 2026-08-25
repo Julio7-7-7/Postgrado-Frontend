@@ -263,6 +263,16 @@
   height: 18px;
 }
 
+.manual-badge {
+  font-size: 0.68rem;
+  font-weight: 500;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: var(--fich-border-light);
+  color: var(--fich-text-muted);
+  margin-left: 4px;
+}
+
 .reject-btn {
   color: var(--fich-danger) !important;
   border-color: var(--fich-est-truncado-border) !important;

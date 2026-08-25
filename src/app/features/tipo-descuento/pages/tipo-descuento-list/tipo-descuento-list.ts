@@ -12,6 +12,7 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
 import { TipoDescuentoService } from '../../services/tipo-descuento.service';
 import { TipoDescuentoResponse } from '../../models/tipo-descuento.model';
 import { TipoDescuentoFormComponent } from '../tipo-descuento-form/tipo-descuento-form';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-tipo-descuento-list',
@@ -29,7 +30,11 @@ export class TipoDescuentoListComponent implements OnInit {
   private service = inject(TipoDescuentoService);
   private dialog = inject(MatDialog);
   private snackbar = inject(MatSnackBar);
+  private auth = inject(AuthService);
   private destroyRef = inject(DestroyRef);
+
+  canCrear = computed(() => this.auth.hasPermiso('tipos_descuento.crear'));
+  canEditar = computed(() => this.auth.hasPermiso('tipos_descuento.editar'));
 
   listaTotal = signal<TipoDescuentoResponse[]>([]);
   isLoading = signal(true);

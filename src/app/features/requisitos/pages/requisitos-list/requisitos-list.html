@@ -7,9 +7,11 @@
       </div>
     </div>
     <div class="header-right">
+      @if (canCrear()) {
       <button mat-flat-button color="primary" class="btn-nuevo" (click)="abrirFormulario()">
         <mat-icon>add</mat-icon> Nuevo Requisito
       </button>
+      }
     </div>
   </div>
 
@@ -54,9 +56,11 @@
               color="primary"
               matTooltip="Desactivar requisito">
             </mat-slide-toggle>
+            @if (canEditar()) {
             <button mat-icon-button matTooltip="Editar" (click)="abrirFormulario(r)">
               <mat-icon>edit</mat-icon>
             </button>
+            }
           </div>
         </div>
       } @empty {
