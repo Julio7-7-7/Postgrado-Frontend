@@ -10,6 +10,12 @@
       </div>
     </div>
     <div class="header-right">
+      @if (puedeInscribir()) {
+        <button mat-flat-button class="btn-nuevo" (click)="irAInscribir()">
+          <mat-icon>person_add</mat-icon>
+          {{ esEnCurso() ? 'Incorporar estudiante' : 'Inscribir alumno' }}
+        </button>
+      }
       @if (total() > 0) {
         <span class="total-count">{{ startIndex() }}&ndash;{{ endIndex() }} de {{ total() }} inscripción{{ total() !== 1 ? 'es' : '' }}</span>
       } @else {

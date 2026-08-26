@@ -11,4 +11,9 @@ export const INSCRIPCIONES_ROUTES: Routes = [
     loadComponent: () =>
       import('../pages/inscripciones-edicion/inscripcion-edicion').then(m => m.InscripcionesEdicionComponent),
   },
+  {
+    path: ':idEdicion/inscribir',
+    loadComponent: () =>
+      import('../pages/inscribir-alumno/inscribir-alumno').then(m => m.InscribirAlumnoComponent),
+  },
 ];

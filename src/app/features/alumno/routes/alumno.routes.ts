@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { authGuard, permisoGuard } from '../../../core/guards/auth.guard';
+import { authGuard } from '../../../core/guards/auth.guard';
 import { AlumnoPortalComponent } from '../pages/alumno-portal/alumno-portal';
 
 export const ALUMNO_ROUTES: Routes = [

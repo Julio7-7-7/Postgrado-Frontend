@@ -5,16 +5,14 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatTableModule } from '@angular/material/table';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { AlumnosAdminService } from '../../services/alumnos-admin.service';
 import { AlumnoAdmin } from '../../models/alumnos-admin.model';
+
+const PAGE_SIZE = 20;
 
 @Component({
   selector: 'app-alumnos-admin-list',
@@ -22,8 +20,7 @@ import { AlumnoAdmin } from '../../models/alumnos-admin.model';
   imports: [
     CommonModule, FormsModule,
     MatButtonModule, MatIconModule, MatTooltipModule,
-    MatTableModule, MatPaginatorModule, MatProgressSpinnerModule,
-    MatSnackBarModule, MatDialogModule,
+    MatProgressSpinnerModule,
     MatFormFieldModule, MatInputModule, MatSelectModule,
   ],
   templateUrl: './alumnos-admin-list.html',
@@ -31,8 +28,6 @@ import { AlumnoAdmin } from '../../models/alumnos-admin.model';
 })
 export class AlumnosAdminListComponent implements OnInit {
   private service = inject(AlumnosAdminService);
-  private snackbar = inject(MatSnackBar);
-  private dialog = inject(MatDialog);
   private destroyRef = inject(DestroyRef);
 
   alumnos = signal<AlumnoAdmin[]>([]);
@@ -44,12 +39,19 @@ export class AlumnosAdminListComponent implements OnInit {
   filterSemestre: number | null = null;
   aniosDisponibles = signal<number[]>([]);
   pageIndex = signal(0);
-  pageSize = signal(20);
+
+  readonly PAGE_SIZE = PAGE_SIZE;
+
+  totalPaginas = computed(() => Math.max(1, Math.ceil(this.filteredAlumnos().length / PAGE_SIZE)));
+  paginasArr = computed(() => Array.from({ length: this.totalPaginas() }, (_, i) => i));
+
   paginatedAlumnos = computed(() => {
-    const start = this.pageIndex() * this.pageSize();
-    return this.filteredAlumnos().slice(start, start + this.pageSize());
+    const start = this.pageIndex() * PAGE_SIZE;
+    return this.filteredAlumnos().slice(start, start + PAGE_SIZE);
   });
-  columnas = ['nombre', 'ci', 'correo', 'celular', 'inscripciones', 'acciones'];
+
+  rangeStart = computed(() => this.filteredAlumnos().length === 0 ? 0 : this.pageIndex() * PAGE_SIZE + 1);
+  rangeEnd = computed(() => Math.min((this.pageIndex() + 1) * PAGE_SIZE, this.filteredAlumnos().length));
 
   ngOnInit(): void {
     this.cargarDatos();
@@ -124,22 +126,11 @@ export class AlumnosAdminListComponent implements OnInit {
     this.filtrar();
   }
 
-  onPageChange(event: PageEvent): void {
-    this.pageIndex.set(event.pageIndex);
-    this.pageSize.set(event.pageSize);
+  irAPagina(p: number): void {
+    this.pageIndex.set(Math.max(0, Math.min(p, this.totalPaginas() - 1)));
   }
 
   iniciales(a: AlumnoAdmin): string {
     return (a.nombre[0] + a.apellido[0]).toUpperCase();
-  }
-
-  abrirFormulario(): void {
-    // TODO: dialog para crear alumno
-    this.snackbar.open('Formulario de creación próximamente', 'Cerrar', { duration: 3000 });
-  }
-
-  editarAlumno(a: AlumnoAdmin): void {
-    // TODO: dialog para editar alumno
-    this.snackbar.open('Formulario de edición próximamente', 'Cerrar', { duration: 3000 });
   }
 }

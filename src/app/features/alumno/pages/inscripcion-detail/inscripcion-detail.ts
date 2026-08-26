@@ -20,7 +20,7 @@ import { InscripcionEdicionService } from '../../../inscripciones/services/inscr
 import { InscripcionTranscript, ModuloTranscript } from '../../../inscripciones/models/inscripcion-edicion.model';
 import { PagoService } from '../../../pagos/services/pago.service';
 import { OrdenPagoService } from '../../../pagos/services/orden-pago.service';
-import { TranscriptPagosInscripcion, TransaccionTranscript } from '../../../pagos/models/pago.model';
+import { TranscriptPagosInscripcion } from '../../../pagos/models/pago.model';
 import { OrdenPagoResponse } from '../../../pagos/models/orden-pago.model';
 import { OrdenEstudianteDialogComponent, OrdenEstudianteData } from '../../../pagos/pages/orden-estudiante-dialog/orden-estudiante-dialog';
 import { InformeNotasService, CertificadoNotas } from '../../../informes-notas/services/informe-notas.service';

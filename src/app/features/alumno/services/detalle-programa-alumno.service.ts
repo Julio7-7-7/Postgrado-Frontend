@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from '../../../core/services/api.service';
 import { DetalleProgramaAlumno, AutoInscribirRequest, ControlDocumentacionAlumno } from '../models/detalle-programa-alumno.model';
-import { Solicitud, PuedeMigrarResponse } from '../models/solicitud-incorporacion.model';
+import { Solicitud, SolicitudConDetalle, PuedeMigrarResponse } from '../models/solicitud-incorporacion.model';
 
 @Injectable({ providedIn: 'root' })
 export class DetalleProgramaAlumnoService extends ApiService {
@@ -58,5 +58,28 @@ export class DetalleProgramaAlumnoService extends ApiService {
       `${this.baseUrl}/solicitud/puede-migrar`,
       { params: { id_detalle_programa_alumno: idDpa } }
     );
+  }
+
+  crearConUsuario(data: {
+    email: string;
+    ci: string;
+    nombre: string;
+    apellido: string;
+    celular?: string;
+    fecha_nacimiento?: string;
+    genero?: string;
+  }): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/alumnos/crear-con-usuario`, data);
+  }
+
+  inscribirAdmin(data: {
+    id_alumno: number;
+    id_programa_version_edicion: number;
+    id_modalidad_academica: number;
+    id_tipo_descuento?: number | null;
+    id_modulo_inicio?: number | null;
+    motivo?: string;
+  }): Observable<SolicitudConDetalle> {
+    return this.http.post<SolicitudConDetalle>(`${this.baseUrl}/solicitud/crear-admin`, data);
   }
 }

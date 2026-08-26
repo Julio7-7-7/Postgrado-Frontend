@@ -1,4 +1,4 @@
-import { Component, inject, computed, signal, effect, viewChild, ElementRef, OnDestroy, HostListener } from '@angular/core';
+import { Component, inject, computed, signal, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -8,7 +8,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { AuthService } from '../../../core/services/auth.service';
-import { NAV_MODULES, NAV_ITEMS, NavModuleGroup, NavItem } from '../../../core/config/nav.config';
+import { NAV_MODULES, NavModuleGroup, NavItem } from '../../../core/config/nav.config';
 
 @Component({
   selector: 'app-navbar',

@@ -13,6 +13,9 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { InscripcionEdicionService } from '../../services/inscripcion-edicion.service';
 import { InscripcionEdicionItem } from '../../models/inscripcion-edicion.model';
 import { SortDir, sortItems } from '../../../../core/utils/sort-utils';
+import { AuthService } from '../../../../core/services/auth.service';
+import { EdicionService } from '../../../edicion/services/edicion.service';
+import { ProgramaVersionEdicion } from '../../../edicion/models/edicion.model';
 
 @Component({
   selector: 'app-inscripciones-edicion',
@@ -32,6 +35,13 @@ export class InscripcionesEdicionComponent implements OnInit {
   private router = inject(Router);
   private snackbar = inject(MatSnackBar);
   private destroyRef = inject(DestroyRef);
+  private auth = inject(AuthService);
+  private edicionService = inject(EdicionService);
+
+  puedeInscribir = computed(() => this.auth.hasPermiso('alumnos.crear'));
+  esEnCurso = computed(() => this.edicionData()?.estado === 'en_curso');
+
+  edicionData = signal<ProgramaVersionEdicion | null>(null);
 
   allItems = signal<InscripcionEdicionItem[]>([]);
   items = signal<InscripcionEdicionItem[]>([]);
@@ -85,6 +95,12 @@ export class InscripcionesEdicionComponent implements OnInit {
       this.router.navigate(['/inscripciones']);
       return;
     }
+    this.edicionService.getById(this.idEdicion).pipe(
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe({
+      next: (ed) => this.edicionData.set(ed),
+      error: () => {},
+    });
     this.cargarDatos();
   }
 
@@ -183,6 +199,10 @@ export class InscripcionesEdicionComponent implements OnInit {
 
   volver(): void {
     this.router.navigate(['/inscripciones']);
+  }
+
+  irAInscribir(): void {
+    this.router.navigate(['/inscripciones', this.idEdicion, 'inscribir']);
   }
 
   iniciales(item: InscripcionEdicionItem): string {

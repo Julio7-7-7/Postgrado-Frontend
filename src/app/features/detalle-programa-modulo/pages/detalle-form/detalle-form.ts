@@ -16,7 +16,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { provideNativeDateAdapter, MAT_DATE_LOCALE } from '@angular/material/core';
 import { DetalleService } from '../../services/detalle.service';
-import { DetalleProgramaModulo, DetalleUpdate, ModalidadType } from '../../models/detalle.model';
+import { DetalleUpdate, ModalidadType } from '../../models/detalle.model';
 import { aFechaString, aDate } from '../../../../core/utils/date-utils';
 
 @Component({

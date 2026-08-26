@@ -1,125 +1,128 @@
-<div class="toolbar-row">
-  <div class="toolbar-left">
-    <h3>Alumnos</h3>
-    <span class="toolbar-count">{{ filteredAlumnos().length }} alumnos</span>
-  </div>
-  <div class="toolbar-right">
-    <mat-form-field appearance="outline" class="period-field">
-      <mat-label>Año</mat-label>
-      <mat-select [(ngModel)]="filterAnio" (selectionChange)="onPeriodoChange()">
-        <mat-option [value]="null">Todos</mat-option>
-        @for (y of aniosDisponibles(); track y) {
-          <mat-option [value]="y">{{ y }}</mat-option>
-        }
-      </mat-select>
-    </mat-form-field>
-    <mat-form-field appearance="outline" class="period-field">
-      <mat-label>Semestre</mat-label>
-      <mat-select [(ngModel)]="filterSemestre" (selectionChange)="onPeriodoChange()">
-        <mat-option [value]="null">Todos</mat-option>
-        <mat-option [value]="1">1er Semestre</mat-option>
-        <mat-option [value]="2">2do Semestre</mat-option>
-      </mat-select>
-    </mat-form-field>
-    <mat-form-field appearance="outline" class="search-field">
-      <mat-label>Buscar</mat-label>
-      <input matInput placeholder="Nombre, CI, correo..."
-             (input)="onSearch($any($event.target).value)">
-      <mat-icon matPrefix>search</mat-icon>
-    </mat-form-field>
-  </div>
-</div>
-
-@if (isLoading()) {
-  <div class="loading-container">
-    <mat-spinner diameter="36"></mat-spinner>
-    <span>Cargando alumnos...</span>
-  </div>
-} @else if (error()) {
-  <div class="error-container">
-    <mat-icon>error_outline</mat-icon>
-    <p>{{ error() }}</p>
-    <button mat-stroked-button (click)="cargarDatos()">Reintentar</button>
-  </div>
-} @else {
-  <div class="table-wrapper mat-elevation-z1">
-    <table mat-table [dataSource]="paginatedAlumnos()" class="fich-table">
-      <ng-container matColumnDef="nombre">
-        <th mat-header-cell *matHeaderCellDef>Nombre</th>
-        <td mat-cell *matCellDef="let a">
-          <div class="cell-name-row">
-            <div class="avatar-sm">{{ iniciales(a) }}</div>
-            <div>
-              <div class="cell-name">{{ a.nombre }} {{ a.apellido }}</div>
-              @if (a.genero) {
-                <div class="cell-muted">{{ a.genero }}</div>
-              }
-            </div>
-          </div>
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="ci">
-        <th mat-header-cell *matHeaderCellDef>CI / Pasaporte</th>
-        <td mat-cell *matCellDef="let a">
-          <span class="cell-mono">{{ a.ci || a.pasaporte || '—' }}</span>
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="correo">
-        <th mat-header-cell *matHeaderCellDef>Correo</th>
-        <td mat-cell *matCellDef="let a">
-          <span class="cell-email">{{ a.correo }}</span>
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="celular">
-        <th mat-header-cell *matHeaderCellDef>Celular</th>
-        <td mat-cell *matCellDef="let a">
-          {{ a.celular || '—' }}
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="inscripciones">
-        <th mat-header-cell *matHeaderCellDef>Inscripciones</th>
-        <td mat-cell *matCellDef="let a">
-          <span class="cell-muted">—</span>
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="acciones">
-        <th mat-header-cell *matHeaderCellDef></th>
-        <td mat-cell *matCellDef="let a">
-          <div class="action-btns">
-            <button mat-icon-button matTooltip="Editar" (click)="editarAlumno(a)">
-              <mat-icon>edit</mat-icon>
-            </button>
-          </div>
-        </td>
-      </ng-container>
-
-      <tr mat-header-row *matHeaderRowDef="columnas"></tr>
-      <tr mat-row *matRowDef="let row; columns: columnas;"></tr>
-    </table>
-    <mat-paginator [length]="filteredAlumnos().length"
-                   [pageSize]="pageSize()"
-                   [pageIndex]="pageIndex()"
-                   [pageSizeOptions]="[10, 20, 50]"
-                   (page)="onPageChange($event)"
-                   showFirstLastButtons>
-    </mat-paginator>
-  </div>
-
-  @if (filteredAlumnos().length === 0) {
-    <div class="empty-state">
-      <mat-icon>people</mat-icon>
-      @if (searchText()) {
-        <h4>Sin resultados</h4>
-        <p>No se encontraron alumnos con "{{ searchText() }}"</p>
-      } @else {
-        <h4>No hay alumnos registrados</h4>
-        <p>Los alumnos se crean automáticamente al inscribirse</p>
+<div class="page-container">
+  <div class="header-section">
+    <div class="header-left">
+      <div>
+        <h1><mat-icon>school</mat-icon> Alumnos</h1>
+        <p class="subtitle">Directorio de estudiantes registrados en el sistema</p>
+      </div>
+    </div>
+    <div class="header-right">
+      @if (!isLoading() && !error()) {
+        <span class="total-count">{{ filteredAlumnos().length }} alumno{{ filteredAlumnos().length !== 1 ? 's' : '' }}</span>
       }
     </div>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading-state">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>Cargando alumnos...</p>
+    </div>
+  } @else if (error()) {
+    <div class="empty-state error">
+      <mat-icon>error_outline</mat-icon>
+      <span class="empty-title">{{ error() }}</span>
+      <button mat-stroked-button color="primary" (click)="cargarDatos()">
+        <mat-icon>refresh</mat-icon> Reintentar
+      </button>
+    </div>
+  } @else {
+    <div class="filters-bar">
+      <mat-form-field appearance="outline" class="search-field" subscriptSizing="dynamic">
+        <mat-icon matPrefix>search</mat-icon>
+        <mat-label>Buscar por nombre, CI o correo...</mat-label>
+        <input matInput [value]="searchText()" (input)="onSearch($any($event.target).value)">
+        @if (searchText()) {
+          <button matSuffix mat-icon-button (click)="onSearch('')">
+            <mat-icon>close</mat-icon>
+          </button>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="period-field" subscriptSizing="dynamic">
+        <mat-label>Año</mat-label>
+        <mat-select [(ngModel)]="filterAnio" (selectionChange)="onPeriodoChange()">
+          <mat-option [value]="null">Todos</mat-option>
+          @for (y of aniosDisponibles(); track y) {
+            <mat-option [value]="y">{{ y }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="period-field" subscriptSizing="dynamic">
+        <mat-label>Semestre</mat-label>
+        <mat-select [(ngModel)]="filterSemestre" (selectionChange)="onPeriodoChange()">
+          <mat-option [value]="null">Todos</mat-option>
+          <mat-option [value]="1">1er Semestre</mat-option>
+          <mat-option [value]="2">2do Semestre</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    @if (filteredAlumnos().length === 0) {
+      <div class="empty-state">
+        <mat-icon>people</mat-icon>
+        @if (searchText()) {
+          <span class="empty-title">Sin resultados</span>
+          <span class="empty-sub">No se encontraron alumnos para "{{ searchText() }}"</span>
+        } @else {
+          <span class="empty-title">No hay alumnos registrados</span>
+          <span class="empty-sub">Los alumnos se crean automáticamente al inscribirse</span>
+        }
+      </div>
+    } @else {
+      <div class="table-wrap">
+        <table class="alumnos-table">
+          <thead>
+            <tr>
+              <th class="th-alumno">Alumno</th>
+              <th class="th-ci">CI</th>
+              <th class="th-email">Correo</th>
+              <th class="th-celular">Celular</th>
+              <th class="th-genero">Género</th>
+              <th class="th-fecha">Ingreso</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (a of paginatedAlumnos(); track a.id_alumno) {
+              <tr class="alumno-row">
+                <td class="td-alumno">
+                  <div class="alumno-cell">
+                    <span class="alumno-avatar">{{ iniciales(a) }}</span>
+                    <span class="alumno-nombre">{{ a.apellido }} {{ a.nombre }}</span>
+                  </div>
+                </td>
+                <td class="td-ci">{{ a.ci || a.pasaporte || '—' }}</td>
+                <td class="td-email">{{ a.correo }}</td>
+                <td class="td-celular">{{ a.celular || '—' }}</td>
+                <td class="td-genero">
+                  @if (a.genero) {
+                    <span class="genero-pill">{{ a.genero }}</span>
+                  } @else {
+                    <span class="cell-muted">—</span>
+                  }
+                </td>
+                <td class="td-fecha">{{ a.created_at | date:'dd/MM/yy' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+
+        <div class="table-footer">
+          <span>{{ rangeStart() }}–{{ rangeEnd() }} de {{ filteredAlumnos().length }}</span>
+          <div class="footer-actions">
+            <button mat-icon-button [disabled]="pageIndex() === 0" (click)="irAPagina(pageIndex() - 1)">
+              <mat-icon>chevron_left</mat-icon>
+            </button>
+            @for (p of paginasArr(); track p) {
+              <button class="page-dot" [class.active]="p === pageIndex()" (click)="irAPagina(p)">{{ p + 1 }}</button>
+            }
+            <button mat-icon-button [disabled]="pageIndex() >= totalPaginas() - 1" (click)="irAPagina(pageIndex() + 1)">
+              <mat-icon>chevron_right</mat-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+    }
   }
-}
+</div>
