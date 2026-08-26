@@ -13,6 +13,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { InscripcionEdicionService } from '../../services/inscripcion-edicion.service';
+import { UploadBoxComponent } from '../../../../shared/components/upload-box/upload-box';
+import { DocumentoSolicitud } from '../../../alumno/models/solicitud-incorporacion.model';
 import { DetalleService } from '../../../detalle-programa-modulo/services/detalle.service';
 import {
   SolicitudConDetalle,
@@ -41,7 +43,7 @@ interface OpcionModulo {
     CommonModule, FormsModule,
     MatIconModule, MatButtonModule, MatTooltipModule,
     MatProgressSpinnerModule, MatSelectModule, MatFormFieldModule, MatInputModule,
-    MatRadioModule, MatSnackBarModule,
+    MatRadioModule, MatSnackBarModule, UploadBoxComponent,
   ],
   templateUrl: './revisar-incorporacion.html',
   styleUrl: './revisar-incorporacion.css',
@@ -118,6 +120,13 @@ export class RevisarIncorporacionComponent implements OnInit {
   historial = signal<HistorialMovimiento[]>([]);
   inscripcionesHistorial = signal<InscripcionBasica[]>([]);
   isLoadingHistorial = signal(false);
+
+  pendingDocId = signal<number | null>(null);
+  pendingFile = signal<File | null>(null);
+  pendingFileName = signal('');
+  pendingFileSize = signal('');
+  uploadingDocId = signal<number | null>(null);
+  uploadState = signal<'ninguno' | 'leyendo' | 'subiendo' | 'completado'>('ninguno');
 
   esMigracion = computed(() => this.solicitud()?.tipo_codigo === 'migracion');
   esReincorporacion = computed(() => this.solicitud()?.tipo_codigo === 'reincorporacion');
@@ -331,6 +340,100 @@ export class RevisarIncorporacionComponent implements OnInit {
 
   verDocumento(url: string): void {
     window.open(`${this.apiUrl}${url}`, '_blank');
+  }
+
+  isUploading(docId: number): boolean {
+    return this.uploadingDocId() === docId;
+  }
+
+  onFileSelected(file: File, doc: DocumentoSolicitud): void {
+    const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'];
+    if (!validTypes.includes(file.type)) {
+      this.snackBar.open('Solo se aceptan imágenes (JPG, PNG, GIF, WebP) o PDF', 'Cerrar', { duration: 4000 });
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      this.snackBar.open('El archivo no puede superar 10 MB', 'Cerrar', { duration: 4000 });
+      return;
+    }
+    this.pendingFile.set(file);
+    this.pendingDocId.set(doc.id_solicitud_documento);
+    this.pendingFileName.set(file.name);
+    this.pendingFileSize.set(this.formatSize(file.size));
+  }
+
+  confirmUpload(): void {
+    const file = this.pendingFile();
+    const docId = this.pendingDocId();
+    const sol = this.solicitud();
+    if (!file || !docId || !sol) return;
+
+    this.pendingFile.set(null);
+    this.pendingDocId.set(null);
+    this.pendingFileName.set('');
+    this.pendingFileSize.set('');
+
+    this.uploadingDocId.set(docId);
+    this.uploadState.set('leyendo');
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.uploadState.set('subiendo');
+      const base64 = reader.result as string;
+      this.service.subirDocumentoSolicitud(sol.id_solicitud, docId, base64)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (updatedSol) => {
+            this.uploadState.set('completado');
+            this.solicitud.set(updatedSol);
+            this.snackBar.open('Documento subido correctamente', 'Cerrar', { duration: 3000 });
+            setTimeout(() => {
+              this.uploadingDocId.set(null);
+              this.uploadState.set('ninguno');
+            }, 1200);
+          },
+          error: (err) => {
+            this.uploadingDocId.set(null);
+            this.uploadState.set('ninguno');
+            this.snackBar.open(err.error?.detail || 'Error al subir documento', 'Cerrar', { duration: 4000 });
+          },
+        });
+    };
+    reader.onerror = () => {
+      this.uploadingDocId.set(null);
+      this.uploadState.set('ninguno');
+      this.snackBar.open('Error al leer el archivo', 'Cerrar', { duration: 4000 });
+    };
+    reader.readAsDataURL(file);
+  }
+
+  cancelUpload(): void {
+    this.pendingFile.set(null);
+    this.pendingDocId.set(null);
+    this.pendingFileName.set('');
+    this.pendingFileSize.set('');
+  }
+
+  quitarDocumento(doc: DocumentoSolicitud): void {
+    const sol = this.solicitud();
+    if (!sol) return;
+    this.service.quitarDocumentoSolicitud(sol.id_solicitud, doc.id_solicitud_documento)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (updatedSol) => {
+          this.solicitud.set(updatedSol);
+          this.snackBar.open('Documento removido', 'Cerrar', { duration: 3000 });
+        },
+        error: (err) => {
+          this.snackBar.open(err.error?.detail || 'Error al remover documento', 'Cerrar', { duration: 4000 });
+        },
+      });
+  }
+
+  formatSize(bytes: number): string {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
   }
 
   docsSubidos(): number {
