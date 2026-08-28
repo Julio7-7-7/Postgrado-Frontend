@@ -1,0 +1,234 @@
+<div class="page-container informe-page">
+  <div class="header-section">
+    <div class="header-left">
+      <div class="title-wrap">
+        <h1>Informes de Notas</h1>
+        <p class="subtitle">Generá informes por módulos, informe final de edición y emisión de certificados</p>
+      </div>
+    </div>
+    <div class="header-tags">
+      <span class="permiso-tag" matTooltip="Permiso requerido: pagos.ver">
+        <mat-icon>lock_open</mat-icon> pagos.ver
+      </span>
+    </div>
+  </div>
+
+  @if (cargandoInicio()) {
+    <div class="loading-state">
+      <mat-spinner diameter="36"></mat-spinner>
+      <span>Cargando programas y ediciones...</span>
+    </div>
+  } @else if (errorInicio()) {
+    <div class="empty-state">
+      <mat-icon>error_outline</mat-icon>
+      <p>{{ errorInicio() }}</p>
+      <button mat-stroked-button (click)="ngOnInit()">Reintentar</button>
+    </div>
+  } @else {
+    <div class="informe-canvas">
+      <div class="informe-block">
+        <div class="block-head">
+          <mat-icon>edit_note</mat-icon>
+          <div>
+            <h2>Seleccionar edición</h2>
+            <p class="block-sub">Programa, versión y edición sobre la que se arma el informe</p>
+          </div>
+        </div>
+
+        <div class="cascade-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>Programa</mat-label>
+            <mat-select [value]="selPrograma()" (selectionChange)="selPrograma.set($event.value); onProgramaChange()">
+              @for (p of programas(); track p.id_programa) {
+                <mat-option [value]="p.id_programa">{{ p.nombre_programa }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Versión</mat-label>
+            <mat-select [value]="selVersion()" (selectionChange)="selVersion.set($event.value); onVersionChange()">
+              @for (v of versionesDelPrograma(); track v.id_programa_version) {
+                <mat-option [value]="v.id_programa_version">Versión {{ v.version }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Edición</mat-label>
+            <mat-select [value]="selEdicion()" (selectionChange)="onEdicionChange($event.value)">
+              @for (e of edicionesDeVersion(); track e.id_programa_version_edicion) {
+                <mat-option [value]="e.id_programa_version_edicion">
+                  Ed. {{ e.edicion }} · {{ e.anio }} · Sem. {{ e.semestre }} · {{ estadoLabel(e.estado) }}
+                </mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        @if (selEdicion(); as id) {
+          <mat-divider></mat-divider>
+
+          <div class="segment-row">
+            <div class="seg-group">
+              <button class="seg-btn" [class.on]="tipoInforme() === 'parcial'" (click)="setTipo('parcial')" type="button">
+                <mat-icon>summarize</mat-icon> Informe parcial
+              </button>
+              <button class="seg-btn" [class.on]="tipoInforme() === 'final'" (click)="setTipo('final')" type="button">
+                <mat-icon>assignment_turned_in</mat-icon> Informe final
+              </button>
+            </div>
+            @if (tipoInforme() === 'final') {
+              <span class="hint-inline">
+                Usa todos los módulos de la edición y requiere edición finalizada
+                @if (edicionSel()?.estado !== 'finalizado') { · <strong>la edición aún no está finalizada</strong> }
+              </span>
+            }
+          </div>
+
+          @if (tipoInforme() === 'parcial') {
+            <div class="modulos-section">
+              <div class="section-title-row">
+                <span class="section-title">Módulos a incluir</span>
+                <button mat-button class="toggle-all" (click)="toggleTodosModulos()" type="button">
+                  {{ todosModulosSeleccionados() ? 'Quitar todos' : 'Seleccionar todos' }}
+                </button>
+              </div>
+
+              @if (cargandoModulos()) {
+                <div class="loading-inline">
+                  <mat-spinner diameter="20"></mat-spinner>
+                  <span>Cargando módulos...</span>
+                </div>
+              } @else if (modulos().length === 0) {
+                <div class="empty-inline">Esta edición no tiene módulos asignados</div>
+              } @else {
+                <div class="modulos-grid">
+                  @for (m of modulos(); track m.id_detalle_programa_modulo) {
+                    <label class="modulo-chip" [class.selected]="seleccionModulos().includes(m.id_detalle_programa_modulo)">
+                      <mat-checkbox
+                        [checked]="seleccionModulos().includes(m.id_detalle_programa_modulo)"
+                        (change)="toggleModulo(m.id_detalle_programa_modulo)"
+                        color="primary">
+                      </mat-checkbox>
+                      <span class="modulo-num">{{ m.orden }}</span>
+                      <span class="modulo-nombre">{{ m.modulo.nombre_modulo }}</span>
+                      @if (m.modulo.sigla) {
+                        <span class="modulo-sigla">{{ m.modulo.sigla }}</span>
+                      }
+                    </label>
+                  }
+                </div>
+                @if (seleccionModulos().length === 0) {
+                  <div class="empty-inline">Seleccioná al menos un módulo</div>
+                }
+              }
+            </div>
+          } @else {
+            <div class="modulos-section">
+              <div class="section-title-row">
+                <span class="section-title">Módulos incluidos</span>
+                <span class="count-pill">{{ modulos().length }}</span>
+              </div>
+              <div class="modulos-grid readonly">
+                @for (m of modulos(); track m.id_detalle_programa_modulo) {
+                  <span class="modulo-chip readonly">
+                    <span class="modulo-num">{{ m.orden }}</span>
+                    <span class="modulo-nombre">{{ m.modulo.nombre_modulo }}</span>
+                  </span>
+                }
+              </div>
+            </div>
+          }
+
+          <div class="carrera-section">
+            <mat-form-field appearance="outline" class="carrera-select">
+              <mat-label>Filtrar por carrera</mat-label>
+              <mat-select [value]="filtroCarrera()" (selectionChange)="filtroCarrera.set($event.value)">
+                <mat-option [value]="null">Todas las carreras (hojas separadas)</mat-option>
+                @for (c of carreras(); track c.id_carrera) {
+                  <mat-option [value]="c.id_carrera">
+                    {{ c.nombre }} @if (c.sigla) { ({{ c.sigla }}) }
+                  </mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            <span class="hint-inline">Los alumnos sin carrera se agrupan en "Sin carrera"</span>
+          </div>
+        } @else {
+          <div class="empty-inline padded">Elegí un programa, versión y edición para configurar el informe</div>
+        }
+      </div>
+
+      @if (selEdicion()) {
+        <div class="informe-block">
+          <div class="block-head" (click)="verGenerados.set(!verGenerados())" style="cursor: pointer">
+            <mat-icon>history</mat-icon>
+            <div>
+              <h2>Informes generados ({{ informes().length }})</h2>
+              <p class="block-sub">
+                @if (informes().length === 0) { Aún no se generó ningún informe para esta edición }
+                @else { Snapshot congelados · el informe final es único por edición }
+              </p>
+            </div>
+            <mat-icon class="head-chevron" [class.open]="verGenerados()">expand_more</mat-icon>
+          </div>
+
+          @if (verGenerados() && informes().length > 0) {
+            <div class="informes-list">
+              @for (inf of informes(); track inf.id_informe) {
+                <div class="informe-row">
+                  <span class="tipo-badge" [class.final]="inf.tipo === 'final'">
+                    {{ inf.tipo === 'final' ? 'Final' : 'Parcial' }}
+                  </span>
+                  <div class="informe-info">
+                    <span class="informe-line">Tanda {{ inf.numero_tanda }} · {{ estadoLabel(inf.estado) }}</span>
+                    <span class="informe-meta">
+                      Emitido {{ inf.fecha_emision }}
+                      @if (inf.certificados_count > 0) { · {{ inf.certificados_count }} certificado(s) }
+                    </span>
+                  </div>
+                  <button mat-stroked-button (click)="verInforme(inf)" type="button">
+                    <mat-icon>visibility</mat-icon> Ver / Reimprimir
+                  </button>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      @if (selEdicion()) {
+        <div class="action-bar">
+          <div class="action-left">
+            @if (tipoInforme() === 'final') {
+              @if (elegibles() !== null) {
+                <span class="elegibles-pill">
+                  <mat-icon>workspace_premium</mat-icon>
+                  {{ elegibles() }} alumno(s) elegible(s) recibirán certificado
+                </span>
+              }
+            }
+          </div>
+          <div class="action-right">
+            <button mat-stroked-button (click)="verPreview()" [disabled]="!configValida()" type="button">
+              <mat-icon>visibility</mat-icon> Vista previa (borrador)
+            </button>
+            @if (puedeGenerar()) {
+              <button mat-flat-button color="primary" (click)="generar()" [disabled]="!configValida()" type="button">
+                @if (generando()) {
+                  <mat-spinner diameter="18"></mat-spinner>
+                } @else {
+                  <mat-icon>{{ tipoInforme() === 'final' ? 'assignment_turned_in' : 'summarize' }}</mat-icon>
+                }
+                Generar {{ tipoInforme() === 'final' ? 'informe final' : 'informe parcial' }}
+              </button>
+            } @else {
+              <span class="hint-inline">Requiere permiso pagos.registrar para generar</span>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

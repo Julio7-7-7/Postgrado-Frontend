@@ -18,6 +18,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { provideNativeDateAdapter, MAT_DATE_LOCALE } from '@angular/material/core';
 import { DetalleService } from '../../services/detalle.service';
+import { NavigationBackService } from '../../../../core/navigation/navigation-back.service';
 import { HorarioService } from '../../../horario/services/horario.service';
 import { DetalleProgramaModulo, DetalleUpdate } from '../../models/detalle.model';
 import { Horario, HorarioCreate, HorarioUpdate } from '../../../horario/models/horario.model';
@@ -25,6 +26,7 @@ import { HorarioDialogComponent, HorarioDialogData } from '../../../horario/comp
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog';
 import { ConfirmCambiosDialogComponent, ConfirmCambiosData, CambioResumen } from '../../../../shared/components/confirm-cambios-dialog/confirm-cambios-dialog';
 import { aFechaString, aFechaDisplay, isoAString, aDate } from '../../../../core/utils/date-utils';
+import { AuthService } from '../../../../core/services/auth.service';
 
 interface PendingCreate { type: 'crear'; tempId: number; data: HorarioCreate; }
 interface PendingUpdate { type: 'actualizar'; id: number; data: HorarioUpdate; }
@@ -64,8 +66,12 @@ export class DetalleGestionarComponent implements OnInit {
   private snackbar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
   private router = inject(Router);
+  private navBack = inject(NavigationBackService);
   private route = inject(ActivatedRoute);
   private destroyRef = inject(DestroyRef);
+  private auth = inject(AuthService);
+
+  puedeVerNotas = computed(() => this.auth.hasPermiso('notas.ver'));
 
   private readonly DURACION_MINIMA_DIAS = 30;
   private readonly ESTADO_TRANSICIONES: Record<string, string[]> = {
@@ -598,9 +604,17 @@ export class DetalleGestionarComponent implements OnInit {
     this.router.navigate([`${base}/historial/${d.id_detalle_programa_modulo}`]);
   }
 
+  verNotas() {
+    const d = this.detalle();
+    if (!d) return;
+    this.router.navigate(['/notas', d.id_programa_version_edicion], {
+      queryParams: { modulo: d.id_detalle_programa_modulo },
+    });
+  }
+
   volverAlCarrusel() {
     this.pendingActions.set([]);
     const base = this.router.url.replace(/\/gestionar\/\d+.*/, '');
-    this.router.navigate([base], { replaceUrl: true });
+    this.navBack.retornar(base || '/programas');
   }
 }

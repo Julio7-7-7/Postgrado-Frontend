@@ -10,6 +10,18 @@
       </div>
     </div>
     <div class="header-right">
+      @if (puedeVerInformes()) {
+        <button mat-stroked-button (click)="verInforme()" matTooltip="Generar informe de notas de la edición">
+          <mat-icon>summarize</mat-icon>
+          Informe de Notas
+        </button>
+      }
+      @if (puedeVerAlumnos()) {
+        <button mat-stroked-button (click)="volverAInscripciones()" class="sort-toggle" matTooltip="Ver inscripciones de la edición">
+          <mat-icon>how_to_reg</mat-icon>
+          Ver inscripciones
+        </button>
+      }
       @if (alumnos().length > 0) {
         <button mat-stroked-button class="sort-toggle" (click)="toggleOrden()" matTooltip="Alternar orden alfabético">
           <mat-icon>{{ nombreDir() === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
@@ -66,7 +78,9 @@
             </tr>
             <tr class="thead-nums">
               @for (m of modulos(); track m.id_detalle_programa_modulo) {
-                <th class="col-mod" [matTooltip]="'Módulo ' + m.orden + ' — ' + m.nombre" [matTooltipPosition]="'above'">
+                <th class="col-mod" [attr.data-dpm]="m.id_detalle_programa_modulo"
+                    [class.col-destacada]="esColumnaDestacada(m.id_detalle_programa_modulo)"
+                    [matTooltip]="'Módulo ' + m.orden + ' — ' + m.nombre" [matTooltipPosition]="'above'">
                   <span class="th-chip"><span class="th-num">{{ m.orden }}</span></span>
                 </th>
               }
@@ -76,16 +90,23 @@
             @for (a of activos(); track a.id_detalle_programa_alumno) {
               <tr>
                 <td class="col-alumno" [style.width]="alumnoWidth()">
-                  <span class="alumno-cell">
+                  <span class="alumno-cell" [class.clickable]="puedeVerAlumnos()"
+                        (click)="puedeVerAlumnos() && verTranscript(a)"
+                        [matTooltip]="puedeVerAlumnos() ? 'Ver transcript del alumno' : ''"
+                        [matTooltipPosition]="'above'">
                     <span class="alumno-avatar">{{ initials(a) }}</span>
                     <span class="alumno-info">
                       <span class="alumno-nombre" [matTooltip]="nombreAlumno(a)" [matTooltipPosition]="'above'">{{ nombreAlumno(a) }}</span>
                       <span class="alumno-ci">CI: {{ a.alumno?.ci || '—' }}</span>
                     </span>
+                    @if (puedeVerAlumnos()) {
+                      <mat-icon class="alumno-go">chevron_right</mat-icon>
+                    }
                   </span>
                 </td>
                 @for (m of modulos(); track m.id_detalle_programa_modulo) {
-                  <td class="col-mod" [matTooltip]="cellTooltip(a, m.id_detalle_programa_modulo)">
+                  <td class="col-mod" [class.col-destacada]="esColumnaDestacada(m.id_detalle_programa_modulo)"
+                      [matTooltip]="cellTooltip(a, m.id_detalle_programa_modulo)">
                     @if (notaValor(a, m.id_detalle_programa_modulo) !== null) {
                       <span class="nota-bubble" [class]="cellClass(a, m.id_detalle_programa_modulo)">
                         {{ notaValor(a, m.id_detalle_programa_modulo) }}
@@ -126,7 +147,9 @@
                   <tr>
                     <th class="col-alumno" [style.width]="alumnoWidth()"><span class="th-alumno-label">Alumno</span></th>
                     @for (m of modulos(); track m.id_detalle_programa_modulo) {
-                      <th class="col-mod" [matTooltip]="'Módulo ' + m.orden + ' — ' + m.nombre" [matTooltipPosition]="'above'">
+                      <th class="col-mod" [attr.data-dpm]="m.id_detalle_programa_modulo"
+                          [class.col-destacada]="esColumnaDestacada(m.id_detalle_programa_modulo)"
+                          [matTooltip]="'Módulo ' + m.orden + ' — ' + m.nombre" [matTooltipPosition]="'above'">
                         <span class="th-chip"><span class="th-num">{{ m.orden }}</span></span>
                       </th>
                     }
@@ -139,16 +162,23 @@
                   @for (a of retirados(); track a.id_detalle_programa_alumno) {
                     <tr class="row-retirado">
                       <td class="col-alumno" [style.width]="alumnoWidth()">
-                        <span class="alumno-cell">
+                        <span class="alumno-cell" [class.clickable]="puedeVerAlumnos()"
+                              (click)="puedeVerAlumnos() && verTranscript(a)"
+                              [matTooltip]="puedeVerAlumnos() ? 'Ver transcript del alumno' : ''"
+                              [matTooltipPosition]="'above'">
                           <span class="alumno-avatar">{{ initials(a) }}</span>
                           <span class="alumno-info">
                             <span class="alumno-nombre">{{ nombreAlumno(a) }}</span>
                             <span class="alumno-ci">CI: {{ a.alumno?.ci || '—' }}</span>
                           </span>
+                          @if (puedeVerAlumnos()) {
+                            <mat-icon class="alumno-go">chevron_right</mat-icon>
+                          }
                         </span>
                       </td>
                       @for (m of modulos(); track m.id_detalle_programa_modulo) {
-                        <td class="col-mod" [matTooltip]="cellTooltip(a, m.id_detalle_programa_modulo)">
+                        <td class="col-mod" [class.col-destacada]="esColumnaDestacada(m.id_detalle_programa_modulo)"
+                            [matTooltip]="cellTooltip(a, m.id_detalle_programa_modulo)">
                           @if (notaValor(a, m.id_detalle_programa_modulo) !== null) {
                             <span class="nota-bubble" [class]="cellClass(a, m.id_detalle_programa_modulo)">
                               {{ notaValor(a, m.id_detalle_programa_modulo) }}

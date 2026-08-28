@@ -11,6 +11,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { HistorialService } from '../../services/historial.service';
 import { HistorialModulo } from '../../models/historial.model';
+import { NavigationBackService } from '../../../../core/navigation/navigation-back.service';
 
 interface Diff {
   campo: string;
@@ -34,6 +35,7 @@ export class HistorialPageComponent implements OnInit {
   private service = inject(HistorialService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private navBack = inject(NavigationBackService);
   private destroyRef = inject(DestroyRef);
 
   detalleId = signal(0);
@@ -171,7 +173,7 @@ export class HistorialPageComponent implements OnInit {
 
   volver(): void {
     const url = this.router.url.replace(/\/modulos\/.*/, '/modulos');
-    this.router.navigateByUrl(url);
+    this.navBack.retornar(url || '/programas');
   }
 
   formatDate(d: string | null): string {

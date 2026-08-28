@@ -12,6 +12,7 @@ import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { EdicionService } from '../../services/edicion.service';
 import { ProgramaVersionEdicion } from '../../models/edicion.model';
 import { PostulanteResponse } from '../../../documentacion/models/documentacion.model';
+import { NavigationBackService } from '../../../../core/navigation/navigation-back.service';
 
 @Component({
   selector: 'app-edicion-postulantes',
@@ -31,6 +32,7 @@ export class EdicionPostulantesComponent implements OnInit {
   private router = inject(Router);
   private snackbar = inject(MatSnackBar);
   private destroyRef = inject(DestroyRef);
+  private navBack = inject(NavigationBackService);
 
   edicion = signal<ProgramaVersionEdicion | null>(null);
   postulantes = signal<PostulanteResponse[]>([]);
@@ -61,12 +63,8 @@ export class EdicionPostulantesComponent implements OnInit {
   }
 
   volver(): void {
-    const match = this.router.url.match(/^(\/programas\/\d+\/versiones\/\d+\/ediciones)/);
-    if (match) {
-      this.router.navigateByUrl(match[1]);
-    } else {
-      this.router.navigate(['/programas']);
-    }
+    const m = this.router.url.match(/^(\/programas\/\d+\/versiones(?:\/\d+)?\/ediciones)/);
+    this.navBack.retornar(m ? m[1] : ['/programas']);
   }
 
   toggleExpand(id: number): void {

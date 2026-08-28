@@ -1,6 +1,6 @@
 import { Component, OnInit, signal, computed, inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, ActivatedRoute, RouterLink } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { forkJoin } from 'rxjs';
 import { MatCardModule } from '@angular/material/card';
@@ -17,12 +17,14 @@ import { DetalleProgramaModulo } from '../../models/detalle.model';
 import { Horario } from '../../../horario/models/horario.model';
 import { ReordenarModulosDialogComponent, ReordenarModulosData } from '../../components/reordenar-modulos-dialog/reordenar-modulos-dialog';
 import { CuadroHorarioDialogComponent, CuadroHorarioData } from '../../../../shared/components/cuadro-horario-dialog/cuadro-horario-dialog';
+import { AuthService } from '../../../../core/services/auth.service';
+import { NavigationBackService } from '../../../../core/navigation/navigation-back.service';
 
 @Component({
   selector: 'app-detalle-list',
   standalone: true,
   imports: [
-    CommonModule, RouterLink,
+    CommonModule,
     MatCardModule, MatButtonModule, MatIconModule, MatTooltipModule,
     MatProgressSpinnerModule, MatSnackBarModule,
     MatDividerModule, MatDialogModule,
@@ -38,6 +40,10 @@ export class DetalleListComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private destroyRef = inject(DestroyRef);
+  private auth = inject(AuthService);
+  private navBack = inject(NavigationBackService);
+
+  puedeVerNotas = computed(() => this.auth.hasPermiso('notas.ver'));
 
   idEdicion = signal<number>(0);
   detalles = signal<DetalleProgramaModulo[]>([]);
@@ -127,9 +133,16 @@ export class DetalleListComponent implements OnInit {
   }
 
   empezarContratacion(detalle: DetalleProgramaModulo) {
+    this.navBack.setReturn(this.router.url);
     this.router.navigate(['/contrataciones/nuevo'], {
       queryParams: { id_detalle_modulo: detalle.id_detalle_programa_modulo }
     });
+  }
+
+  verContratacion(detalle: DetalleProgramaModulo): void {
+    if (!detalle.contratacion) return;
+    this.navBack.setReturn(this.router.url);
+    this.router.navigate(['/contrataciones', detalle.contratacion.id_contratacion]);
   }
 
   abrirGestionar(detalle: DetalleProgramaModulo) {
@@ -234,9 +247,34 @@ export class DetalleListComponent implements OnInit {
   }
 
   volverAEdiciones(): void {
-    const idx = this.router.url.indexOf('/modulos');
-    if (idx !== -1) {
-      this.router.navigateByUrl(this.router.url.substring(0, idx));
-    }
+    const m = this.router.url.match(/\/programas\/(\d+)\/versiones(?:\/(\d+))?(?:\/ediciones)?/);
+    const fallback: unknown[] = m
+      ? ['/programas', +m[1], 'versiones', ...(m[2] ? [+m[2]] : []), 'ediciones']
+      : ['/programas'];
+    this.navBack.retornar(fallback);
+  }
+
+  verNotas(): void {
+    this.navBack.setReturn(this.router.url);
+    const mods = this.detalles();
+    const actual = mods[this.currentIndex()];
+    this.router.navigate(['/notas', this.idEdicion()], {
+      queryParams: actual ? { modulo: actual.id_detalle_programa_modulo } : {},
+    });
+  }
+
+  puedeVerInformes(): boolean {
+    return this.auth.hasPermiso('pagos.ver');
+  }
+
+  verInforme(): void {
+    this.navBack.setReturn(this.router.url);
+    const mods = this.detalles();
+    const actual = mods[this.currentIndex()];
+    this.router.navigate(['/informes-notas'], {
+      queryParams: actual
+        ? { edicion: this.idEdicion(), modulo: actual.id_detalle_programa_modulo }
+        : { edicion: this.idEdicion() },
+    });
   }
 }

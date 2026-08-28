@@ -13,7 +13,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { EtapaService } from '../../services/etapa.service';
-import { EtapaContratacion, EtapaRequisitoInfo } from '../../models/etapa.model';
+import { EtapaContratacion } from '../../models/etapa.model';
 import { RequisitoService } from '../../../requisitos/services/requisito.service';
 import { RequisitoResponse } from '../../../requisitos/models/requisito.model';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog';

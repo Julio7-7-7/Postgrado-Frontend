@@ -1,0 +1,18 @@
+.header-icon {
+  background: linear-gradient(135deg, var(--fich-feature-carreras), var(--fich-feature-carreras-light));
+  color: white;
+}
+
+mat-dialog-content { padding: 16px 24px; min-width: 420px; }
+
+.field { margin-bottom: 4px; }
+.full-width { width: 100%; }
+
+mat-dialog-actions {
+  padding: 12px 24px 20px;
+}
+
+mat-dialog-actions button mat-spinner {
+  display: inline-block;
+  margin-right: 6px;
+}

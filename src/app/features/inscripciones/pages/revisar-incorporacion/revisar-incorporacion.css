@@ -323,6 +323,20 @@
   transition: border-color 0.12s;
 }
 
+.doc-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.doc-upload-row {
+  padding: 0 12px 4px;
+}
+
+.doc-upload-row app-upload-box {
+  width: 100%;
+}
+
 .doc-row.doc-uploaded {
   border-left: 3px solid var(--fich-success);
 }
@@ -368,6 +382,23 @@
   width: 16px;
   height: 16px;
   margin-right: 4px;
+}
+
+.doc-remove-btn {
+  width: 28px !important;
+  height: 28px !important;
+  flex-shrink: 0;
+  color: var(--fich-text-muted) !important;
+}
+
+.doc-remove-btn:hover {
+  color: var(--fich-danger) !important;
+}
+
+.doc-remove-btn mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
 }
 
 .no-docs {

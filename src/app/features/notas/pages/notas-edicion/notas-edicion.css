@@ -276,6 +276,36 @@
   text-align: left;
 }
 
+.alumno-cell.clickable {
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.alumno-cell.clickable:hover {
+  opacity: 0.75;
+}
+
+.alumno-go {
+  margin-left: auto;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: var(--fich-text-faint);
+  flex: 0 0 auto;
+}
+
+/* Columna de módulo destacada (navegación desde módulos) */
+.matriz thead th.col-destacada,
+.matriz tbody td.col-destacada {
+  background: var(--fich-feature-notas-light);
+  box-shadow: inset 3px 0 0 var(--fich-feature-notas);
+}
+
+.matriz thead th.col-destacada .th-num {
+  background: var(--fich-feature-notas);
+  color: #fff;
+}
+
 .alumno-avatar {
   flex: 0 0 auto;
   width: 36px;

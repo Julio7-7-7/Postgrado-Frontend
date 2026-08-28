@@ -15,6 +15,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 
 import { ProgramaService } from '../../services/programa.service';
+import { NavigationBackService } from '../../../../core/navigation/navigation-back.service';
 import { Programa } from '../../models/programa.model';
 import { ProgramaFormComponent } from '../programa-form/programa-form';
 import { ProgramaVersionService } from '../../../programa-version/services/programa-version.service';
@@ -69,6 +70,7 @@ export class ProgramaExplorerComponent implements OnInit {
   private snackbar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
   private router = inject(Router);
+  private navBack = inject(NavigationBackService);
   private route = inject(ActivatedRoute);
   private destroyRef = inject(DestroyRef);
 
@@ -339,10 +341,12 @@ export class ProgramaExplorerComponent implements OnInit {
   }
 
   irAModulos(programaId: number, versionId: number, edicionId: number): void {
+    this.navBack.setReturn(this.router.url);
     this.router.navigate(['/programas', programaId, 'versiones', versionId, 'ediciones', edicionId, 'modulos']);
   }
 
   irAModulosVersion(programaId: number, versionId: number): void {
+    this.navBack.setReturn(this.router.url);
     this.router.navigate(['/programas', programaId, 'versiones', versionId, 'modulos']);
   }
 
@@ -351,10 +355,12 @@ export class ProgramaExplorerComponent implements OnInit {
   }
 
   verPostulantes(programaId: number, versionId: number, edicionId: number): void {
+    this.navBack.setReturn(this.router.url);
     this.router.navigate(['/programas', programaId, 'versiones', versionId, 'ediciones', edicionId, 'postulantes']);
   }
 
   verHistorial(programaId: number, versionId: number, edicionId: number): void {
+    this.navBack.setReturn(this.router.url);
     this.router.navigate(['/programas', programaId, 'versiones', versionId, 'ediciones', edicionId, 'historial']);
   }
 

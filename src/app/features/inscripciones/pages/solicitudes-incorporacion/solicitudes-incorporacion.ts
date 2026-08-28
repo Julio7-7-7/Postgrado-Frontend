@@ -14,6 +14,7 @@ import { InscripcionEdicionService } from '../../services/inscripcion-edicion.se
 import { SolicitudConDetalle, SolicitudAdminItem, TipoSolicitud } from '../../../alumno/models/solicitud-incorporacion.model';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog';
 import { SortDir, sortItems } from '../../../../core/utils/sort-utils';
+import { NavigationBackService } from '../../../../core/navigation/navigation-back.service';
 
 @Component({
   selector: 'app-solicitudes-incorporacion',
@@ -210,6 +211,7 @@ export class SolicitudesIncorporacionComponent implements OnInit {
   private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
   private destroyRef = inject(DestroyRef);
+  private navBack = inject(NavigationBackService);
 
   allItems = signal<SolicitudAdminItem[]>([]);
   items = signal<SolicitudAdminItem[]>([]);
@@ -266,7 +268,7 @@ export class SolicitudesIncorporacionComponent implements OnInit {
   mapSolicitud(s: SolicitudConDetalle): SolicitudAdminItem {
     return {
       tipo: s.tipo_codigo as TipoSolicitud,
-      id: s.id_solicitud,
+      id: s.id_solicitud ?? 0,
       estado: s.estado,
       created_at: s.created_at,
       id_alumno: s.id_alumno,
@@ -352,11 +354,17 @@ export class SolicitudesIncorporacionComponent implements OnInit {
   }
 
   volver(): void {
-    this.router.navigate(['/inscripciones']);
+    this.navBack.retornar(['/inscripciones']);
   }
 
   irARequisitos(): void {
+    this.navBack.setReturn(this.router.url);
     this.router.navigate(['/requisitos-incorporacion']);
+  }
+
+  irARevisar(item: SolicitudAdminItem): void {
+    this.navBack.setReturn(this.router.url);
+    this.router.navigate(['/solicitudes', item.id, 'revisar']);
   }
 
   tipoLabel(item: SolicitudAdminItem): string {
@@ -385,6 +393,7 @@ export class SolicitudesIncorporacionComponent implements OnInit {
   }
 
   abrirDetalle(item: SolicitudAdminItem): void {
+    this.navBack.setReturn(this.router.url);
     this.router.navigate(['/solicitudes', item.id, 'revisar']);
   }
 
@@ -413,6 +422,7 @@ export class SolicitudesIncorporacionComponent implements OnInit {
       });
       return;
     }
+    this.navBack.setReturn(this.router.url);
     this.router.navigate(['/solicitudes', item.id, 'revisar']);
   }
 

@@ -15,6 +15,7 @@ import {
   RequisitoColumn,
 } from '../../models/documentacion.model';
 import { DocMatrizDialogComponent } from '../doc-matriz-dialog/doc-matriz-dialog';
+import { NavigationBackService } from '../../../../core/navigation/navigation-back.service';
 
 export interface GrupoModalidad {
   id_modalidad: number;
@@ -39,6 +40,7 @@ export class DocMatrizComponent implements OnInit {
   private service = inject(DocumentacionService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private navBack = inject(NavigationBackService);
   private snackbar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
   private destroyRef = inject(DestroyRef);
@@ -210,6 +212,6 @@ export class DocMatrizComponent implements OnInit {
   }
 
   volver(): void {
-    this.router.navigate(['/documentacion']);
+    this.navBack.retornar(['/documentacion']);
   }
 }

@@ -1,0 +1,461 @@
+<div class="page-container">
+  <div class="header-section">
+    <div class="header-left">
+      <button mat-icon-button (click)="irAEdition()" class="back-btn" matTooltip="Volver a inscripciones">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div>
+        <h1><mat-icon>person_add</mat-icon> {{ esEnCurso() ? 'Incorporar Alumno' : 'Inscribir Alumno' }}</h1>
+        <p class="subtitle">{{ esEnCurso() ? 'Incorporación directa desde administración' : 'Inscripción directa desde administración' }}</p>
+      </div>
+    </div>
+  </div>
+
+  @if (cargandoEdicion()) {
+    <div class="loading-state">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>Cargando edición...</p>
+    </div>
+  }
+
+  @if (!cargandoEdicion() && edicion(); as ed) {
+    <div class="edicion-banner">
+      <div class="edicion-banner-content">
+        <mat-icon>school</mat-icon>
+        <div>
+          <strong>{{ getNombrePrograma() }}</strong>
+          <span class="edicion-meta">{{ getEdicionTexto() }} · {{ ed.estado }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="wizard-stepper">
+      <div class="wizard-step" [class.active]="currentStep() === 1" [class.done]="currentStep() > 1">
+        <div class="step-circle">
+          @if (currentStep() > 1) { <mat-icon>check</mat-icon> } @else { <span>1</span> }
+        </div>
+        <span class="step-label">Buscar Alumno</span>
+      </div>
+      <div class="step-line" [class.done]="currentStep() > 1"></div>
+      <div class="wizard-step" [class.active]="currentStep() === 2" [class.done]="currentStep() > 2">
+        <div class="step-circle">
+          @if (currentStep() > 2) { <mat-icon>check</mat-icon> } @else { <span>2</span> }
+        </div>
+        <span class="step-label">Inscripción</span>
+      </div>
+      <div class="step-line" [class.done]="currentStep() > 2"></div>
+      <div class="wizard-step" [class.active]="currentStep() === 3">
+        <div class="step-circle"><span>3</span></div>
+        <span class="step-label">Confirmar</span>
+      </div>
+    </div>
+
+    @if (currentStep() === 1) {
+      <div class="step-content">
+        @if (!creandoAlumno()) {
+          <div class="search-section">
+            <div class="search-header">
+              <div class="search-header-left">
+                <h2>Alumnos</h2>
+                @if (alumnosInscritosIds().size > 0 && !busqueda()) {
+                  <span class="inscritos-hint">{{ alumnosInscritosIds().size }} ya inscritos ocultos</span>
+                }
+              </div>
+              <button mat-stroked-button color="primary" (click)="abrirCrearAlumno()">
+                <mat-icon>person_add</mat-icon>
+                Crear nuevo
+              </button>
+            </div>
+
+            <mat-form-field appearance="outline" class="search-field">
+              <mat-icon matPrefix>search</mat-icon>
+              <input matInput
+                     [ngModel]="busqueda()"
+                     (ngModelChange)="onBusqueda($event)"
+                     placeholder="Buscar por nombre, apellido, CI o email...">
+              @if (busqueda()) {
+                <button matSuffix mat-icon-button (click)="onBusqueda('')">
+                  <mat-icon>close</mat-icon>
+                </button>
+              }
+            </mat-form-field>
+
+            @if (busqueda()) {
+              <p class="search-hint">
+                @if (alumnosVisibles().length > 0) {
+                  {{ alumnosVisibles().length }} resultado{{ alumnosVisibles().length !== 1 ? 's' : '' }} —
+                  los inscritos aparecen marcados
+                } @else {
+                  Sin resultados para "{{ busqueda() }}"
+                }
+              </p>
+            }
+
+            @if (cargandoAlumnos()) {
+              <div class="table-loading">
+                <mat-spinner diameter="28"></mat-spinner>
+                <span>Cargando alumnos...</span>
+              </div>
+            } @else {
+              <div class="alumnos-table-wrap">
+                <table class="alumnos-table">
+                  <thead>
+                    <tr>
+                      <th class="th-alumno">Alumno</th>
+                      <th class="th-ci">CI</th>
+                      <th class="th-email">Email</th>
+                      <th class="th-accion"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (item of alumnosPaginados(); track item.persona.id_usuario) {
+                      <tr class="alumno-row" [class.ya-inscrito]="item.inscrito"
+                          [class.alumno-disponible]="!item.inscrito"
+                          (click)="!item.inscrito && seleccionarAlumno(item.persona)">
+                        <td class="td-alumno">
+                          <div class="alumno-cell">
+                            <span class="alumno-avatar" [class.avatar-inscrito]="item.inscrito">{{ (item.persona.alumno?.nombre || '?')[0] }}{{ (item.persona.alumno?.apellido || '?')[0] }}</span>
+                            <div class="alumno-name-group">
+                              <span class="alumno-nombre">{{ item.persona.alumno?.nombre }} {{ item.persona.alumno?.apellido }}</span>
+                              @if (item.inscrito) {
+                                <span class="inscrito-badge">Ya inscrito</span>
+                              }
+                            </div>
+                          </div>
+                        </td>
+                        <td class="td-ci">{{ item.persona.alumno?.ci || '—' }}</td>
+                        <td class="td-email">{{ item.persona.email }}</td>
+                        <td class="td-accion">
+                          @if (item.inscrito) {
+                            <mat-icon class="inscrito-icon">check_circle</mat-icon>
+                          } @else {
+                            <mat-icon class="select-icon">chevron_right</mat-icon>
+                          }
+                        </td>
+                      </tr>
+                    } @empty {
+                      <tr>
+                        <td colspan="4" class="empty-cell">
+                          @if (busqueda()) {
+                            <div class="empty-inner">
+                              <mat-icon>search_off</mat-icon>
+                              <span class="empty-title">Sin resultados</span>
+                              <span class="empty-sub">No se encontraron alumnos para "{{ busqueda() }}"</span>
+                            </div>
+                          } @else {
+                            <div class="empty-inner">
+                              <mat-icon>school</mat-icon>
+                              <span class="empty-title">No hay alumnos disponibles</span>
+                              @if (allAlumnos().length > 0 && alumnosInscritosIds().size > 0) {
+                                <span class="empty-sub">Los {{ allAlumnos().length }} alumnos registrados ya están inscritos en esta edición</span>
+                              } @else {
+                                <span class="empty-sub">No hay alumnos registrados en el sistema</span>
+                              }
+                              <button mat-stroked-button color="primary" (click)="abrirCrearAlumno()" class="empty-action">
+                                <mat-icon>person_add</mat-icon>
+                                Crear nuevo alumno
+                              </button>
+                            </div>
+                          }
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+                @if (alumnosVisibles().length > ITEMS_POR_PAGINA || paginaActual() > 0) {
+                  <div class="table-pagination">
+                    <button mat-icon-button [disabled]="paginaActual() === 0" (click)="irAPagina(paginaActual() - 1)">
+                      <mat-icon>chevron_left</mat-icon>
+                    </button>
+                    @for (p of paginasArr(); track p) {
+                      <button class="page-dot" [class.active]="p === paginaActual()" (click)="irAPagina(p)">{{ p + 1 }}</button>
+                    }
+                    <button mat-icon-button [disabled]="paginaActual() >= totalPaginas() - 1" (click)="irAPagina(paginaActual() + 1)">
+                      <mat-icon>chevron_right</mat-icon>
+                    </button>
+                  </div>
+                }
+                <div class="table-footer">
+                  <span>{{ alumnosVisibles().length }} alumno{{ alumnosVisibles().length !== 1 ? 's' : '' }}</span>
+                  @if (alumnosInscritosIds().size > 0 && !busqueda()) {
+                    <span class="footer-sep">·</span>
+                    <span class="footer-inscritos">{{ alumnosInscritosIds().size }} inscrito{{ alumnosInscritosIds().size !== 1 ? 's' : '' }} en edición</span>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="create-section">
+            <div class="search-header">
+              <h2>Crear nuevo alumno</h2>
+              <button mat-stroked-button (click)="cancelarCrearAlumno()">
+                <mat-icon>arrow_back</mat-icon>
+                Volver a la lista
+              </button>
+            </div>
+            <p class="step-hint">Se creará una cuenta de usuario con acceso al portal del estudiante</p>
+            <div class="form-grid">
+              <mat-form-field appearance="outline">
+                <mat-label>Nombre</mat-label>
+                <input matInput [value]="formAlumno().nombre"
+                       (input)="formAlumno.update(f => ({...f, nombre: $any($event.target).value}))">
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Apellido</mat-label>
+                <input matInput [value]="formAlumno().apellido"
+                       (input)="formAlumno.update(f => ({...f, apellido: $any($event.target).value}))">
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>CI</mat-label>
+                <input matInput [value]="formAlumno().ci"
+                       (input)="formAlumno.update(f => ({...f, ci: $any($event.target).value}))">
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Email</mat-label>
+                <input matInput type="email" [value]="formAlumno().email"
+                       (input)="formAlumno.update(f => ({...f, email: $any($event.target).value}))">
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Celular (opcional)</mat-label>
+                <input matInput [value]="formAlumno().celular"
+                       (input)="formAlumno.update(f => ({...f, celular: $any($event.target).value}))">
+              </mat-form-field>
+            </div>
+            <div class="form-actions">
+              <button mat-stroked-button (click)="cancelarCrearAlumno()">Cancelar</button>
+              <button mat-flat-button color="primary" (click)="crearAlumno()" [disabled]="!formAlumnoValido()">
+                <mat-icon>person_add</mat-icon>
+                Crear Alumno
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    @if (currentStep() === 2) {
+      <div class="step-content">
+        <div class="selected-alumno-card">
+          <div class="selected-alumno-avatar">
+            {{ getNombreAlumno()[0] || '?' }}
+          </div>
+          <div class="selected-alumno-info">
+            <strong>{{ getNombreAlumno() }}</strong>
+            <span>
+              @if (getCiAlumno()) { CI: {{ getCiAlumno() }} } · {{ getEmailAlumno() }}
+            </span>
+          </div>
+          <button mat-icon-button (click)="volverAPaso1()" matTooltip="Cambiar alumno">
+            <mat-icon>edit</mat-icon>
+          </button>
+        </div>
+
+        <div class="form-grid">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Modalidad académica</mat-label>
+            <mat-select [value]="selectedModalidad()" (selectionChange)="selectedModalidad.set($event.value)">
+              @for (mod of modalidades(); track mod.id_modalidad_academica) {
+                <mat-option [value]="mod.id_modalidad_academica">{{ mod.nombre_modalidad }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          @if (selectedModalidad()) {
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Tipo de descuento (opcional)</mat-label>
+              <mat-select [value]="selectedDescuento()" (selectionChange)="selectedDescuento.set($event.value)">
+                <mat-option [value]="null">Ninguno</mat-option>
+                @for (desc of descuentosDisponibles(); track desc.id_tipo_descuento) {
+                  <mat-option [value]="desc.id_tipo_descuento">
+                    {{ desc.nombre }} ({{ desc.porcentaje }}%)
+                  </mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          }
+
+          @if (esEducacionContinua()) {
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Carrera de origen</mat-label>
+              <mat-select [value]="selectedCarrera()" (selectionChange)="selectedCarrera.set($event.value)">
+                @for (c of carreras(); track c.id_carrera) {
+                  <mat-option [value]="c.id_carrera">
+                    {{ c.nombre }} @if (c.sigla) { ({{ c.sigla }}) }
+                  </mat-option>
+                }
+              </mat-select>
+              <mat-hint>Obligatoria para la modalidad Educación Continua</mat-hint>
+            </mat-form-field>
+          }
+        </div>
+
+        <div class="form-actions">
+          <button mat-stroked-button (click)="volverAPaso1()">
+            <mat-icon>arrow_back</mat-icon>
+            Volver
+          </button>
+          <button mat-flat-button color="primary" (click)="currentStep.set(3)" [disabled]="!pasaPaso2()">
+            Siguiente
+            <mat-icon>arrow_forward</mat-icon>
+          </button>
+        </div>
+      </div>
+    }
+
+    @if (currentStep() === 3) {
+      <div class="step-content">
+        <div class="resumen-card">
+          <h2>Resumen de inscripción</h2>
+          <div class="resumen-row">
+            <span class="resumen-label">Tipo</span>
+            <span class="resumen-value">{{ esEnCurso() ? 'Incorporación' : 'Inscripción' }}</span>
+          </div>
+          <div class="resumen-row">
+            <span class="resumen-label">Alumno</span>
+            <span class="resumen-value">{{ getNombreAlumno() }}</span>
+          </div>
+          <div class="resumen-row">
+            <span class="resumen-label">CI</span>
+            <span class="resumen-value">{{ getCiAlumno() || '—' }}</span>
+          </div>
+          <div class="resumen-row">
+            <span class="resumen-label">Email</span>
+            <span class="resumen-value">{{ getEmailAlumno() }}</span>
+          </div>
+          <mat-divider></mat-divider>
+          <div class="resumen-row">
+            <span class="resumen-label">Programa</span>
+            <span class="resumen-value">{{ getNombrePrograma() }}</span>
+          </div>
+          <div class="resumen-row">
+            <span class="resumen-label">Edición</span>
+            <span class="resumen-value">{{ getEdicionTexto() }}</span>
+          </div>
+          <div class="resumen-row">
+            <span class="resumen-label">Modalidad</span>
+            <span class="resumen-value">
+              {{ modalidades().find(m => m.id_modalidad_academica === selectedModalidad())?.nombre_modalidad || '—' }}
+            </span>
+          </div>
+          @if (selectedDescuento()) {
+            <div class="resumen-row">
+              <span class="resumen-label">Descuento</span>
+              <span class="resumen-value descuento">
+                {{ descuentosDisponibles().find(d => d.id_tipo_descuento === selectedDescuento())?.nombre }}
+                ({{ descuentosDisponibles().find(d => d.id_tipo_descuento === selectedDescuento())?.porcentaje }}%)
+              </span>
+            </div>
+          }
+          @if (esEducacionContinua() && selectedCarrera()) {
+            <div class="resumen-row">
+              <span class="resumen-label">Carrera</span>
+              <span class="resumen-value">
+                {{ carreras().find(c => c.id_carrera === selectedCarrera())?.nombre || '—' }}
+              </span>
+            </div>
+          }
+          <div class="resumen-row">
+            <span class="resumen-label">Precio</span>
+            <span class="resumen-value precio">{{ getPrecioModalidad() }}</span>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button mat-stroked-button (click)="currentStep.set(2)">
+            <mat-icon>arrow_back</mat-icon>
+            Volver
+          </button>
+          <button mat-flat-button color="primary" (click)="inscribir()" [disabled]="inscribiendo()">
+            @if (inscribiendo()) {
+              <mat-spinner diameter="18" class="inline-spinner"></mat-spinner>
+            } @else {
+              <mat-icon>how_to_reg</mat-icon>
+            }
+            {{ esEnCurso() ? 'Incorporar Alumno' : 'Inscribir Alumno' }}
+          </button>
+        </div>
+      </div>
+    }
+
+    @if (currentStep() === 4 && resultadoInscripcion(); as res) {
+      <div class="step-content">
+        <div class="success-card">
+          <div class="success-icon">
+            <mat-icon>check_circle</mat-icon>
+          </div>
+
+          @if (res.tipo_creacion === 'directa') {
+            <h2>Inscripción registrada</h2>
+            <p class="success-detail">
+              El alumno fue inscrito directamente en la edición. Ya puede ver su inscripción en
+              <a routerLink="/inscripciones/{{ edicion()?.id_programa_version_edicion }}">Inscripciones de la edición</a>.
+            </p>
+            <div class="resumen-card">
+              <div class="resumen-row">
+                <span class="resumen-label">Alumno</span>
+                <span class="resumen-value">{{ res.alumno_apellido }} {{ res.alumno_nombre }}</span>
+              </div>
+              <div class="resumen-row">
+                <span class="resumen-label">Estado</span>
+                <span class="resumen-value">
+                  <span class="estado-pill postulante">postulante</span>
+                </span>
+              </div>
+              <div class="resumen-row">
+                <span class="resumen-label">Tipo</span>
+                <span class="resumen-value">Inscripción directa</span>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button mat-stroked-button (click)="irANuevaInscripcion()">
+                <mat-icon>person_add</mat-icon>
+                Inscribir otro alumno
+              </button>
+              <button mat-flat-button color="primary" (click)="irAEdition()">
+                <mat-icon>school</mat-icon>
+                Ver inscripciones
+              </button>
+            </div>
+          } @else {
+            <h2>Incorporación registrada</h2>
+            <p class="success-detail">
+              Se creó la solicitud <strong>PENDIENTE</strong>. Ahora podés subir la documentación y aprobarla desde
+              <a routerLink="/solicitudes">Solicitudes</a>.
+            </p>
+            <div class="resumen-card">
+              <div class="resumen-row">
+                <span class="resumen-label">Solicitud</span>
+                <span class="resumen-value">#{{ res.id_solicitud }}</span>
+              </div>
+              <div class="resumen-row">
+                <span class="resumen-label">Estado</span>
+                <span class="resumen-value">
+                  <span class="estado-pill pendiente">pendiente</span>
+                </span>
+              </div>
+              <div class="resumen-row">
+                <span class="resumen-label">Tipo</span>
+                <span class="resumen-value">Incorporación</span>
+              </div>
+              <div class="resumen-row">
+                <span class="resumen-label">Documentos</span>
+                <span class="resumen-value">Pendientes de carga</span>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button mat-stroked-button (click)="irANuevaInscripcion()">
+                <mat-icon>person_add</mat-icon>
+                Incorporar otro
+              </button>
+              <button mat-flat-button color="primary" routerLink="/solicitudes">
+                <mat-icon>description</mat-icon>
+                Ir a Solicitudes
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  }
+</div>

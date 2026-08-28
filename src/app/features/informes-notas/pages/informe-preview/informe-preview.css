@@ -1,0 +1,609 @@
+.preview-shell {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: var(--fich-space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.preview-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.toolbar-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.status-chip {
+  border-radius: 12px;
+  padding: 4px 12px;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.status-chip.borrador {
+  background: var(--fich-feature-contratacion-light);
+  color: var(--fich-feature-contratacion);
+}
+
+.status-chip.definitivo {
+  background: var(--fich-feature-pagos-light);
+  color: var(--fich-feature-pagos);
+}
+
+.toolbar-edicion {
+  font-size: 0.82rem;
+  color: var(--fich-text-secondary);
+}
+
+.print-area {
+  background: white;
+  box-shadow: var(--fich-shadow-sm);
+  border: 1px solid var(--fich-border);
+  padding: 44px 52px 36px;
+  position: relative;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 60px 0;
+  color: var(--fich-text-secondary);
+}
+
+.watermark-borrador {
+  position: absolute;
+  top: 150px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 5.2rem;
+  font-weight: 900;
+  color: rgba(180, 83, 9, 0.1);
+  letter-spacing: 0.35em;
+  transform: rotate(-18deg);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ===== Encabezado del documento ===== */
+.doc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  padding-bottom: 18px;
+  border-bottom: none;
+  position: relative;
+}
+
+.doc-header::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 4px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #1e3a8a 0%, #3b82f6 55%, #15803d 100%);
+}
+
+.doc-org {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.doc-logo {
+  width: 58px;
+  height: 58px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  font-weight: 800;
+  font-size: 1.05rem;
+  letter-spacing: 0.05em;
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.25);
+}
+
+.doc-org-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.doc-org-text .facultad {
+  font-size: 1.06rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: #1e3a8a;
+  text-transform: uppercase;
+}
+
+.doc-org-text .fich-tag {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: #3b82f6;
+}
+
+.doc-org-text .unidad {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--fich-text-secondary);
+}
+
+.doc-titulo {
+  text-align: right;
+  align-self: center;
+}
+
+.doc-titulo h1 {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #1e3a8a;
+}
+
+.doc-titulo h2 {
+  margin: 2px 0 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--fich-feature-pagos);
+}
+
+.doc-metadata {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #b45309;
+}
+
+/* ===== Tira de identificación ===== */
+.doc-ident {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: 1.6fr 0.6fr 0.9fr;
+  gap: 8px;
+}
+
+.ident-cell {
+  border: 1px solid #dbe1ea;
+  border-radius: 10px;
+  padding: 8px 12px;
+  background: #f8fafc;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.ident-label {
+  font-size: 0.66rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.ident-value {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #0f172a;
+  overflow-wrap: anywhere;
+}
+
+/* ===== Resumen ===== */
+.doc-resumen {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.resumen-card {
+  border-radius: 12px;
+  padding: 12px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.rc-num {
+  font-size: 1.5rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: #0f172a;
+}
+
+.rc-num.ok { color: #15803d; }
+.rc-num.bad { color: #b91c1c; }
+.rc-num.ele { color: #1e3a8a; }
+
+.rc-label {
+  font-size: 0.7rem;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ===== Hojas por carrera ===== */
+.career-sheet {
+  margin-top: 26px;
+}
+
+.career-sheet .sheet-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 16px;
+  background: linear-gradient(90deg, #eef2ff 0%, #f8fafc 70%, transparent);
+  border: 1px solid #dbe1ea;
+  border-left: 5px solid #1e3a8a;
+  border-radius: 12px;
+  position: relative;
+}
+
+.sheet-head::after {
+  content: 'FICH';
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  color: #cbd5e1;
+}
+
+.sheet-num {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  background: #1e3a8a;
+  color: white;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.95rem;
+  flex-shrink: 0;
+}
+
+.sheet-num mat-icon {
+  font-size: 17px;
+  width: 17px;
+  height: 17px;
+}
+
+.sheet-title h3 {
+  margin: 0;
+  font-size: 1.08rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.sheet-sub {
+  font-size: 0.76rem;
+  color: #64748b;
+}
+
+/* ===== Tablas ===== */
+.matriz-scroll {
+  overflow-x: auto;
+  margin-top: 12px;
+}
+
+.doc-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.8rem;
+  margin-top: 10px;
+  border: 1px solid #dbe1ea;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.doc-table th,
+.doc-table td {
+  border-right: 1px solid #edf0f5;
+  border-bottom: 1px solid #e8ecf2;
+  padding: 7px 9px;
+  text-align: left;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.doc-table th:last-child,
+.doc-table td:last-child {
+  border-right: none;
+}
+
+.doc-table thead th {
+  background: linear-gradient(180deg, #1e3a8a, #1e3a8a);
+  color: white;
+  font-weight: 700;
+  font-size: 0.74rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border-bottom: 1px solid #17266b;
+}
+
+.doc-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.doc-table tbody tr:nth-child(even) td {
+  background: #f8fafc;
+}
+
+.doc-table tbody tr:hover td {
+  background: #eef2ff;
+}
+
+.matriz .head-a th {
+  text-align: center;
+  background: #1e3a8a;
+}
+
+.matriz .head-b th {
+  font-weight: 600;
+  font-size: 0.68rem;
+  text-transform: none;
+  letter-spacing: 0;
+  background: #eef2ff;
+  color: #1e3a8a;
+}
+
+.col-alumno { min-width: 220px; }
+.col-ci { min-width: 90px; white-space: nowrap; }
+.th-n { width: 34px; text-align: center !important; }
+.th-nota { width: 76px; text-align: center !important; }
+.th-estado { width: 110px; }
+.col-sigla { text-align: center; min-width: 52px; }
+.col-mod { text-align: center; width: 100px; }
+.col-prom { width: 64px; text-align: center !important; font-weight: 700; background: #eef2ff !important; }
+.col-ele { width: 150px; text-align: center !important; }
+
+.nota-cell {
+  text-align: center;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.nota-cell.sin-nota {
+  color: #94a3b8;
+  font-weight: 400;
+}
+
+tr.reprobado td {
+  background: #fef2f2 !important;
+}
+
+.check-marca {
+  color: #15803d;
+  font-weight: 800;
+}
+
+.nota-val {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.nota-val.reprobado { color: #b91c1c; }
+
+.estado-texto {
+  font-weight: 700;
+  font-size: 0.7rem;
+  padding: 2px 9px;
+  border-radius: 20px;
+  border: 1px solid transparent;
+}
+
+.estado-texto.ok {
+  background: #dcfce7;
+  color: #15803d;
+  border-color: #86efac;
+}
+
+.sin-nota-texto {
+  color: #94a3b8;
+  font-size: 0.72rem;
+}
+
+.ele-ok {
+  color: #15803d;
+  font-weight: 800;
+}
+
+.ele-no {
+  color: #b91c1c;
+  font-size: 0.7rem;
+}
+
+/* ===== Módulos (parcial) ===== */
+.modulo-block {
+  margin-top: 16px;
+}
+
+.modulo-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 10px 14px;
+  background: linear-gradient(90deg, #f8fafc, #eef2ff);
+  border: 1px solid #dbe1ea;
+  border-bottom: none;
+  border-radius: 10px 10px 0 0;
+}
+
+.modulo-id {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.mod-num {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: #1e3a8a;
+  color: white;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.mod-name {
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: #0f172a;
+}
+
+.mod-name em {
+  font-weight: 500;
+  color: #64748b;
+  font-style: normal;
+}
+
+.mod-fechas {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-size: 0.72rem;
+  color: #64748b;
+}
+
+.sheet-leyenda {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 0.72rem;
+  color: #64748b;
+}
+
+/* ===== Certificados ===== */
+.cert-seccion {
+  margin-top: 26px;
+}
+
+.cert-hint {
+  margin-top: 10px;
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+/* ===== Pie de documento ===== */
+.doc-footer {
+  margin-top: 36px;
+  padding-top: 14px;
+  border-top: 2px solid #1e3a8a;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.foot-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.foot-logo {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+  color: white;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  font-weight: 800;
+  font-size: 0.62rem;
+  letter-spacing: 0.04em;
+}
+
+.foot-text {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.74rem;
+}
+
+.foot-text strong {
+  font-weight: 800;
+  color: #1e3a8a;
+}
+
+.foot-text span {
+  color: #64748b;
+}
+
+.foot-gen {
+  margin: 0;
+  font-size: 0.72rem;
+  color: #64748b;
+  text-align: right;
+}
+
+@media print {
+  .preview-toolbar {
+    display: none !important;
+  }
+
+  .print-area {
+    box-shadow: none;
+    border: none;
+    border-radius: 0;
+    padding: 24px 40px;
+    width: 100%;
+  }
+
+  .career-sheet {
+    break-before: page;
+  }
+
+  .career-sheet.first {
+    break-before: auto;
+  }
+
+  .doc-footer {
+    break-inside: avoid;
+  }
+
+  .modulo-block,
+  .matriz-scroll {
+    break-inside: avoid;
+  }
+
+  .doc-table tr {
+    break-inside: avoid;
+  }
+}

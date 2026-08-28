@@ -13,6 +13,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { InscripcionEdicionService } from '../../services/inscripcion-edicion.service';
+import { UploadBoxComponent } from '../../../../shared/components/upload-box/upload-box';
+import { DocumentoSolicitud } from '../../../alumno/models/solicitud-incorporacion.model';
 import { DetalleService } from '../../../detalle-programa-modulo/services/detalle.service';
 import {
   SolicitudConDetalle,
@@ -25,6 +27,7 @@ import { DetalleProgramaModulo } from '../../../detalle-programa-modulo/models/d
 import { HistorialMovimiento, InscripcionBasica } from '../../../notas/models/nota.model';
 import { environment } from '../../../../../environments/environment';
 import { aDate } from '../../../../core/utils/date-utils';
+import { NavigationBackService } from '../../../../core/navigation/navigation-back.service';
 
 interface OpcionModulo {
   mod: DetalleProgramaModulo;
@@ -41,7 +44,7 @@ interface OpcionModulo {
     CommonModule, FormsModule,
     MatIconModule, MatButtonModule, MatTooltipModule,
     MatProgressSpinnerModule, MatSelectModule, MatFormFieldModule, MatInputModule,
-    MatRadioModule, MatSnackBarModule,
+    MatRadioModule, MatSnackBarModule, UploadBoxComponent,
   ],
   templateUrl: './revisar-incorporacion.html',
   styleUrl: './revisar-incorporacion.css',
@@ -53,6 +56,7 @@ export class RevisarIncorporacionComponent implements OnInit {
   private router = inject(Router);
   private snackBar = inject(MatSnackBar);
   private destroyRef = inject(DestroyRef);
+  private navBack = inject(NavigationBackService);
 
   apiUrl = environment.apiUrl;
 
@@ -119,6 +123,13 @@ export class RevisarIncorporacionComponent implements OnInit {
   inscripcionesHistorial = signal<InscripcionBasica[]>([]);
   isLoadingHistorial = signal(false);
 
+  pendingDocId = signal<number | null>(null);
+  pendingFile = signal<File | null>(null);
+  pendingFileName = signal('');
+  pendingFileSize = signal('');
+  uploadingDocId = signal<number | null>(null);
+  uploadState = signal<'ninguno' | 'leyendo' | 'subiendo' | 'completado'>('ninguno');
+
   esMigracion = computed(() => this.solicitud()?.tipo_codigo === 'migracion');
   esReincorporacion = computed(() => this.solicitud()?.tipo_codigo === 'reincorporacion');
   esPendiente = computed(() => this.solicitud()?.estado === 'pendiente');
@@ -152,7 +163,7 @@ export class RevisarIncorporacionComponent implements OnInit {
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('idSolicitud'));
     if (!id) {
-      this.router.navigate(['/solicitudes']);
+      this.navBack.retornar(['/solicitudes']);
       return;
     }
     this.cargarSolicitud(id);
@@ -177,7 +188,7 @@ export class RevisarIncorporacionComponent implements OnInit {
             this.cargarDestinosRecomendados();
           } else {
             this.snackBar.open('Solicitud no encontrada', 'Cerrar', { duration: 3000 });
-            this.router.navigate(['/solicitudes']);
+            this.navBack.retornar(['/solicitudes']);
           }
           this.isLoading.set(false);
         },
@@ -217,7 +228,7 @@ export class RevisarIncorporacionComponent implements OnInit {
     if (!sol || !this.esMigracion() || !this.esPendiente()) return;
 
     this.destinosLoading.set(true);
-    this.service.destinosRecomendados(sol.id_solicitud)
+    this.service.destinosRecomendados(sol.id_solicitud!)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res) => {
@@ -314,7 +325,7 @@ export class RevisarIncorporacionComponent implements OnInit {
     const ed = this.ediciones().find(e => e.id_programa_version_edicion === idEdicion);
     if (ed && this.solicitud()) {
       this.isPreviewLoading.set(true);
-      this.service.previewMigracion(this.solicitud()!.id_solicitud, idEdicion)
+      this.service.previewMigracion(this.solicitud()!.id_solicitud!, idEdicion)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: (p) => {
@@ -331,6 +342,100 @@ export class RevisarIncorporacionComponent implements OnInit {
 
   verDocumento(url: string): void {
     window.open(`${this.apiUrl}${url}`, '_blank');
+  }
+
+  isUploading(docId: number): boolean {
+    return this.uploadingDocId() === docId;
+  }
+
+  onFileSelected(file: File, doc: DocumentoSolicitud): void {
+    const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'];
+    if (!validTypes.includes(file.type)) {
+      this.snackBar.open('Solo se aceptan imágenes (JPG, PNG, GIF, WebP) o PDF', 'Cerrar', { duration: 4000 });
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      this.snackBar.open('El archivo no puede superar 10 MB', 'Cerrar', { duration: 4000 });
+      return;
+    }
+    this.pendingFile.set(file);
+    this.pendingDocId.set(doc.id_solicitud_documento);
+    this.pendingFileName.set(file.name);
+    this.pendingFileSize.set(this.formatSize(file.size));
+  }
+
+  confirmUpload(): void {
+    const file = this.pendingFile();
+    const docId = this.pendingDocId();
+    const sol = this.solicitud();
+    if (!file || !docId || !sol) return;
+
+    this.pendingFile.set(null);
+    this.pendingDocId.set(null);
+    this.pendingFileName.set('');
+    this.pendingFileSize.set('');
+
+    this.uploadingDocId.set(docId);
+    this.uploadState.set('leyendo');
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.uploadState.set('subiendo');
+      const base64 = reader.result as string;
+this.service.subirDocumentoSolicitud(sol.id_solicitud!, docId, base64)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (updatedSol) => {
+            this.uploadState.set('completado');
+            this.solicitud.set(updatedSol);
+            this.snackBar.open('Documento subido correctamente', 'Cerrar', { duration: 3000 });
+            setTimeout(() => {
+              this.uploadingDocId.set(null);
+              this.uploadState.set('ninguno');
+            }, 1200);
+          },
+          error: (err) => {
+            this.uploadingDocId.set(null);
+            this.uploadState.set('ninguno');
+            this.snackBar.open(err.error?.detail || 'Error al subir documento', 'Cerrar', { duration: 4000 });
+          },
+        });
+    };
+    reader.onerror = () => {
+      this.uploadingDocId.set(null);
+      this.uploadState.set('ninguno');
+      this.snackBar.open('Error al leer el archivo', 'Cerrar', { duration: 4000 });
+    };
+    reader.readAsDataURL(file);
+  }
+
+  cancelUpload(): void {
+    this.pendingFile.set(null);
+    this.pendingDocId.set(null);
+    this.pendingFileName.set('');
+    this.pendingFileSize.set('');
+  }
+
+  quitarDocumento(doc: DocumentoSolicitud): void {
+    const sol = this.solicitud();
+    if (!sol) return;
+this.service.quitarDocumentoSolicitud(sol.id_solicitud!, doc.id_solicitud_documento)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (updatedSol) => {
+          this.solicitud.set(updatedSol);
+          this.snackBar.open('Documento removido', 'Cerrar', { duration: 3000 });
+        },
+        error: (err) => {
+          this.snackBar.open(err.error?.detail || 'Error al remover documento', 'Cerrar', { duration: 4000 });
+        },
+      });
+  }
+
+  formatSize(bytes: number): string {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
   }
 
   docsSubidos(): number {
@@ -407,13 +512,13 @@ export class RevisarIncorporacionComponent implements OnInit {
       data.motivo = this.motivo();
     }
 
-    this.service.aprobarSolicitud(sol.id_solicitud, data)
+    this.service.aprobarSolicitud(sol.id_solicitud!, data)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.isApproving.set(false);
           this.snackBar.open('Solicitud aprobada correctamente', 'Cerrar', { duration: 3000 });
-          this.router.navigate(['/solicitudes']);
+          this.navBack.retornar(['/solicitudes']);
         },
         error: (err) => {
           this.isApproving.set(false);
@@ -425,13 +530,13 @@ export class RevisarIncorporacionComponent implements OnInit {
   rechazar(): void {
     const sol = this.solicitud()!;
     this.isApproving.set(true);
-    this.service.rechazarSolicitud(sol.id_solicitud, 'Solicitud rechazada por el administrador')
+    this.service.rechazarSolicitud(sol.id_solicitud!, 'Solicitud rechazada por el administrador')
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.isApproving.set(false);
           this.snackBar.open('Solicitud rechazada', 'Cerrar', { duration: 3000 });
-          this.router.navigate(['/solicitudes']);
+          this.navBack.retornar(['/solicitudes']);
         },
         error: (err) => {
           this.isApproving.set(false);
@@ -441,6 +546,6 @@ export class RevisarIncorporacionComponent implements OnInit {
   }
 
   volver(): void {
-    this.router.navigate(['/solicitudes']);
+    this.navBack.retornar(['/solicitudes']);
   }
 }
