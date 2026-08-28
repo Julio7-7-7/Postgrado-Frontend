@@ -382,7 +382,7 @@ export class RevisarIncorporacionComponent implements OnInit {
     reader.onload = () => {
       this.uploadState.set('subiendo');
       const base64 = reader.result as string;
-      this.service.subirDocumentoSolicitud(sol.id_solicitud!, docId, base64)
+this.service.subirDocumentoSolicitud(sol.id_solicitud!, docId, base64)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: (updatedSol) => {
@@ -419,7 +419,7 @@ export class RevisarIncorporacionComponent implements OnInit {
   quitarDocumento(doc: DocumentoSolicitud): void {
     const sol = this.solicitud();
     if (!sol) return;
-      this.service.quitarDocumentoSolicitud(sol.id_solicitud!, doc.id_solicitud_documento)
+this.service.quitarDocumentoSolicitud(sol.id_solicitud!, doc.id_solicitud_documento)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (updatedSol) => {
