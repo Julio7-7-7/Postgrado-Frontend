@@ -5,6 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RequisitoService } from '../../services/requisito.service';
+import { NavigationBackService } from '../../../../core/navigation/navigation-back.service';
 import { RequisitoResponse } from '../../models/requisito.model';
 import { environment } from '../../../../../environments/environment';
 
@@ -22,6 +23,7 @@ export class RequisitoDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private service = inject(RequisitoService);
+  private navBack = inject(NavigationBackService);
 
   requisito = signal<RequisitoResponse | null>(null);
   cargando = signal(true);
@@ -53,6 +55,6 @@ export class RequisitoDetailComponent implements OnInit {
   }
 
   volver(): void {
-    this.router.navigate(['/']);
+    this.navBack.retornar(['/']);
   }
 }

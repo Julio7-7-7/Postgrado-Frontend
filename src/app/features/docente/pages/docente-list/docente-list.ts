@@ -20,6 +20,7 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
 import { AuthService } from '../../../../core/services/auth.service';
 import { DocenteService } from '../../services/docente.service';
 import { Docente } from '../../models/docente.model';
+import { NavigationBackService } from '../../../../core/navigation/navigation-back.service';
 
 @Component({
   selector: 'app-docente-list',
@@ -49,6 +50,7 @@ export class DocenteListComponent implements OnInit {
   private snackbar = inject(MatSnackBar);
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
+  private navBack = inject(NavigationBackService);
   private auth = inject(AuthService);
 
   canCrear = computed(() => this.auth.hasPermiso('docentes.crear'));
@@ -120,6 +122,7 @@ export class DocenteListComponent implements OnInit {
   }
 
   irADetalle(id: number): void {
+    this.navBack.setReturn(this.router.url);
     this.router.navigate(['/docentes', id]);
   }
 

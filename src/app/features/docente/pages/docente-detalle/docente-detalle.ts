@@ -16,6 +16,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { DocenteService } from '../../services/docente.service';
 import { Docente } from '../../models/docente.model';
 import { DetalleProgramaModulo } from '../../../detalle-programa-modulo/models/detalle.model';
+import { NavigationBackService } from '../../../../core/navigation/navigation-back.service';
 
 @Component({
   selector: 'app-docente-detalle',
@@ -39,6 +40,7 @@ import { DetalleProgramaModulo } from '../../../detalle-programa-modulo/models/d
 export class DocenteDetalleComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private navBack = inject(NavigationBackService);
   private service = inject(DocenteService);
   private snackbar = inject(MatSnackBar);
   private destroyRef = inject(DestroyRef);
@@ -119,6 +121,6 @@ export class DocenteDetalleComponent implements OnInit {
   }
 
   volver(): void {
-    this.router.navigate(['/docentes']);
+    this.navBack.retornar(['/docentes']);
   }
 }

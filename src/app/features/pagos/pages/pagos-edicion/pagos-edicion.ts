@@ -14,6 +14,7 @@ import { OrdenPagoDialog } from '../orden-pago-dialog/orden-pago-dialog';
 import { BoletasAlumnoDialog } from '../boletas-alumno-dialog/boletas-alumno-dialog';
 import { SortDir, sortItems } from '../../../../core/utils/sort-utils';
 import { maxTextWidth } from '../../../../core/utils/measure-text';
+import { NavigationBackService } from '../../../../core/navigation/navigation-back.service';
 
 @Component({
   selector: 'app-pagos-edicion',
@@ -33,6 +34,7 @@ export class PagosEdicionComponent implements OnInit {
   private snackbar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
   private destroyRef = inject(DestroyRef);
+  private navBack = inject(NavigationBackService);
 
   @ViewChild('matrizWrap', { read: ElementRef }) private matrizWrap!: ElementRef<HTMLElement>;
 
@@ -228,6 +230,6 @@ export class PagosEdicionComponent implements OnInit {
   }
 
   volver(): void {
-    this.router.navigate(['/pagos']);
+    this.navBack.retornar(['/pagos']);
   }
 }

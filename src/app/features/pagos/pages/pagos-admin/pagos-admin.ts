@@ -16,6 +16,7 @@ import { PagoService } from '../../services/pago.service';
 import { BusquedaPagosItem } from '../../models/pago.model';
 import { OrdenPagoDialog } from '../orden-pago-dialog/orden-pago-dialog';
 import { environment } from '../../../../../environments/environment';
+import { NavigationBackService } from '../../../../core/navigation/navigation-back.service';
 
 @Component({
   selector: 'app-pagos-admin',
@@ -35,6 +36,7 @@ export class PagosAdminComponent implements OnInit {
   private snackbar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
   private destroyRef = inject(DestroyRef);
+  private navBack = inject(NavigationBackService);
 
   @ViewChild('busquedaInput', { read: ElementRef }) private busquedaInput!: ElementRef<HTMLInputElement>;
 
@@ -152,6 +154,7 @@ export class PagosAdminComponent implements OnInit {
   }
 
   irAPagos(ed: ProgramaVersionEdicionResponse): void {
+    this.navBack.setReturn(this.router.url);
     this.router.navigate(['/pagos', ed.id_programa_version_edicion]);
   }
 

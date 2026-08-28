@@ -15,6 +15,7 @@ import { DocenteModuloDetalle, NotaItem, NotaResponse } from '../../../notas/mod
 import { SortDir, sortItems } from '../../../../core/utils/sort-utils';
 import { clasificarNota } from '../../../../core/utils/nota-utils';
 import { maxTextWidth } from '../../../../core/utils/measure-text';
+import { NavigationBackService } from '../../../../core/navigation/navigation-back.service';
 import { AlumnoCalificar, NotaDialog, NotaDialogData, NotaDialogResult } from './nota-dialog';
 
 @Component({
@@ -33,6 +34,7 @@ export class DocenteCalificarComponent implements OnInit {
   private auth = inject(AuthService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private navBack = inject(NavigationBackService);
   private snackbar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
   private destroyRef = inject(DestroyRef);
@@ -192,6 +194,6 @@ export class DocenteCalificarComponent implements OnInit {
   }
 
   volver(): void {
-    this.router.navigate(['/docente/mis-modulos']);
+    this.navBack.retornar(['/docente/mis-modulos']);
   }
 }

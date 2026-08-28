@@ -15,6 +15,7 @@ import { TranscriptResponse, InscripcionTranscript, ModuloTranscript } from '../
 import { HistorialMovimiento } from '../../../notas/models/nota.model';
 import { TranscriptPagosResponse, TranscriptPagosInscripcion } from '../../../pagos/models/pago.model';
 import { clasificarNota } from '../../../../core/utils/nota-utils';
+import { NavigationBackService } from '../../../../core/navigation/navigation-back.service';
 
 const CLASIF_LABELS: Record<string, string> = {
   'cal-abandono': 'Abandono',
@@ -49,6 +50,7 @@ export class TranscriptComponent implements OnInit {
   private router = inject(Router);
   private snackbar = inject(MatSnackBar);
   private destroyRef = inject(DestroyRef);
+  private navBack = inject(NavigationBackService);
 
   transcript = signal<TranscriptResponse | null>(null);
   movimientos = signal<HistorialMovimiento[]>([]);
@@ -253,7 +255,7 @@ export class TranscriptComponent implements OnInit {
   }
 
   volver(): void {
-    this.router.navigate(['/inscripciones']);
+    this.navBack.retornar(['/inscripciones']);
   }
 
   seleccionarInscripcion(idDpa: number): void {

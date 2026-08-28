@@ -15,6 +15,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { SolicitudRequisitoService } from '../../services/solicitud-requisito.service';
 import { SolicitudRequisito, Requisito } from '../../models/solicitud-requisito.model';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog';
+import { NavigationBackService } from '../../../../core/navigation/navigation-back.service';
 
 const TIPOS = [
   { id: 1, codigo: 'incorporacion', label: 'Incorporación', icon: 'how_to_reg' },
@@ -280,6 +281,7 @@ export class GestionarRequisitosIncorporacionComponent implements OnInit {
   private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
   private destroyRef = inject(DestroyRef);
+  private navBack = inject(NavigationBackService);
 
   readonly tipos = TIPOS;
   readonly tipoLabelMap: Record<number, string> = {
@@ -380,6 +382,6 @@ export class GestionarRequisitosIncorporacionComponent implements OnInit {
   }
 
   volver(): void {
-    this.router.navigate(['/inscripciones']);
+    this.navBack.retornar(['/inscripciones']);
   }
 }

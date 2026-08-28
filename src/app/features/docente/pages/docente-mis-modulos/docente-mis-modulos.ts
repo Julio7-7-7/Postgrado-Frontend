@@ -12,6 +12,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { NotaService } from '../../../notas/services/nota.service';
 import { AuthService } from '../../../../core/services/auth.service';
+import { NavigationBackService } from '../../../../core/navigation/navigation-back.service';
 import { DocenteEdicionCompleta, DocenteModuloResumen } from '../../../notas/models/nota.model';
 
 @Component({
@@ -29,6 +30,7 @@ export class DocenteMisModulosComponent implements OnInit {
   private service = inject(NotaService);
   private auth = inject(AuthService);
   private router = inject(Router);
+  private navBack = inject(NavigationBackService);
   private snackbar = inject(MatSnackBar);
   private destroyRef = inject(DestroyRef);
 
@@ -60,6 +62,7 @@ export class DocenteMisModulosComponent implements OnInit {
   }
 
   gestionarModulo(mod: DocenteModuloResumen): void {
+    this.navBack.setReturn(this.router.url);
     this.router.navigate(['/docente/calificar', mod.id_detalle_programa_modulo]);
   }
 
@@ -88,6 +91,6 @@ export class DocenteMisModulosComponent implements OnInit {
   }
 
   volver(): void {
-    this.router.navigate(['/docente']);
+    this.navBack.retornar(['/docente']);
   }
 }

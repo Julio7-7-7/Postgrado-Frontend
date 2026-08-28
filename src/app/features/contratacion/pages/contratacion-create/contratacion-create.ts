@@ -1,7 +1,7 @@
 import { Component, OnInit, signal, inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormControl } from '@angular/forms';
-import { Router, RouterLink, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Observable, of } from 'rxjs';
 import { map, startWith, debounceTime } from 'rxjs/operators';
@@ -23,12 +23,13 @@ import { ProgramaService } from '../../../programa/services/programa.service';
 import { DetalleProgramaModulo } from '../../../detalle-programa-modulo/models/detalle.model';
 import { Docente } from '../../../docente/models/docente.model';
 import { Programa } from '../../../programa/models/programa.model';
+import { NavigationBackService } from '../../../../core/navigation/navigation-back.service';
 
 @Component({
   selector: 'app-contratacion-create',
   standalone: true,
   imports: [
-    CommonModule, ReactiveFormsModule, RouterLink,
+    CommonModule, ReactiveFormsModule,
     MatFormFieldModule, MatInputModule, MatButtonModule,
     MatCardModule, MatIconModule, MatSnackBarModule,
     MatProgressSpinnerModule, MatAutocompleteModule, MatDividerModule,
@@ -46,6 +47,7 @@ export class ContratacionCreateComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private destroyRef = inject(DestroyRef);
+  private navBack = inject(NavigationBackService);
 
   form: FormGroup;
   programas = signal<Programa[]>([]);
@@ -193,6 +195,10 @@ export class ContratacionCreateComponent implements OnInit {
 
   irANuevoDocente(): void {
     this.router.navigate(['/docentes', 'nuevo']);
+  }
+
+  cancelar(): void {
+    this.navBack.retornar(['/contrataciones']);
   }
 
   seleccionarDocente(d: Docente | null): void {

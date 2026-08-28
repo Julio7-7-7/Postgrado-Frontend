@@ -9,6 +9,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { DocumentacionService } from '../../services/documentacion.service';
 import { ProgramaVersionEdicionResponse } from '../../models/documentacion.model';
 import { environment } from '../../../../../environments/environment';
+import { NavigationBackService } from '../../../../core/navigation/navigation-back.service';
 
 @Component({
   selector: 'app-documentacion',
@@ -23,6 +24,7 @@ import { environment } from '../../../../../environments/environment';
 export class DocumentacionComponent implements OnInit {
   private service = inject(DocumentacionService);
   private router = inject(Router);
+  private navBack = inject(NavigationBackService);
   private snackbar = inject(MatSnackBar);
   private destroyRef = inject(DestroyRef);
 
@@ -83,6 +85,7 @@ export class DocumentacionComponent implements OnInit {
   }
 
   irAMatriz(ed: ProgramaVersionEdicionResponse): void {
+    this.navBack.setReturn(this.router.url);
     this.router.navigate(['/documentacion', ed.id_programa_version_edicion]);
   }
 

@@ -10,6 +10,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
+import { NavigationBackService } from '../../../../core/navigation/navigation-back.service';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 
@@ -45,6 +46,7 @@ export class ContratacionDetalleComponent implements OnInit {
   private dialog = inject(MatDialog);
   private snackbar = inject(MatSnackBar);
   private destroyRef = inject(DestroyRef);
+  private navBack = inject(NavigationBackService);
 
   contratacion = signal<ContratacionDocente | null>(null);
   documentos = signal<ControlDocContratacion[]>([]);
@@ -316,7 +318,7 @@ export class ContratacionDetalleComponent implements OnInit {
   }
 
   volver(): void {
-    this.router.navigate(['/contrataciones']);
+    this.navBack.retornar(['/contrataciones']);
   }
 
   estadoLabel(estado: string): string {

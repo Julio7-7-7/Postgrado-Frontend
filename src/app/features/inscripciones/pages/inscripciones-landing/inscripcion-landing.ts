@@ -9,6 +9,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { DocumentacionService } from '../../../documentacion/services/documentacion.service';
 import { ProgramaVersionEdicionResponse } from '../../../documentacion/models/documentacion.model';
 import { environment } from '../../../../../environments/environment';
+import { NavigationBackService } from '../../../../core/navigation/navigation-back.service';
 
 @Component({
   selector: 'app-inscripciones-landing',
@@ -23,6 +24,7 @@ import { environment } from '../../../../../environments/environment';
 export class InscripcionesLandingComponent implements OnInit {
   private docService = inject(DocumentacionService);
   private router = inject(Router);
+  private navBack = inject(NavigationBackService);
   private snackbar = inject(MatSnackBar);
   private destroyRef = inject(DestroyRef);
 
@@ -78,10 +80,12 @@ export class InscripcionesLandingComponent implements OnInit {
   }
 
   irAInscripciones(ed: ProgramaVersionEdicionResponse): void {
+    this.navBack.setReturn(this.router.url);
     this.router.navigate(['/inscripciones', ed.id_programa_version_edicion]);
   }
 
   irASolicitudes(): void {
+    this.navBack.setReturn(this.router.url);
     this.router.navigate(['/solicitudes']);
   }
 

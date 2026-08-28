@@ -5,6 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ModalidadService } from '../../services/modalidad.service';
+import { NavigationBackService } from '../../../../core/navigation/navigation-back.service';
 import { ModalidadAcademicaResponse } from '../../models/modalidad.model';
 
 @Component({
@@ -21,6 +22,7 @@ export class ModalidadDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private service = inject(ModalidadService);
+  private navBack = inject(NavigationBackService);
 
   modalidad = signal<ModalidadAcademicaResponse | null>(null);
   cargando = signal(true);
@@ -44,6 +46,6 @@ export class ModalidadDetailComponent implements OnInit {
   }
 
   volver(): void {
-    this.router.navigate(['/']);
+    this.navBack.retornar(['/']);
   }
 }
