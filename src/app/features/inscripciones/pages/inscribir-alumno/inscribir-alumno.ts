@@ -19,9 +19,11 @@ import { TipoDescuentoService } from '../../../alumno/services/tipo-descuento.se
 import { DetalleProgramaAlumnoService } from '../../../alumno/services/detalle-programa-alumno.service';
 import { EdicionService } from '../../../edicion/services/edicion.service';
 import { InscripcionEdicionService } from '../../services/inscripcion-edicion.service';
+import { CarreraService } from '../../../carreras/services/carrera.service';
 import { Persona } from '../../../persona/models/persona.model';
 import { ModalidadAcademica } from '../../../alumno/models/modalidad-academica.model';
 import { TipoDescuento } from '../../../alumno/models/tipo-descuento.model';
+import { Carrera } from '../../../carreras/models/carrera.model';
 import { ProgramaVersionEdicion } from '../../../edicion/models/edicion.model';
 import { environment } from '../../../../../environments/environment';
 
@@ -48,6 +50,7 @@ export class InscribirAlumnoComponent implements OnInit {
   private detalleService = inject(DetalleProgramaAlumnoService);
   private edicionService = inject(EdicionService);
   private inscripcionService = inject(InscripcionEdicionService);
+  private carreraService = inject(CarreraService);
   private snackBar = inject(MatSnackBar);
   private destroyRef = inject(DestroyRef);
 
@@ -77,8 +80,10 @@ export class InscribirAlumnoComponent implements OnInit {
 
   modalidades = signal<ModalidadAcademica[]>([]);
   tiposDescuento = signal<TipoDescuento[]>([]);
+  carreras = signal<Carrera[]>([]);
   selectedModalidad = signal<number | null>(null);
   selectedDescuento = signal<number | null>(null);
+  selectedCarrera = signal<number | null>(null);
 
   inscribiendo = signal(false);
   resultadoInscripcion = signal<any>(null);
@@ -139,6 +144,21 @@ export class InscribirAlumnoComponent implements OnInit {
     );
   });
 
+  modalidadSeleccionada = computed(() => {
+    const modId = this.selectedModalidad();
+    return this.modalidades().find(m => m.id_modalidad_academica === modId) ?? null;
+  });
+
+  esEducacionContinua = computed(() =>
+    this.modalidadSeleccionada()?.nombre_modalidad.trim().toLowerCase() === 'educación continua'
+  );
+
+  pasaPaso2 = computed(() => {
+    if (!this.selectedModalidad()) return false;
+    if (this.esEducacionContinua() && !this.selectedCarrera()) return false;
+    return true;
+  });
+
   formAlumnoValido = computed(() => {
     const f = this.formAlumno();
     return f.email.includes('@') && f.ci.length >= 5 && f.nombre.length >= 2 && f.apellido.length >= 2;
@@ -167,6 +187,15 @@ export class InscribirAlumnoComponent implements OnInit {
     });
 
     this.cargarAlumnos();
+    this.cargarCarreras();
+  }
+
+  cargarCarreras() {
+    this.carreraService.getAll(true).pipe(
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe({
+      next: carreras => this.carreras.set(carreras),
+    });
   }
 
   cargarAlumnos() {
@@ -227,6 +256,7 @@ export class InscribirAlumnoComponent implements OnInit {
     this.currentStep.set(2);
     this.selectedModalidad.set(null);
     this.selectedDescuento.set(null);
+    this.selectedCarrera.set(null);
   }
 
   abrirCrearAlumno() {
@@ -287,6 +317,7 @@ export class InscribirAlumnoComponent implements OnInit {
     this.alumnoSeleccionado.set(null);
     this.selectedModalidad.set(null);
     this.selectedDescuento.set(null);
+    this.selectedCarrera.set(null);
   }
 
   inscribir() {
@@ -300,6 +331,11 @@ export class InscribirAlumnoComponent implements OnInit {
       return;
     }
 
+    if (this.esEducacionContinua() && !this.selectedCarrera()) {
+      this.snackBar.open('Debe seleccionar la carrera de origen', 'Cerrar', { duration: 3000 });
+      return;
+    }
+
     this.inscribiendo.set(true);
 
     const data: any = {
@@ -309,6 +345,9 @@ export class InscribirAlumnoComponent implements OnInit {
     };
     if (this.selectedDescuento()) {
       data.id_tipo_descuento = this.selectedDescuento();
+    }
+    if (this.esEducacionContinua()) {
+      data.id_carrera = this.selectedCarrera();
     }
 
     this.detalleService.inscribirAdmin(data).pipe(
@@ -339,6 +378,7 @@ export class InscribirAlumnoComponent implements OnInit {
     this.alumnoSeleccionado.set(null);
     this.selectedModalidad.set(null);
     this.selectedDescuento.set(null);
+    this.selectedCarrera.set(null);
     this.resultadoInscripcion.set(null);
     this.busqueda.set('');
     this.paginaActual.set(0);

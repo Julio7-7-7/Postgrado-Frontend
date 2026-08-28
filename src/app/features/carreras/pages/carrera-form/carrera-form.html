@@ -1,0 +1,51 @@
+<div class="dialog-header">
+  <div class="header-icon">
+    <mat-icon>{{ data ? 'edit' : 'add' }}</mat-icon>
+  </div>
+  <div>
+    <h2 mat-dialog-title>{{ data ? 'Editar Carrera' : 'Nueva Carrera' }}</h2>
+    <p class="header-sub">{{ data ? 'Modificá los datos de la carrera' : 'Creá una nueva carrera de origen' }}</p>
+  </div>
+</div>
+
+<mat-dialog-content>
+  <form [formGroup]="form">
+    <div class="field">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Nombre</mat-label>
+        <input matInput formControlName="nombre" placeholder="Ej: Ingeniería de Sistemas">
+        @if (form.get('nombre')?.hasError('required')) {
+          <mat-error>El nombre es obligatorio</mat-error>
+        } @else if (form.get('nombre')?.hasError('minlength')) {
+          <mat-error>Mínimo 3 caracteres</mat-error>
+        }
+      </mat-form-field>
+    </div>
+
+    <div class="field">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Sigla (opcional)</mat-label>
+        <input matInput formControlName="sigla" placeholder="Ej: INGSIS">
+      </mat-form-field>
+    </div>
+
+    <div class="field">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Descripción (opcional)</mat-label>
+        <textarea matInput formControlName="descripcion" rows="2" placeholder="Descripción breve..."></textarea>
+      </mat-form-field>
+    </div>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancelar</button>
+  <button mat-flat-button color="primary" (click)="guardar()" [disabled]="form.invalid || isSaving()">
+    @if (isSaving()) {
+      <mat-spinner diameter="18"></mat-spinner>
+    } @else {
+      <mat-icon>save</mat-icon>
+    }
+    {{ data ? 'Guardar cambios' : 'Crear carrera' }}
+  </button>
+</mat-dialog-actions>

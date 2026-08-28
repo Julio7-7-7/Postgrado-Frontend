@@ -37,10 +37,12 @@ export interface Solicitud {
 }
 
 export interface SolicitudConDetalle {
-  id_solicitud: number;
+  tipo_creacion?: 'solicitud' | 'directa';
+  id_solicitud: number | null;
   id_tipo_solicitud: number;
   tipo_codigo: string;
   id_alumno: number | null;
+  id_detalle_programa_alumno?: number | null;
   alumno_nombre: string | null;
   alumno_apellido: string | null;
   alumno_ci: string | null;

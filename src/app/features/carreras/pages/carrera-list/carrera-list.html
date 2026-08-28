@@ -1,0 +1,118 @@
+<div class="page-container">
+  <div class="header-section">
+    <div class="header-left">
+      <div>
+        <h1>Carreras</h1>
+        <p class="subtitle">Catálogo de carreras de origen para inscripciones de Educación Continua</p>
+      </div>
+    </div>
+    <div class="header-right">
+      @if (canCrear()) {
+      <button mat-flat-button color="primary" class="btn-nuevo" (click)="abrirFormulario()">
+        <mat-icon>add</mat-icon> Nueva Carrera
+      </button>
+      }
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading-state">
+      <mat-spinner diameter="36"></mat-spinner>
+    </div>
+  } @else if (error()) {
+    <div class="empty-state">
+      <mat-icon>error_outline</mat-icon>
+      <p>{{ error() }}</p>
+      <button mat-stroked-button (click)="cargar()">Reintentar</button>
+    </div>
+  } @else if (carreras().length === 0) {
+    <div class="empty-state">
+      <mat-icon>school</mat-icon>
+      <p>No hay carreras creadas</p>
+      <button mat-flat-button color="primary" (click)="abrirFormulario()">Crear primera carrera</button>
+    </div>
+  } @else {
+    <div class="entity-table">
+      @for (c of activas; track c.id_carrera) {
+        <div class="entity-row">
+          <div class="entity-main">
+            <div class="entity-icon active">
+              <mat-icon>account_balance</mat-icon>
+            </div>
+            <div class="entity-info">
+              <div class="entity-name">
+                {{ c.nombre }}
+                @if (c.sigla) {
+                  <span class="sigla-chip">{{ c.sigla }}</span>
+                }
+              </div>
+              <div class="entity-meta">
+                @if (c.descripcion) {
+                  <span>{{ c.descripcion }}</span>
+                }
+              </div>
+            </div>
+          </div>
+          <div class="entity-actions">
+            <mat-slide-toggle
+              [checked]="c.estado === 'activo'"
+              (change)="toggleEstado($event, c)"
+              color="primary"
+              matTooltip="Desactivar carrera">
+            </mat-slide-toggle>
+            @if (canEditar()) {
+            <button mat-icon-button matTooltip="Editar" (click)="abrirFormulario(c)">
+              <mat-icon>edit</mat-icon>
+            </button>
+            }
+          </div>
+        </div>
+      }
+
+      @if (inactivas.length > 0) {
+        <div class="inactivos-toggle" (click)="showInactivos.set(!showInactivos())">
+          <mat-icon class="toggle-chevron" [class.open]="showInactivos()">expand_more</mat-icon>
+          <span>Inactivas ({{ inactivas.length }})</span>
+        </div>
+
+        @if (showInactivos()) {
+          @for (c of inactivas; track c.id_carrera) {
+            <div class="entity-row inactive">
+              <div class="entity-main">
+                <div class="entity-icon">
+                  <mat-icon>account_balance</mat-icon>
+                </div>
+                <div class="entity-info">
+                  <div class="entity-name">
+                    {{ c.nombre }}
+                    @if (c.sigla) {
+                      <span class="sigla-chip">{{ c.sigla }}</span>
+                    }
+                  </div>
+                  <div class="entity-meta">
+                    @if (c.descripcion) {
+                      <span>{{ c.descripcion }}</span>
+                    }
+                  </div>
+                </div>
+              </div>
+              <div class="entity-actions">
+                <mat-slide-toggle
+                  [checked]="c.estado === 'activo'"
+                  (change)="toggleEstado($event, c)"
+                  color="primary"
+                  matTooltip="Reactivar carrera">
+                </mat-slide-toggle>
+                @if (canEditar()) {
+                <button mat-icon-button matTooltip="Editar" (click)="abrirFormulario(c)">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                }
+              </div>
+            </div>
+          }
+        }
+      }
+    </div>
+  }
+</div>

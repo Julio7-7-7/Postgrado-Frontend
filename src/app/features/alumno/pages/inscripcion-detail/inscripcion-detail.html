@@ -894,44 +894,6 @@
         }
         }
 
-        @if (activeTab() === 'certificados') {
-        <mat-card class="section-card certificados-card">
-          <div class="section-header">
-            <mat-icon [style.color]="'#9333ea'">workspace_premium</mat-icon>
-            <div>
-              <h3>Certificados de Notas</h3>
-              <p class="section-sub">Certificados emitidos por la dirección de carrera</p>
-            </div>
-          </div>
-
-          @if (misCertificados().length === 0) {
-            <div class="panel-empty compact">
-              <mat-icon>workspace_premium</mat-icon>
-              <span>No tenés certificados emitidos aún.</span>
-            </div>
-          } @else {
-            <div class="certificados-list">
-              @for (cert of misCertificados(); track cert.id_certificado) {
-                <div class="certificado-item">
-                  <div class="cert-icon">
-                    <mat-icon>description</mat-icon>
-                  </div>
-                  <div class="cert-info">
-                    <span class="cert-title">Certificado de Notas — Tanda {{ cert.informe.numero_tanda }}</span>
-                    <span class="cert-date">Emitido: {{ cert.fecha_emision | date:'dd/MM/yyyy' }}</span>
-                  </div>
-                  @if (cert.ruta_pdf) {
-                    <a class="cert-download" [href]="apiUrl + cert.ruta_pdf" target="_blank" matTooltip="Descargar PDF">
-                      <mat-icon>download</mat-icon>
-                    </a>
-                  }
-                </div>
-              }
-            </div>
-          }
-        </mat-card>
-        }
-
         @if (activeTab() === 'docs') {
         <mat-card class="section-card docs-card">
           <div class="section-header">

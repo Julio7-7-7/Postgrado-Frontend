@@ -274,6 +274,20 @@
               </mat-select>
             </mat-form-field>
           }
+
+          @if (esEducacionContinua()) {
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Carrera de origen</mat-label>
+              <mat-select [value]="selectedCarrera()" (selectionChange)="selectedCarrera.set($event.value)">
+                @for (c of carreras(); track c.id_carrera) {
+                  <mat-option [value]="c.id_carrera">
+                    {{ c.nombre }} @if (c.sigla) { ({{ c.sigla }}) }
+                  </mat-option>
+                }
+              </mat-select>
+              <mat-hint>Obligatoria para la modalidad Educación Continua</mat-hint>
+            </mat-form-field>
+          }
         </div>
 
         <div class="form-actions">
@@ -281,7 +295,7 @@
             <mat-icon>arrow_back</mat-icon>
             Volver
           </button>
-          <button mat-flat-button color="primary" (click)="currentStep.set(3)" [disabled]="!selectedModalidad()">
+          <button mat-flat-button color="primary" (click)="currentStep.set(3)" [disabled]="!pasaPaso2()">
             Siguiente
             <mat-icon>arrow_forward</mat-icon>
           </button>
@@ -333,6 +347,14 @@
               </span>
             </div>
           }
+          @if (esEducacionContinua() && selectedCarrera()) {
+            <div class="resumen-row">
+              <span class="resumen-label">Carrera</span>
+              <span class="resumen-value">
+                {{ carreras().find(c => c.id_carrera === selectedCarrera())?.nombre || '—' }}
+              </span>
+            </div>
+          }
           <div class="resumen-row">
             <span class="resumen-label">Precio</span>
             <span class="resumen-value precio">{{ getPrecioModalidad() }}</span>
@@ -362,41 +384,76 @@
           <div class="success-icon">
             <mat-icon>check_circle</mat-icon>
           </div>
-          <h2>{{ esEnCurso() ? 'Incorporación registrada' : 'Inscripción registrada' }}</h2>
-          <p class="success-detail">
-            Se creó la solicitud <strong>PENDIENTE</strong>. Ahora podés subir la documentación y aprobarla desde
-            <a routerLink="/solicitudes">Solicitudes</a>.
-          </p>
-          <div class="resumen-card">
-            <div class="resumen-row">
-              <span class="resumen-label">Solicitud</span>
-              <span class="resumen-value">#{{ res.id_solicitud }}</span>
+
+          @if (res.tipo_creacion === 'directa') {
+            <h2>Inscripción registrada</h2>
+            <p class="success-detail">
+              El alumno fue inscrito directamente en la edición. Ya puede ver su inscripción en
+              <a routerLink="/inscripciones/{{ edicion()?.id_programa_version_edicion }}">Inscripciones de la edición</a>.
+            </p>
+            <div class="resumen-card">
+              <div class="resumen-row">
+                <span class="resumen-label">Alumno</span>
+                <span class="resumen-value">{{ res.alumno_apellido }} {{ res.alumno_nombre }}</span>
+              </div>
+              <div class="resumen-row">
+                <span class="resumen-label">Estado</span>
+                <span class="resumen-value">
+                  <span class="estado-pill postulante">postulante</span>
+                </span>
+              </div>
+              <div class="resumen-row">
+                <span class="resumen-label">Tipo</span>
+                <span class="resumen-value">Inscripción directa</span>
+              </div>
             </div>
-            <div class="resumen-row">
-              <span class="resumen-label">Estado</span>
-              <span class="resumen-value">
-                <span class="estado-pill pendiente">pendiente</span>
-              </span>
+            <div class="form-actions">
+              <button mat-stroked-button (click)="irANuevaInscripcion()">
+                <mat-icon>person_add</mat-icon>
+                Inscribir otro alumno
+              </button>
+              <button mat-flat-button color="primary" (click)="irAEdition()">
+                <mat-icon>school</mat-icon>
+                Ver inscripciones
+              </button>
             </div>
-            <div class="resumen-row">
-              <span class="resumen-label">Tipo</span>
-              <span class="resumen-value">Incorporación</span>
+          } @else {
+            <h2>Incorporación registrada</h2>
+            <p class="success-detail">
+              Se creó la solicitud <strong>PENDIENTE</strong>. Ahora podés subir la documentación y aprobarla desde
+              <a routerLink="/solicitudes">Solicitudes</a>.
+            </p>
+            <div class="resumen-card">
+              <div class="resumen-row">
+                <span class="resumen-label">Solicitud</span>
+                <span class="resumen-value">#{{ res.id_solicitud }}</span>
+              </div>
+              <div class="resumen-row">
+                <span class="resumen-label">Estado</span>
+                <span class="resumen-value">
+                  <span class="estado-pill pendiente">pendiente</span>
+                </span>
+              </div>
+              <div class="resumen-row">
+                <span class="resumen-label">Tipo</span>
+                <span class="resumen-value">Incorporación</span>
+              </div>
+              <div class="resumen-row">
+                <span class="resumen-label">Documentos</span>
+                <span class="resumen-value">Pendientes de carga</span>
+              </div>
             </div>
-            <div class="resumen-row">
-              <span class="resumen-label">Documentos</span>
-              <span class="resumen-value">Pendientes de carga</span>
+            <div class="form-actions">
+              <button mat-stroked-button (click)="irANuevaInscripcion()">
+                <mat-icon>person_add</mat-icon>
+                Incorporar otro
+              </button>
+              <button mat-flat-button color="primary" routerLink="/solicitudes">
+                <mat-icon>description</mat-icon>
+                Ir a Solicitudes
+              </button>
             </div>
-          </div>
-          <div class="form-actions">
-            <button mat-stroked-button (click)="irANuevaInscripcion()">
-              <mat-icon>person_add</mat-icon>
-              {{ esEnCurso() ? 'Incorporar otro' : 'Inscribir otro alumno' }}
-            </button>
-            <button mat-flat-button color="primary" routerLink="/solicitudes">
-              <mat-icon>description</mat-icon>
-              Ir a Solicitudes
-            </button>
-          </div>
+          }
         </div>
       </div>
     }
