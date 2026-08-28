@@ -11,6 +11,8 @@ import { NotaService } from '../../services/nota.service';
 import { AlumnoNotas, NotasEdicionData, NotaResponse } from '../../models/nota.model';
 import { SortDir, sortItems } from '../../../../core/utils/sort-utils';
 import { maxTextWidth } from '../../../../core/utils/measure-text';
+import { AuthService } from '../../../../core/services/auth.service';
+import { NavigationBackService } from '../../../../core/navigation/navigation-back.service';
 
 @Component({
   selector: 'app-notas-edicion',
@@ -29,6 +31,8 @@ export class NotasEdicionComponent implements OnInit {
   private router = inject(Router);
   private snackbar = inject(MatSnackBar);
   private destroyRef = inject(DestroyRef);
+  private auth = inject(AuthService);
+  private navBack = inject(NavigationBackService);
 
   @ViewChild('matrizWrap', { read: ElementRef }) private matrizWrap!: ElementRef<HTMLElement>;
 
@@ -37,6 +41,15 @@ export class NotasEdicionComponent implements OnInit {
   showRetirados = signal(false);
   idEdicion = 0;
   alumnoWidth = signal('auto');
+  moduloDestacado = signal<number | null>(null);
+
+  puedeVerAlumnos = computed(() => this.auth.hasPermiso('alumnos.ver'));
+  puedeVerInformes = computed(() => this.auth.hasPermiso('pagos.ver'));
+
+  verInforme(): void {
+    this.navBack.setReturn(this.router.url);
+    this.router.navigate(['/informes-notas'], { queryParams: { edicion: this.idEdicion } });
+  }
 
   nombreDir = signal<SortDir>('asc');
 
@@ -64,7 +77,21 @@ export class NotasEdicionComponent implements OnInit {
       this.router.navigate(['/notas']);
       return;
     }
+    const modParam = Number(this.route.snapshot.queryParamMap.get('modulo'));
+    if (modParam) {
+      this.moduloDestacado.set(modParam);
+    }
     this.cargarDatos();
+  }
+
+  private scrollAColumna(): void {
+    const el = this.matrizWrap?.nativeElement;
+    const id = this.moduloDestacado();
+    if (!el || !id) return;
+    requestAnimationFrame(() => {
+      const th = el.querySelector<HTMLElement>(`thead th[data-dpm="${id}"]`);
+      th?.scrollIntoView({ inline: 'center', block: 'nearest' });
+    });
   }
 
   cargarDatos(): void {
@@ -74,6 +101,7 @@ export class NotasEdicionComponent implements OnInit {
         this.data.set(data);
         this.isLoading.set(false);
         requestAnimationFrame(() => this.medirColumnaAlumno());
+        this.scrollAColumna();
       },
       error: () => {
         this.isLoading.set(false);
@@ -163,7 +191,24 @@ export class NotasEdicionComponent implements OnInit {
     return a.alumno ? `${a.alumno.apellido} ${a.alumno.nombre}` : 'Alumno sin datos';
   }
 
+  esColumnaDestacada(idDpm: number): boolean {
+    return this.moduloDestacado() === idDpm;
+  }
+
+  verTranscript(a: AlumnoNotas): void {
+    if (!a.alumno) return;
+    this.navBack.setReturn(this.router.url);
+    this.router.navigate(['/transcript', a.alumno.id_alumno], {
+      queryParams: { idDpa: a.id_detalle_programa_alumno },
+    });
+  }
+
+  volverAInscripciones(): void {
+    this.navBack.setReturn(this.router.url);
+    this.router.navigate(['/inscripciones', this.idEdicion]);
+  }
+
   volver(): void {
-    this.router.navigate(['/notas']);
+    this.navBack.retornar(['/notas']);
   }
 }

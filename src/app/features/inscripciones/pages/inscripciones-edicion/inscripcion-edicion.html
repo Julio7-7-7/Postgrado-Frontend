@@ -10,6 +10,11 @@
       </div>
     </div>
     <div class="header-right">
+      @if (puedeVerNotas()) {
+        <button mat-stroked-button (click)="verNotas()" matTooltip="Ver notas de la edición">
+          <mat-icon>grading</mat-icon> Ver notas
+        </button>
+      }
       @if (puedeInscribir()) {
         <button mat-flat-button class="btn-nuevo" (click)="irAInscribir()">
           <mat-icon>person_add</mat-icon>
@@ -78,7 +83,7 @@
           </thead>
           <tbody>
             @for (item of paginatedItems(); track item.id_detalle_programa_alumno) {
-              <tr class="table-row">
+              <tr class="table-row" (click)="verTranscript(item)">
                 <td class="col-alumno">
                   <div class="alumno-cell">
                     <div class="avatar-sm">{{ iniciales(item) }}</div>
@@ -117,7 +122,7 @@
                 <td class="col-acciones">
                   <div class="acciones-cell">
                     <button mat-icon-button class="action-btn transcript-btn"
-                            (click)="verTranscript(item)" matTooltip="Ver transcript del alumno">
+                            (click)="$event.stopPropagation(); verTranscript(item)" matTooltip="Ver transcript del alumno">
                       <mat-icon>school</mat-icon>
                     </button>
                   </div>

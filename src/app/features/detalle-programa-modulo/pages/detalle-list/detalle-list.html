@@ -18,6 +18,18 @@
         <p class="subtitle">Vista rápida de módulos, docentes y horarios</p>
       </div>
     </div>
+    <div class="header-right">
+      @if (puedeVerNotas()) {
+        <button mat-stroked-button (click)="verNotas()" matTooltip="Ver notas de la edición (módulo actual destacado)">
+          <mat-icon>grading</mat-icon> Ver notas
+        </button>
+        @if (puedeVerInformes()) {
+          <button mat-stroked-button (click)="verInforme()" matTooltip="Generar informe de notas de la edición">
+            <mat-icon>summarize</mat-icon> Info. de Notas
+          </button>
+        }
+      }
+    </div>
   </div>
 
   <div class="cronologia-bar">
@@ -76,7 +88,8 @@
                     <div class="docente-group">
                       @if (detalle.contratacion) {
                         <a class="info-link docente-link"
-                           [routerLink]="['/contrataciones', detalle.contratacion.id_contratacion]">
+                           (click)="verContratacion(detalle)"
+                           href="javascript:void(0)">
                           <mat-icon class="info-icon">person</mat-icon>
                           {{ detalle.docente.nombre }} {{ detalle.docente.apellido }}
                           <mat-icon class="link-icon">open_in_new</mat-icon>

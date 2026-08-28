@@ -15,6 +15,7 @@ import { InscripcionEdicionItem } from '../../models/inscripcion-edicion.model';
 import { SortDir, sortItems } from '../../../../core/utils/sort-utils';
 import { AuthService } from '../../../../core/services/auth.service';
 import { EdicionService } from '../../../edicion/services/edicion.service';
+import { NavigationBackService } from '../../../../core/navigation/navigation-back.service';
 import { ProgramaVersionEdicion } from '../../../edicion/models/edicion.model';
 
 @Component({
@@ -37,8 +38,10 @@ export class InscripcionesEdicionComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
   private auth = inject(AuthService);
   private edicionService = inject(EdicionService);
+  private navBack = inject(NavigationBackService);
 
   puedeInscribir = computed(() => this.auth.hasPermiso('alumnos.crear'));
+  puedeVerNotas = computed(() => this.auth.hasPermiso('notas.ver'));
   esEnCurso = computed(() => this.edicionData()?.estado === 'en_curso');
 
   edicionData = signal<ProgramaVersionEdicion | null>(null);
@@ -198,7 +201,7 @@ export class InscripcionesEdicionComponent implements OnInit {
   }
 
   volver(): void {
-    this.router.navigate(['/inscripciones']);
+    this.navBack.retornar(['/inscripciones']);
   }
 
   irAInscribir(): void {
@@ -253,6 +256,12 @@ export class InscripcionesEdicionComponent implements OnInit {
   }
 
   verTranscript(item: InscripcionEdicionItem): void {
+    this.navBack.setReturn(this.router.url);
     this.router.navigate(['/transcript', item.alumno.id_alumno], { queryParams: { idDpa: item.id_detalle_programa_alumno } });
+  }
+
+  verNotas(): void {
+    this.navBack.setReturn(this.router.url);
+    this.router.navigate(['/notas', this.idEdicion]);
   }
 }

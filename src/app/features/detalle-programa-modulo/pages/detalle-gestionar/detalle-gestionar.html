@@ -27,6 +27,11 @@
       <button mat-stroked-button (click)="verHistorial()" class="historial-btn" matTooltip="Ver historial de cambios">
         <mat-icon>history</mat-icon> Historial
       </button>
+      @if (puedeVerNotas()) {
+        <button mat-stroked-button (click)="verNotas()" class="historial-btn" matTooltip="Ver notas de la edición">
+          <mat-icon>grading</mat-icon> Notas
+        </button>
+      }
     </div>
 
     <form [formGroup]="form" class="content-grid">

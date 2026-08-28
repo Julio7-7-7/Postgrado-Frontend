@@ -215,6 +215,7 @@
 }
 
 .table-row:hover { background: var(--fich-bg-subtle); }
+.table-row { cursor: pointer; }
 .table-row:last-child td { border-bottom: none; }
 
 /* Alumno cell */
