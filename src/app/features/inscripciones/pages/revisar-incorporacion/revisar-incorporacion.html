@@ -93,20 +93,47 @@
           @if (sol.documentos && sol.documentos.length > 0) {
             <div class="doc-list">
               @for (doc of sol.documentos; track doc.id_solicitud_documento) {
-                <div class="doc-row" [class.doc-uploaded]="!!doc.url_documento">
-                  <mat-icon class="doc-status-icon" [class]="doc.url_documento ? 'icon-ok' : 'icon-pending'">
-                    {{ doc.url_documento ? 'check_circle' : 'radio_button_unchecked' }}
-                  </mat-icon>
-                  <div class="doc-info">
-                    <span class="doc-name">{{ doc.nombre_requisito }}</span>
-                    @if (doc.fecha_entrega) {
-                      <span class="doc-date">{{ doc.fecha_entrega | date:'dd/MM/yy HH:mm' }}</span>
+                <div class="doc-item">
+                  <div class="doc-row" [class.doc-uploaded]="!!doc.url_documento">
+                    <mat-icon class="doc-status-icon" [class]="doc.url_documento ? 'icon-ok' : 'icon-pending'">
+                      {{ doc.url_documento ? 'check_circle' : 'radio_button_unchecked' }}
+                    </mat-icon>
+                    <div class="doc-info">
+                      <span class="doc-name">{{ doc.nombre_requisito }}</span>
+                      @if (doc.fecha_entrega) {
+                        <span class="doc-date">{{ doc.fecha_entrega | date:'dd/MM/yy HH:mm' }}</span>
+                      }
+                    </div>
+                    @if (doc.url_documento) {
+                      <button mat-stroked-button class="doc-view-btn" (click)="verDocumento(doc.url_documento!)">
+                        <mat-icon>visibility</mat-icon> Ver
+                      </button>
+                      @if (esPendiente()) {
+                        <button mat-icon-button class="doc-remove-btn" matTooltip="Quitar documento"
+                                (click)="quitarDocumento(doc)">
+                          <mat-icon>close</mat-icon>
+                        </button>
+                      }
                     }
                   </div>
-                  @if (doc.url_documento) {
-                    <button mat-stroked-button class="doc-view-btn" (click)="verDocumento(doc.url_documento!)">
-                      <mat-icon>visibility</mat-icon> Ver
-                    </button>
+                  @if (!doc.url_documento && esPendiente()) {
+                    <div class="doc-upload-row">
+                      <app-upload-box
+                        accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
+                        [file]="pendingDocId() === doc.id_solicitud_documento ? pendingFile() : null"
+                        [fileName]="pendingFileName()"
+                        [fileSize]="pendingFileSize()"
+                        [uploading]="isUploading(doc.id_solicitud_documento)"
+                        [uploadDone]="uploadState() === 'completado' && isUploading(doc.id_solicitud_documento)"
+                        [uploadLabel]="uploadState() === 'leyendo' ? 'Leyendo...' : 'Subiendo...'"
+                        [disabled]="isUploading(doc.id_solicitud_documento)"
+                        label="Subir archivo"
+                        hint="PDF o imagen, max. 10 MB"
+                        (picked)="onFileSelected($event, doc)"
+                        (confirm)="confirmUpload()"
+                        (cancel)="cancelUpload()">
+                      </app-upload-box>
+                    </div>
                   }
                 </div>
               }

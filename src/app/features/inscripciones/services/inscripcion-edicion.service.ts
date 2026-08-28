@@ -85,4 +85,18 @@ export class InscripcionEdicionService extends ApiService {
       `${this.baseUrl}/detalle-programa-alumno/historial-movimientos/${idAlumno}`
     );
   }
+
+  subirDocumentoSolicitud(idSolicitud: number, idDoc: number, urlDocumento: string): Observable<SolicitudConDetalle> {
+    return this.http.patch<SolicitudConDetalle>(
+      `${this.baseUrl}/solicitud/${idSolicitud}/documentos/${idDoc}/subir`,
+      { url_documento: urlDocumento }
+    );
+  }
+
+  quitarDocumentoSolicitud(idSolicitud: number, idDoc: number): Observable<SolicitudConDetalle> {
+    return this.http.patch<SolicitudConDetalle>(
+      `${this.baseUrl}/solicitud/${idSolicitud}/documentos/${idDoc}/quitar`,
+      {}
+    );
+  }
 }
