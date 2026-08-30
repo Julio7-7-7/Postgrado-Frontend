@@ -1,28 +1,8 @@
 export interface InformeNotasRequest {
   id_programa_version_edicion: number;
-  tipo: 'parcial' | 'final';
+  tipo: 'borrador' | 'final';
   id_modulos: number[];
   id_carrera?: number | null;
-}
-
-export interface InformeAlumnoNota {
-  id_alumno: number;
-  id_detalle_programa_alumno: number;
-  nombre: string;
-  apellido: string;
-  ci: string | null;
-  nota: number | null;
-  aprobada: boolean;
-}
-
-export interface InformeModulo {
-  id_detalle_programa_modulo: number;
-  nombre_modulo: string;
-  sigla: string;
-  fecha_inicio: string | null;
-  fecha_fin: string | null;
-  docente: string | null;
-  alumnos: InformeAlumnoNota[];
 }
 
 export interface InformeMatrizColumna {
@@ -38,15 +18,15 @@ export interface InformeMatrizFila {
   apellido: string;
   ci: string | null;
   notas: (number | null)[];
+  promedio: number | null;
   aprobada: boolean;
   elegible: boolean;
-  motivo_exclusion: string | null;
+  estado: string;
 }
 
 export interface InformeCarrera {
   id_carrera: number | null;
   nombre: string;
-  modulos: InformeModulo[];
   matriz_columnas: InformeMatrizColumna[];
   matriz_filas: InformeMatrizFila[];
 }
@@ -55,14 +35,14 @@ export interface InformeResumenCarrera {
   id_carrera: number | null;
   nombre: string;
   alumnos: number;
-  elegibles: number;
+  completos: number;
 }
 
 export interface InformeResumen {
   total_alumnos: number;
   total_aprobados: number;
   total_reprobados: number;
-  elegibles: number;
+  completos: number;
   carreras: InformeResumenCarrera[];
 }
 
@@ -81,42 +61,21 @@ export interface InformeContenido {
   resumen: InformeResumen;
 }
 
-export interface InformePreviewResponse extends InformeContenido {
-  numero_tanda: number;
-  timestamp: string;
-  es_borrador: boolean;
-  edicion_estado: string;
-}
-
 export interface InformeNotas {
   id_informe: number;
   id_programa_version_edicion: number;
   numero_tanda: number;
-  tipo: 'parcial' | 'final';
+  tipo: 'borrador' | 'final';
   fecha_emision: string;
   generado_at: string | null;
   estado: string;
   observaciones: string | null;
   contenido: InformeContenido | null;
   certificados_count: number;
+  emitido_por: number | null;
+  emitido_por_nombre: string | null;
   created_at: string;
   updated_at: string;
-}
-
-export interface AlumnoElegible {
-  id_alumno: number;
-  id_detalle_programa_alumno: number;
-  nombre: string;
-  apellido: string;
-  ci: string | null;
-  elegible: boolean;
-  motivo_exclusion: string | null;
-}
-
-export interface ElegiblesResponse {
-  id_programa_version_edicion: number;
-  total_elegibles: number;
-  alumnos: AlumnoElegible[];
 }
 
 export interface CertificadoNotasInfo {

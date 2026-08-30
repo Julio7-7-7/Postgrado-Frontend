@@ -9,8 +9,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { InformeNotasService } from '../../services/informe-notas.service';
 import { NavigationBackService } from '../../../../core/navigation/navigation-back.service';
 import {
-  InformePreviewResponse, InformeNotas, InformeContenido, InformeCarrera,
-  InformeModulo, InformeAlumnoNota, CertificadoNotasInfo, InformeMatrizFila,
+  InformeNotas, InformeContenido, CertificadoNotasInfo, InformeMatrizFila,
 } from '../../models/informe-notas.model';
 
 @Component({
@@ -28,50 +27,33 @@ export class InformePreviewComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
   private navBack = inject(NavigationBackService);
 
-  data = signal<InformePreviewResponse | InformeNotas | null>(null);
+  data = signal<InformeNotas | null>(null);
   cargando = signal(false);
   certificados = signal<CertificadoNotasInfo[]>([]);
 
-  esDefinitivo = computed(() => {
+  esBorrador = computed(() => {
     const d = this.data();
-    return !!d && ('id_informe' in d);
+    if (!d) return false;
+    return (d.contenido?.tipo || d.tipo) === 'borrador';
   });
 
   contenido = computed<InformeContenido | null>(() => {
     const d = this.data();
-    if (!d) return null;
-    const def = this.esDefinitivo() ? (d as InformeNotas).contenido : (d as InformePreviewResponse);
-    return def as InformeContenido | null;
+    return d?.contenido ?? null;
   });
 
-  esBorrador = computed(() => {
-    const d = this.data();
-    return !!d && 'es_borrador' in d && (d as InformePreviewResponse).es_borrador;
-  });
-
-  numeroTanda = computed(() => {
-    const d = this.data();
-    if (!d) return 0;
-    return 'numero_tanda' in d ? (d as any).numero_tanda : 0;
-  });
+  numeroTanda = computed(() => this.data()?.numero_tanda ?? 0);
 
   tituloEmision = computed(() => {
     const d = this.data();
     if (!d) return '';
-    if (this.esDefinitivo()) {
-      const informe = d as InformeNotas;
-      const ts = informe.generado_at || null;
-      return ts ? this.fmtTs(ts) : `Em. ${this.fmtDia(informe.fecha_emision)}`;
-    }
-    const prev = d as InformePreviewResponse;
-    return this.fmtTs(prev.timestamp);
+    const ts = d.generado_at || null;
+    return ts ? this.fmtTs(ts) : `Em. ${this.fmtDia(d.fecha_emision)}`;
   });
 
-  totalCertificados = computed(() => {
-    const d = this.data();
-    if (d && 'certificados_count' in d) return (d as InformeNotas).certificados_count;
-    return this.certificados().length;
-  });
+  emitidoPor = computed(() => this.data()?.emitido_por_nombre ?? null);
+
+  totalCertificados = computed(() => this.data()?.certificados_count ?? this.certificados().length);
 
   ngOnInit(): void {
     const nav = this.router.getCurrentNavigation();
@@ -105,12 +87,11 @@ export class InformePreviewComponent implements OnInit {
 
   private cargarCertificadosSiCorresponde(): void {
     const d = this.data();
-    if (!d || !this.esDefinitivo()) return;
-    const informe = d as InformeNotas;
-    const esFinal = (informe.contenido?.tipo || informe.tipo) === 'final';
-    if (!esFinal && informe.certificados_count === 0) return;
+    if (!d) return;
+    const esFinal = (d.contenido?.tipo || d.tipo) === 'final';
+    if (!esFinal) return;
 
-    this.service.getCertificadosPorInforme(informe.id_informe).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    this.service.getCertificadosPorInforme(d.id_informe).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: res => this.certificados.set(res.certificados),
       error: () => this.certificados.set([]),
     });
@@ -141,19 +122,23 @@ export class InformePreviewComponent implements OnInit {
     return `${this.fmtDia(d.toISOString().slice(0, 10))} ${h}:${min}`;
   }
 
-  promedio(notas: (number | null)[]): number | null {
-    const validas = notas.filter((n): n is number => n != null);
-    if (validas.length === 0) return null;
-    const suma = validas.reduce((a, b) => a + b, 0);
-    return Math.floor(suma / validas.length + 0.5);
+  estadoClass(estado: string): string {
+    const ok = ['Completo', 'completo'];
+    if (ok.includes(estado)) return 'est-completo';
+    if (estado === 'Notas pendientes') return 'est-pendiente';
+    if (estado === 'Notas reprobadas') return 'est-reprobado';
+    if (estado === 'Pagos incompletos') return 'est-pagos';
+    if (estado === 'Con certificado previo') return 'est-previo';
+    return 'est-otro';
   }
 
-  moduloDocente(mod: InformeModulo): string {
-    return mod.docente || '—';
-  }
-
-  notaEstado(fila: InformeMatrizFila): string {
-    if (!fila.notas.length) return 'Sin notas';
-    return fila.aprobada ? 'Aprobado' : 'Reprobado';
+  estadoTooltip(fila: InformeMatrizFila): string {
+    if (fila.estado === 'Completo') {
+      return 'Completo: todas las notas aprobadas y pagos al día. Elegible para certificado.';
+    }
+    if (fila.estado === 'Con certificado previo') {
+      return 'Ya cuenta con certificado emitido para esta edición.';
+    }
+    return fila.estado;
   }
 }

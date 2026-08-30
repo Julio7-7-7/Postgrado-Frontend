@@ -51,6 +51,11 @@ export class NotasEdicionComponent implements OnInit {
     this.router.navigate(['/informes-notas'], { queryParams: { edicion: this.idEdicion } });
   }
 
+  verCertificados(): void {
+    this.navBack.setReturn(this.router.url);
+    this.router.navigate(['/certificados-notas'], { queryParams: { edicion: this.idEdicion } });
+  }
+
   nombreDir = signal<SortDir>('asc');
 
   modulos = computed(() => {

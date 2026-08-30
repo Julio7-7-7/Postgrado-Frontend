@@ -70,15 +70,12 @@ export class InformeNotasComponent implements OnInit {
   selVersion = signal<number | null>(null);
   selEdicion = signal<number | null>(null);
   filtroCarrera = signal<number | null>(null);
-  tipoInforme = signal<'parcial' | 'final'>('parcial');
 
   informes = signal<InformeNotas[]>([]);
-  verGenerados = signal(false);
-  elegibles = signal<number | null>(null);
 
   cargandoInicio = signal(true);
   cargandoModulos = signal(false);
-  generando = signal(false);
+  generando = signal<'borrador' | 'final' | null>(null);
   errorInicio = signal<string | null>(null);
 
   versionesDelPrograma = computed(() =>
@@ -93,11 +90,15 @@ export class InformeNotasComponent implements OnInit {
   todosModulosSeleccionados = computed(() =>
     this.modulos().length > 0 && this.seleccionModulos().length === this.modulos().length);
 
-  configValida = computed(() => {
-    if (!this.selEdicion() || this.generando()) return false;
-    if (this.tipoInforme() === 'final') return true;
-    return this.seleccionModulos().length > 0;
-  });
+  edicionFinalizada = computed(() => this.edicionSel()?.estado === 'finalizado');
+
+  finalExistente = computed(() => this.informes().some(i => i.tipo === 'final'));
+
+  borradorValido = computed(() =>
+    !!this.selEdicion() && this.seleccionModulos().length > 0 && !this.generando());
+
+  finalDisponible = computed(() =>
+    this.edicionFinalizada() && !this.finalExistente());
 
   ngOnInit(): void {
     const edicionParam = this.route.snapshot.queryParamMap.get('edicion');
@@ -164,7 +165,6 @@ export class InformeNotasComponent implements OnInit {
     this.modulos.set([]);
     this.seleccionModulos.set([]);
     this.informes.set([]);
-    this.verGenerados.set(false);
   }
 
   onEdicionChange(id: number): void {
@@ -193,17 +193,6 @@ export class InformeNotasComponent implements OnInit {
     this.informeService.porEdicion(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: inf => this.informes.set(inf),
     });
-
-    this.cargarElegibles();
-  }
-
-  private cargarElegibles(): void {
-    const id = this.selEdicion();
-    if (!id) { this.elegibles.set(null); return; }
-    this.informeService.getElegibles(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: res => this.elegibles.set(res.total_elegibles),
-      error: () => this.elegibles.set(null),
-    });
   }
 
   toggleModulo(id: number): void {
@@ -221,72 +210,76 @@ export class InformeNotasComponent implements OnInit {
     );
   }
 
-  setTipo(tipo: 'parcial' | 'final'): void {
-    this.tipoInforme.set(tipo);
-    if (tipo === 'final') this.cargarElegibles();
-  }
-
-  private armarRequest(): any {
+  private armarRequest(tipo: 'borrador' | 'final'): any {
     return {
       id_programa_version_edicion: this.selEdicion(),
-      tipo: this.tipoInforme(),
+      tipo,
       id_modulos: this.seleccionModulos(),
       id_carrera: this.filtroCarrera(),
     };
   }
 
-  verPreview(): void {
-    if (!this.configValida()) return;
-    this.informeService.preview(this.armarRequest()).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: informe => {
-        this.router.navigate(['/informes-notas/preview'], { state: { informe } });
+  generarBorrador(): void {
+    if (!this.borradorValido()) return;
+
+    const ref = this.dialog.open(ConfirmDialogComponent, {
+      width: '460px',
+      data: {
+        titulo: 'Generar Borrador',
+        mensaje: `Se guardará un borrador del informe (formato horizontal) con ${this.seleccionModulos().length} módulo(s) y los filtros elegidos. Se registrará una nueva tanda y quedará disponible para imprimir desde "Informes generados".`,
+        confirmText: 'Generar borrador',
       },
-      error: err => this.snackBar.open(err.error?.detail || 'Error al armar la vista previa', 'Cerrar', { duration: 4000 }),
+    });
+    ref.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(confirmado => {
+      if (confirmado) this.ejecutarGeneracion('borrador');
     });
   }
 
-  generar(): void {
-    if (!this.configValida()) return;
-
-    const esFinal = this.tipoInforme() === 'final';
-    const confirmar = () => {
-      const msg = esFinal
-        ? 'Se generará el informe final de la edición (único). Los alumnos elegibles recibirán certificado de notas.'
-        : `Se generará el informe parcial con ${this.seleccionModulos().length} módulo(s). No se emitirán certificados.`;
-
-      const ref = this.dialog.open(ConfirmDialogComponent, {
-        width: '440px',
-        data: {
-          titulo: esFinal ? 'Generar Informe Final' : 'Generar Informe Parcial',
-          mensaje: msg,
-          confirmText: 'Generar',
-        },
-      });
-      ref.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(confirmado => {
-        if (confirmado) this.ejecutarGeneracion();
-      });
-    };
-
-    const finalExistente = esFinal && this.informes().some(i => i.tipo === 'final');
-    if (finalExistente) {
+  generarFinal(): void {
+    if (!this.selEdicion()) return;
+    if (this.finalExistente()) {
       this.snackBar.open('El informe final de esta edición ya fue generado', 'Cerrar', { duration: 4000 });
       return;
     }
-    confirmar();
+    if (!this.edicionFinalizada()) {
+      this.snackBar.open('El informe final requiere que la edición esté finalizada', 'Cerrar', { duration: 4000 });
+      return;
+    }
+
+    const ref = this.dialog.open(ConfirmDialogComponent, {
+      width: '480px',
+      data: {
+        titulo: 'Generar Informe Final',
+        mensaje: 'Se generará el informe final con TODOS los módulos de la edición (único por edición). Los alumnos completos recibirán su certificado de notas. Esta acción no se puede revertir.',
+        confirmText: 'Generar informe final',
+      },
+    });
+    ref.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(confirmado => {
+      if (confirmado) this.ejecutarGeneracion('final');
+    });
   }
 
-  private ejecutarGeneracion(): void {
-    this.generando.set(true);
-    this.informeService.generar(this.armarRequest()).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+  private ejecutarGeneracion(tipo: 'borrador' | 'final'): void {
+    this.generando.set(tipo);
+    this.informeService.generar(this.armarRequest(tipo)).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: informe => {
-        this.generando.set(false);
-        this.snackBar.open(informe.tipo === 'final' ? 'Informe final generado' : 'Informe parcial generado', 'Cerrar', { duration: 3000 });
+        this.generando.set(null);
+        this.snackBar.open(tipo === 'final' ? 'Informe final generado' : 'Borrador generado', 'Cerrar', { duration: 3000 });
+        this.recargarInformes();
         this.router.navigate(['/informes-notas/preview'], { state: { informe } });
       },
       error: err => {
-        this.generando.set(false);
+        this.generando.set(null);
         this.snackBar.open(err.error?.detail || 'Error al generar el informe', 'Cerrar', { duration: 4000 });
       },
+    });
+  }
+
+  private recargarInformes(): void {
+    const id = this.selEdicion();
+    if (!id) return;
+    this.informeService.porEdicion(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: inf => this.informes.set(inf),
     });
   }
 

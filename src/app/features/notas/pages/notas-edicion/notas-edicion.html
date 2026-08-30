@@ -15,6 +15,10 @@
           <mat-icon>summarize</mat-icon>
           Informe de Notas
         </button>
+        <button mat-stroked-button (click)="verCertificados()" matTooltip="Emitir certificados de notas de la edición">
+          <mat-icon>workspace_premium</mat-icon>
+          Certificados de Notas
+        </button>
       }
       @if (puedeVerAlumnos()) {
         <button mat-stroked-button (click)="volverAInscripciones()" class="sort-toggle" matTooltip="Ver inscripciones de la edición">

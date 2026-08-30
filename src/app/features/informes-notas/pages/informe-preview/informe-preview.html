@@ -10,7 +10,7 @@
         <span class="status-chip definitivo">Documento oficial</span>
       }
       @if (contenido(); as c) {
-        <span class="toolbar-edicion">{{ c.programa_nombre }} · Ed. {{ c.edicion }} · {{ c.anio }}</span>
+        <span class="toolbar-edicion">{{ c.programa_nombre }} · Ed. {{ c.edicion }}/{{ c.anio }}</span>
       }
     </div>
     <button mat-flat-button color="primary" (click)="imprimir()" type="button">
@@ -24,7 +24,7 @@
       <span>Cargando informe...</span>
     </div>
   } @else if (contenido(); as c) {
-    <div class="print-area">
+    <div class="print-area" [class.official]="!esBorrador()">
       @if (esBorrador()) {
         <div class="watermark-borrador">BORRADOR</div>
       }
@@ -51,7 +51,7 @@
       </header>
 
       <div class="doc-ident">
-        <div class="ident-cell">
+        <div class="ident-cell wide">
           <span class="ident-label">Programa</span>
           <span class="ident-value">{{ c.programa_nombre }}</span>
         </div>
@@ -61,19 +61,27 @@
         </div>
         <div class="ident-cell">
           <span class="ident-label">Edición</span>
-          <span class="ident-value">Ed. {{ c.edicion }} · {{ c.anio }} · Sem. {{ c.semestre }}</span>
+          <span class="ident-value">{{ c.edicion }}</span>
         </div>
         <div class="ident-cell">
-          <span class="ident-label">Tipo</span>
-          <span class="ident-value">{{ c.tipo === 'final' ? 'Final — todas las notas' : 'Parcial — módulos seleccionados' }}</span>
+          <span class="ident-label">Año</span>
+          <span class="ident-value">{{ c.anio }}</span>
+        </div>
+        <div class="ident-cell">
+          <span class="ident-label">Semestre</span>
+          <span class="ident-value">{{ c.semestre }}</span>
         </div>
         <div class="ident-cell">
           <span class="ident-label">Tanda</span>
           <span class="ident-value">N° {{ numeroTanda() }}</span>
         </div>
         <div class="ident-cell">
-          <span class="ident-label">Emitido</span>
-          <span class="ident-value">{{ esBorrador() ? 'Borrador generado' : 'Emitido el' }} {{ tituloEmision() }}</span>
+          <span class="ident-label">Emitido por</span>
+          <span class="ident-value">{{ emitidoPor() || '—' }}</span>
+        </div>
+        <div class="ident-cell">
+          <span class="ident-label">Emisión</span>
+          <span class="ident-value">{{ esBorrador() ? 'Borrador generado el' : 'Emitido el' }} {{ tituloEmision() }}</span>
         </div>
       </div>
 
@@ -91,8 +99,8 @@
           <span class="rc-label">Reprobados</span>
         </div>
         <div class="resumen-card">
-          <span class="rc-num ele">{{ c.resumen.elegibles }}</span>
-          <span class="rc-label">Elegibles</span>
+          <span class="rc-num ele">{{ c.resumen.completos }}</span>
+          <span class="rc-label">Completos</span>
         </div>
       </div>
 
@@ -103,119 +111,66 @@
             <div class="sheet-title">
               <h3>{{ carrera.nombre }}</h3>
               <span class="sheet-sub">
-                @if (c.tipo === 'final') {
-                  Matriz general — {{ carrera.matriz_filas.length }} alumno(s)
-                } @else {
-                  {{ carrera.modulos.length }} módulo(s) — detalle por módulo
-                }
+                {{ carrera.matriz_filas.length }} alumno(s) · Matriz general
               </span>
             </div>
           </div>
 
-          @if (c.tipo === 'final') {
-            <div class="matriz-scroll">
-              <table class="doc-table matriz">
-                <thead>
-                  <tr class="head-a">
-                    <th rowspan="2" class="col-alumno">Alumno</th>
-                    <th rowspan="2" class="col-ci">C.I.</th>
-                    @for (col of carrera.matriz_columnas; track col.id_detalle_programa_modulo) {
-                      <th class="col-sigla">{{ col.sigla }}</th>
-                    }
-                    <th rowspan="2" class="col-prom">Prom</th>
-                    <th rowspan="2" class="col-ele">Ele</th>
-                  </tr>
-                  <tr class="head-b">
-                    @for (col of carrera.matriz_columnas; track col.id_detalle_programa_modulo) {
-                      <th class="col-mod">{{ col.nombre_modulo }}</th>
-                    }
-                  </tr>
-                </thead>
-                <tbody>
-                  @for (fila of carrera.matriz_filas; track fila.id_detalle_programa_alumno) {
-                    <tr [class.reprobado]="!fila.aprobada">
-                      <td class="col-alumno">{{ fila.apellido }} {{ fila.nombre }}</td>
-                      <td class="col-ci">{{ fila.ci || '—' }}</td>
-                      @for (nota of fila.notas; track $index) {
-                        <td class="nota-cell" [class.sin-nota]="nota === null">
-                          {{ nota === null ? '—' : nota }}
-                        </td>
-                      }
-                      <td class="col-prom">
-                        {{ promedio(fila.notas) ?? '—' }}
-                      </td>
-                      <td class="col-ele">
-                        @if (fila.elegible) {
-                          <span class="ele-ok">SÍ</span>
-                        } @else {
-                          <span class="ele-no">{{ fila.motivo_exclusion || 'No' }}</span>
-                        }
-                      </td>
-                    </tr>
+          <div class="matriz-scroll">
+            <table class="doc-table matriz" [class.official]="!esBorrador()">
+              <thead>
+                <tr class="head-a">
+                  <th rowspan="2" class="col-alumno">Alumno</th>
+                  <th rowspan="2" class="col-ci">C.I.</th>
+                  @for (col of carrera.matriz_columnas; track col.id_detalle_programa_modulo) {
+                    <th class="col-sigla">{{ col.sigla }}</th>
                   }
-                </tbody>
-              </table>
-            </div>
-          } @else {
-            @for (mod of carrera.modulos; track mod.id_detalle_programa_modulo; let mi = $index) {
-              <div class="modulo-block">
-                <div class="modulo-head">
-                  <div class="modulo-id">
-                    <span class="mod-num">M{{ mi + 1 }}</span>
-                    <span class="mod-name">{{ mod.nombre_modulo }} <em>({{ mod.sigla }})</em></span>
-                  </div>
-                  <div class="mod-fechas">
-                    <span>{{ mod.fecha_inicio ? fmtDia(mod.fecha_inicio) : '—' }} → {{ mod.fecha_fin ? fmtDia(mod.fecha_fin) : '—' }}</span>
-                    <span>Docente: {{ moduloDocente(mod) }}</span>
-                  </div>
-                </div>
-
-                <table class="doc-table">
-                  <thead>
-                    <tr>
-                      <th class="th-n">#</th>
-                      <th class="col-alumno">Alumno</th>
-                      <th class="col-ci">C.I.</th>
-                      <th class="th-nota">Nota</th>
-                      <th class="th-estado">Estado</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    @for (a of mod.alumnos; track a.id_detalle_programa_alumno; let j = $index) {
-                      <tr>
-                        <td class="th-n">{{ j + 1 }}</td>
-                        <td class="col-alumno">{{ a.apellido }} {{ a.nombre }}</td>
-                        <td class="col-ci">{{ a.ci || '—' }}</td>
-                        <td class="th-nota">
-                          <span class="nota-val" [class.reprobado]="a.nota !== null && !a.aprobada">
-                            {{ a.nota === null ? '—' : a.nota }}
-                          </span>
-                        </td>
-                        <td class="th-estado">
-                          @if (a.nota === null) {
-                            <span class="sin-nota-texto">Sin nota</span>
-                          } @else {
-                            <span [class.ok]="a.aprobada" class="estado-texto">{{ a.aprobada ? 'Aprobado' : 'Reprobado' }}</span>
-                          }
-                        </td>
-                      </tr>
+                  <th rowspan="2" class="col-prom">Prom</th>
+                  <th rowspan="2" class="col-estado">Estado</th>
+                </tr>
+                <tr class="head-b">
+                  @for (col of carrera.matriz_columnas; track col.id_detalle_programa_modulo) {
+                    <th class="col-mod">{{ col.nombre_modulo }}</th>
+                  }
+                </tr>
+              </thead>
+              <tbody>
+                @for (fila of carrera.matriz_filas; track fila.id_detalle_programa_alumno) {
+                  <tr [class.reprobado]="fila.promedio !== null && fila.promedio < 66">
+                    <td class="col-alumno">{{ fila.apellido }} {{ fila.nombre }}</td>
+                    <td class="col-ci">{{ fila.ci || '—' }}</td>
+                    @for (nota of fila.notas; track $index) {
+                      <td class="nota-cell" [class.sin-nota]="nota === null" [class.nota-reprobada]="nota !== null && nota < 66">
+                        {{ nota === null ? '—' : nota }}
+                      </td>
                     }
-                  </tbody>
-                </table>
-              </div>
-            }
-          }
+                    <td class="col-prom">
+                      {{ fila.promedio ?? '—' }}
+                    </td>
+                    <td class="col-estado">
+                      <span
+                        class="est-chip {{ estadoClass(fila.estado) }}"
+                        [title]="estadoTooltip(fila)"
+                        [class.est-simple]="fila.estado === 'Completo'"
+                      >{{ fila.estado }}</span>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
 
-          @if (c.tipo === 'final') {
-            <div class="sheet-leyenda">
-              <span>Aprobación: nota ≥ 10 en cada módulo.</span>
-              <span>Ele = elegible para certificado (notas aprobadas + pagos completos + sin certificado previo).</span>
-            </div>
-          }
+          <div class="sheet-leyenda">
+            <span>Escala 0–100 · nota académica mínima: <strong>66</strong> en cada módulo.</span>
+            <span>
+              Estado = cruce entre notas y pagos. <strong>Completo</strong>: todas las notas aprobadas y pagos al día (elegible para certificado).
+              Reprobado = promedio &lt; 66.
+            </span>
+          </div>
         </section>
       }
 
-      @if (esDefinitivo() && totalCertificados() > 0) {
+      @if (!esBorrador() && totalCertificados() > 0) {
         <section class="cert-seccion">
           <div class="sheet-head">
             <span class="sheet-num"><mat-icon>workspace_premium</mat-icon></span>
@@ -263,7 +218,7 @@
         </div>
         <p class="foot-gen">{{ esBorrador()
           ? 'Borrador generado por el Sistema de Gestión Académica FICH el ' + tituloEmision()
-          : 'Documento oficial emitido el ' + tituloEmision() }}</p>
+          : 'Documento oficial emitido el ' + tituloEmision() + (emitidoPor() ? ' por ' + emitidoPor() : '') }}</p>
       </footer>
     </div>
   } @else {

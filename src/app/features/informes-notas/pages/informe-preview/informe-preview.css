@@ -179,8 +179,12 @@
 .doc-ident {
   margin-top: 18px;
   display: grid;
-  grid-template-columns: 1.6fr 0.6fr 0.9fr;
+  grid-template-columns: repeat(4, 1fr);
   gap: 8px;
+}
+
+.ident-cell.wide {
+  grid-column: span 2;
 }
 
 .ident-cell {
@@ -378,12 +382,10 @@
 .col-alumno { min-width: 220px; }
 .col-ci { min-width: 90px; white-space: nowrap; }
 .th-n { width: 34px; text-align: center !important; }
-.th-nota { width: 76px; text-align: center !important; }
-.th-estado { width: 110px; }
 .col-sigla { text-align: center; min-width: 52px; }
 .col-mod { text-align: center; width: 100px; }
 .col-prom { width: 64px; text-align: center !important; font-weight: 700; background: #eef2ff !important; }
-.col-ele { width: 150px; text-align: center !important; }
+.col-estado { width: 180px; text-align: center !important; }
 
 .nota-cell {
   text-align: center;
@@ -396,106 +398,64 @@
   font-weight: 400;
 }
 
+.nota-cell.nota-reprobada {
+  color: #b91c1c;
+  font-weight: 700;
+}
+
 tr.reprobado td {
   background: #fef2f2 !important;
 }
 
-.check-marca {
-  color: #15803d;
-  font-weight: 800;
-}
-
-.nota-val {
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-}
-
-.nota-val.reprobado { color: #b91c1c; }
-
-.estado-texto {
-  font-weight: 700;
-  font-size: 0.7rem;
-  padding: 2px 9px;
+/* ===== Chips de Estado del alumno ===== */
+.est-chip {
+  display: inline-block;
+  padding: 3px 10px;
   border-radius: 20px;
-  border: 1px solid transparent;
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1.2;
+  max-width: 172px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
 }
 
-.estado-texto.ok {
+.est-chip.est-completo {
   background: #dcfce7;
   color: #15803d;
-  border-color: #86efac;
+  border: 1px solid #86efac;
 }
 
-.sin-nota-texto {
-  color: #94a3b8;
-  font-size: 0.72rem;
+.est-chip.est-pendiente {
+  background: #fef3c7;
+  color: #b45309;
+  border: 1px solid #fde68a;
 }
 
-.ele-ok {
-  color: #15803d;
-  font-weight: 800;
-}
-
-.ele-no {
+.est-chip.est-reprobado {
+  background: #fee2e2;
   color: #b91c1c;
-  font-size: 0.7rem;
+  border: 1px solid #fecaca;
 }
 
-/* ===== Módulos (parcial) ===== */
-.modulo-block {
-  margin-top: 16px;
+.est-chip.est-pagos {
+  background: #e0f2fe;
+  color: #0369a1;
+  border: 1px solid #bae6fd;
 }
 
-.modulo-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-  padding: 10px 14px;
-  background: linear-gradient(90deg, #f8fafc, #eef2ff);
-  border: 1px solid #dbe1ea;
-  border-bottom: none;
-  border-radius: 10px 10px 0 0;
+.est-chip.est-previo {
+  background: #ede9fe;
+  color: #6d28d9;
+  border: 1px solid #ddd6fe;
 }
 
-.modulo-id {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-}
-
-.mod-num {
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
-  background: #1e3a8a;
-  color: white;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.78rem;
-  font-weight: 800;
-}
-
-.mod-name {
-  font-weight: 700;
-  font-size: 0.88rem;
-  color: #0f172a;
-}
-
-.mod-name em {
-  font-weight: 500;
-  color: #64748b;
-  font-style: normal;
-}
-
-.mod-fechas {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  font-size: 0.72rem;
-  color: #64748b;
+.est-chip.est-otro {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #e2e8f0;
 }
 
 .sheet-leyenda {
@@ -505,6 +465,29 @@ tr.reprobado td {
   gap: 3px;
   font-size: 0.72rem;
   color: #64748b;
+}
+
+.sheet-leyenda strong {
+  color: #334155;
+}
+
+/* ===== Acento del documento oficial (verde) ===== */
+.print-area.official {
+  border-color: #a7f3d0;
+}
+
+.print-area.official .sheet-head {
+  border-left-color: #15803d;
+  background: linear-gradient(90deg, #f0fdf4 0%, #f8fafc 70%, transparent);
+}
+
+.print-area.official .sheet-head::after {
+  color: #bbf7d0;
+}
+
+.print-area.official .matriz .col-prom {
+  background: #dcfce7 !important;
+  color: #15803d;
 }
 
 /* ===== Certificados ===== */
@@ -598,7 +581,6 @@ tr.reprobado td {
     break-inside: avoid;
   }
 
-  .modulo-block,
   .matriz-scroll {
     break-inside: avoid;
   }
