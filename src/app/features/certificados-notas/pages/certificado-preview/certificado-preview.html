@@ -1,0 +1,167 @@
+<div class="preview-shell">
+  <div class="preview-toolbar">
+    <button mat-stroked-button (click)="volver()" type="button">
+      <mat-icon>arrow_back</mat-icon> Volver
+    </button>
+    <div class="toolbar-status">
+      @if (cert(); as c) {
+        <span class="status-chip">Documento oficial</span>
+        <span class="toolbar-edicion">
+          {{ datos()?.programa }} · Ed. {{ datos()?.edicion }} · {{ datos()?.anio }}
+        </span>
+      }
+    </div>
+    <button mat-flat-button color="primary" (click)="imprimir()" type="button">
+      <mat-icon>print</mat-icon> Imprimir
+    </button>
+  </div>
+
+  @if (cargando()) {
+    <div class="loading-state">
+      <mat-spinner diameter="36"></mat-spinner>
+      <span>Cargando certificado...</span>
+    </div>
+  } @else if (cert(); as c) {
+    <div class="print-area">
+      <header class="doc-header">
+        <div class="doc-org">
+          <div class="doc-logo">
+            <span>F</span><span>I</span><span>C</span><span>H</span>
+          </div>
+          <div class="doc-org-text">
+            <strong class="facultad">Facultad Integral del Chaco</strong>
+            <span class="fich-tag">FICH</span>
+            <span class="unidad">Unidad de Postgrado Chaco</span>
+          </div>
+        </div>
+        <div class="doc-titulo">
+          <h1>CERTIFICADO DE NOTAS</h1>
+          <h2 class="codigo">{{ c.codigo || 'S/N' }}</h2>
+        </div>
+      </header>
+
+      <div class="doc-ident">
+        <div class="ident-cell">
+          <span class="ident-label">Programa</span>
+          <span class="ident-value">{{ datos()?.programa }}</span>
+        </div>
+        <div class="ident-cell">
+          <span class="ident-label">Versión</span>
+          <span class="ident-value">{{ datos()?.version }}</span>
+        </div>
+        <div class="ident-cell">
+          <span class="ident-label">Edición</span>
+          <span class="ident-value">Ed. {{ datos()?.edicion }} · {{ datos()?.anio }} · Sem. {{ datos()?.semestre }}</span>
+        </div>
+        <div class="ident-cell">
+          <span class="ident-label">Modalidad</span>
+          <span class="ident-value">{{ datos()?.modalidad || '—' }}</span>
+        </div>
+        <div class="ident-cell">
+          <span class="ident-label">Carrera</span>
+          <span class="ident-value">{{ datos()?.carrera || '—' }}</span>
+        </div>
+        <div class="ident-cell">
+          <span class="ident-label">Emitido el</span>
+          <span class="ident-value">{{ fmtMesLargo(c.fecha_emision) }}</span>
+        </div>
+      </div>
+
+      <section class="alumno-block">
+        <p class="certifica">La Unidad de Postgrado de la Facultad Integral del Chaco certifica que:</p>
+        <h2 class="alumno-nombre">{{ datos()?.alumno?.apellido }}, {{ datos()?.alumno?.nombre }}</h2>
+        <p class="alumno-ci">C.I. {{ datos()?.alumno?.ci || '—' }}</p>
+        <p class="alumno-texto">
+          cursó y completó satisfactoriamente los módulos del <strong>{{ datos()?.programa }}</strong>,
+          con las siguientes calificaciones:
+        </p>
+      </section>
+
+      <table class="doc-table">
+        <thead>
+          <tr>
+            <th class="th-n">#</th>
+            <th>Módulo</th>
+            <th class="th-sigla">Sigla</th>
+            <th class="th-nota">Nota</th>
+            <th class="th-estado">Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (m of datos()?.modulos; track $index; let i = $index) {
+            <tr>
+              <td class="th-n">{{ i + 1 }}</td>
+              <td>{{ m.nombre }}</td>
+              <td class="th-sigla">{{ m.sigla || '—' }}</td>
+              <td class="th-nota">
+                <span class="nota-val" [class.reprobado]="m.nota !== null && !m.aprobada">
+                  {{ m.nota === null ? '—' : m.nota }}
+                </span>
+              </td>
+              <td class="th-estado">
+                <span class="estado-texto" [class]="m.nota === null ? '' : (m.aprobada ? 'ok' : 'bad')">
+                  @if (m.nota === null) {
+                    Sin nota
+                  } @else {
+                    {{ m.aprobada ? 'Aprobado' : 'Reprobado' }}
+                  }
+                </span>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+
+      <div class="promedio-bar">
+        <span class="promedio-label">Promedio general</span>
+        <span class="promedio-val">{{ promedioLabel(datos()?.promedio ?? null) }}</span>
+      </div>
+
+      <div class="fechas-block">
+        <div class="fecha-item">
+          <span class="fecha-label">Fecha de emisión</span>
+          <span class="fecha-val">{{ fmtMesLargo(c.fecha_emision) }}</span>
+        </div>
+        <div class="fecha-item">
+          <span class="fecha-label">Fecha de impresión</span>
+          <span class="fecha-val">{{ impresoLabel() }}</span>
+        </div>
+      </div>
+
+      <div class="firmas">
+        <div class="firma-box">
+          <span class="firma-linea"></span>
+          <span class="firma-texto">Firma y sello</span>
+          <span class="firma-cargo">Dirección de Postgrado</span>
+        </div>
+        <div class="firma-box">
+          <span class="firma-linea"></span>
+          <span class="firma-texto">Firma</span>
+          <span class="firma-cargo">Secretaría Académica</span>
+        </div>
+      </div>
+
+      <footer class="doc-footer">
+        <div class="foot-left">
+          <div class="foot-logo">
+            <span>F</span><span>I</span><span>C</span><span>H</span>
+          </div>
+          <div class="foot-text">
+            <strong>Facultad Integral del Chaco</strong>
+            <span>Unidad de Postgrado Chaco</span>
+          </div>
+        </div>
+        <p class="foot-gen">
+          Certificado oficial N° {{ c.codigo || 'S/N' }} emitido el {{ fmtMesLargo(c.fecha_emision) }}
+          · {{ c.n_impresiones }} impresión(es) registrada(s)
+        </p>
+      </footer>
+    </div>
+  } @else {
+    <div class="empty-state">
+      <mat-icon>workspace_premium</mat-icon>
+      <p>No hay certificado para mostrar</p>
+      <button mat-stroked-button (click)="volver()">Volver a Certificados de Notas</button>
+    </div>
+  }
+</div>

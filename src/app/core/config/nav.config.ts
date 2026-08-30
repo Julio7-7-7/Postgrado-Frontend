@@ -191,6 +191,15 @@ export const NAV_MODULES: NavModuleGroup[] = [
         kind: 'children',
         load: () => import('../../features/informes-notas/routes/informe-notas.routes').then(m => m.INFORME_NOTAS_ROUTES),
       },
+      {
+        path: '/certificados-notas',
+        label: 'Certificados de Notas',
+        icon: 'workspace_premium',
+        feature: 'certificados-notas',
+        permiso: 'pagos.ver',
+        kind: 'children',
+        load: () => import('../../features/certificados-notas/routes/certificados.routes').then(m => m.CERTIFICADOS_ROUTES),
+      },
     ],
   },
   {
