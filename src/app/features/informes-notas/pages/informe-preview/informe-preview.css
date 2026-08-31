@@ -292,7 +292,12 @@
   margin-top: 26px;
 }
 
-.career-sheet .sheet-head {
+.modalidad-sheet {
+  margin-top: 8px;
+}
+
+.career-sheet .sheet-head,
+.modalidad-sheet > .sheet-head {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -304,7 +309,18 @@
   position: relative;
 }
 
-.sheet-head::after {
+.modalidad-sheet > .sheet-head {
+  border-left-color: #334155;
+  background: linear-gradient(90deg, #eef2f7 0%, #f8fafc 60%, transparent);
+}
+
+.modalidad-sheet > .sheet-head.ec {
+  border-left-color: #047857;
+  background: linear-gradient(90deg, #f0fdf4 0%, #f8fafc 60%, transparent);
+}
+
+.career-sheet .sheet-head::after,
+.modalidad-sheet > .sheet-head::after {
   content: 'FICH';
   position: absolute;
   right: 14px;
@@ -316,7 +332,8 @@
   color: #cbd5e1;
 }
 
-.sheet-num {
+.career-sheet .sheet-num,
+.modalidad-sheet > .sheet-head .sheet-num {
   width: 32px;
   height: 32px;
   border-radius: 9px;
@@ -328,6 +345,14 @@
   font-weight: 800;
   font-size: 0.95rem;
   flex-shrink: 0;
+}
+
+.modalidad-sheet > .sheet-head.ec .sheet-num {
+  background: #047857;
+}
+
+.modalidad-sheet > .sheet-head:not(.ec) .sheet-num {
+  background: #334155;
 }
 
 .sheet-num mat-icon {
@@ -348,60 +373,27 @@
   color: #64748b;
 }
 
-/* ===== Sub-secciones por modalidad ===== */
-.mod-sub-seccion {
+.carrera-head {
   margin-top: 14px;
 }
 
-.mod-sub-head {
+/* Cabecera completa repetida por sección (visible solo al imprimir) */
+.print-section-header {
+  display: none;
+}
+
+/* Mensaje cuando una sección del final no tiene alumnos que cumplan (solo pantalla) */
+.no-cumplen {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 12px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-left: 4px solid #64748b;
-  border-radius: 8px;
-  font-size: 0.82rem;
-  font-weight: 700;
-  color: #334155;
-}
-
-.mod-sub-head mat-icon {
-  font-size: 16px;
-  width: 16px;
-  height: 16px;
-  color: #475569;
-}
-
-.mod-sub-count {
-  margin-left: auto;
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: #64748b;
-  background: #eef2f7;
+  margin-top: 14px;
+  padding: 14px 16px;
+  border: 1px dashed #cbd5e1;
   border-radius: 10px;
-  padding: 1px 9px;
-}
-
-.mod-sub-head.ec {
-  border-left-color: #047857;
-  background: #f0fdf4;
-  color: #065f46;
-}
-
-.mod-sub-head.ec mat-icon {
-  color: #047857;
-}
-
-.mod-sub-head.otros {
-  border-left-color: #1e3a8a;
-  background: #eff6ff;
-  color: #1e3a8a;
-}
-
-.mod-sub-head.otros mat-icon {
-  color: #1e3a8a;
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 0.85rem;
 }
 
 /* ===== Tablas ===== */
@@ -646,6 +638,40 @@ tr.row-retirado .nota-cell {
   color: #64748b;
 }
 
+.col-acciones {
+  min-width: 180px;
+  text-align: center !important;
+}
+
+.cert-acciones {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+}
+
+.cert-acciones button {
+  min-width: 0;
+  font-size: 0.72rem;
+  line-height: 1;
+  padding: 0 8px;
+}
+
+.cert-acciones .mat-mdc-button-base {
+  height: 30px;
+}
+
+.cert-acciones mat-icon {
+  font-size: 15px;
+  width: 15px;
+  height: 15px;
+}
+
+.cert-batch {
+  margin-top: 14px;
+  display: flex;
+  justify-content: flex-end;
+}
+
 /* ===== Pie de documento ===== */
 .doc-footer {
   margin-top: 36px;
@@ -722,21 +748,42 @@ tr.row-retirado .nota-cell {
     break-before: auto;
   }
 
+  .screen-top {
+    display: none !important;
+  }
+
+  .print-section-header {
+    display: block;
+  }
+
+  .no-cumplen {
+    display: none !important;
+  }
+
+  .cert-seccion {
+    break-before: page;
+  }
+
+  .cert-acciones,
+  .cert-batch {
+    display: none !important;
+  }
+
   .doc-footer {
     break-inside: avoid;
+  }
+
+  .carrera-head {
+    margin-top: 4px;
+  }
+
+  .modalidad-sheet {
+    margin-top: 0;
   }
 
   .matriz-scroll {
     overflow: visible;
     break-inside: auto;
-  }
-
-  .mod-sub-seccion {
-    break-inside: auto;
-  }
-
-  .mod-sub-head {
-    break-after: avoid;
   }
 
   .doc-table thead {

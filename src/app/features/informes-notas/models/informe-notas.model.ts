@@ -24,6 +24,7 @@ export interface InformeMatrizFila {
   promedio: number | null;
   aprobada: boolean;
   elegible: boolean;
+  cumple?: boolean;
   estado: string;
   estado_notas?: string | null;
   estado_pagos?: string | null;
@@ -35,6 +36,12 @@ export interface InformeCarrera {
   nombre: string;
   matriz_columnas: InformeMatrizColumna[];
   matriz_filas: InformeMatrizFila[];
+}
+
+export interface InformeModalidad {
+  nombre: string;
+  es_educacion_continua: boolean;
+  carreras: InformeCarrera[];
 }
 
 export interface InformeResumenCarrera {
@@ -62,6 +69,7 @@ export interface InformeContenido {
   semestre: number | null;
   anio: number | null;
   carreras: InformeCarrera[];
+  modalidades?: InformeModalidad[];
   todas_notas: boolean;
   edicion_finalizada: boolean;
   resumen: InformeResumen;
@@ -91,6 +99,19 @@ export interface CertificadoNotasInfo {
   id_informe: number;
   fecha_emision: string;
   ruta_pdf: string | null;
+  codigo?: string | null;
+  datos?: {
+    programa?: string | null;
+    version?: number | null;
+    edicion?: number | null;
+    anio?: number | null;
+    semestre?: number | null;
+    modalidad?: string | null;
+    carrera?: string | null;
+    alumno?: { nombre?: string | null; apellido?: string | null; ci?: string | null } | null;
+    modulos?: { nombre: string; sigla: string; nota: number | null; aprobada: boolean }[];
+    promedio?: number | null;
+  } | null;
   alumno: {
     nombre: string | null;
     apellido: string | null;

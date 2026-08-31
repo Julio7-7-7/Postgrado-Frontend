@@ -9,6 +9,8 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { CertificadoService } from '../../services/certificado.service';
 import { NavigationBackService } from '../../../../core/navigation/navigation-back.service';
 import { CertificadoNotas, CertificadoDatos, CertificadoModulo } from '../../models/certificado.model';
+import { InformeNotasService } from '../../../informes-notas/services/informe-notas.service';
+import { CertificadoNotasInfo } from '../../../informes-notas/models/informe-notas.model';
 import { nombreCompleto } from '../../../../core/utils/nombre-utils';
 
 @Component({
@@ -22,6 +24,7 @@ export class CertificadoPreviewComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private service = inject(CertificadoService);
+  private informesService = inject(InformeNotasService);
   private snackBar = inject(MatSnackBar);
   private destroyRef = inject(DestroyRef);
   private navBack = inject(NavigationBackService);
@@ -29,12 +32,18 @@ export class CertificadoPreviewComponent implements OnInit {
   nombreCompleto = nombreCompleto;
 
   cert = signal<CertificadoNotas | null>(null);
+  tandas = signal<CertificadoNotasInfo[]>([]);
   cargando = signal(false);
   impresoLabel = signal('');
 
   datos = computed<CertificadoDatos | null>(() => this.cert()?.datos ?? null);
 
   ngOnInit(): void {
+    const informeParam = Number(this.route.snapshot.queryParamMap.get('informe'));
+    if (informeParam) {
+      this.cargarTanda(informeParam);
+      return;
+    }
     const idParam = Number(this.route.snapshot.queryParamMap.get('id'));
     if (!idParam) {
       this.snackBar.open('Certificado no encontrado', 'Cerrar', { duration: 3000 });
@@ -56,6 +65,23 @@ export class CertificadoPreviewComponent implements OnInit {
         this.cargando.set(false);
         this.snackBar.open('Certificado no encontrado', 'Cerrar', { duration: 3000 });
         this.router.navigate(['/certificados-notas']);
+      },
+    });
+  }
+
+  private cargarTanda(idInforme: number): void {
+    this.cargando.set(true);
+    this.informesService.getCertificadosPorInforme(idInforme).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: res => {
+        this.tandas.set(res.certificados);
+        this.cargando.set(false);
+        if (res.certificados.length) {
+          setTimeout(() => window.print(), 300);
+        }
+      },
+      error: () => {
+        this.cargando.set(false);
+        this.snackBar.open('No se pudieron cargar los certificados de la tanda', 'Cerrar', { duration: 3000 });
       },
     });
   }
