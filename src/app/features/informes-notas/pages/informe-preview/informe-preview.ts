@@ -9,7 +9,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { InformeNotasService } from '../../services/informe-notas.service';
 import { NavigationBackService } from '../../../../core/navigation/navigation-back.service';
 import {
-  InformeNotas, InformeContenido, CertificadoNotasInfo, InformeMatrizFila,
+  InformeNotas, InformeContenido, CertificadoNotasInfo, InformeMatrizFila, InformeCarrera,
 } from '../../models/informe-notas.model';
 
 @Component({
@@ -154,5 +154,25 @@ export class InformePreviewComponent implements OnInit {
       return 'Ya cuenta con certificado emitido para esta edición.';
     }
     return fila.estado;
+  }
+
+  gruposDe(carrera: InformeCarrera): { titulo: string; identificador: string; icono: string; filas: InformeMatrizFila[] }[] {
+    const ec = carrera.matriz_filas.filter(f => f.es_educacion_continua);
+    const otros = carrera.matriz_filas.filter(f => !f.es_educacion_continua);
+    const grupos = [];
+    if (ec.length) {
+      grupos.push({ titulo: 'Estudiantes de Educación Continua', identificador: 'N.° Registro', icono: 'school', filas: ec });
+    }
+    if (otros.length) {
+      grupos.push({ titulo: 'Estudiantes de otras modalidades', identificador: 'C.I.', icono: 'badge', filas: otros });
+    }
+    return grupos;
+  }
+
+  identificadorDe(fila: InformeMatrizFila): string {
+    if (fila.es_educacion_continua) {
+      return fila.numero_registro || fila.ci || '—';
+    }
+    return fila.ci || '—';
   }
 }

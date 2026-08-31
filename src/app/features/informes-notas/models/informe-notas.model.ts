@@ -17,6 +17,9 @@ export interface InformeMatrizFila {
   nombre: string;
   apellido: string;
   ci: string | null;
+  numero_registro?: string | null;
+  modalidad_nombre?: string | null;
+  es_educacion_continua?: boolean;
   notas: (number | null)[];
   promedio: number | null;
   aprobada: boolean;

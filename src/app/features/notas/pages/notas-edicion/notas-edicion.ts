@@ -13,6 +13,7 @@ import { SortDir, sortItems } from '../../../../core/utils/sort-utils';
 import { maxTextWidth } from '../../../../core/utils/measure-text';
 import { AuthService } from '../../../../core/services/auth.service';
 import { NavigationBackService } from '../../../../core/navigation/navigation-back.service';
+import { EdicionContextoComponent } from '../../../../shared/components/edicion-contexto/edicion-contexto';
 
 @Component({
   selector: 'app-notas-edicion',
@@ -21,6 +22,7 @@ import { NavigationBackService } from '../../../../core/navigation/navigation-ba
     CommonModule,
     MatIconModule, MatButtonModule, MatTooltipModule,
     MatProgressSpinnerModule, MatSnackBarModule,
+    EdicionContextoComponent,
   ],
   templateUrl: './notas-edicion.html',
   styleUrl: './notas-edicion.css',

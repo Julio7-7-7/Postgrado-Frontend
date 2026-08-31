@@ -71,6 +71,7 @@ export class UsuarioFormComponent implements OnInit {
   apellido = '';
   ci = '';
   celular = '';
+  numeroRegistro = '';
 
   fechaNacimiento: Date | null = null;
   genero = '';
@@ -214,6 +215,7 @@ export class UsuarioFormComponent implements OnInit {
     if (t === 'alumno') {
       data.fecha_nacimiento = this.formatearFecha(this.fechaNacimiento);
       data.genero = this.genero || null;
+      data.numero_registro = this.numeroRegistro.trim() || null;
     } else if (t === 'docente') {
       data.genero = this.genero || null;
       data.extension = this.extension || null;

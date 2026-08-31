@@ -1,0 +1,18 @@
+<div class="breadcrumb-contexto">
+  @if (cargando()) {
+    <span class="bcx-placeholder">Cargando edición...</span>
+  } @else if (error()) {
+    <span class="bcx-placeholder">Edición #{{ idEdicion }}</span>
+  } @else if (contexto(); as ctx) {
+    <span class="breadcrumb-programa">{{ ctx.programa }}</span>
+    <span class="breadcrumb-sep">·</span>
+    <span class="breadcrumb-version">V{{ ctx.version }}</span>
+    <span class="breadcrumb-sep">·</span>
+    <span class="breadcrumb-edicion">E{{ ctx.edicion }}</span>
+    @if (ctx.anio) {
+      <span class="breadcrumb-sep">·</span>
+      <span class="breadcrumb-meta">{{ ctx.anio }}{{ ctx.semestre ? ('-S' + ctx.semestre) : '' }}</span>
+    }
+    <span class="bcx-estado" [class.en-curso]="ctx.estado === 'en_curso'">{{ estadoLabel(ctx.estado) }}</span>
+  }
+</div>

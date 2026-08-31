@@ -24,6 +24,7 @@ export interface UserAdminCreate {
   apellido: string;
   celular?: string | null;
   cargo?: string | null;
+  numero_registro?: string | null;
   fecha_nacimiento?: string | null;
   genero?: string | null;
   extension?: string | null;

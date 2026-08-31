@@ -15,6 +15,7 @@ import { BoletasAlumnoDialog } from '../boletas-alumno-dialog/boletas-alumno-dia
 import { SortDir, sortItems } from '../../../../core/utils/sort-utils';
 import { maxTextWidth } from '../../../../core/utils/measure-text';
 import { NavigationBackService } from '../../../../core/navigation/navigation-back.service';
+import { EdicionContextoComponent } from '../../../../shared/components/edicion-contexto/edicion-contexto';
 
 @Component({
   selector: 'app-pagos-edicion',
@@ -23,6 +24,7 @@ import { NavigationBackService } from '../../../../core/navigation/navigation-ba
     CommonModule,
     MatIconModule, MatButtonModule, MatTooltipModule,
     MatProgressSpinnerModule, MatSnackBarModule, MatDialogModule,
+    EdicionContextoComponent,
   ],
   templateUrl: './pagos-edicion.html',
   styleUrl: './pagos-edicion.css',

@@ -18,6 +18,7 @@ import { EdicionService } from '../../../edicion/services/edicion.service';
 import { NavigationBackService } from '../../../../core/navigation/navigation-back.service';
 import { ProgramaVersionEdicion } from '../../../edicion/models/edicion.model';
 import { nombreCompleto } from '../../../../core/utils/nombre-utils';
+import { EdicionContextoComponent } from '../../../../shared/components/edicion-contexto/edicion-contexto';
 
 @Component({
   selector: 'app-inscripciones-edicion',
@@ -26,7 +27,7 @@ import { nombreCompleto } from '../../../../core/utils/nombre-utils';
     CommonModule, FormsModule,
     MatIconModule, MatButtonModule, MatTooltipModule,
     MatProgressSpinnerModule, MatFormFieldModule, MatInputModule,
-    MatSnackBarModule,
+    MatSnackBarModule, EdicionContextoComponent,
   ],
   templateUrl: './inscripcion-edicion.html',
   styleUrl: './inscripcion-edicion.css',

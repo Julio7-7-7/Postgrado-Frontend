@@ -7,7 +7,7 @@
       @if (cert(); as c) {
         <span class="status-chip">Documento oficial</span>
         <span class="toolbar-edicion">
-          {{ datos()?.programa }} · Ed. {{ datos()?.edicion }} · {{ datos()?.anio }}
+          {{ datos()?.programa }} · E{{ datos()?.edicion }} · {{ datos()?.anio }}
         </span>
       }
     </div>
@@ -51,7 +51,7 @@
         </div>
         <div class="ident-cell">
           <span class="ident-label">Edición</span>
-          <span class="ident-value">Ed. {{ datos()?.edicion }} · {{ datos()?.anio }} · Sem. {{ datos()?.semestre }}</span>
+          <span class="ident-value">E{{ datos()?.edicion }} · {{ datos()?.anio }} · Sem. {{ datos()?.semestre }}</span>
         </div>
         <div class="ident-cell">
           <span class="ident-label">Modalidad</span>

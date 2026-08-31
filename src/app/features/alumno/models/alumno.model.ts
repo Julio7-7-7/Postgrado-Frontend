@@ -4,6 +4,7 @@ export interface Alumno {
   id_alumno: number;
   ci: string | null;
   pasaporte: string | null;
+  numero_registro?: string | null;
   nombre: string;
   apellido: string;
   fecha_nacimiento: string | null;
@@ -18,6 +19,7 @@ export interface Alumno {
 export interface AlumnoUpdate {
   ci?: string | null;
   pasaporte?: string | null;
+  numero_registro?: string | null;
   nombre?: string;
   apellido?: string;
   fecha_nacimiento?: string | null;
