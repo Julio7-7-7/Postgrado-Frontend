@@ -478,9 +478,47 @@
   text-align: right;
 }
 
+/* ===== Tanda (impresión múltiple) ===== */
+.tanda-banner {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 12px;
+}
+
+.tanda-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.cert-page {
+  break-before: auto;
+}
+
 @media print {
   .preview-toolbar {
     display: none !important;
+  }
+
+  .tanda-banner {
+    display: none !important;
+  }
+
+  .tanda-stack {
+    gap: 0;
+  }
+
+  .cert-page {
+    box-shadow: none;
+    border: none;
+    border-radius: 0;
+    padding: 24px 40px;
+    width: 100%;
+    break-before: page;
+  }
+
+  .cert-page:first-child {
+    break-before: auto;
   }
 
   .print-area {

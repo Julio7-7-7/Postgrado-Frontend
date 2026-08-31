@@ -1,0 +1,48 @@
+.breadcrumb-contexto {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 2px;
+  font-size: 0.85rem;
+  line-height: 1.2;
+}
+
+.breadcrumb-programa {
+  font-weight: 700;
+  color: var(--fich-primary-dark);
+  overflow-wrap: anywhere;
+}
+
+.breadcrumb-sep {
+  color: var(--fich-text-faint);
+  font-weight: 300;
+}
+
+.breadcrumb-version,
+.breadcrumb-edicion,
+.breadcrumb-meta {
+  font-weight: 600;
+  color: var(--fich-text-secondary);
+}
+
+.bcx-placeholder {
+  font-size: 0.78rem;
+  color: var(--fich-text-faint);
+}
+
+.bcx-estado {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 2px 9px;
+  border-radius: 20px;
+  background: var(--fich-bg-hover);
+  color: var(--fich-text-secondary);
+}
+
+.bcx-estado.en-curso {
+  background: var(--fich-feature-modulo-light);
+  color: var(--fich-feature-modulo);
+}

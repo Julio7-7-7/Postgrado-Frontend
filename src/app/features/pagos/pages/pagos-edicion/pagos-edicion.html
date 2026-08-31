@@ -5,12 +5,17 @@
         <mat-icon>arrow_back</mat-icon>
       </button>
       <div>
+        <app-edicion-contexto [idEdicion]="idEdicion" />
         <h1><mat-icon>payments</mat-icon> Pagos por Edición</h1>
         <p class="subtitle">Planilla de cuotas y aportes de los alumnos</p>
       </div>
     </div>
     <div class="header-right">
       @if (alumnos().length > 0) {
+        <button mat-stroked-button class="informe-btn" (click)="imprimirInforme()" matTooltip="Imprimir informe económico de la edición">
+          <mat-icon>print</mat-icon>
+          Informe económico
+        </button>
         <button mat-stroked-button class="sort-toggle" (click)="toggleOrden()" matTooltip="Alternar orden alfabético">
           <mat-icon>{{ nombreDir() === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
           Orden alfabético
@@ -56,6 +61,7 @@
                   Alumno
                 </span>
               </th>
+              <th class="col-beca" rowspan="2"><span class="th-matricula-chip">Beca</span></th>
               <th [attr.colspan]="modulos().length" class="th-mod-group">
                 <span class="th-mod-group-inner">
                   <span class="th-mod-group-line"></span>
@@ -67,7 +73,13 @@
                 <span class="th-matricula-chip">Matrícula</span>
               </th>
               <th class="col-total" rowspan="2">
-                <span class="th-prom-chip">Total</span>
+                <span class="th-prom-chip">Subtotal</span>
+              </th>
+              <th class="col-deuda" rowspan="2">
+                <span class="th-matricula-chip">Deuda</span>
+              </th>
+              <th class="col-acciones" rowspan="2">
+                <span class="th-prom-chip">Acciones</span>
               </th>
             </tr>
             <tr class="thead-nums">
@@ -95,6 +107,12 @@
                         </button>
                       }
                     </span>
+                  </span>
+                </td>
+                <td class="col-beca">
+                  <span class="beca-pill" [class.perdida]="a.beca_motivo || !a.beca_activa"
+                        [matTooltip]="a.beca_motivo || ''" [matTooltipPosition]="'above'">
+                    {{ becaLabel(a) }}
                   </span>
                 </td>
                 @for (m of modulos(); track m.id_detalle_programa_modulo) {
@@ -137,18 +155,28 @@
                             [matTooltip]="totalTooltip(a)">
                         <span class="prom-num">{{ pctTotal(a) }}%</span>
                       </span>
-                      <button mat-icon-button class="register-btn"
-                              [class.cobrar]="a.orden_activa"
-                              [matTooltip]="a.orden_activa ? 'Registrar pago de la orden ' + a.orden_activa.numero : 'Emitir orden de pago'"
-                              [matTooltipPosition]="'above'"
-                              (click)="abrirOrden(a, $event)">
-                        <mat-icon>{{ a.orden_activa ? 'monetization_on' : 'add' }}</mat-icon>
-                      </button>
-                      <button mat-icon-button class="boletas-btn" matTooltip="Ver boletas y anular"
-                              (click)="verBoletas(a, $event)">
-                        <mat-icon>receipt_long</mat-icon>
-                      </button>
                     </span>
+                  </span>
+                </td>
+                <td class="col-deuda">
+                  <span class="informe-deuda" [class.ok]="deudaAlumno(a) === 0"
+                        [matTooltip]="'Saldo pendiente de la edición'" [matTooltipPosition]="'above'">
+                    {{ fmt(deudaAlumno(a)) }} Bs
+                  </span>
+                </td>
+                <td class="col-acciones">
+                  <span class="acciones-wrap">
+                    <button mat-icon-button class="register-btn"
+                            [class.cobrar]="a.orden_activa"
+                            [matTooltip]="a.orden_activa ? 'Registrar pago de la orden ' + a.orden_activa.numero : 'Emitir orden de pago'"
+                            [matTooltipPosition]="'above'"
+                            (click)="abrirOrden(a, $event)">
+                      <mat-icon>{{ a.orden_activa ? 'monetization_on' : 'add' }}</mat-icon>
+                    </button>
+                    <button mat-icon-button class="boletas-btn" matTooltip="Ver boletas y anular"
+                            (click)="verBoletas(a, $event)">
+                      <mat-icon>receipt_long</mat-icon>
+                    </button>
                   </span>
                 </td>
               </tr>

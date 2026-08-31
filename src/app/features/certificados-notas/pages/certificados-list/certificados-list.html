@@ -47,7 +47,7 @@
       <mat-select [value]="selEdicion()" (selectionChange)="selEdicion.set($event.value); onEdicionChange($event.value)">
         @for (e of edicionesDeVersion(); track e.id_programa_version_edicion) {
           <mat-option [value]="e.id_programa_version_edicion">
-            Ed. {{ e.edicion }} · {{ e.anio }} · Sem. {{ e.semestre }} ({{ e.estado }})
+            E{{ e.edicion }} · {{ e.anio }} · Sem. {{ e.semestre }} ({{ e.estado }})
           </mat-option>
         }
       </mat-select>

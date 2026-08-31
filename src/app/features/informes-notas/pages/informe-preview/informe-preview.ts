@@ -9,7 +9,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { InformeNotasService } from '../../services/informe-notas.service';
 import { NavigationBackService } from '../../../../core/navigation/navigation-back.service';
 import {
-  InformeNotas, InformeContenido, CertificadoNotasInfo, InformeMatrizFila,
+  InformeNotas, InformeContenido, CertificadoNotasInfo, InformeMatrizFila, InformeCarrera, InformeModalidad,
 } from '../../models/informe-notas.model';
 
 @Component({
@@ -54,6 +54,34 @@ export class InformePreviewComponent implements OnInit {
   emitidoPor = computed(() => this.data()?.emitido_por_nombre ?? null);
 
   totalCertificados = computed(() => this.data()?.certificados_count ?? this.certificados().length);
+
+  /** Si el snapshot tiene el campo `cumple` (informes nuevos). En snapshots viejos no existe → no filtrar. */
+  private cumpleDisponible = computed(() => {
+    const c = this.contenido();
+    if (!c) return true;
+    const carreras = [
+      ...(c.carreras ?? []),
+      ...((c.modalidades ?? []).flatMap(m => m.carreras ?? [])),
+    ];
+    return carreras.some(ca => ca.matriz_filas.some(f => f.cumple !== undefined));
+  });
+
+  /** Modalidades (EC → carreras, otras → una sección). Fallback para snapshots viejos. */
+  modalidades = computed<InformeModalidad[]>(() => {
+    const c = this.contenido();
+    if (!c) return [];
+    if (c.modalidades && c.modalidades.length) return c.modalidades;
+    // Legacy: snapshot histórico sin `modalidades` (carreras planas).
+    return this.modalidadesDesdeCarreras(c.carreras);
+  });
+
+  sectores = computed<{ titulo: string; icono: string; carreras: InformeCarrera[] }[]>(() => {
+    return this.modalidades().map(mod => ({
+      titulo: mod.nombre,
+      icono: 'school',
+      carreras: mod.carreras,
+    }));
+  });
 
   ngOnInit(): void {
     const nav = this.router.getCurrentNavigation();
@@ -140,12 +168,6 @@ export class InformePreviewComponent implements OnInit {
     return 'est-pendiente';
   }
 
-  estadoPagosClass(estado: string): string {
-    if (estado === 'Completo') return 'est-completo';
-    if (estado === 'Retirado') return 'est-retirado';
-    return 'est-pagos';
-  }
-
   estadoTooltip(fila: InformeMatrizFila): string {
     if (fila.estado === 'Completo') {
       return 'Completo: todas las notas aprobadas y pagos al día. Elegible para certificado.';
@@ -154,5 +176,73 @@ export class InformePreviewComponent implements OnInit {
       return 'Ya cuenta con certificado emitido para esta edición.';
     }
     return fila.estado;
+  }
+
+  identificadorDe(fila: InformeMatrizFila): string {
+    if (fila.es_educacion_continua) {
+      return fila.numero_registro || fila.ci || '—';
+    }
+    return fila.ci || '—';
+  }
+
+  columnaIdent(carrera: InformeCarrera): string {
+    const esEc = carrera.matriz_filas.some(f => f.es_educacion_continua);
+    return esEc ? 'N.° Registro' : 'C.I.';
+  }
+
+  /** Fallback para snapshots viejos: agrupa las carreras planas en secciones por modalidad. */
+  private modalidadesDesdeCarreras(carreras: InformeCarrera[]): InformeModalidad[] {
+    const grupos: Record<string, InformeCarrera[]> = {};
+    for (const c of carreras) {
+      const esEc = c.matriz_filas.some(f => f.es_educacion_continua);
+      const key = esEc ? 'educación continua' : 'otras',
+        nombre = esEc ? 'Educación Continua' : 'Otras modalidades';
+      (grupos[key] = grupos[key] || []).push(c);
+    }
+    return Object.values(grupos).map((cs, i) => ({
+      nombre: i ? 'Otras modalidades' : 'Educación Continua',
+      es_educacion_continua: i === 0,
+      carreras: cs,
+    }));
+  }
+
+  /** Filas que se muestran en una carrera (en final, solo cumplidores; retirados solo en borrador). */
+  filasDeCarrera(carrera: InformeCarrera): InformeMatrizFila[] {
+    if (!this.cumpleDisponible()) {
+      return carrera.matriz_filas;
+    }
+    if (!this.esBorrador()) {
+      return carrera.matriz_filas.filter(f => f.cumple || f.elegible);
+    }
+    return carrera.matriz_filas;
+  }
+
+  tieneFilas(carrera: InformeCarrera): boolean {
+    return this.filasDeCarrera(carrera).length > 0;
+  }
+
+  contarSector(carreras: InformeCarrera[]): number {
+    return carreras.reduce((acc, c) => acc + this.filasDeCarrera(c).length, 0);
+  }
+
+  verCertificado(cert: CertificadoNotasInfo): void {
+    this.router.navigate(['/certificados-notas/preview'], {
+      queryParams: { id: cert.id_certificado },
+    });
+  }
+
+  abrirCertificado(cert: CertificadoNotasInfo): void {
+    const url = this.router.serializeUrl(
+      this.router.createUrlTree(['/certificados-notas/preview'], { queryParams: { id: cert.id_certificado } }),
+    );
+    window.open(url, '_blank');
+  }
+
+  imprimirTanda(): void {
+    const d = this.data();
+    if (!d) return;
+    this.router.navigate(['/certificados-notas/preview'], {
+      queryParams: { informe: d.id_informe },
+    });
   }
 }

@@ -13,6 +13,7 @@ import { SortDir, sortItems } from '../../../../core/utils/sort-utils';
 import { maxTextWidth } from '../../../../core/utils/measure-text';
 import { AuthService } from '../../../../core/services/auth.service';
 import { NavigationBackService } from '../../../../core/navigation/navigation-back.service';
+import { EdicionContextoComponent } from '../../../../shared/components/edicion-contexto/edicion-contexto';
 
 @Component({
   selector: 'app-notas-edicion',
@@ -21,6 +22,7 @@ import { NavigationBackService } from '../../../../core/navigation/navigation-ba
     CommonModule,
     MatIconModule, MatButtonModule, MatTooltipModule,
     MatProgressSpinnerModule, MatSnackBarModule,
+    EdicionContextoComponent,
   ],
   templateUrl: './notas-edicion.html',
   styleUrl: './notas-edicion.css',
@@ -213,11 +215,6 @@ export class NotasEdicionComponent implements OnInit {
     this.router.navigate(['/transcript', a.alumno.id_alumno], {
       queryParams: { idDpa: a.id_detalle_programa_alumno },
     });
-  }
-
-  volverAInscripciones(): void {
-    this.navBack.setReturn(this.router.url);
-    this.router.navigate(['/inscripciones', this.idEdicion]);
   }
 
   volver(): void {

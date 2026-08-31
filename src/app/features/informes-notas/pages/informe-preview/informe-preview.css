@@ -199,10 +199,18 @@
 
 .doc-ident-faja-main {
   display: flex;
-  align-items: baseline;
-  gap: 6px;
+  flex-direction: column;
+  gap: 1px;
   min-width: 0;
   flex: 1 1 auto;
+}
+
+.doc-ident-faja-main .if-value {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #1e3a8a;
+  overflow-wrap: anywhere;
+  line-height: 1.15;
 }
 
 .if-label {
@@ -212,6 +220,13 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
   white-space: nowrap;
+}
+
+.ident-faja-item {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  min-width: 0;
 }
 
 .if-value {
@@ -277,7 +292,12 @@
   margin-top: 26px;
 }
 
-.career-sheet .sheet-head {
+.modalidad-sheet {
+  margin-top: 8px;
+}
+
+.career-sheet .sheet-head,
+.modalidad-sheet > .sheet-head {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -289,7 +309,18 @@
   position: relative;
 }
 
-.sheet-head::after {
+.modalidad-sheet > .sheet-head {
+  border-left-color: #334155;
+  background: linear-gradient(90deg, #eef2f7 0%, #f8fafc 60%, transparent);
+}
+
+.modalidad-sheet > .sheet-head.ec {
+  border-left-color: #047857;
+  background: linear-gradient(90deg, #f0fdf4 0%, #f8fafc 60%, transparent);
+}
+
+.career-sheet .sheet-head::after,
+.modalidad-sheet > .sheet-head::after {
   content: 'FICH';
   position: absolute;
   right: 14px;
@@ -301,7 +332,8 @@
   color: #cbd5e1;
 }
 
-.sheet-num {
+.career-sheet .sheet-num,
+.modalidad-sheet > .sheet-head .sheet-num {
   width: 32px;
   height: 32px;
   border-radius: 9px;
@@ -313,6 +345,14 @@
   font-weight: 800;
   font-size: 0.95rem;
   flex-shrink: 0;
+}
+
+.modalidad-sheet > .sheet-head.ec .sheet-num {
+  background: #047857;
+}
+
+.modalidad-sheet > .sheet-head:not(.ec) .sheet-num {
+  background: #334155;
 }
 
 .sheet-num mat-icon {
@@ -331,6 +371,29 @@
 .sheet-sub {
   font-size: 0.76rem;
   color: #64748b;
+}
+
+.carrera-head {
+  margin-top: 14px;
+}
+
+/* Cabecera completa repetida por sección (visible solo al imprimir) */
+.print-section-header {
+  display: none;
+}
+
+/* Mensaje cuando una sección del final no tiene alumnos que cumplan (solo pantalla) */
+.no-cumplen {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  padding: 14px 16px;
+  border: 1px dashed #cbd5e1;
+  border-radius: 10px;
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 0.85rem;
 }
 
 /* ===== Tablas ===== */
@@ -512,11 +575,33 @@ tr.row-retirado .nota-cell {
 
 .sheet-leyenda {
   margin-top: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
+  padding: 8px 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
   font-size: 0.72rem;
   color: #64748b;
+}
+
+.sheet-leyenda h4 {
+  margin: 0 0 4px;
+  font-size: 0.66rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+}
+
+.leyenda-lista {
+  margin: 0;
+  padding-left: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.leyenda-lista li {
+  margin: 0;
 }
 
 .sheet-leyenda strong {
@@ -551,6 +636,40 @@ tr.row-retirado .nota-cell {
   margin-top: 10px;
   font-size: 0.8rem;
   color: #64748b;
+}
+
+.col-acciones {
+  min-width: 180px;
+  text-align: center !important;
+}
+
+.cert-acciones {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+}
+
+.cert-acciones button {
+  min-width: 0;
+  font-size: 0.72rem;
+  line-height: 1;
+  padding: 0 8px;
+}
+
+.cert-acciones .mat-mdc-button-base {
+  height: 30px;
+}
+
+.cert-acciones mat-icon {
+  font-size: 15px;
+  width: 15px;
+  height: 15px;
+}
+
+.cert-batch {
+  margin-top: 14px;
+  display: flex;
+  justify-content: flex-end;
 }
 
 /* ===== Pie de documento ===== */
@@ -629,12 +748,46 @@ tr.row-retirado .nota-cell {
     break-before: auto;
   }
 
+  .screen-top {
+    display: none !important;
+  }
+
+  .print-section-header {
+    display: block;
+  }
+
+  .no-cumplen {
+    display: none !important;
+  }
+
+  .cert-seccion {
+    break-before: page;
+  }
+
+  .cert-acciones,
+  .cert-batch {
+    display: none !important;
+  }
+
   .doc-footer {
     break-inside: avoid;
   }
 
+  .carrera-head {
+    margin-top: 4px;
+  }
+
+  .modalidad-sheet {
+    margin-top: 0;
+  }
+
   .matriz-scroll {
-    break-inside: avoid;
+    overflow: visible;
+    break-inside: auto;
+  }
+
+  .doc-table thead {
+    display: table-header-group;
   }
 
   .doc-table tr {

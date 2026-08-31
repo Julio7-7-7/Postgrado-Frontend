@@ -639,3 +639,154 @@
 .retirados-section .matriz-scroll {
   margin-top: 8px;
 }
+
+/* ─── Informe económico de la edición ─── */
+.informe-btn { font-size: 0.8rem; }
+.informe-btn mat-icon { font-size: 17px; }
+
+.informe-economico {
+  margin-top: 18px;
+  border: 1px solid var(--fich-border-light);
+  border-radius: var(--fich-radius-xl);
+  background: var(--fich-bg-card);
+  box-shadow: var(--fich-shadow-md);
+  overflow: hidden;
+}
+
+.informe-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--fich-border-light);
+  background: linear-gradient(135deg, var(--fich-bg-card), var(--fich-bg-subtle));
+}
+
+.informe-head h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 1.02rem;
+  font-weight: 800;
+  color: var(--fich-feature-pagos);
+}
+
+.informe-head h2 mat-icon { font-size: 20px; width: 20px; height: 20px; }
+
+.informe-head .subtitle {
+  margin: 4px 0 0;
+  font-size: 0.78rem;
+  color: var(--fich-text-muted);
+}
+
+.informe-economico .matriz-scroll {
+  margin: 0;
+  max-height: 60vh;
+  overflow: auto;
+}
+
+.informe-tabla tbody td {
+  padding: 12px 12px;
+}
+
+.col-beca { min-width: 130px; }
+
+.beca-pill {
+  display: inline-flex;
+  align-items: center;
+  height: 26px;
+  padding: 0 12px;
+  border-radius: var(--fich-radius-full);
+  background: var(--fich-success-lighter);
+  border: 1px solid var(--fich-est-en-curso-border);
+  color: #15803d;
+  font-weight: 700;
+  font-size: 0.7rem;
+}
+
+.beca-pill.perdida {
+  background: var(--fich-est-truncado-bg);
+  border-color: var(--fich-est-truncado-border);
+  color: var(--fich-est-truncado);
+}
+
+.informe-cuota {
+  display: inline-block;
+  min-width: 44px;
+  height: 26px;
+  line-height: 26px;
+  padding: 0 8px;
+  border-radius: 8px;
+  background: #f1f5f9;
+  color: #94a3b8;
+  font-size: 0.76rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.informe-cuota.pagado {
+  background: var(--fich-success-lighter);
+  color: #15803d;
+  font-weight: 700;
+}
+
+.informe-cuota.parcial {
+  background: var(--fich-warning-lighter, #fef3c7);
+  color: #b45309;
+  font-weight: 700;
+}
+
+.informe-total {
+  font-weight: 800;
+  color: #1e3a8a;
+  font-size: 0.82rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.informe-deuda {
+  font-weight: 700;
+  color: #b91c1c;
+  font-size: 0.82rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.informe-deuda.ok {
+  color: #15803d;
+}
+
+.informe-tabla tfoot td {
+  font-size: 0.82rem;
+  font-weight: 800;
+  border-top: 2px solid var(--fich-feature-pagos);
+}
+
+.informe-tabla tfoot .informe-foot-label {
+  text-align: left;
+  color: #1e3a8a;
+}
+
+.informe-tabla tfoot .informe-total,
+.informe-tabla tfoot .informe-deuda {
+  font-size: 0.86rem;
+}
+
+.col-beca { min-width: 132px; }
+
+.col-deuda {
+  min-width: 96px;
+  text-align: center;
+}
+
+.col-acciones {
+  min-width: 108px;
+  text-align: center;
+}
+
+.acciones-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}

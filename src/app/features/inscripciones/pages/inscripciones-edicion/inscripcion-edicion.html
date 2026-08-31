@@ -5,16 +5,12 @@
         <mat-icon>arrow_back</mat-icon>
       </button>
       <div>
+        <app-edicion-contexto [idEdicion]="idEdicion" />
         <h1><mat-icon>how_to_reg</mat-icon> Inscripciones por Edición</h1>
         <p class="subtitle">Alumnos inscritos en esta edición del programa</p>
       </div>
     </div>
     <div class="header-right">
-      @if (puedeVerNotas()) {
-        <button mat-stroked-button (click)="verNotas()" matTooltip="Ver notas de la edición">
-          <mat-icon>grading</mat-icon> Ver notas
-        </button>
-      }
       @if (puedeInscribir()) {
         <button mat-flat-button class="btn-nuevo" (click)="irAInscribir()">
           <mat-icon>person_add</mat-icon>

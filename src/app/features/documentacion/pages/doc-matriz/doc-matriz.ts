@@ -17,6 +17,7 @@ import {
 import { DocMatrizDialogComponent } from '../doc-matriz-dialog/doc-matriz-dialog';
 import { NavigationBackService } from '../../../../core/navigation/navigation-back.service';
 import { nombreCompleto, inicialesNombre } from '../../../../core/utils/nombre-utils';
+import { EdicionContextoComponent } from '../../../../shared/components/edicion-contexto/edicion-contexto';
 
 export interface GrupoModalidad {
   id_modalidad: number;
@@ -42,7 +43,7 @@ function esCarta(requisitoNombre: string): boolean {
     CommonModule,
     MatIconModule, MatButtonModule, MatTooltipModule,
     MatProgressSpinnerModule, MatProgressBarModule,
-    MatSnackBarModule, MatDialogModule,
+    MatSnackBarModule, MatDialogModule, EdicionContextoComponent,
   ],
   templateUrl: './doc-matriz.html',
   styleUrl: './doc-matriz.css',
@@ -56,6 +57,8 @@ export class DocMatrizComponent implements OnInit {
   private dialog = inject(MatDialog);
   private destroyRef = inject(DestroyRef);
 
+  idEdicion = 0;
+
   postulantes = signal<PostulanteResponse[]>([]);
   allPostulantes = signal<PostulanteResponse[]>([]);
   grupos = signal<GrupoModalidad[]>([]);
@@ -68,13 +71,13 @@ export class DocMatrizComponent implements OnInit {
   countAprobados = computed(() => this.allPostulantes().filter(p => p.docs_completados === p.docs_total && p.docs_total > 0).length);
 
   ngOnInit(): void {
-    const idEdicion = Number(this.route.snapshot.paramMap.get('idEdicion'));
-    if (!idEdicion) {
+    this.idEdicion = Number(this.route.snapshot.paramMap.get('idEdicion'));
+    if (!this.idEdicion) {
       this.router.navigate(['/documentacion']);
       return;
     }
 
-    this.service.getPostulantesPorEdicion(idEdicion).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    this.service.getPostulantesPorEdicion(this.idEdicion).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: data => {
         this.allPostulantes.set(data);
         this.aplicarFiltro();

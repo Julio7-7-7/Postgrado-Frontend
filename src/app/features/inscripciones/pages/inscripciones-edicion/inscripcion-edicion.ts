@@ -18,6 +18,7 @@ import { EdicionService } from '../../../edicion/services/edicion.service';
 import { NavigationBackService } from '../../../../core/navigation/navigation-back.service';
 import { ProgramaVersionEdicion } from '../../../edicion/models/edicion.model';
 import { nombreCompleto } from '../../../../core/utils/nombre-utils';
+import { EdicionContextoComponent } from '../../../../shared/components/edicion-contexto/edicion-contexto';
 
 @Component({
   selector: 'app-inscripciones-edicion',
@@ -26,7 +27,7 @@ import { nombreCompleto } from '../../../../core/utils/nombre-utils';
     CommonModule, FormsModule,
     MatIconModule, MatButtonModule, MatTooltipModule,
     MatProgressSpinnerModule, MatFormFieldModule, MatInputModule,
-    MatSnackBarModule,
+    MatSnackBarModule, EdicionContextoComponent,
   ],
   templateUrl: './inscripcion-edicion.html',
   styleUrl: './inscripcion-edicion.css',
@@ -42,7 +43,6 @@ export class InscripcionesEdicionComponent implements OnInit {
   private navBack = inject(NavigationBackService);
 
   puedeInscribir = computed(() => this.auth.hasPermiso('alumnos.crear'));
-  puedeVerNotas = computed(() => this.auth.hasPermiso('notas.ver'));
   esEnCurso = computed(() => this.edicionData()?.estado === 'en_curso');
 
   nombreCompleto = nombreCompleto;
@@ -261,10 +261,5 @@ export class InscripcionesEdicionComponent implements OnInit {
   verTranscript(item: InscripcionEdicionItem): void {
     this.navBack.setReturn(this.router.url);
     this.router.navigate(['/transcript', item.alumno.id_alumno], { queryParams: { idDpa: item.id_detalle_programa_alumno } });
-  }
-
-  verNotas(): void {
-    this.navBack.setReturn(this.router.url);
-    this.router.navigate(['/notas', this.idEdicion]);
   }
 }
