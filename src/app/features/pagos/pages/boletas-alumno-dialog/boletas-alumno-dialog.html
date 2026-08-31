@@ -4,28 +4,36 @@
 </h2>
 
 <div mat-dialog-content>
-  <p class="dialog-subtitle">
-    {{ data.edicion }} · Total confirmado: <b>{{ fmt(totalPagado()) }} Bs</b>
-  </p>
+  <div class="dialog-subtitle">
+    <span class="ds-item ds-edicion">{{ data.edicion }}</span>
+    <span class="ds-sep"></span>
+    <span class="ds-item">Total confirmado: <b>{{ fmt(totalPagado()) }} Bs</b></span>
+    <span class="ds-item ds-aux">{{ ordenes().length }} orden(es) · {{ transacciones().length }} boleta(s)</span>
+  </div>
 
   <div class="boletas-canvas">
-  @if (ordenesEmitidas().length > 0) {
+  @if (ordenesPendientes().length > 0) {
     <div class="ordenes-section">
       <div class="section-title">
         <mat-icon>receipt</mat-icon> Órdenes pendientes de cobro
       </div>
       <p class="section-hint">
-        La orden ya está emitida e impresa. Solo falta cobrarla. Si la orden salió con un error,
-        anulala acá para poder generar una nueva.
+        La orden ya está emitida e impresa. Solo falta cobrarla. Si salió con un error, anulala acá para generar una nueva.
       </p>
-      @for (o of ordenesEmitidas(); track o.id_orden_pago) {
+      @for (o of ordenesPendientes(); track o.id_orden_pago) {
         <div class="orden-card">
           <div class="orden-card-head">
             <span class="boleta-orden"><mat-icon>receipt</mat-icon> {{ o.numero }}</span>
             <span class="orden-card-total">{{ fmt(ordenTotal(o)) }} Bs</span>
           </div>
           <div class="orden-card-meta">
-            Emitida el {{ fecha(o.fecha_emision) }} · {{ o.items.length }} concepto(s)
+            <span class="meta-item"><mat-icon>event</mat-icon> Emitida el {{ fecha(o.fecha_emision) }}</span>
+            @if (o.creado_por) {
+              <span class="meta-item" [matTooltip]="'Generada por ' + o.creado_por" [matTooltipPosition]="'above'">
+                <mat-icon>person</mat-icon> {{ o.creado_por }}
+              </span>
+            }
+            <span class="meta-item">{{ o.items.length }} concepto(s)</span>
           </div>
           <ul class="asignaciones">
             @for (it of o.items; track $index) {
@@ -68,6 +76,12 @@
 
   <div class="section-title boletas-title">
     <mat-icon>receipt_long</mat-icon> Boletas de pago
+    <span class="section-actions">
+      <button mat-stroked-button type="button" class="informe-btn" (click)="emitirInforme()"
+              [disabled]="informeLoading()" matTooltip="Imprimir informe económico del alumno" [matTooltipPosition]="'above'">
+        <mat-icon>description</mat-icon> Informe económico
+      </button>
+    </span>
   </div>
 
   @if (isLoading()) {
@@ -75,7 +89,7 @@
       <mat-spinner diameter="32"></mat-spinner>
       <span>Cargando boletas...</span>
     </div>
-  } @else if (transacciones().length === 0) {
+  } @else if (transacciones().length === 0 && ordenesAnuladas().length === 0) {
     <div class="empty-state">
       <mat-icon>receipt_long</mat-icon>
       <p>Este alumno no tiene boletas registradas.</p>
@@ -88,12 +102,9 @@
             <span class="boleta-fecha">
               <mat-icon>event</mat-icon> {{ fecha(t.fecha_pago) }}
             </span>
-            @if (t.orden_numero) {
-              <span class="boleta-orden" [matTooltip]="'Cobrada con la orden ' + t.orden_numero"
-                    [matTooltipPosition]="'above'">
-                <mat-icon>receipt</mat-icon> {{ t.orden_numero }}
-              </span>
-            }
+            <span class="boleta-codigo" [matTooltip]="'Código de boleta (recibo de caja)'" [matTooltipPosition]="'above'">
+              <mat-icon>tag</mat-icon> {{ t.codigo_boleta || '—' }}
+            </span>
             <span class="boleta-total">{{ fmt(t.monto_total) }} Bs</span>
             <span class="estado-pill" [class.confirmado]="t.estado === 'confirmado'"
                   [class.anulado]="t.estado === 'anulado'">
@@ -114,13 +125,16 @@
           </ul>
 
           <div class="boleta-meta">
+            @if (t.orden_numero) {
+              <span class="meta-item"><mat-icon>receipt</mat-icon> {{ t.orden_numero }}</span>
+            }
             @if (t.comprobante) {
               <a class="comprobante-link" [href]="comprobanteUrl(t.comprobante)" target="_blank" rel="noopener">
                 <mat-icon>visibility</mat-icon> Ver comprobante
               </a>
             }
             @if (t.creado_por) {
-              <span class="meta-item" [matTooltip]="'Registrado por ' + t.creado_por">
+              <span class="meta-item" [matTooltip]="'Registrado por ' + t.creado_por" [matTooltipPosition]="'above'">
                 <mat-icon>person</mat-icon> {{ t.creado_por }}
               </span>
             }
@@ -145,6 +159,33 @@
           }
         </div>
       }
+
+      @if (ordenesAnuladas().length > 0) {
+        <div class="anuladas-block">
+          <div class="anuladas-title">
+            <mat-icon>block</mat-icon> Órdenes anuladas ({{ ordenesAnuladas().length }})
+          </div>
+          @for (o of ordenesAnuladas(); track o.id_orden_pago) {
+            <div class="orden-card anulada">
+              <div class="orden-card-head">
+                <span class="boleta-orden anulada"><mat-icon>block</mat-icon> {{ o.numero }}</span>
+                <span class="orden-card-total muted">{{ fmt(ordenTotal(o)) }} Bs</span>
+              </div>
+              <div class="orden-card-meta">
+                <span class="meta-item"><mat-icon>event</mat-icon> Emitida el {{ fecha(o.fecha_emision) }}</span>
+                <span class="meta-item anulacion">
+                  <mat-icon>block</mat-icon>
+                  Anulada {{ o.anulado_fecha ? 'el ' + fecha(o.anulado_fecha.split('T')[0]) : '' }}
+                  @if (o.anulado_por) { · {{ o.anulado_por }} }
+                </span>
+                @if (o.motivo_anulacion) {
+                  <span class="motivo">Motivo: {{ o.motivo_anulacion }}</span>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
     </div>
   }
   </div>
@@ -152,4 +193,96 @@
 
 <div mat-dialog-actions align="end">
   <button mat-button type="button" (click)="cerrar()">Cerrar</button>
+</div>
+
+<div class="print-area" id="informe-pago-print">
+  @if (informe(); as inf) {
+    <div class="print-doc-ltr">
+      <div class="print-head">
+        <div class="print-logo">FICH</div>
+        <div class="print-head-txt">
+          <div class="print-institucion">Facultad Integral del Chaco — FICH</div>
+          <div class="print-sub">Unidad de Postgrado Chaco</div>
+        </div>
+      </div>
+      <div class="print-titulo">INFORME ECONÓMICO DEL ESTUDIANTE</div>
+      <div class="print-numero">{{ data.nombre }} · {{ data.edicion }}</div>
+
+      <div class="print-datos">
+        <div class="print-dato">
+          <span class="print-campo">Estudiante</span>
+          <span class="print-valor">{{ data.nombre }}</span>
+        </div>
+        <div class="print-dato">
+          <span class="print-campo">Inscripción</span>
+          <span class="print-valor">{{ data.edicion }}</span>
+        </div>
+        <div class="print-dato">
+          <span class="print-campo">Fecha de emisión</span>
+          <span class="print-valor">{{ inf.numero }}</span>
+        </div>
+      </div>
+
+      <div class="print-sec-titulo">Órdenes emitidas</div>
+      <table class="print-tabla">
+        <thead>
+          <tr>
+            <th>Orden</th>
+            <th>Emisión</th>
+            <th class="print-col-monto">Total (Bs)</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (o of inf.ordenes; track o.id_orden_pago) {
+            <tr>
+              <td>{{ o.numero }}</td>
+              <td>{{ fecha(o.fecha_emision) }}</td>
+              <td class="print-col-monto">{{ fmt(o.monto_total) }}</td>
+              <td>{{ o.estado === 'emitida' ? 'Pendiente de cobro' : o.estado === 'pagada' ? 'Pagada' : 'Anulada' }}</td>
+            </tr>
+          }
+          @if (inf.ordenes.length === 0) {
+            <tr><td colspan="4" class="print-vacio">Sin órdenes emitidas.</td></tr>
+          }
+        </tbody>
+      </table>
+
+      <div class="print-sec-titulo">Pagos registrados</div>
+      <table class="print-tabla">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Orden</th>
+            <th>Código de boleta</th>
+            <th class="print-col-monto">Monto (Bs)</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (t of transacciones(); track t.id_transaccion) {
+            <tr>
+              <td>{{ fecha(t.fecha_pago) }}</td>
+              <td>{{ t.orden_numero || '—' }}</td>
+              <td>{{ t.codigo_boleta || '—' }}</td>
+              <td class="print-col-monto">{{ fmt(t.monto_total) }}</td>
+              <td>{{ t.estado === 'confirmado' ? 'Confirmado' : 'Anulado' }}</td>
+            </tr>
+          }
+          @if (transacciones().length === 0) {
+            <tr><td colspan="5" class="print-vacio">Sin pagos registrados.</td></tr>
+          }
+        </tbody>
+      </table>
+
+      <div class="print-resumen">
+        <div class="pr-item"><span>Total confirmado</span><b>{{ fmt(totalPagado()) }} Bs</b></div>
+      </div>
+
+      <div class="print-footer">
+        <div class="print-firma">Firma y sello de caja</div>
+        <div class="print-firma">Firma del responsable</div>
+      </div>
+    </div>
+  }
 </div>

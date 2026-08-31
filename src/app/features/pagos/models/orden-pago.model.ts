@@ -16,6 +16,7 @@ export interface OrdenPagoEmitir {
 export interface OrdenPagoPagar {
   fecha_pago: string;
   comprobante?: string | null;
+  codigo_boleta?: string | null;
 }
 
 export interface OrdenPagoBaja {
@@ -46,8 +47,10 @@ export interface OrdenPagoResponse {
   estado: 'emitida' | 'pagada' | 'anulada';
   motivo_anulacion: string | null;
   anulado_por_id_usuario: number | null;
+  anulado_por: string | null;
   anulado_fecha: string | null;
   creado_por_id_usuario: number | null;
+  creado_por: string | null;
   created_at: string;
   updated_at: string;
   id_transaccion: number | null;

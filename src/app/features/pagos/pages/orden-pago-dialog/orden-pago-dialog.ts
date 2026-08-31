@@ -69,6 +69,7 @@ export class OrdenPagoDialog {
   previewError = signal<string | null>(null);
 
   fechaPago: Date | null = new Date();
+  codigoBoleta = '';
   comprobante = signal<{ name: string; size: number; data: string } | null>(null);
   comprobanteFile = signal<File | null>(null);
 
@@ -233,14 +234,16 @@ export class OrdenPagoDialog {
       this.snackbar.open('Ingresá una fecha de pago válida', 'Cerrar', { duration: 3000 });
       return;
     }
-    if (!this.comprobante()) {
-      this.snackbar.open('Debés adjuntar el comprobante del pago', 'Cerrar', { duration: 3000 });
+    const codigoBoleta = this.codigoBoleta.trim();
+    if (!codigoBoleta) {
+      this.snackbar.open('Debés ingresar el código de boleta (recibo de caja)', 'Cerrar', { duration: 3000 });
       return;
     }
     this.isSubmitting.set(true);
     this.service.pagar(orden.id_orden_pago, {
       fecha_pago: this.fechaPago.toISOString().split('T')[0],
-      comprobante: this.comprobante()!.data,
+      comprobante: this.comprobante()?.data ?? null,
+      codigo_boleta: codigoBoleta,
     }).subscribe({
       next: () => {
         this.isSubmitting.set(false);

@@ -196,8 +196,15 @@
             <mat-datepicker #picker></mat-datepicker>
           </mat-form-field>
 
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Código de boleta (recibo de caja)</mat-label>
+            <input matInput [(ngModel)]="codigoBoleta" placeholder="N.º de recibo del alumno"
+                   autocomplete="off" />
+            <mat-hint>Número de recibo que trae el estudiante. Sirve para pedir un informe o reimpresión a caja si se pierde.</mat-hint>
+          </mat-form-field>
+
           <div class="upload-section">
-            <div class="upload-title">Comprobante de caja (obligatorio)</div>
+            <div class="upload-title">Comprobante de caja (opcional)</div>
             <app-upload-box
               accept="image/jpeg,image/png,image/webp,application/pdf"
               [showConfirmButtons]="false"

@@ -18,6 +18,7 @@ export interface TransaccionPagoResponse {
   monto_total: number;
   fecha_pago: string;
   comprobante: string | null;
+  codigo_boleta: string | null;
   estado: string;
   motivo_anulacion: string | null;
   anulado_por_id_usuario: number | null;
@@ -46,6 +47,7 @@ export interface TransaccionTranscript {
   fecha_pago: string;
   monto_total: number;
   comprobante: string | null;
+  codigo_boleta: string | null;
   estado: string;
   motivo_anulacion: string | null;
   anulado_fecha: string | null;

@@ -341,3 +341,305 @@ mat-dialog-content {
 .anular-orden-actions button {
   font-size: 0.75rem;
 }
+
+/* ─── Subtitle descriptivo (fix letras recortadas) ─── */
+.dialog-subtitle {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 14px;
+  font-size: 0.88rem;
+  color: var(--fich-text-secondary);
+}
+
+.ds-item {
+  line-height: 1.4;
+}
+
+.ds-edicion {
+  font-weight: 700;
+  color: var(--fich-text);
+  background: var(--fich-feature-pagos-light);
+  border: 1px solid var(--fich-border-light);
+  padding: 4px 10px;
+  border-radius: var(--fich-radius-full);
+}
+
+.ds-sep {
+  width: 2px;
+  height: 18px;
+  background: var(--fich-border-light);
+  border-radius: 1px;
+}
+
+.ds-item b {
+  color: var(--fich-feature-pagos);
+}
+
+.ds-aux {
+  font-size: 0.74rem;
+  color: var(--fich-text-muted);
+}
+
+/* ─── Código de boleta ─── */
+.boleta-codigo {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.72rem;
+  color: var(--fich-text-secondary);
+  border: 1px dashed var(--fich-border-strong);
+  border-radius: 8px;
+  padding: 2px 7px;
+  font-variant-numeric: tabular-nums;
+}
+
+.boleta-codigo mat-icon {
+  font-size: 13px;
+  width: 13px;
+  height: 13px;
+  color: var(--fich-feature-pagos);
+}
+
+/* ─── Actions de sección (botón informe) ─── */
+.section-actions {
+  margin-left: auto;
+}
+
+.informe-btn {
+  font-size: 0.72rem;
+  line-height: 30px;
+}
+
+.informe-btn mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+/* ─── Órdenes anuladas ─── */
+.anuladas-block {
+  margin-top: 4px;
+}
+
+.anuladas-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.76rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--fich-est-truncado);
+  margin: 14px 0 10px;
+}
+
+.anuladas-title mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+.orden-card.anulada {
+  opacity: 0.78;
+  background: var(--fich-bg-subtle);
+}
+
+.orden-card-total.muted {
+  color: var(--fich-text-muted);
+}
+
+.boleta-orden.anulada {
+  border-color: var(--fich-est-truncado-border);
+  background: var(--fich-est-truncado-bg);
+  color: var(--fich-est-truncado);
+}
+
+/* ─── Print del informe económico (carta) ─── */
+.print-doc-ltr {
+  width: 100%;
+  padding: 36px 40px;
+  font-family: inherit;
+  color: #0f172a;
+}
+
+@media print {
+  .print-area .print-doc-ltr {
+    box-sizing: border-box;
+  }
+}
+
+.print-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 14px;
+  border-bottom: 3px double var(--fich-feature-pagos);
+  margin-bottom: 18px;
+}
+
+.print-logo {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1e3a8a, #15803d);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.9rem;
+  letter-spacing: 0.02em;
+}
+
+.print-head-txt {
+  display: flex;
+  flex-direction: column;
+}
+
+.print-institucion {
+  font-weight: 800;
+  font-size: 1rem;
+  color: #1e3a8a;
+}
+
+.print-sub {
+  font-size: 0.78rem;
+  color: #475569;
+}
+
+.print-titulo {
+  text-align: center;
+  font-weight: 800;
+  font-size: 1.1rem;
+  letter-spacing: 0.04em;
+  color: #1e3a8a;
+  margin: 4px 0 2px;
+}
+
+.print-numero {
+  text-align: center;
+  font-size: 0.82rem;
+  color: #64748b;
+  margin-bottom: 18px;
+}
+
+.print-datos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px 20px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 18px;
+  background: #fafbfc;
+}
+
+.print-dato {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.print-campo {
+  font-size: 0.66rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+}
+
+.print-valor {
+  font-size: 0.86rem;
+  color: #0f172a;
+}
+
+.print-sec-titulo {
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #1e3a8a;
+  margin: 16px 0 8px;
+}
+
+.print-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+  margin-bottom: 8px;
+}
+
+.print-tabla thead th {
+  background: #1e3a8a;
+  color: #fff;
+  text-align: left;
+  padding: 7px 10px;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.print-tabla tbody td {
+  padding: 7px 10px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.print-tabla tbody tr:nth-child(even) {
+  background: #f8fafc;
+}
+
+.print-col-monto {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.print-vacio {
+  color: #94a3b8;
+  text-align: center;
+}
+
+.print-resumen {
+  display: flex;
+  justify-content: flex-end;
+  margin: 12px 0 8px;
+}
+
+.pr-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border: 1px solid #15803d;
+  border-radius: 10px;
+  padding: 8px 16px;
+  background: #f0fdf4;
+}
+
+.pr-item span {
+  font-size: 0.76rem;
+  color: #166534;
+  font-weight: 600;
+}
+
+.pr-item b {
+  font-size: 1rem;
+  color: #15803d;
+  font-variant-numeric: tabular-nums;
+}
+
+.print-footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 48px;
+  padding-top: 8px;
+}
+
+.print-firma {
+  width: 230px;
+  border-top: 1px solid #0f172a;
+  padding-top: 8px;
+  text-align: center;
+  font-size: 0.74rem;
+  color: #475569;
+}

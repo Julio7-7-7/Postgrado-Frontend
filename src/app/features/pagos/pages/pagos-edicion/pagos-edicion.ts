@@ -44,6 +44,7 @@ export class PagosEdicionComponent implements OnInit {
   isLoading = signal(true);
   refreshing = signal(false);
   showRetirados = signal(false);
+  mostrarInforme = signal(false);
   idEdicion = 0;
   alumnoWidth = signal('auto');
 
@@ -233,5 +234,32 @@ export class PagosEdicionComponent implements OnInit {
 
   volver(): void {
     this.navBack.retornar(['/pagos']);
+  }
+
+  toggleInforme(): void {
+    this.mostrarInforme.set(!this.mostrarInforme());
+  }
+
+  imprimirInforme(): void {
+    window.print();
+  }
+
+  deudaAlumno(a: AlumnoPagosMatrix): number {
+    return Math.max(0, Math.round((a.total_esperado - a.total_pagado) * 100) / 100);
+  }
+
+  becaLabel(a: AlumnoPagosMatrix): string {
+    if (a.beca_activa) return 'Beca activa';
+    if (a.beca_motivo) return 'Beca perdida';
+    return 'Sin beca';
+  }
+
+  informeTotales(): { esperado: number; pagado: number; deuda: number } {
+    let esperado = 0, pagado = 0;
+    for (const a of this.alumnos()) {
+      esperado += a.total_esperado;
+      pagado += a.total_pagado;
+    }
+    return { esperado, pagado, deuda: Math.max(0, esperado - pagado) };
   }
 }
