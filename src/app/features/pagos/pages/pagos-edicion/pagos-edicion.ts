@@ -91,7 +91,7 @@ export class PagosEdicionComponent implements OnInit {
       next: (p: any) => {
         const perfil = p?.administrativo || p?.alumno || p?.docente;
         if (perfil?.nombre || perfil?.apellido) {
-          this.usuarioSesion.set(`${perfil.apellido || ''} ${perfil.nombre || ''}`.trim());
+          this.usuarioSesion.set(`${perfil.nombre || ''} ${perfil.apellido || ''}`.trim());
         }
       },
     });
@@ -298,17 +298,17 @@ export class PagosEdicionComponent implements OnInit {
   .sub { font-size: 0.8rem; color: #475569; }
   .titulo { text-align:center; font-size:1rem; font-weight:800; letter-spacing:.12em; color:#1e3a8a; margin: 0 0 4px; }
   .numero { text-align:center; font-size:0.8rem; color:#475569; margin-bottom: 12px; }
-  table { width: 100%; border-collapse: collapse; font-size: 0.72rem; }
-  th { background: #1e3a8a; color: #fff; padding: 7px 8px; text-align: left; font-weight: 700; border: 1px solid #1e3a8a; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.72rem; table-layout: auto; }
+  th { background: #1e3a8a; color: #fff; padding: 7px 8px; text-align: left; font-weight: 700; border: 1px solid #1e3a8a; white-space: nowrap; }
   th.monto, td.monto { text-align: right; }
-  td { padding: 6px 8px; border: 1px solid #cbd5e1; }
+  td { padding: 6px 8px; border: 1px solid #cbd5e1; white-space: nowrap; }
   tbody tr:nth-child(even) td { background: #f8fafc; }
   tfoot td { font-weight: 800; background: #eef2ff; border-top: 2px solid #1e3a8a; }
   tfoot td.monto { color: #1e3a8a; }
   .deuda { font-weight: 700; color: #b91c1c; }
   .deuda.ok { color: #15803d; }
-  .firmas { display: flex; justify-content: space-between; margin-top: 44px; }
-  .firma { width: 42%; border-top: 1px solid #94a3b8; padding-top: 8px; text-align: center; font-size: 0.72rem; color: #334155; }
+  .firmas { display: flex; justify-content: center; margin-top: 44px; }
+  .firma { width: 46%; border-top: 1px solid #94a3b8; padding-top: 8px; text-align: center; font-size: 0.72rem; color: #334155; font-weight: 700; }
 </style></head><body>
   <div class="head">
     <div class="logo">FICH</div>
@@ -325,7 +325,6 @@ export class PagosEdicionComponent implements OnInit {
     <tfoot><tr><td colspan="2">TOTALES</td>${modTds}<td></td><td class="monto">${this.fmt(t.pagado)}</td><td class="monto">${this.fmt(t.deuda)}</td></tr></tfoot>
   </table>
   <div class="firmas">
-    <div class="firma">Firma y sello de caja</div>
     <div class="firma">${this.usuarioSesion() || 'Firma del responsable'}</div>
   </div>
 </body></html>`;
@@ -354,10 +353,10 @@ export class PagosEdicionComponent implements OnInit {
   }
 
   becaLabel(a: AlumnoPagosMatrix): string {
-    const tipo = a.beca_tipo || (a.beca_activa ? 'Beca' : null);
-    if (a.beca_activa) return tipo ? `Beca activa · ${tipo}` : 'Beca activa';
-    if (a.beca_motivo) return tipo ? `Beca perdida · ${tipo}` : 'Beca perdida';
-    return 'Sin beca';
+    const tipo = a.beca_tipo || null;
+    if (a.beca_activa) return tipo || '—';
+    if (a.beca_motivo) return tipo || '—';
+    return '—';
   }
 
   informeTotales(): { esperado: number; pagado: number; deuda: number } {

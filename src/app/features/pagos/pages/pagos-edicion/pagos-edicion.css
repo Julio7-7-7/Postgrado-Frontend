@@ -461,8 +461,17 @@
   border-color: var(--fich-est-en-curso-border);
 }
 
-/* ----- Anillo de total ----- */
-.prom-ring {
+/* ----- Subtotal (monto) ----- */
+.subtotal-amount {
+  font-weight: 700;
+  font-size: 0.82rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--fich-text);
+  white-space: nowrap;
+}
+
+/* ----- Anillo de % avance ----- */
+.avance-ring {
   --prom-color: var(--fich-success);
   position: relative;
   display: inline-flex;
@@ -474,7 +483,7 @@
   flex: 0 0 auto;
 }
 
-.prom-ring::before {
+.avance-ring::before {
   content: '';
   position: absolute;
   inset: 4px;
@@ -482,7 +491,7 @@
   border-radius: 50%;
 }
 
-.prom-num {
+.avance-num {
   position: relative;
   z-index: 1;
   font-weight: 800;
@@ -491,23 +500,8 @@
   line-height: 1;
 }
 
-.prom-ring-vacia {
-  background: var(--fich-border-light);
-}
-
-.prom-ring-verde {
+.avance-ok {
   --prom-color: var(--fich-success);
-}
-
-.total-wrap {
-  display: inline-flex;
-  align-items: center;
-}
-
-.total-main {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
 }
 
 .register-btn {
@@ -777,6 +771,11 @@
 
 .col-deuda {
   min-width: 96px;
+  text-align: center;
+}
+
+.col-avance {
+  min-width: 80px;
   text-align: center;
 }
 

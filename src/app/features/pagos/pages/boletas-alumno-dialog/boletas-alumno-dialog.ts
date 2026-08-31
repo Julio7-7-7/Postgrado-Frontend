@@ -14,6 +14,7 @@ import { environment } from '../../../../../environments/environment';
 import { PagoService } from '../../services/pago.service';
 import { OrdenPagoService } from '../../services/orden-pago.service';
 import { AuthService } from '../../../../core/services/auth.service';
+import { PersonaService } from '../../../persona/services/persona.service';
 import { TransaccionTranscript } from '../../models/pago.model';
 import { OrdenPagoResponse } from '../../models/orden-pago.model';
 import { AnularBoletaDialog } from '../anular-boleta-dialog/anular-boleta-dialog';
@@ -43,6 +44,7 @@ export class BoletasAlumnoDialog implements OnInit {
   private service = inject(PagoService);
   private ordenService = inject(OrdenPagoService);
   private auth = inject(AuthService);
+  private personaService = inject(PersonaService);
   private snackbar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
   private destroyRef = inject(DestroyRef);
@@ -62,6 +64,25 @@ export class BoletasAlumnoDialog implements OnInit {
 
   informe = signal<{ numero: string; fecha: string; beca: string; ordenes: OrdenPagoResponse[] } | null>(null);
   informeLoading = signal(false);
+
+  usuarioSesion = signal('');
+
+  constructor() {
+    this.cargarUsuarioSesion();
+  }
+
+  private cargarUsuarioSesion(): void {
+    const idUsuario = this.auth.user()?.id_usuario;
+    if (!idUsuario) return;
+    this.personaService.getById(idUsuario).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (p: any) => {
+        const perfil = p?.administrativo || p?.alumno || p?.docente;
+        if (perfil?.nombre || perfil?.apellido) {
+          this.usuarioSesion.set(`${perfil.nombre || ''} ${perfil.apellido || ''}`.trim());
+        }
+      },
+    });
+  }
 
   puedeAnular = computed(() => this.auth.hasPermiso('pagos.anular'));
 

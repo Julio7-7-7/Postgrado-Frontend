@@ -728,6 +728,11 @@ tr.row-retirado .nota-cell {
 }
 
 @media print {
+  @page {
+    size: Letter landscape;
+    margin: 0;
+  }
+
   .preview-toolbar {
     display: none !important;
   }

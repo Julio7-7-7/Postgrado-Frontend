@@ -41,11 +41,6 @@
         <span class="matriz-meta">
           {{ modulos().length }} cuotas · {{ activos().length }} alumnos · Matrícula {{ fmt(matriculaEdicion()) }} Bs
         </span>
-        <span class="matriz-leyenda">
-          <span class="leyenda-item"><i class="leyenda-dot pago-full"></i> Pagado</span>
-          <span class="leyenda-item"><i class="leyenda-dot pago-parcial"></i> Parcial</span>
-          <span class="leyenda-item"><i class="leyenda-dot pago-vacio"></i> Pendiente</span>
-        </span>
       </div>
 
       <div class="matriz-scroll" #matrizWrap>
@@ -73,10 +68,13 @@
                 <span class="th-matricula-chip">Matrícula</span>
               </th>
               <th class="col-total" rowspan="2">
-                <span class="th-prom-chip">Subtotal</span>
+                <span class="th-matricula-chip">Subtotal</span>
               </th>
               <th class="col-deuda" rowspan="2">
                 <span class="th-matricula-chip">Deuda</span>
+              </th>
+              <th class="col-avance" rowspan="2">
+                <span class="th-prom-chip">% Avance</span>
               </th>
               <th class="col-acciones" rowspan="2">
                 <span class="th-prom-chip">Acciones</span>
@@ -149,19 +147,18 @@
                   </span>
                 </td>
                 <td class="col-total">
-                  <span class="total-wrap">
-                    <span class="total-main">
-                      <span class="prom-ring" [class.prom-ring-verde]="a.pct_total >= 100" [style.background]="ringBg(a)"
-                            [matTooltip]="totalTooltip(a)">
-                        <span class="prom-num">{{ pctTotal(a) }}%</span>
-                      </span>
-                    </span>
-                  </span>
+                  <span class="subtotal-amount">{{ fmt(a.total_pagado) }} Bs</span>
                 </td>
                 <td class="col-deuda">
                   <span class="informe-deuda" [class.ok]="deudaAlumno(a) === 0"
                         [matTooltip]="'Saldo pendiente de la edición'" [matTooltipPosition]="'above'">
                     {{ fmt(deudaAlumno(a)) }} Bs
+                  </span>
+                </td>
+                <td class="col-avance">
+                  <span class="avance-ring" [class.avance-ok]="a.pct_total >= 100" [style.background]="ringBg(a)"
+                        [matTooltip]="totalTooltip(a)">
+                    <span class="avance-num">{{ pctTotal(a) }}%</span>
                   </span>
                 </td>
                 <td class="col-acciones">
@@ -203,7 +200,8 @@
                       </th>
                     }
                     <th class="col-matricula"><span class="th-matricula-chip">Matrícula</span></th>
-                    <th class="col-total"><span class="th-prom-chip">Total</span></th>
+                    <th class="col-total"><span class="th-matricula-chip">Subtotal</span></th>
+                    <th class="col-avance"><span class="th-prom-chip">% Avance</span></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -252,9 +250,11 @@
                         </span>
                       </td>
                       <td class="col-total">
-                        <span class="prom-ring" [class.prom-ring-verde]="a.pct_total >= 100" [style.background]="ringBg(a)"
-                              [matTooltip]="totalTooltip(a)">
-                          <span class="prom-num">{{ pctTotal(a) }}%</span>
+                        <span class="subtotal-amount">{{ fmt(a.total_pagado) }} Bs</span>
+                      </td>
+                      <td class="col-avance">
+                        <span class="avance-ring" [class.avance-ok]="a.pct_total >= 100" [style.background]="ringBg(a)">
+                          <span class="avance-num">{{ pctTotal(a) }}%</span>
                         </span>
                       </td>
                     </tr>
