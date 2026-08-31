@@ -16,12 +16,23 @@ import {
 } from '../../models/documentacion.model';
 import { DocMatrizDialogComponent } from '../doc-matriz-dialog/doc-matriz-dialog';
 import { NavigationBackService } from '../../../../core/navigation/navigation-back.service';
+import { nombreCompleto, inicialesNombre } from '../../../../core/utils/nombre-utils';
 
 export interface GrupoModalidad {
   id_modalidad: number;
   nombre: string;
   requisitos: RequisitoColumn[];
   postulantes: PostulanteResponse[];
+}
+
+const CARTAS: Record<number, string> = {
+  6: 'Incorporación',
+  7: 'Reincorporación',
+  8: 'Migración',
+};
+
+function esCarta(requisitoNombre: string): boolean {
+  return requisitoNombre.toLowerCase().startsWith('carta de solicitud');
 }
 
 @Component({
@@ -101,7 +112,7 @@ export class DocMatrizComponent implements OnInit {
         id_modalidad: id,
         nombre: grupo.nombre,
         requisitos: Array.from(seen.entries())
-          .filter(([, nombre]) => nombre !== 'Carta de Solicitud de Incorporación')
+          .filter(([, nombre]) => !esCarta(nombre))
           .map(([rid, nombre]) => ({ id: rid, nombre })),
         postulantes: grupo.postulantes,
       });
@@ -158,8 +169,20 @@ export class DocMatrizComponent implements OnInit {
   }
 
   iniciales(p: PostulanteResponse): string {
-    if (!p.alumno) return '??';
-    return (p.alumno.nombre[0] + p.alumno.apellido[0]).toUpperCase();
+    return inicialesNombre(p.alumno);
+  }
+
+  nombrePostulante(p: PostulanteResponse): string {
+    return nombreCompleto(p.alumno);
+  }
+
+  tipoCarta(p: PostulanteResponse): string | null {
+    for (const doc of p.control_documentacion) {
+      if (CARTAS[doc.id_requisito]) {
+        return CARTAS[doc.id_requisito];
+      }
+    }
+    return null;
   }
 
   estadoClass(estado: string): string {

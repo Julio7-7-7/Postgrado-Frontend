@@ -1,0 +1,96 @@
+<div class="dialog-shell">
+  <div class="dialog-header">
+    <div class="header-icon">
+      <mat-icon>add_circle_outline</mat-icon>
+    </div>
+    <div>
+      <h2>Emitir nuevos certificados</h2>
+      <p>Educación Continua se emite con el informe final y no aparece acá.</p>
+    </div>
+  </div>
+
+  <mat-dialog-content>
+    @if (cargando()) {
+      <div class="dlg-loading">
+        <mat-spinner diameter="30"></mat-spinner>
+        <span>Cargando alumnos elegibles...</span>
+      </div>
+    } @else if (error()) {
+      <div class="dlg-error">
+        <mat-icon>error_outline</mat-icon>
+        <span>{{ error() }}</span>
+      </div>
+    } @else {
+      <mat-form-field appearance="outline" class="dlg-buscador">
+        <mat-label>Buscar alumno</mat-label>
+        <input matInput [ngModel]="buscador()" (ngModelChange)="buscador.set($event)" placeholder="Apellido, nombre o C.I." />
+        <mat-icon matSuffix>search</mat-icon>
+      </mat-form-field>
+
+      @if (totalElegibles() === 0) {
+        <div class="dlg-empty">
+          <mat-icon>workspace_premium</mat-icon>
+          <p>No hay alumnos no-EC elegibles en esta edición.</p>
+        </div>
+      }
+
+      <div class="grupos">
+        @for (g of gruposFiltrados(); track g.modalidad) {
+          <div class="grupo">
+            <div class="grupo-head" (click)="toggleGrupo(g)">
+              <mat-checkbox
+                [checked]="grupoCompleto(g)"
+                [indeterminate]="!grupoCompleto(g) && g.alumnos.some(a => a.elegible && seleccion().includes(a.id_alumno))"
+                (click)="$event.stopPropagation()"
+                (change)="toggleGrupo(g)"
+              ></mat-checkbox>
+              <span class="grupo-nombre">{{ g.modalidad }}</span>
+              <span class="grupo-count">{{ g.alumnos.filter(a => a.elegible).length }} elegible(s)</span>
+            </div>
+
+            <div class="grupo-body">
+              @for (a of g.alumnos; track a.id_alumno) {
+                <div class="fila" [class.no-elegible]="!a.elegible">
+                  <mat-checkbox
+                    [checked]="a.elegible && seleccion().includes(a.id_alumno)"
+                    [disabled]="!a.elegible"
+                    (change)="toggle(a.id_alumno, $event.checked)"
+                  ></mat-checkbox>
+                  <span class="fila-avatar">{{ (a.apellido[0] || '').toUpperCase() }}{{ (a.nombre[0] || '').toUpperCase() }}</span>
+                  <span class="fila-nombre">{{ a.apellido }} {{ a.nombre }}</span>
+                  <span class="fila-ci">{{ a.ci || '—' }}</span>
+                  @if (a.elegible) {
+                    <span class="fila-estado ok">Elegible</span>
+                  } @else {
+                    <span class="fila-estado no" [matTooltip]="a.motivo_exclusion || ''">
+                      {{ a.motivo_exclusion || 'No elegible' }}
+                    </span>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <span class="sel-count">Seleccionados: {{ seleccionadosElegibles() }}</span>
+    <button mat-button (click)="dialogRef.close(false)" type="button">Cancelar</button>
+    <button
+      mat-flat-button
+      color="primary"
+      [disabled]="!puedeEmitir()"
+      (click)="emitir()"
+      type="button"
+    >
+      @if (emitiendo()) {
+        <mat-spinner diameter="18"></mat-spinner>
+      } @else {
+        <mat-icon>workspace_premium</mat-icon>
+      }
+      Emitir certificados
+    </button>
+  </mat-dialog-actions>
+</div>

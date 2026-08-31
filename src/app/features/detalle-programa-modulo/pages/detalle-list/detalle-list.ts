@@ -19,6 +19,7 @@ import { ReordenarModulosDialogComponent, ReordenarModulosData } from '../../com
 import { CuadroHorarioDialogComponent, CuadroHorarioData } from '../../../../shared/components/cuadro-horario-dialog/cuadro-horario-dialog';
 import { AuthService } from '../../../../core/services/auth.service';
 import { NavigationBackService } from '../../../../core/navigation/navigation-back.service';
+import { nombreCompleto } from '../../../../core/utils/nombre-utils';
 
 @Component({
   selector: 'app-detalle-list',
@@ -42,6 +43,8 @@ export class DetalleListComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
   private auth = inject(AuthService);
   private navBack = inject(NavigationBackService);
+
+  nombreCompleto = nombreCompleto;
 
   puedeVerNotas = computed(() => this.auth.hasPermiso('notas.ver'));
 
@@ -256,25 +259,37 @@ export class DetalleListComponent implements OnInit {
 
   verNotas(): void {
     this.navBack.setReturn(this.router.url);
-    const mods = this.detalles();
-    const actual = mods[this.currentIndex()];
+    this.router.navigate(['/notas', this.idEdicion()]);
+  }
+
+  verNotasModulo(detalle: DetalleProgramaModulo): void {
+    this.navBack.setReturn(this.router.url);
     this.router.navigate(['/notas', this.idEdicion()], {
-      queryParams: actual ? { modulo: actual.id_detalle_programa_modulo } : {},
+      queryParams: { modulo: detalle.id_detalle_programa_modulo },
     });
   }
 
-  puedeVerInformes(): boolean {
+  puedeVerAlumnos(): boolean {
+    return this.auth.hasPermiso('alumnos.ver');
+  }
+
+  puedeVerPagos(): boolean {
     return this.auth.hasPermiso('pagos.ver');
   }
 
-  verInforme(): void {
-    this.navBack.setReturn(this.router.url);
-    const mods = this.detalles();
-    const actual = mods[this.currentIndex()];
-    this.router.navigate(['/informes-notas'], {
-      queryParams: actual
-        ? { edicion: this.idEdicion(), modulo: actual.id_detalle_programa_modulo }
-        : { edicion: this.idEdicion() },
-    });
+  puedeVerDocumentacion(): boolean {
+    return this.auth.hasPermiso('documentos.revisar');
+  }
+
+  irAInscripciones(): void {
+    this.router.navigate(['/inscripciones', this.idEdicion()]);
+  }
+
+  irADocumentacion(): void {
+    this.router.navigate(['/documentacion', this.idEdicion()]);
+  }
+
+  irAPagos(): void {
+    this.router.navigate(['/pagos', this.idEdicion()]);
   }
 }

@@ -169,6 +169,53 @@
   margin-right: 4px;
 }
 
+.colapsable-section {
+  margin-top: 8px;
+  border-top: 1px dashed var(--fich-border-strong);
+  padding-top: 14px;
+}
+
+.colapsable-head {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--fich-text-secondary);
+  padding: 6px 10px;
+  border-radius: 8px;
+}
+
+.colapsable-head:hover {
+  background: var(--fich-bg-subtle);
+}
+
+.colapsable-head .chevron {
+  transition: transform 0.2s;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.colapsable-head .chevron.open {
+  transform: rotate(180deg);
+}
+
+.edicion-card.finalizada {
+  filter: saturate(0.6);
+  opacity: 0.9;
+}
+
+.edicion-card.finalizada .action-btn {
+  background: var(--fich-bg-subtle);
+  color: var(--fich-text-secondary);
+}
+
+.estado-finalizado { background: var(--fich-bg-subtle); color: var(--fich-text-secondary); }
+
 /* ===== Búsqueda global de alumno ===== */
 
 .busqueda-section {

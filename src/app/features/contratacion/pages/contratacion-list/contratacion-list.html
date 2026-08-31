@@ -94,7 +94,7 @@
         <ng-container matColumnDef="docente">
           <th mat-header-cell *matHeaderCellDef>Docente</th>
           <td mat-cell *matCellDef="let c">
-            <span class="docente-name">{{ c.docente.nombre }} {{ c.docente.apellido }}</span>
+            <span class="docente-name">{{ nombreCompleto(c.docente) }}</span>
           </td>
         </ng-container>
 

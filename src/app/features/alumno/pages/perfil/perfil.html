@@ -11,7 +11,7 @@
     <div class="perfil-header">
       <div class="avatar">{{ getUserInitial() }}</div>
       <div class="header-info">
-        <h1>{{ alumno()!.nombre }} {{ alumno()!.apellido }}</h1>
+        <h1>{{ nombreCompleto(alumno()) }}</h1>
         <p class="email">{{ getUserEmail() }}</p>
         <div class="header-tags">
           @if (alumno()!.ci) {

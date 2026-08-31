@@ -13,7 +13,7 @@
       <div class="perfil-header">
         <div class="avatar">{{ iniciales() }}</div>
         <div class="header-info">
-          <h1>{{ d.grado ? d.grado + '. ' : '' }}{{ d.nombre }} {{ d.apellido }}</h1>
+          <h1>{{ d.grado ? d.grado + '. ' : '' }}{{ nombreCompleto(d) }}</h1>
           <div class="header-badges">
             <span class="estado-badge estado-activo">Docente</span>
             @if (d.tiene_modulos_activos) {

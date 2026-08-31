@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject, DestroyRef } from '@angular/core';
+import { Component, OnInit, signal, computed, inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -32,11 +32,15 @@ export class NotasAdminComponent implements OnInit {
 
   ediciones = signal<ProgramaVersionEdicionResponse[]>([]);
   isLoading = signal(true);
+  verFinalizadas = signal(false);
+
+  activas = computed(() => this.ediciones().filter(e => e.estado !== 'finalizado' && !e.es_historico));
+  finalizadas = computed(() => this.ediciones().filter(e => e.estado === 'finalizado' || e.es_historico));
 
   ngOnInit(): void {
     this.notaService.getEdiciones().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: data => {
-        this.ediciones.set(data.filter(e => e.estado !== 'finalizado'));
+        this.ediciones.set(data);
         this.isLoading.set(false);
       },
       error: () => {
@@ -66,6 +70,7 @@ export class NotasAdminComponent implements OnInit {
       programado: 'estado-programado',
       en_curso: 'estado-en_curso',
       reprogramado: 'estado-reprogramado',
+      finalizado: 'estado-finalizado',
     };
     return map[estado] || '';
   }

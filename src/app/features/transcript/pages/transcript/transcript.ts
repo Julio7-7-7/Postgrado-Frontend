@@ -258,6 +258,16 @@ export class TranscriptComponent implements OnInit {
     this.navBack.retornar(['/inscripciones']);
   }
 
+  formatearNombre(nombre: string | null | undefined, apellido: string | null | undefined): string {
+    return [apellido || '', nombre || ''].filter(Boolean).join(' ').trim();
+  }
+
+  inicialesTer(apellido: string | null | undefined, nombre: string | null | undefined): string {
+    const a = apellido?.[0] || '';
+    const n = nombre?.[0] || '';
+    return (a + n).toUpperCase();
+  }
+
   seleccionarInscripcion(idDpa: number): void {
     this.selectedDpaId.set(idDpa);
     this.router.navigate([], { relativeTo: this.route, queryParams: { idDpa }, queryParamsHandling: 'merge' });

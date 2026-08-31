@@ -293,6 +293,29 @@
   color: var(--fich-text-muted);
 }
 
+.incorporado-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-left: auto;
+  flex-shrink: 0;
+  font-size: 0.62rem;
+  font-weight: 600;
+  color: var(--fich-feature-documentacion, #0369a1);
+  background: color-mix(in srgb, var(--fich-feature-documentacion, #0369a1) 10%, white);
+  border: 1px solid color-mix(in srgb, var(--fich-feature-documentacion, #0369a1) 30%, transparent);
+  border-radius: 999px;
+  padding: 2px 8px;
+  white-space: nowrap;
+}
+
+.incorporado-tag mat-icon {
+  font-size: 13px;
+  width: 13px;
+  height: 13px;
+  line-height: 13px;
+}
+
 /* ─── Estado pill ─── */
 
 .estado-pill {

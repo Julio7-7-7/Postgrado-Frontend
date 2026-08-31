@@ -11,6 +11,7 @@ import { MatInputModule } from '@angular/material/input';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DocumentacionService } from '../../services/documentacion.service';
 import { AuthService } from '../../../../core/services/auth.service';
+import { nombreCompleto as nombreCompletoFmt, inicialesNombre } from '../../../../core/utils/nombre-utils';
 import {
   PostulanteResponse,
   ControlDocumentacionResponse,
@@ -42,7 +43,7 @@ export class DocMatrizDialogComponent {
   private cdr = inject(ChangeDetectorRef);
 
   rejectingDocId = signal<number | null>(null);
-  rejectObservacion = signal('');
+  observaciones = signal<Record<number, string>>({});
 
   apiUrl = environment.apiUrl;
 
@@ -58,13 +59,11 @@ export class DocMatrizDialogComponent {
   }
 
   get nombreCompleto(): string {
-    if (!this.p.alumno) return 'Sin datos';
-    return `${this.p.alumno.nombre} ${this.p.alumno.apellido}`;
+    return nombreCompletoFmt(this.p.alumno) || 'Sin datos';
   }
 
   get iniciales(): string {
-    if (!this.p.alumno) return '??';
-    return (this.p.alumno.nombre[0] + this.p.alumno.apellido[0]).toUpperCase();
+    return inicialesNombre(this.p.alumno);
   }
 
   get progresoPct(): number {
@@ -148,16 +147,23 @@ export class DocMatrizDialogComponent {
 
   startReject(doc: ControlDocumentacionResponse): void {
     this.rejectingDocId.set(doc.id_control_documentacion);
-    this.rejectObservacion.set(doc.observaciones || '');
+    this.observaciones.update(m => ({ ...m, [doc.id_control_documentacion]: doc.observaciones || '' }));
   }
 
   cancelReject(): void {
     this.rejectingDocId.set(null);
-    this.rejectObservacion.set('');
+  }
+
+  motivoDe(doc: ControlDocumentacionResponse): string {
+    return this.observaciones()[doc.id_control_documentacion] ?? '';
+  }
+
+  setMotivo(doc: ControlDocumentacionResponse, valor: string): void {
+    this.observaciones.update(m => ({ ...m, [doc.id_control_documentacion]: valor }));
   }
 
   confirmReject(doc: ControlDocumentacionResponse): void {
-    const obs = this.rejectObservacion().trim();
+    const obs = this.motivoDe(doc).trim();
     if (!obs) {
       this.snackbar.open('Debe escribir un motivo de rechazo', 'Cerrar', { duration: 3000 });
       return;
@@ -170,8 +176,8 @@ export class DocMatrizDialogComponent {
       next: () => {
         doc.estado = 'rechazado';
         doc.observaciones = obs;
+        this.observaciones.update(m => ({ ...m, [doc.id_control_documentacion]: obs }));
         this.rejectingDocId.set(null);
-        this.rejectObservacion.set('');
         this.recalcProgress();
         this.cdr.detectChanges();
         this.snackbar.open('Documento rechazado', 'Cerrar', { duration: 1500 });

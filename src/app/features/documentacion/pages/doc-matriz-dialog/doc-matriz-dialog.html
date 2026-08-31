@@ -91,18 +91,18 @@
         }
       </div>
 
-      @if (rejectingDocId() === doc?.id_control_documentacion) {
+      @if (rejectingDocId() === doc?.id_control_documentacion && doc) {
         <div class="reject-form">
           <mat-form-field appearance="outline" class="reject-field">
             <mat-label>Motivo del rechazo</mat-label>
             <textarea matInput rows="2"
-                      [ngModel]="rejectObservacion()"
-                      (ngModelChange)="rejectObservacion.set($event)"
+                      [ngModel]="motivoDe(doc)"
+                      (ngModelChange)="setMotivo(doc, $event)"
                       placeholder="Ej: No se lee claramente la firma..."></textarea>
           </mat-form-field>
           <div class="reject-actions">
             <button mat-button (click)="cancelReject()">Cancelar</button>
-            <button mat-flat-button color="warn" (click)="confirmReject(doc!)">
+            <button mat-flat-button color="warn" (click)="confirmReject(doc)">
               <mat-icon>close</mat-icon> Rechazar
             </button>
           </div>

@@ -80,9 +80,15 @@
                       <div class="alumno-cell">
                         <div class="avatar-sm">{{ iniciales(p) }}</div>
                         <div class="alumno-text">
-                          <span class="alumno-nombre">{{ p.alumno?.nombre }} {{ p.alumno?.apellido }}</span>
+                          <span class="alumno-nombre">{{ nombrePostulante(p) }}</span>
                           <span class="alumno-ci">CI: {{ p.alumno?.ci || '—' }}</span>
                         </div>
+                        @if (tipoCarta(p)) {
+                          <span class="incorporado-tag" [matTooltip]="'Solicitud de ' + tipoCarta(p)">
+                            <mat-icon>swap_horiz</mat-icon>
+                            {{ tipoCarta(p) }}
+                          </span>
+                        }
                       </div>
                     </td>
                     <td class="col-estado">

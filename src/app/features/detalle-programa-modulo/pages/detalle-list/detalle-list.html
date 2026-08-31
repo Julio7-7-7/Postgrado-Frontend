@@ -19,15 +19,25 @@
       </div>
     </div>
     <div class="header-right">
-      @if (puedeVerNotas()) {
-        <button mat-stroked-button (click)="verNotas()" matTooltip="Ver notas de la edición (módulo actual destacado)">
-          <mat-icon>grading</mat-icon> Ver notas
+      @if (puedeVerAlumnos()) {
+        <button mat-stroked-button (click)="irAInscripciones()" matTooltip="Ver inscripciones de la edición">
+          <mat-icon>group</mat-icon> Inscripciones
         </button>
-        @if (puedeVerInformes()) {
-          <button mat-stroked-button (click)="verInforme()" matTooltip="Generar informe de notas de la edición">
-            <mat-icon>summarize</mat-icon> Info. de Notas
-          </button>
-        }
+      }
+      @if (puedeVerDocumentacion()) {
+        <button mat-stroked-button (click)="irADocumentacion()" matTooltip="Ver documentación de la edición">
+          <mat-icon>folder_open</mat-icon> Documentación
+        </button>
+      }
+      @if (puedeVerNotas()) {
+        <button mat-stroked-button (click)="verNotas()" matTooltip="Ver notas generales de la edición">
+          <mat-icon>grading</mat-icon> Notas
+        </button>
+      }
+      @if (puedeVerPagos()) {
+        <button mat-stroked-button (click)="irAPagos()" matTooltip="Ver pagos de la edición">
+          <mat-icon>payments</mat-icon> Pagos
+        </button>
       }
     </div>
   </div>
@@ -91,14 +101,14 @@
                            (click)="verContratacion(detalle)"
                            href="javascript:void(0)">
                           <mat-icon class="info-icon">person</mat-icon>
-                          {{ detalle.docente.nombre }} {{ detalle.docente.apellido }}
+                          {{ nombreCompleto(detalle.docente) }}
                           <mat-icon class="link-icon">open_in_new</mat-icon>
                         </a>
                         <span class="contratacion-estado" [class]="'cto-' + detalle.contratacion.estado">
                           {{ contratacionEstadoLabel(detalle.contratacion.estado) }}
                         </span>
                       } @else {
-                        <span class="info-value">{{ detalle.docente.nombre }} {{ detalle.docente.apellido }}</span>
+                        <span class="info-value">{{ nombreCompleto(detalle.docente) }}</span>
                       }
                     </div>
                   } @else {
@@ -157,6 +167,11 @@
             </mat-card-content>
 
             <mat-card-actions>
+              @if (puedeVerNotas()) {
+                <button mat-stroked-button (click)="verNotasModulo(detalle)" class="action-btn notas-btn" matTooltip="Ver notas del módulo actual">
+                  <mat-icon>grading</mat-icon> Notas del módulo
+                </button>
+              }
               <button mat-stroked-button (click)="verHistorial(detalle)" class="action-btn historial-btn" matTooltip="Ver historial de cambios">
                 <mat-icon>history</mat-icon> Historial
               </button>

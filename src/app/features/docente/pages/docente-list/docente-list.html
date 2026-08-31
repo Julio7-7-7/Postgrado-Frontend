@@ -89,7 +89,7 @@
         <ng-container matColumnDef="nombre">
           <th mat-header-cell *matHeaderCellDef> Nombre </th>
           <td mat-cell *matCellDef="let element" class="name-cell">
-            <span class="docente-name">{{ element.nombre }} {{ element.apellido }}</span>
+            <span class="docente-name">{{ nombreCompleto(element) }}</span>
           </td>
         </ng-container>
 
@@ -196,7 +196,7 @@
             <ng-container matColumnDef="nombre">
               <th mat-header-cell *matHeaderCellDef> Nombre </th>
               <td mat-cell *matCellDef="let element" class="name-cell">
-                <span class="docente-name">{{ element.nombre }} {{ element.apellido }}</span>
+                <span class="docente-name">{{ nombreCompleto(element) }}</span>
               </td>
             </ng-container>
 

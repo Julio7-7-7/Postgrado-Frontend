@@ -1,0 +1,171 @@
+<div class="page-container cert-page">
+  <div class="cert-hero">
+    <div class="hero-left">
+      <div class="hero-icon">
+        <mat-icon>workspace_premium</mat-icon>
+      </div>
+      <div class="hero-text">
+        <h1>Certificados de Notas</h1>
+        <p>Vista por edición. Los certificados de <strong>Educación Continua</strong> se emiten con el informe final; el resto se pueden emitir individualmente.</p>
+      </div>
+    </div>
+    @if (puedeRegistrar()) {
+      <button
+        mat-flat-button
+        color="primary"
+        class="btn-emitir"
+        [disabled]="!selEdicion() || !edicionFinalizada()"
+        (click)="abrirSelector()"
+        type="button"
+      >
+        <mat-icon>add_circle_outline</mat-icon> Emitir nuevo certificado
+      </button>
+    }
+  </div>
+
+  <div class="cascada">
+    <mat-form-field appearance="outline" class="sel">
+      <mat-label>Programa</mat-label>
+      <mat-select [value]="selPrograma()" (selectionChange)="selPrograma.set($event.value); onProgramaChange()">
+        @for (p of programas(); track p.id_programa) {
+          <mat-option [value]="p.id_programa">{{ p.nombre_programa }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="sel">
+      <mat-label>Versión</mat-label>
+      <mat-select [value]="selVersion()" (selectionChange)="selVersion.set($event.value); onVersionChange()">
+        @for (v of versionesDelPrograma(); track v.id_programa_version) {
+          <mat-option [value]="v.id_programa_version">Versión {{ v.version }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="sel">
+      <mat-label>Edición</mat-label>
+      <mat-select [value]="selEdicion()" (selectionChange)="selEdicion.set($event.value); onEdicionChange($event.value)">
+        @for (e of edicionesDeVersion(); track e.id_programa_version_edicion) {
+          <mat-option [value]="e.id_programa_version_edicion">
+            Ed. {{ e.edicion }} · {{ e.anio }} · Sem. {{ e.semestre }} ({{ e.estado }})
+          </mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <div class="cascada-toolbar">
+      <mat-form-field appearance="outline" class="buscador">
+        <mat-label>Buscar</mat-label>
+        <input matInput [ngModel]="buscador()" (ngModelChange)="buscador.set($event)" placeholder="Apellido, C.I. o código" />
+        <mat-icon matSuffix>search</mat-icon>
+      </mat-form-field>
+      <span class="total-chip">{{ totalCertificados() }} certificado(s)</span>
+    </div>
+  </div>
+
+  @if (cargandoInicio()) {
+    <div class="loading-state">
+      <mat-spinner diameter="36"></mat-spinner>
+      <span>Cargando ediciones...</span>
+    </div>
+  } @else if (errorInicio()) {
+    <div class="empty-state error">
+      <mat-icon>error_outline</mat-icon>
+      <p>{{ errorInicio() }}</p>
+    </div>
+  } @else if (!selEdicion()) {
+    <div class="empty-state">
+      <mat-icon>filter_alt_off</mat-icon>
+      <p>Seleccioná un programa, versión y edición para ver sus certificados.</p>
+    </div>
+  } @else if (!edicionFinalizada()) {
+    <div class="empty-state">
+      <mat-icon>schedule</mat-icon>
+      <p>Esta edición aún no está finalizada. Los certificados se emiten cuando la edición se finaliza.</p>
+    </div>
+  } @else if (cargando()) {
+    <div class="loading-state">
+      <mat-spinner diameter="36"></mat-spinner>
+      <span>Cargando certificados...</span>
+    </div>
+  } @else if (filtrados().length === 0) {
+    <div class="empty-state">
+      <mat-icon>workspace_premium</mat-icon>
+      <p>Aún no hay certificados emitidos en esta edición.</p>
+      @if (puedeRegistrar()) {
+        <button mat-stroked-button (click)="abrirSelector()" type="button">Emitir nuevo certificado</button>
+      }
+    </div>
+  } @else {
+    <div class="grupos">
+      @for (grupo of filtrados(); track grupo.clave) {
+        <section class="grupo-card">
+          <div class="grupo-head">
+            <div class="grupo-titulo">
+              <span class="grupo-icono">
+                <mat-icon>{{ grupo.carrera ? 'account_balance' : 'school' }}</mat-icon>
+              </span>
+              <div>
+                <h3>{{ grupo.modalidad }}</h3>
+                <p>
+                  @if (grupo.carrera) {
+                    Carrera: {{ grupo.carrera }} · Emitidos con el informe final
+                  } @else {
+                    Emitidos individualmente
+                  }
+                </p>
+              </div>
+            </div>
+            <span class="grupo-count">{{ grupo.certificados.length }}</span>
+          </div>
+
+          <div class="tabla-scroll">
+            <table class="fich-table cert-table">
+              <thead>
+                <tr>
+                  <th class="th-codigo">N° Certificado</th>
+                  <th>Alumno</th>
+                  <th class="th-ci">C.I.</th>
+                  <th>Procedencia</th>
+                  <th class="th-fecha">Emisión</th>
+                  <th class="th-imp">Impresiones</th>
+                  <th class="th-accion"></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (cert of grupo.certificados; track cert.id_certificado) {
+                  <tr>
+                    <td class="th-codigo">
+                      <span class="codigo-chip">{{ cert.codigo || '—' }}</span>
+                    </td>
+                    <td>
+                      <div class="alumno-cell">
+                        <span class="avatar">{{ iniciales(cert) }}</span>
+                        <span>{{ cert.alumno?.apellido }} {{ cert.alumno?.nombre }}</span>
+                      </div>
+                    </td>
+                    <td class="th-ci">{{ cert.alumno?.ci || '—' }}</td>
+                    <td>
+                      <span class="proc-pill" [class.informe]="cert.procedencia === 'informe'">
+                        {{ procedenciaLabel(cert.procedencia) }}
+                      </span>
+                    </td>
+                    <td class="th-fecha">{{ fmtDia(cert.fecha_emision) }}</td>
+                    <td class="th-imp">
+                      <span class="imp-num">{{ cert.n_impresiones }}</span>
+                    </td>
+                    <td class="th-accion">
+                      <button mat-stroked-button (click)="verCertificado(cert)" type="button">
+                        <mat-icon>visibility</mat-icon> Ver certificado
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </section>
+      }
+    </div>
+  }
+</div>

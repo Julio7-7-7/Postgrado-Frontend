@@ -12,10 +12,10 @@
       <span>Cargando ediciones...</span>
     </div>
   } @else {
-    @if (edicionesActivas().length === 0) {
+    @if (edicionesActivas().length === 0 && edicionesFinalizadas().length === 0) {
       <div class="empty-state">
         <mat-icon>school</mat-icon>
-        <h4>No hay ediciones activas</h4>
+        <h4>No hay ediciones disponibles</h4>
         <p>Crea una edición para poder gestionar la documentación</p>
       </div>
     } @else {
@@ -57,6 +57,55 @@
           </div>
         }
       </div>
+
+      @if (edicionesFinalizadas().length > 0) {
+        <div class="colapsable-section">
+          <button class="colapsable-head" (click)="verFinalizadas.set(!verFinalizadas())" type="button">
+            <mat-icon [class.open]="verFinalizadas()" class="chevron">expand_more</mat-icon>
+            <span>Finalizadas / Históricas ({{ edicionesFinalizadas().length }})</span>
+          </button>
+          @if (verFinalizadas()) {
+            <div class="ediciones-grid">
+              @for (ed of edicionesFinalizadas(); track ed.id_programa_version_edicion) {
+                <div class="edicion-card finalizada" (click)="irAMatriz(ed)">
+                  <div class="card-foto">
+                    @if (ed.programa_version.foto) {
+                      <img [src]="getFotoUrl(ed.programa_version.foto)" (error)="onImgError($event)" alt="Foto" />
+                    } @else {
+                      <div class="card-foto-placeholder">
+                        <mat-icon>school</mat-icon>
+                      </div>
+                    }
+                  </div>
+                  <div class="card-content">
+                    <div class="card-top">
+                      <span class="estado-chip" [class]="estadoClass(ed.estado)">{{ estadoLabel(ed.estado) }}</span>
+                    </div>
+                    <h3 class="card-title">{{ programaNombre(ed) }}</h3>
+                    @if (tipoPrograma(ed)) {
+                      <span class="card-tipo">{{ tipoPrograma(ed) }}</span>
+                    }
+                    <div class="card-meta">
+                      <span class="meta-item">
+                        <mat-icon>calendar_today</mat-icon>
+                        {{ gestionLabel(ed) }}
+                      </span>
+                      <span class="meta-item">
+                        <mat-icon>menu_book</mat-icon>
+                        {{ ed.modalidad }}
+                      </span>
+                    </div>
+                    <button mat-flat-button class="revisar-btn readonly-btn">
+                      <mat-icon>visibility</mat-icon>
+                      Ver documentación
+                    </button>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
     }
   }
 </div>

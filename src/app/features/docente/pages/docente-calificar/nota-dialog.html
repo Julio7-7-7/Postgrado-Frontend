@@ -29,7 +29,7 @@
                     [class.seleccionada]="a.id_detalle_programa_alumno === seleccionId"
                     (click)="seleccionar(a.id_detalle_programa_alumno)">
               <span class="opcion-avatar">{{ inicialesDe(a) }}</span>
-              <span class="opcion-nombre">{{ a.alumno?.nombre }} {{ a.alumno?.apellido }}</span>
+              <span class="opcion-nombre">{{ nombreCompleto(a.alumno) }}</span>
               <span class="opcion-ci">{{ a.alumno?.ci || 's/n CI' }}</span>
             </button>
           }
@@ -47,7 +47,7 @@
     <div class="alumno-card">
       <div class="alumno-avatar">{{ iniciales() }}</div>
       <div class="alumno-info">
-        <span class="alumno-nombre">{{ alumno.alumno?.nombre }} {{ alumno.alumno?.apellido }}</span>
+        <span class="alumno-nombre">{{ nombreCompleto(alumno.alumno) }}</span>
         <span class="alumno-ci">{{ alumno.alumno?.ci || 'Sin CI' }}</span>
       </div>
     </div>

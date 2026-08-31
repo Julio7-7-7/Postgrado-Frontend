@@ -48,7 +48,19 @@ export class NotasEdicionComponent implements OnInit {
 
   verInforme(): void {
     this.navBack.setReturn(this.router.url);
-    this.router.navigate(['/informes-notas'], { queryParams: { edicion: this.idEdicion } });
+    const destacado = this.moduloDestacado();
+    if (destacado) {
+      this.router.navigate(['/informes-notas'], {
+        queryParams: { edicion: this.idEdicion, modulo: destacado },
+      });
+    } else {
+      this.router.navigate(['/informes-notas'], { queryParams: { edicion: this.idEdicion } });
+    }
+  }
+
+  verCertificados(): void {
+    this.navBack.setReturn(this.router.url);
+    this.router.navigate(['/certificados-notas'], { queryParams: { edicion: this.idEdicion } });
   }
 
   nombreDir = signal<SortDir>('asc');

@@ -116,7 +116,7 @@
                           <div class="alumno-cell">
                             <span class="alumno-avatar" [class.avatar-inscrito]="item.inscrito">{{ (item.persona.alumno?.nombre || '?')[0] }}{{ (item.persona.alumno?.apellido || '?')[0] }}</span>
                             <div class="alumno-name-group">
-                              <span class="alumno-nombre">{{ item.persona.alumno?.nombre }} {{ item.persona.alumno?.apellido }}</span>
+                              <span class="alumno-nombre">{{ nombreCompleto(item.persona.alumno) }}</span>
                               @if (item.inscrito) {
                                 <span class="inscrito-badge">Ya inscrito</span>
                               }

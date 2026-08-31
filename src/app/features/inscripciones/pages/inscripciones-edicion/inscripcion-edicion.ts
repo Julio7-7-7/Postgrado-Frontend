@@ -17,6 +17,7 @@ import { AuthService } from '../../../../core/services/auth.service';
 import { EdicionService } from '../../../edicion/services/edicion.service';
 import { NavigationBackService } from '../../../../core/navigation/navigation-back.service';
 import { ProgramaVersionEdicion } from '../../../edicion/models/edicion.model';
+import { nombreCompleto } from '../../../../core/utils/nombre-utils';
 
 @Component({
   selector: 'app-inscripciones-edicion',
@@ -43,6 +44,8 @@ export class InscripcionesEdicionComponent implements OnInit {
   puedeInscribir = computed(() => this.auth.hasPermiso('alumnos.crear'));
   puedeVerNotas = computed(() => this.auth.hasPermiso('notas.ver'));
   esEnCurso = computed(() => this.edicionData()?.estado === 'en_curso');
+
+  nombreCompleto = nombreCompleto;
 
   edicionData = signal<ProgramaVersionEdicion | null>(null);
 

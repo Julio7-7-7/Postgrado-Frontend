@@ -71,6 +71,7 @@ export interface ProgramaVersionEdicionResponse {
   semestre: number | null;
   anio: number | null;
   estado: string;
+  es_historico?: boolean;
   modalidad: string;
   precio: number | null;
   programa_version: ProgramaVersionResponse;

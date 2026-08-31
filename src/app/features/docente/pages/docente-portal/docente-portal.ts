@@ -9,6 +9,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { AuthService } from '../../../../core/services/auth.service';
+import { nombreCompleto } from '../../../../core/utils/nombre-utils';
 import { DocenteService } from '../../services/docente.service';
 import { Docente } from '../../models/docente.model';
 
@@ -29,6 +30,8 @@ export class DocentePortalComponent implements OnInit {
   private router = inject(Router);
   private snackbar = inject(MatSnackBar);
   private destroyRef = inject(DestroyRef);
+
+  nombreCompleto = nombreCompleto;
 
   docente = signal<Docente | null>(null);
   loading = signal(true);
