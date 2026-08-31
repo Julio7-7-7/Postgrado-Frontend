@@ -12,6 +12,8 @@ import { PagoService } from '../../services/pago.service';
 import { AlumnoPagosMatrix, CuotaPagos, PagosEdicionData } from '../../models/pago.model';
 import { OrdenPagoDialog } from '../orden-pago-dialog/orden-pago-dialog';
 import { BoletasAlumnoDialog } from '../boletas-alumno-dialog/boletas-alumno-dialog';
+import { AuthService } from '../../../../core/services/auth.service';
+import { PersonaService } from '../../../persona/services/persona.service';
 import { SortDir, sortItems } from '../../../../core/utils/sort-utils';
 import { maxTextWidth } from '../../../../core/utils/measure-text';
 import { NavigationBackService } from '../../../../core/navigation/navigation-back.service';
@@ -37,6 +39,8 @@ export class PagosEdicionComponent implements OnInit {
   private dialog = inject(MatDialog);
   private destroyRef = inject(DestroyRef);
   private navBack = inject(NavigationBackService);
+  private auth = inject(AuthService);
+  private personaService = inject(PersonaService);
 
   @ViewChild('matrizWrap', { read: ElementRef }) private matrizWrap!: ElementRef<HTMLElement>;
 
@@ -44,7 +48,7 @@ export class PagosEdicionComponent implements OnInit {
   isLoading = signal(true);
   refreshing = signal(false);
   showRetirados = signal(false);
-  mostrarInforme = signal(false);
+  usuarioSesion = signal('');
   idEdicion = 0;
   alumnoWidth = signal('auto');
 
@@ -77,6 +81,20 @@ export class PagosEdicionComponent implements OnInit {
       return;
     }
     this.cargarDatos();
+    this.cargarUsuarioSesion();
+  }
+
+  private cargarUsuarioSesion(): void {
+    const idUsuario = this.auth.user()?.id_usuario;
+    if (!idUsuario) return;
+    this.personaService.getById(idUsuario).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (p: any) => {
+        const perfil = p?.administrativo || p?.alumno || p?.docente;
+        if (perfil?.nombre || perfil?.apellido) {
+          this.usuarioSesion.set(`${perfil.apellido || ''} ${perfil.nombre || ''}`.trim());
+        }
+      },
+    });
   }
 
   cargarDatos(): void {
@@ -238,12 +256,97 @@ export class PagosEdicionComponent implements OnInit {
     this.navBack.retornar(['/pagos']);
   }
 
-  toggleInforme(): void {
-    this.mostrarInforme.set(!this.mostrarInforme());
+  imprimirInforme(): void {
+    const iframe = document.createElement('iframe');
+    iframe.setAttribute('style', 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden;');
+    document.body.appendChild(iframe);
+    const doc = iframe.contentDocument;
+    if (!doc) return;
+
+    doc.open();
+    doc.write(this.htmlInforme());
+    doc.close();
+
+    iframe.onload = () => {
+      iframe.contentWindow?.focus();
+      iframe.contentWindow?.print();
+      setTimeout(() => iframe.remove(), 1000);
+    };
   }
 
-  imprimirInforme(): void {
-    window.print();
+  private htmlInforme(): string {
+    const rows = this.activos()
+      .map(a => this.htmlFilaInforme(a))
+      .join('');
+    const t = this.informeTotales();
+    const modThs = this.modulos()
+      .map(m => `<th class="monto">M${m.orden}</th>`)
+      .join('');
+    const modTds = this.modulos()
+      .map(() => `<td></td>`)
+      .join('');
+
+    return `<!DOCTYPE html><html><head><meta charset="utf-8">
+<style>
+  @page { size: Letter landscape; margin: 12mm; }
+  * { box-sizing: border-box; }
+  body { font-family: 'Segoe UI', Roboto, Arial, sans-serif; color: #0f172a; margin: 0; }
+  .head { display: flex; align-items: center; gap: 14px; border-bottom: 3px solid #1e3a8a; padding-bottom: 10px; margin-bottom: 14px; }
+  .logo { width: 52px; height: 52px; border-radius: 12px; background: linear-gradient(135deg,#1e3a8a,#15803d); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:1.1rem; letter-spacing:.05em; }
+  .head-txt { line-height: 1.25; }
+  .institucion { font-size: 1.05rem; font-weight: 800; color: #1e3a8a; }
+  .sub { font-size: 0.8rem; color: #475569; }
+  .titulo { text-align:center; font-size:1rem; font-weight:800; letter-spacing:.12em; color:#1e3a8a; margin: 0 0 4px; }
+  .numero { text-align:center; font-size:0.8rem; color:#475569; margin-bottom: 12px; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.72rem; }
+  th { background: #1e3a8a; color: #fff; padding: 7px 8px; text-align: left; font-weight: 700; border: 1px solid #1e3a8a; }
+  th.monto, td.monto { text-align: right; }
+  td { padding: 6px 8px; border: 1px solid #cbd5e1; }
+  tbody tr:nth-child(even) td { background: #f8fafc; }
+  tfoot td { font-weight: 800; background: #eef2ff; border-top: 2px solid #1e3a8a; }
+  tfoot td.monto { color: #1e3a8a; }
+  .deuda { font-weight: 700; color: #b91c1c; }
+  .deuda.ok { color: #15803d; }
+  .firmas { display: flex; justify-content: space-between; margin-top: 44px; }
+  .firma { width: 42%; border-top: 1px solid #94a3b8; padding-top: 8px; text-align: center; font-size: 0.72rem; color: #334155; }
+</style></head><body>
+  <div class="head">
+    <div class="logo">FICH</div>
+    <div class="head-txt">
+      <div class="institucion">Facultad Integral del Chaco — FICH</div>
+      <div class="sub">Unidad de Postgrado Chaco</div>
+    </div>
+  </div>
+  <div class="titulo">INFORME ECONÓMICO DE LA EDICIÓN</div>
+  <div class="numero">Edición #${this.idEdicion}</div>
+  <table>
+    <thead><tr><th>Alumno</th><th>Beca</th>${modThs}<th class="monto">Matrícula</th><th class="monto">Subtotal</th><th class="monto">Deuda</th></tr></thead>
+    <tbody>${rows}</tbody>
+    <tfoot><tr><td colspan="2">TOTALES</td>${modTds}<td></td><td class="monto">${this.fmt(t.pagado)}</td><td class="monto">${this.fmt(t.deuda)}</td></tr></tfoot>
+  </table>
+  <div class="firmas">
+    <div class="firma">Firma y sello de caja</div>
+    <div class="firma">${this.usuarioSesion() || 'Firma del responsable'}</div>
+  </div>
+</body></html>`;
+  }
+
+  private htmlFilaInforme(a: AlumnoPagosMatrix): string {
+    const celdas = this.modulos().map(m => {
+      const c = this.cuotaDe(a, m.id_detalle_programa_modulo);
+      const v = c && c.pagado > 0 ? this.fmt(c.pagado) : '—';
+      return `<td class="monto">${v}</td>`;
+    }).join('');
+    const deuda = this.deudaAlumno(a);
+    const deudaCls = deuda === 0 ? 'deuda ok' : 'deuda';
+    return `<tr>
+      <td>${this.nombreAlumno(a)}</td>
+      <td>${this.becaLabel(a)}</td>
+      ${celdas}
+      <td class="monto">${this.fmt(a.matricula.pagado)}</td>
+      <td class="monto">${this.fmt(a.total_pagado)}</td>
+      <td class="monto"><span class="${deudaCls}">${this.fmt(deuda)}</span></td>
+    </tr>`;
   }
 
   deudaAlumno(a: AlumnoPagosMatrix): number {

@@ -12,8 +12,8 @@
     </div>
     <div class="header-right">
       @if (alumnos().length > 0) {
-        <button mat-stroked-button class="informe-btn" (click)="toggleInforme()" matTooltip="Ver/ocultar informe económico de la edición">
-          <mat-icon>description</mat-icon>
+        <button mat-stroked-button class="informe-btn" (click)="imprimirInforme()" matTooltip="Imprimir informe económico de la edición">
+          <mat-icon>print</mat-icon>
           Informe económico
         </button>
         <button mat-stroked-button class="sort-toggle" (click)="toggleOrden()" matTooltip="Alternar orden alfabético">
@@ -23,95 +23,6 @@
       }
     </div>
   </div>
-
-  @if (mostrarInforme() && alumnos().length > 0) {
-    <div class="informe-economico">
-      <div class="informe-head">
-        <div>
-          <h2><mat-icon>description</mat-icon> Informe económico de la edición</h2>
-          <p class="subtitle">Estado de pagos por estudiante · quién pagó, quién no y su deuda</p>
-        </div>
-        <button mat-flat-button color="primary" (click)="imprimirInforme()">
-          <mat-icon>print</mat-icon> Imprimir
-        </button>
-      </div>
-
-      <div class="matriz-scroll">
-        <table class="matriz informe-tabla">
-          <thead>
-            <tr class="thead-group">
-              <th class="col-alumno" rowspan="2"><span class="th-alumno-label">Alumno</span></th>
-              <th class="col-beca" rowspan="2"><span class="th-matricula-chip">Beca</span></th>
-              <th [attr.colspan]="modulos().length" class="th-mod-group">
-                <span class="th-mod-group-inner">
-                  <span class="th-mod-group-line"></span>
-                  Módulos pagados
-                  <span class="th-mod-group-line"></span>
-                </span>
-              </th>
-              <th class="col-total" rowspan="2"><span class="th-prom-chip">Subtotal</span></th>
-              <th class="col-total" rowspan="2"><span class="th-matricula-chip">Deuda</span></th>
-            </tr>
-            <tr class="thead-nums">
-              @for (m of modulos(); track m.id_detalle_programa_modulo) {
-                <th class="col-mod" [matTooltip]="'Cuota ' + m.orden + ' — ' + m.nombre" [matTooltipPosition]="'above'">
-                  <span class="th-chip"><span class="th-num">{{ m.orden }}</span></span>
-                </th>
-              }
-            </tr>
-          </thead>
-          <tbody>
-            @for (a of activos(); track a.id_detalle_programa_alumno) {
-              <tr>
-                <td class="col-alumno">
-                  <span class="alumno-cell">
-                    <span class="alumno-avatar">{{ iniciales(a) }}</span>
-                    <span class="alumno-info">
-                      <span class="alumno-nombre">{{ nombreAlumno(a) }}</span>
-                    </span>
-                  </span>
-                </td>
-                <td class="col-beca">
-                  <span class="beca-pill" [class.perdida]="a.beca_motivo"
-                        [matTooltip]="a.beca_motivo || ''" [matTooltipPosition]="'above'">
-                    {{ becaLabel(a) }}
-                  </span>
-                </td>
-                @for (m of modulos(); track m.id_detalle_programa_modulo) {
-                  <td class="col-mod">
-                    @if (cuotaDe(a, m.id_detalle_programa_modulo); as cuota) {
-                      <span class="informe-cuota" [class.pagado]="cuota.pagado > 0 && cuota.pagado >= cuota.esperado"
-                            [class.parcial]="cuota.pagado > 0 && cuota.pagado < cuota.esperado">
-                        {{ cuota.pagado > 0 ? fmt(cuota.pagado) : '—' }}
-                      </span>
-                    } @else {
-                      <span class="informe-cuota">—</span>
-                    }
-                  </td>
-                }
-                <td class="col-total">
-                  <span class="informe-total">{{ fmt(a.total_pagado) }} Bs</span>
-                </td>
-                <td class="col-total">
-                  <span class="informe-deuda" [class.ok]="deudaAlumno(a) === 0">{{ fmt(deudaAlumno(a)) }} Bs</span>
-                </td>
-              </tr>
-            }
-          </tbody>
-          <tfoot>
-            <tr>
-              <td colspan="2" class="informe-foot-label">Totales de la edición</td>
-              @for (m of modulos(); track m.id_detalle_programa_modulo) {
-                <td class="col-mod"></td>
-              }
-              <td class="col-total"><span class="informe-total totales">{{ fmt(informeTotales().pagado) }} Bs</span></td>
-              <td class="col-total"><span class="informe-deuda totales">{{ fmt(informeTotales().deuda) }} Bs</span></td>
-            </tr>
-          </tfoot>
-        </table>
-      </div>
-    </div>
-  }
 
   @if (isLoading()) {
     <div class="loading-state">
@@ -150,6 +61,7 @@
                   Alumno
                 </span>
               </th>
+              <th class="col-beca" rowspan="2"><span class="th-matricula-chip">Beca</span></th>
               <th [attr.colspan]="modulos().length" class="th-mod-group">
                 <span class="th-mod-group-inner">
                   <span class="th-mod-group-line"></span>
@@ -161,7 +73,13 @@
                 <span class="th-matricula-chip">Matrícula</span>
               </th>
               <th class="col-total" rowspan="2">
-                <span class="th-prom-chip">Total</span>
+                <span class="th-prom-chip">Subtotal</span>
+              </th>
+              <th class="col-deuda" rowspan="2">
+                <span class="th-matricula-chip">Deuda</span>
+              </th>
+              <th class="col-acciones" rowspan="2">
+                <span class="th-prom-chip">Acciones</span>
               </th>
             </tr>
             <tr class="thead-nums">
@@ -189,6 +107,12 @@
                         </button>
                       }
                     </span>
+                  </span>
+                </td>
+                <td class="col-beca">
+                  <span class="beca-pill" [class.perdida]="a.beca_motivo || !a.beca_activa"
+                        [matTooltip]="a.beca_motivo || ''" [matTooltipPosition]="'above'">
+                    {{ becaLabel(a) }}
                   </span>
                 </td>
                 @for (m of modulos(); track m.id_detalle_programa_modulo) {
@@ -231,18 +155,28 @@
                             [matTooltip]="totalTooltip(a)">
                         <span class="prom-num">{{ pctTotal(a) }}%</span>
                       </span>
-                      <button mat-icon-button class="register-btn"
-                              [class.cobrar]="a.orden_activa"
-                              [matTooltip]="a.orden_activa ? 'Registrar pago de la orden ' + a.orden_activa.numero : 'Emitir orden de pago'"
-                              [matTooltipPosition]="'above'"
-                              (click)="abrirOrden(a, $event)">
-                        <mat-icon>{{ a.orden_activa ? 'monetization_on' : 'add' }}</mat-icon>
-                      </button>
-                      <button mat-icon-button class="boletas-btn" matTooltip="Ver boletas y anular"
-                              (click)="verBoletas(a, $event)">
-                        <mat-icon>receipt_long</mat-icon>
-                      </button>
                     </span>
+                  </span>
+                </td>
+                <td class="col-deuda">
+                  <span class="informe-deuda" [class.ok]="deudaAlumno(a) === 0"
+                        [matTooltip]="'Saldo pendiente de la edición'" [matTooltipPosition]="'above'">
+                    {{ fmt(deudaAlumno(a)) }} Bs
+                  </span>
+                </td>
+                <td class="col-acciones">
+                  <span class="acciones-wrap">
+                    <button mat-icon-button class="register-btn"
+                            [class.cobrar]="a.orden_activa"
+                            [matTooltip]="a.orden_activa ? 'Registrar pago de la orden ' + a.orden_activa.numero : 'Emitir orden de pago'"
+                            [matTooltipPosition]="'above'"
+                            (click)="abrirOrden(a, $event)">
+                      <mat-icon>{{ a.orden_activa ? 'monetization_on' : 'add' }}</mat-icon>
+                    </button>
+                    <button mat-icon-button class="boletas-btn" matTooltip="Ver boletas y anular"
+                            (click)="verBoletas(a, $event)">
+                      <mat-icon>receipt_long</mat-icon>
+                    </button>
                   </span>
                 </td>
               </tr>
@@ -250,66 +184,6 @@
           </tbody>
         </table>
       </div>
-
-  @if (mostrarInforme() && alumnos().length > 0) {
-    <div class="print-area" id="informe-global-print">
-      <div class="print-doc-pagos">
-        <div class="print-head">
-          <div class="print-logo">FICH</div>
-          <div class="print-head-txt">
-            <div class="print-institucion">Facultad Integral del Chaco — FICH</div>
-            <div class="print-sub">Unidad de Postgrado Chaco</div>
-          </div>
-        </div>
-        <div class="print-titulo">INFORME ECONÓMICO DE LA EDICIÓN</div>
-        <div class="print-numero">Edición #{{ idEdicion }}</div>
-
-        <table class="print-tabla">
-          <thead>
-            <tr>
-              <th>Alumno</th>
-              <th>Beca</th>
-              @for (m of modulos(); track m.id_detalle_programa_modulo) {
-                <th class="print-col-monto">M{{ m.orden }}</th>
-              }
-              <th class="print-col-monto">Subtotal</th>
-              <th class="print-col-monto">Deuda</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (a of activos(); track a.id_detalle_programa_alumno) {
-              <tr>
-                <td>{{ nombreAlumno(a) }}</td>
-                <td>{{ becaLabel(a) }}</td>
-                @for (m of modulos(); track m.id_detalle_programa_modulo) {
-                  <td class="print-col-monto">
-                    @if (cuotaDe(a, m.id_detalle_programa_modulo); as cuota) {
-                      {{ cuota.pagado > 0 ? fmt(cuota.pagado) : '—' }}
-                    } @else { — }
-                  </td>
-                }
-                <td class="print-col-monto">{{ fmt(a.total_pagado) }}</td>
-                <td class="print-col-monto">{{ fmt(deudaAlumno(a)) }}</td>
-              </tr>
-            }
-            <tr class="print-total-row">
-              <td colspan="2">TOTALES</td>
-              @for (m of modulos(); track m.id_detalle_programa_modulo) {
-                <td></td>
-              }
-              <td class="print-col-monto">{{ fmt(informeTotales().pagado) }}</td>
-              <td class="print-col-monto">{{ fmt(informeTotales().deuda) }}</td>
-            </tr>
-          </tbody>
-        </table>
-
-        <div class="print-footer">
-          <div class="print-firma">Firma y sello de caja</div>
-          <div class="print-firma">Firma del responsable</div>
-        </div>
-      </div>
-    </div>
-  }
 
       @if (retirados().length > 0) {
         <div class="retirados-section">

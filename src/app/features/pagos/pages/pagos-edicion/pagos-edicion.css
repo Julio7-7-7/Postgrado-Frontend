@@ -773,6 +773,20 @@
   font-size: 0.86rem;
 }
 
-.informe-economico .print-area {
-  display: none;
+.col-beca { min-width: 132px; }
+
+.col-deuda {
+  min-width: 96px;
+  text-align: center;
+}
+
+.col-acciones {
+  min-width: 108px;
+  text-align: center;
+}
+
+.acciones-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
 }
