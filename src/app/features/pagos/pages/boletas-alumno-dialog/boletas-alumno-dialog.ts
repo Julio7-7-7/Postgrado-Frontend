@@ -23,6 +23,8 @@ interface BoletasDialogData {
   idDetalleProgramaAlumno: number;
   nombre: string;
   edicion: string;
+  becaActiva?: boolean;
+  becaTipo?: string | null;
 }
 
 @Component({
@@ -58,7 +60,7 @@ export class BoletasAlumnoDialog implements OnInit {
   anulandoOrdenId = signal<number | null>(null);
   motivoAnulacion = '';
 
-  informe = signal<{ numero: string; fecha: string; ordenes: OrdenPagoResponse[] } | null>(null);
+  informe = signal<{ numero: string; fecha: string; beca: string; ordenes: OrdenPagoResponse[] } | null>(null);
   informeLoading = signal(false);
 
   puedeAnular = computed(() => this.auth.hasPermiso('pagos.anular'));
@@ -167,9 +169,16 @@ export class BoletasAlumnoDialog implements OnInit {
     this.informe.set({
       numero: new Date().toLocaleDateString('es-BO'),
       fecha: this.data.edicion,
+      beca: this.becaLabel(),
       ordenes: this.ordenes(),
     });
     setTimeout(() => window.print(), 200);
+  }
+
+  becaLabel(): string {
+    const tipo = this.data.becaTipo || (this.data.becaActiva ? 'Beca' : null);
+    if (this.data.becaActiva) return tipo ? `Beca activa · ${tipo}` : 'Beca activa';
+    return tipo ? `Beca perdida · ${tipo}` : 'Sin beca';
   }
 
   cerrar(): void {

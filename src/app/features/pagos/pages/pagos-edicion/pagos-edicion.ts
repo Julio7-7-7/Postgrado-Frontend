@@ -214,6 +214,8 @@ export class PagosEdicionComponent implements OnInit {
         idDetalleProgramaAlumno: a.id_detalle_programa_alumno,
         nombre: `${a.alumno.apellido} ${a.alumno.nombre}`,
         edicion: `Edición #${this.idEdicion}`,
+        becaActiva: a.beca_activa,
+        becaTipo: a.beca_tipo || null,
       },
     });
 
@@ -249,8 +251,9 @@ export class PagosEdicionComponent implements OnInit {
   }
 
   becaLabel(a: AlumnoPagosMatrix): string {
-    if (a.beca_activa) return 'Beca activa';
-    if (a.beca_motivo) return 'Beca perdida';
+    const tipo = a.beca_tipo || (a.beca_activa ? 'Beca' : null);
+    if (a.beca_activa) return tipo ? `Beca activa · ${tipo}` : 'Beca activa';
+    if (a.beca_motivo) return tipo ? `Beca perdida · ${tipo}` : 'Beca perdida';
     return 'Sin beca';
   }
 

@@ -159,6 +159,7 @@ export interface AlumnoPagosMatrix {
   descuento_aplicado: number;
   beca_activa: boolean;
   beca_motivo: string | null;
+  beca_tipo?: string | null;
   matricula: MatriculaPagos;
   cuotas: CuotaPagos[];
   otros: OtrosPagos;
