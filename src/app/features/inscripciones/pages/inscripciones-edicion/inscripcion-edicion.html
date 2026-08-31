@@ -10,11 +10,6 @@
       </div>
     </div>
     <div class="header-right">
-      @if (puedeVerNotas()) {
-        <button mat-stroked-button (click)="verNotas()" matTooltip="Ver notas de la edición">
-          <mat-icon>grading</mat-icon> Ver notas
-        </button>
-      }
       @if (puedeInscribir()) {
         <button mat-flat-button class="btn-nuevo" (click)="irAInscribir()">
           <mat-icon>person_add</mat-icon>

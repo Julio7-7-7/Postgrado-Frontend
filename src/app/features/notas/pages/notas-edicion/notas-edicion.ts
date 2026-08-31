@@ -215,11 +215,6 @@ export class NotasEdicionComponent implements OnInit {
     });
   }
 
-  volverAInscripciones(): void {
-    this.navBack.setReturn(this.router.url);
-    this.router.navigate(['/inscripciones', this.idEdicion]);
-  }
-
   volver(): void {
     this.navBack.retornar(['/notas']);
   }

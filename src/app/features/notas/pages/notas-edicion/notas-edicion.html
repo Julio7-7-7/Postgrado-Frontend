@@ -20,12 +20,6 @@
           Certificados de Notas
         </button>
       }
-      @if (puedeVerAlumnos()) {
-        <button mat-stroked-button (click)="volverAInscripciones()" class="sort-toggle" matTooltip="Ver inscripciones de la edición">
-          <mat-icon>how_to_reg</mat-icon>
-          Ver inscripciones
-        </button>
-      }
       @if (alumnos().length > 0) {
         <button mat-stroked-button class="sort-toggle" (click)="toggleOrden()" matTooltip="Alternar orden alfabético">
           <mat-icon>{{ nombreDir() === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
