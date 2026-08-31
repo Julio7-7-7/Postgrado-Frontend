@@ -284,8 +284,7 @@
       </div>
 
       <div class="print-footer">
-        <div class="print-firma">Firma y sello de caja</div>
-        <div class="print-firma">Firma del responsable</div>
+        <div class="print-firma">{{ usuarioSesion() || 'Firma del responsable' }}</div>
       </div>
     </div>
   }

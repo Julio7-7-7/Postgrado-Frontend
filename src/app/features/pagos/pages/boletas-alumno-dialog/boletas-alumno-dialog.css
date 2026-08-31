@@ -630,16 +630,17 @@ mat-dialog-content {
 
 .print-footer {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   margin-top: 48px;
   padding-top: 8px;
 }
 
 .print-firma {
-  width: 230px;
+  width: 46%;
   border-top: 1px solid #0f172a;
   padding-top: 8px;
   text-align: center;
   font-size: 0.74rem;
   color: #475569;
+  font-weight: 700;
 }
