@@ -140,12 +140,6 @@ export class InformePreviewComponent implements OnInit {
     return 'est-pendiente';
   }
 
-  estadoPagosClass(estado: string): string {
-    if (estado === 'Completo') return 'est-completo';
-    if (estado === 'Retirado') return 'est-retirado';
-    return 'est-pagos';
-  }
-
   estadoTooltip(fila: InformeMatrizFila): string {
     if (fila.estado === 'Completo') {
       return 'Completo: todas las notas aprobadas y pagos al día. Elegible para certificado.';

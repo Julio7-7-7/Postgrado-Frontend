@@ -78,10 +78,8 @@
       </div>
       <div class="doc-ident-faja doc-ident-faja-sec">
         @if (esBorrador()) {
-          <span class="if-sec-item">Borrador generado por <strong>{{ emitidoPor() || '—' }}</strong> el {{ tituloEmision() }}</span>
+          <span class="if-sec-item">Borrador generado por <strong>{{ emitidoPor() || '—' }}</strong></span>
         } @else {
-          <span class="if-sec-item">Emitido el {{ tituloEmision() }}</span>
-          <span class="if-sep">·</span>
           <span class="if-sec-item"><strong>Emitido por:</strong> {{ emitidoPor() || '—' }}</span>
           <span class="if-sep">·</span>
           <span class="if-sec-item"><strong>Tanda:</strong> N° {{ numeroTanda() }}</span>
@@ -139,7 +137,6 @@
                       <th rowspan="2" class="col-prom">Prom</th>
                       @if (esBorrador()) {
                         <th rowspan="2" class="col-estado">Estado notas</th>
-                        <th rowspan="2" class="col-estado">Estado pagos</th>
                       } @else {
                         <th rowspan="2" class="col-estado">Estado</th>
                       }
@@ -175,11 +172,6 @@
                                   [class.est-simple]="fila.estado_notas === 'Aprobadas'"
                             >{{ fila.estado_notas || fila.estado }}</span>
                           </td>
-                          <td class="col-estado">
-                            <span class="est-chip {{ estadoPagosClass(fila.estado_pagos || '') }}"
-                                  [class.est-simple]="fila.estado_pagos === 'Completo'"
-                            >{{ fila.estado_pagos || '—' }}</span>
-                          </td>
                         } @else {
                           <td class="col-estado">
                             <span
@@ -198,18 +190,23 @@
           }
 
           <div class="sheet-leyenda">
-            <span>Escala 0–100 · nota académica mínima: <strong>66</strong> en cada módulo. Notas centradas.</span>
-            @if (esBorrador()) {
-              <span>
-                <strong>Estado notas</strong>: Aprobadas si todas ≥ 66 · Reprobadas/Pendientes en caso contrario.
-                <strong>Estado pagos</strong>: Completo = sin cuotas pendientes. Los alumnos retirados se listan al final, marcados.
-              </span>
-            } @else {
-              <span>
-                <strong>Estado</strong> = cruce entre notas y pagos. <strong>Completo</strong>: todas las notas aprobadas y pagos al día (elegible para certificado).
-                Reprobado = promedio &lt; 66.
-              </span>
-            }
+            <h4>Leyenda</h4>
+            <ul class="leyenda-lista">
+              @if (esBorrador()) {
+                <li>Escala de notas: 0 a 100.</li>
+                <li>Nota académica mínima: <strong>66</strong> por módulo — un valor menor se muestra en rojo como reprobado.</li>
+                <li><strong>Estado notas:</strong> «Aprobadas» si todas las notas son ≥ 66 · «Reprobadas» o «Pendientes» en caso contrario.</li>
+                <li>Retirados: se listan al final de la sección, marcados con la etiqueta «Retirado».</li>
+              } @else {
+                <li>Escala de notas: 0 a 100 · nota académica mínima: <strong>66</strong>.</li>
+                <li><strong>Estado</strong> = cruce entre notas y pagos.</li>
+                <li>«Completo»: todas las notas ≥ 66 y pagos al día — elegible para certificado.</li>
+                <li>«Notas pendientes»: faltan notas por cargar.</li>
+                <li>«Notas reprobadas»: hay módulos con nota menor a 66.</li>
+                <li>«Pagos incompletos»: quedan cuotas pendientes.</li>
+                <li>«Con certificado previo»: el alumno ya cuenta con un certificado emitido para esta edición.</li>
+              }
+            </ul>
           </div>
         </section>
       }

@@ -222,6 +222,13 @@
   white-space: nowrap;
 }
 
+.ident-faja-item {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  min-width: 0;
+}
+
 .if-value {
   font-size: 0.86rem;
   font-weight: 600;
@@ -576,11 +583,33 @@ tr.row-retirado .nota-cell {
 
 .sheet-leyenda {
   margin-top: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
+  padding: 8px 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
   font-size: 0.72rem;
   color: #64748b;
+}
+
+.sheet-leyenda h4 {
+  margin: 0 0 4px;
+  font-size: 0.66rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+}
+
+.leyenda-lista {
+  margin: 0;
+  padding-left: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.leyenda-lista li {
+  margin: 0;
 }
 
 .sheet-leyenda strong {
