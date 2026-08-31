@@ -19,6 +19,7 @@ import { ReordenarModulosDialogComponent, ReordenarModulosData } from '../../com
 import { CuadroHorarioDialogComponent, CuadroHorarioData } from '../../../../shared/components/cuadro-horario-dialog/cuadro-horario-dialog';
 import { AuthService } from '../../../../core/services/auth.service';
 import { NavigationBackService } from '../../../../core/navigation/navigation-back.service';
+import { nombreCompleto } from '../../../../core/utils/nombre-utils';
 
 @Component({
   selector: 'app-detalle-list',
@@ -42,6 +43,8 @@ export class DetalleListComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
   private auth = inject(AuthService);
   private navBack = inject(NavigationBackService);
+
+  nombreCompleto = nombreCompleto;
 
   puedeVerNotas = computed(() => this.auth.hasPermiso('notas.ver'));
 

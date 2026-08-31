@@ -21,6 +21,7 @@ import { AuthService } from '../../../../core/services/auth.service';
 import { DocenteService } from '../../services/docente.service';
 import { Docente } from '../../models/docente.model';
 import { NavigationBackService } from '../../../../core/navigation/navigation-back.service';
+import { nombreCompleto } from '../../../../core/utils/nombre-utils';
 
 @Component({
   selector: 'app-docente-list',
@@ -55,6 +56,7 @@ export class DocenteListComponent implements OnInit {
 
   canCrear = computed(() => this.auth.hasPermiso('docentes.crear'));
   canEditar = computed(() => this.auth.hasPermiso('docentes.editar'));
+  nombreCompleto = nombreCompleto;
 
   listaTotal = signal<Docente[]>([]);
   terminoBusqueda = signal('');

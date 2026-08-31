@@ -49,7 +49,7 @@
               <div class="cell-name-row">
                 <div class="avatar-sm">{{ iniciales(p) }}</div>
                 <div>
-                  <div class="cell-name">{{ p.alumno?.nombre }} {{ p.alumno?.apellido }}</div>
+                  <div class="cell-name">{{ nombreCompleto(p.alumno) }}</div>
                   <div class="cell-muted">CI: {{ p.alumno?.ci || '—' }}</div>
                 </div>
               </div>
@@ -116,7 +116,7 @@
           <div class="detail-panel">
             <div class="detail-header">
               <mat-icon>description</mat-icon>
-              <span>Documentos de {{ p.alumno?.nombre }} {{ p.alumno?.apellido }}</span>
+              <span>Documentos de {{ nombreCompleto(p.alumno) }}</span>
             </div>
             @for (doc of p.control_documentacion; track doc.id_control_documentacion) {
               <div class="doc-row">

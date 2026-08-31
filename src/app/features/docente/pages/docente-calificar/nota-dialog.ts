@@ -10,6 +10,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { NotaService } from '../../../notas/services/nota.service';
 import { DocenteModuloDetalle, NotaResponse } from '../../../notas/models/nota.model';
 import { clasificarNota } from '../../../../core/utils/nota-utils';
+import { nombreCompleto } from '../../../../core/utils/nombre-utils';
 
 export type AlumnoCalificar = DocenteModuloDetalle['alumnos'][number];
 
@@ -49,6 +50,7 @@ export class NotaDialog {
 
   readonly esCrear = this.data.modo === 'crear';
   readonly esFijo = this.data.fijo === true;
+  nombreCompleto = nombreCompleto;
   seleccionId: number | null = this.esCrear
     ? (this.data.alumnos?.[0]?.id_detalle_programa_alumno ?? null)
     : null;

@@ -17,6 +17,7 @@ import { DocenteService } from '../../services/docente.service';
 import { Docente } from '../../models/docente.model';
 import { DetalleProgramaModulo } from '../../../detalle-programa-modulo/models/detalle.model';
 import { NavigationBackService } from '../../../../core/navigation/navigation-back.service';
+import { nombreCompleto } from '../../../../core/utils/nombre-utils';
 
 @Component({
   selector: 'app-docente-detalle',
@@ -44,6 +45,8 @@ export class DocenteDetalleComponent implements OnInit {
   private service = inject(DocenteService);
   private snackbar = inject(MatSnackBar);
   private destroyRef = inject(DestroyRef);
+
+  nombreCompleto = nombreCompleto;
 
   docente = signal<Docente | null>(null);
   modulos = signal<DetalleProgramaModulo[]>([]);

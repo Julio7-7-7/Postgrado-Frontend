@@ -24,6 +24,7 @@ import { DetalleProgramaModulo } from '../../../detalle-programa-modulo/models/d
 import { Docente } from '../../../docente/models/docente.model';
 import { Programa } from '../../../programa/models/programa.model';
 import { NavigationBackService } from '../../../../core/navigation/navigation-back.service';
+import { nombreCompleto } from '../../../../core/utils/nombre-utils';
 
 @Component({
   selector: 'app-contratacion-create',
@@ -48,6 +49,8 @@ export class ContratacionCreateComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private destroyRef = inject(DestroyRef);
   private navBack = inject(NavigationBackService);
+
+  nombreCompleto = nombreCompleto;
 
   form: FormGroup;
   programas = signal<Programa[]>([]);

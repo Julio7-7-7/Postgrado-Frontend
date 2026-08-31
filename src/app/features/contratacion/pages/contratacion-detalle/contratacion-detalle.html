@@ -49,7 +49,7 @@
           <div class="card-avatar docente-avatar" mat-card-avatar>
             <span>{{ c?.docente?.nombre?.[0] }}{{ c?.docente?.apellido?.[0] }}</span>
           </div>
-          <mat-card-title>{{ c?.docente?.nombre }} {{ c?.docente?.apellido }}</mat-card-title>
+          <mat-card-title>{{ nombreCompleto(c?.docente) }}</mat-card-title>
           <mat-card-subtitle>{{ c?.docente?.grado }} — {{ c?.docente?.ci }} {{ c?.docente?.extension }}</mat-card-subtitle>
         </mat-card-header>
         <mat-card-content>

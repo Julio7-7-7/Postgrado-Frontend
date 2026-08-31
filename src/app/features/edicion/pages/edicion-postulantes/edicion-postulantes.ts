@@ -13,6 +13,7 @@ import { EdicionService } from '../../services/edicion.service';
 import { ProgramaVersionEdicion } from '../../models/edicion.model';
 import { PostulanteResponse } from '../../../documentacion/models/documentacion.model';
 import { NavigationBackService } from '../../../../core/navigation/navigation-back.service';
+import { nombreCompleto } from '../../../../core/utils/nombre-utils';
 
 @Component({
   selector: 'app-edicion-postulantes',
@@ -33,6 +34,8 @@ export class EdicionPostulantesComponent implements OnInit {
   private snackbar = inject(MatSnackBar);
   private destroyRef = inject(DestroyRef);
   private navBack = inject(NavigationBackService);
+
+  nombreCompleto = nombreCompleto;
 
   edicion = signal<ProgramaVersionEdicion | null>(null);
   postulantes = signal<PostulanteResponse[]>([]);

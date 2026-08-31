@@ -11,6 +11,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { AlumnoService } from '../../services/alumno.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { Alumno } from '../../models/alumno.model';
+import { nombreCompleto } from '../../../../core/utils/nombre-utils';
 
 @Component({
   selector: 'app-perfil',
@@ -27,6 +28,8 @@ export class PerfilComponent implements OnInit {
   private alumnoService = inject(AlumnoService);
   private authService = inject(AuthService);
   private snackBar = inject(MatSnackBar);
+
+  nombreCompleto = nombreCompleto;
 
   alumno = signal<Alumno | null>(null);
   cargando = signal(true);

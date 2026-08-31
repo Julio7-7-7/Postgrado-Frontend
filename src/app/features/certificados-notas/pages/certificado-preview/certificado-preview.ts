@@ -9,6 +9,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { CertificadoService } from '../../services/certificado.service';
 import { NavigationBackService } from '../../../../core/navigation/navigation-back.service';
 import { CertificadoNotas, CertificadoDatos, CertificadoModulo } from '../../models/certificado.model';
+import { nombreCompleto } from '../../../../core/utils/nombre-utils';
 
 @Component({
   selector: 'app-certificado-preview',
@@ -24,6 +25,8 @@ export class CertificadoPreviewComponent implements OnInit {
   private snackBar = inject(MatSnackBar);
   private destroyRef = inject(DestroyRef);
   private navBack = inject(NavigationBackService);
+
+  nombreCompleto = nombreCompleto;
 
   cert = signal<CertificadoNotas | null>(null);
   cargando = signal(false);

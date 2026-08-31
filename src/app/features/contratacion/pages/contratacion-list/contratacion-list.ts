@@ -23,6 +23,7 @@ import { ContratacionDocente } from '../../models/contratacion.model';
 import { ProgramaService } from '../../../programa/services/programa.service';
 import { Programa } from '../../../programa/models/programa.model';
 import { AuthService } from '../../../../core/services/auth.service';
+import { nombreCompleto } from '../../../../core/utils/nombre-utils';
 
 @Component({
   selector: 'app-contratacion-list',
@@ -47,6 +48,7 @@ export class ContratacionListComponent implements OnInit {
 
   puedeGestionarEtapas = computed(() => this.auth.hasPermiso('contrataciones.editar'));
   canCrear = computed(() => this.auth.hasPermiso('contrataciones.crear'));
+  nombreCompleto = nombreCompleto;
 
   listaTotal = signal<ContratacionDocente[]>([]);
   programas = signal<Programa[]>([]);

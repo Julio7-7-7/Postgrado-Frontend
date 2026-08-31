@@ -101,14 +101,14 @@
                            (click)="verContratacion(detalle)"
                            href="javascript:void(0)">
                           <mat-icon class="info-icon">person</mat-icon>
-                          {{ detalle.docente.nombre }} {{ detalle.docente.apellido }}
+                          {{ nombreCompleto(detalle.docente) }}
                           <mat-icon class="link-icon">open_in_new</mat-icon>
                         </a>
                         <span class="contratacion-estado" [class]="'cto-' + detalle.contratacion.estado">
                           {{ contratacionEstadoLabel(detalle.contratacion.estado) }}
                         </span>
                       } @else {
-                        <span class="info-value">{{ detalle.docente.nombre }} {{ detalle.docente.apellido }}</span>
+                        <span class="info-value">{{ nombreCompleto(detalle.docente) }}</span>
                       }
                     </div>
                   } @else {

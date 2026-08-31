@@ -88,7 +88,7 @@
                   <div class="alumno-cell">
                     <div class="avatar-sm">{{ iniciales(item) }}</div>
                     <div class="alumno-text">
-                      <span class="alumno-nombre">{{ item.alumno.nombre }} {{ item.alumno.apellido }}</span>
+                      <span class="alumno-nombre">{{ nombreCompleto(item.alumno) }}</span>
                       @if (item.es_incorporacion) {
                         <span class="incorporacion-tag">Incorporación</span>
                       }

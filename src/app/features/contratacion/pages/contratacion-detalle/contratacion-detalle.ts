@@ -23,6 +23,7 @@ import { ContratacionDocente } from '../../models/contratacion.model';
 import { ControlDocContratacion, EtapaContratacion } from '../../models/etapa.model';
 import { EtapaService } from '../../services/etapa.service';
 import { DetalleProgramaModulo } from '../../../detalle-programa-modulo/models/detalle.model';
+import { nombreCompleto } from '../../../../core/utils/nombre-utils';
 
 @Component({
   selector: 'app-contratacion-detalle',
@@ -47,6 +48,8 @@ export class ContratacionDetalleComponent implements OnInit {
   private snackbar = inject(MatSnackBar);
   private destroyRef = inject(DestroyRef);
   private navBack = inject(NavigationBackService);
+
+  nombreCompleto = nombreCompleto;
 
   contratacion = signal<ContratacionDocente | null>(null);
   documentos = signal<ControlDocContratacion[]>([]);

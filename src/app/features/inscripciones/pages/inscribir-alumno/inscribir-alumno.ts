@@ -26,6 +26,7 @@ import { TipoDescuento } from '../../../alumno/models/tipo-descuento.model';
 import { Carrera } from '../../../carreras/models/carrera.model';
 import { ProgramaVersionEdicion } from '../../../edicion/models/edicion.model';
 import { environment } from '../../../../../environments/environment';
+import { nombreCompleto } from '../../../../core/utils/nombre-utils';
 
 const ITEMS_POR_PAGINA = 10;
 
@@ -55,6 +56,8 @@ export class InscribirAlumnoComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
 
   readonly ITEMS_POR_PAGINA = ITEMS_POR_PAGINA;
+
+  nombreCompleto = nombreCompleto;
 
   edicion = signal<ProgramaVersionEdicion | null>(null);
   cargandoEdicion = signal(true);

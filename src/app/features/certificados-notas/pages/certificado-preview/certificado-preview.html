@@ -69,7 +69,7 @@
 
       <section class="alumno-block">
         <p class="certifica">La Unidad de Postgrado de la Facultad Integral del Chaco certifica que:</p>
-        <h2 class="alumno-nombre">{{ datos()?.alumno?.apellido }}, {{ datos()?.alumno?.nombre }}</h2>
+        <h2 class="alumno-nombre">{{ nombreCompleto(datos()?.alumno) }}</h2>
         <p class="alumno-ci">C.I. {{ datos()?.alumno?.ci || '—' }}</p>
         <p class="alumno-texto">
           cursó y completó satisfactoriamente los módulos del <strong>{{ datos()?.programa }}</strong>,
