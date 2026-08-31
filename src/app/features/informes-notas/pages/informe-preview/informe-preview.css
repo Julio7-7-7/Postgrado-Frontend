@@ -128,7 +128,7 @@
   gap: 1px;
 }
 
-.doc-org-text .facultad {
+.doc-org-text .unidad {
   font-size: 1.06rem;
   font-weight: 800;
   letter-spacing: 0.04em;
@@ -136,17 +136,17 @@
   text-transform: uppercase;
 }
 
+.doc-org-text .facultad {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--fich-text-secondary);
+}
+
 .doc-org-text .fich-tag {
   font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.18em;
   color: #3b82f6;
-}
-
-.doc-org-text .unidad {
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--fich-text-secondary);
 }
 
 .doc-titulo {
@@ -175,42 +175,64 @@
   color: #b45309;
 }
 
-/* ===== Tira de identificación ===== */
-.doc-ident {
-  margin-top: 18px;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
-}
-
-.ident-cell.wide {
-  grid-column: span 2;
-}
-
-.ident-cell {
-  border: 1px solid #dbe1ea;
-  border-radius: 10px;
-  padding: 8px 12px;
-  background: #f8fafc;
+/* ===== Faja de identificación (sin cajas por dato) ===== */
+.doc-ident-faja {
+  margin-top: 16px;
   display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  background: #f8fafc;
+  border: 1px solid #dbe1ea;
+  border-left: 4px solid #1e3a8a;
+  border-radius: 10px;
+  padding: 9px 14px;
 }
 
-.ident-label {
+.doc-ident-faja-sec {
+  margin-top: 6px;
+  border-left-color: #94a3b8;
+  background: #fcfdfe;
+  font-size: 0.76rem;
+  color: #475569;
+}
+
+.doc-ident-faja-main {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.if-label {
   font-size: 0.66rem;
   font-weight: 700;
   color: #64748b;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  white-space: nowrap;
 }
 
-.ident-value {
-  font-size: 0.85rem;
+.if-value {
+  font-size: 0.86rem;
   font-weight: 600;
   color: #0f172a;
   overflow-wrap: anywhere;
+}
+
+.if-value strong {
+  color: #1e3a8a;
+}
+
+.if-sep {
+  color: #cbd5e1;
+  font-weight: 700;
+}
+
+.if-sec-item {
+  font-size: 0.76rem;
+  color: #475569;
 }
 
 /* ===== Resumen ===== */
@@ -379,13 +401,13 @@
   color: #1e3a8a;
 }
 
-.col-alumno { min-width: 220px; }
-.col-ci { min-width: 90px; white-space: nowrap; }
+.col-alumno { min-width: 200px; }
+.col-ci { min-width: 90px; white-space: nowrap; text-align: center !important; }
 .th-n { width: 34px; text-align: center !important; }
 .col-sigla { text-align: center; min-width: 52px; }
 .col-mod { text-align: center; width: 100px; }
-.col-prom { width: 64px; text-align: center !important; font-weight: 700; background: #eef2ff !important; }
-.col-estado { width: 180px; text-align: center !important; }
+.col-prom { width: 62px; text-align: center !important; font-weight: 700; background: #eef2ff !important; }
+.col-estado { width: 130px; text-align: center !important; }
 
 .nota-cell {
   text-align: center;
@@ -405,6 +427,30 @@
 
 tr.reprobado td {
   background: #fef2f2 !important;
+}
+
+tr.row-retirado td {
+  background: #f1f5f9 !important;
+  color: #64748b;
+  font-style: italic;
+}
+
+tr.row-retirado .nota-cell {
+  color: #94a3b8;
+}
+
+.retirado-tag {
+  display: inline-block;
+  margin-right: 6px;
+  background: #e2e8f0;
+  color: #475569;
+  border-radius: 10px;
+  padding: 0 7px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  font-style: normal;
+  letter-spacing: 0.03em;
+  vertical-align: middle;
 }
 
 /* ===== Chips de Estado del alumno ===== */
@@ -450,6 +496,12 @@ tr.reprobado td {
   background: #ede9fe;
   color: #6d28d9;
   border: 1px solid #ddd6fe;
+}
+
+.est-chip.est-retirado {
+  background: #f1f5f9;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
 }
 
 .est-chip.est-otro {

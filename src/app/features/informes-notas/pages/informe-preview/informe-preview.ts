@@ -129,7 +129,21 @@ export class InformePreviewComponent implements OnInit {
     if (estado === 'Notas reprobadas') return 'est-reprobado';
     if (estado === 'Pagos incompletos') return 'est-pagos';
     if (estado === 'Con certificado previo') return 'est-previo';
+    if (estado === 'Retirado') return 'est-retirado';
     return 'est-otro';
+  }
+
+  estadoNotasClass(estado: string): string {
+    if (estado === 'Aprobadas') return 'est-completo';
+    if (estado === 'Reprobadas') return 'est-reprobado';
+    if (estado === 'Retirado') return 'est-retirado';
+    return 'est-pendiente';
+  }
+
+  estadoPagosClass(estado: string): string {
+    if (estado === 'Completo') return 'est-completo';
+    if (estado === 'Retirado') return 'est-retirado';
+    return 'est-pagos';
   }
 
   estadoTooltip(fila: InformeMatrizFila): string {

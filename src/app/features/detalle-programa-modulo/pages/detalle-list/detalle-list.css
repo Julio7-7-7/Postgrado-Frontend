@@ -583,7 +583,8 @@ mat-card-actions {
 }
 
 .historial-btn,
-.cuadro-btn {
+.cuadro-btn,
+.notas-btn {
   font-size: 0.78rem;
   padding: 6px 16px;
   flex-shrink: 0;
@@ -592,14 +593,16 @@ mat-card-actions {
   color: var(--fich-text-secondary) !important;
 }
 .historial-btn:hover,
-.cuadro-btn:hover {
+.cuadro-btn:hover,
+.notas-btn:hover {
   border-color: var(--fich-feature-modulo) !important;
   color: var(--fich-feature-modulo) !important;
   background: var(--fich-feature-modulo-light) !important;
 }
 
 .historial-btn mat-icon,
-.cuadro-btn mat-icon {
+.cuadro-btn mat-icon,
+.notas-btn mat-icon {
   font-size: 16px;
   width: 16px;
   height: 16px;

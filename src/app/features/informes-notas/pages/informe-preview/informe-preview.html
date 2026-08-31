@@ -35,9 +35,9 @@
             <span>F</span><span>I</span><span>C</span><span>H</span>
           </div>
           <div class="doc-org-text">
-            <strong class="facultad">Facultad Integral del Chaco</strong>
+            <strong class="unidad">Unidad de Postgrado Chaco</strong>
+            <span class="facultad">Facultad Integral del Chaco</span>
             <span class="fich-tag">FICH</span>
-            <span class="unidad">Unidad de Postgrado Chaco</span>
           </div>
         </div>
         <div class="doc-titulo">
@@ -50,39 +50,42 @@
         </div>
       </header>
 
-      <div class="doc-ident">
-        <div class="ident-cell wide">
-          <span class="ident-label">Programa</span>
-          <span class="ident-value">{{ c.programa_nombre }}</span>
+      <div class="doc-ident-faja">
+        <div class="ident-faja-main">
+          <span class="if-label">Programa</span>
+          <span class="if-value">{{ c.programa_nombre }}</span>
         </div>
-        <div class="ident-cell">
-          <span class="ident-label">Versión</span>
-          <span class="ident-value">{{ c.version }}</span>
+        <span class="if-sep">·</span>
+        <div class="ident-faja-item">
+          <span class="if-label">Versión</span>
+          <span class="if-value">V{{ c.version }}</span>
         </div>
-        <div class="ident-cell">
-          <span class="ident-label">Edición</span>
-          <span class="ident-value">{{ c.edicion }}</span>
+        <span class="if-sep">·</span>
+        <div class="ident-faja-item">
+          <span class="if-label">Edición</span>
+          <span class="if-value">Ed. {{ c.edicion }}</span>
         </div>
-        <div class="ident-cell">
-          <span class="ident-label">Año</span>
-          <span class="ident-value">{{ c.anio }}</span>
+        <span class="if-sep">·</span>
+        <div class="ident-faja-item">
+          <span class="if-label">Año</span>
+          <span class="if-value">{{ c.anio }}</span>
         </div>
-        <div class="ident-cell">
-          <span class="ident-label">Semestre</span>
-          <span class="ident-value">{{ c.semestre }}</span>
+        <span class="if-sep">·</span>
+        <div class="ident-faja-item">
+          <span class="if-label">Semestre</span>
+          <span class="if-value">{{ c.semestre }}</span>
         </div>
-        <div class="ident-cell">
-          <span class="ident-label">Tanda</span>
-          <span class="ident-value">N° {{ numeroTanda() }}</span>
-        </div>
-        <div class="ident-cell">
-          <span class="ident-label">Emitido por</span>
-          <span class="ident-value">{{ emitidoPor() || '—' }}</span>
-        </div>
-        <div class="ident-cell">
-          <span class="ident-label">Emisión</span>
-          <span class="ident-value">{{ esBorrador() ? 'Borrador generado el' : 'Emitido el' }} {{ tituloEmision() }}</span>
-        </div>
+      </div>
+      <div class="doc-ident-faja doc-ident-faja-sec">
+        @if (esBorrador()) {
+          <span class="if-sec-item">Borrador generado el {{ tituloEmision() }}</span>
+        } @else {
+          <span class="if-sec-item">Emitido el {{ tituloEmision() }}</span>
+          <span class="if-sep">·</span>
+          <span class="if-sec-item"><strong>Emitido por:</strong> {{ emitidoPor() || '—' }}</span>
+          <span class="if-sep">·</span>
+          <span class="if-sec-item"><strong>Tanda:</strong> N° {{ numeroTanda() }}</span>
+        }
       </div>
 
       <div class="doc-resumen">
@@ -126,7 +129,12 @@
                     <th class="col-sigla">{{ col.sigla }}</th>
                   }
                   <th rowspan="2" class="col-prom">Prom</th>
-                  <th rowspan="2" class="col-estado">Estado</th>
+                  @if (esBorrador()) {
+                    <th rowspan="2" class="col-estado">Estado notas</th>
+                    <th rowspan="2" class="col-estado">Estado pagos</th>
+                  } @else {
+                    <th rowspan="2" class="col-estado">Estado</th>
+                  }
                 </tr>
                 <tr class="head-b">
                   @for (col of carrera.matriz_columnas; track col.id_detalle_programa_modulo) {
@@ -136,8 +144,14 @@
               </thead>
               <tbody>
                 @for (fila of carrera.matriz_filas; track fila.id_detalle_programa_alumno) {
-                  <tr [class.reprobado]="fila.promedio !== null && fila.promedio < 66">
-                    <td class="col-alumno">{{ fila.apellido }} {{ fila.nombre }}</td>
+                  <tr [class.reprobado]="!fila.retirado && fila.promedio !== null && fila.promedio < 66"
+                      [class.row-retirado]="fila.retirado">
+                    <td class="col-alumno">
+                      @if (fila.retirado) {
+                        <span class="retirado-tag">Retirado</span>
+                      }
+                      {{ fila.apellido }} {{ fila.nombre }}
+                    </td>
                     <td class="col-ci">{{ fila.ci || '—' }}</td>
                     @for (nota of fila.notas; track $index) {
                       <td class="nota-cell" [class.sin-nota]="nota === null" [class.nota-reprobada]="nota !== null && nota < 66">
@@ -147,13 +161,26 @@
                     <td class="col-prom">
                       {{ fila.promedio ?? '—' }}
                     </td>
-                    <td class="col-estado">
-                      <span
-                        class="est-chip {{ estadoClass(fila.estado) }}"
-                        [title]="estadoTooltip(fila)"
-                        [class.est-simple]="fila.estado === 'Completo'"
-                      >{{ fila.estado }}</span>
-                    </td>
+                    @if (esBorrador()) {
+                      <td class="col-estado">
+                        <span class="est-chip {{ estadoNotasClass(fila.estado_notas || fila.estado) }}"
+                              [class.est-simple]="fila.estado_notas === 'Aprobadas'"
+                        >{{ fila.estado_notas || fila.estado }}</span>
+                      </td>
+                      <td class="col-estado">
+                        <span class="est-chip {{ estadoPagosClass(fila.estado_pagos || '') }}"
+                              [class.est-simple]="fila.estado_pagos === 'Completo'"
+                        >{{ fila.estado_pagos || '—' }}</span>
+                      </td>
+                    } @else {
+                      <td class="col-estado">
+                        <span
+                          class="est-chip {{ estadoClass(fila.estado) }}"
+                          [title]="estadoTooltip(fila)"
+                          [class.est-simple]="fila.estado === 'Completo'"
+                        >{{ fila.estado }}</span>
+                      </td>
+                    }
                   </tr>
                 }
               </tbody>
@@ -161,11 +188,18 @@
           </div>
 
           <div class="sheet-leyenda">
-            <span>Escala 0–100 · nota académica mínima: <strong>66</strong> en cada módulo.</span>
-            <span>
-              Estado = cruce entre notas y pagos. <strong>Completo</strong>: todas las notas aprobadas y pagos al día (elegible para certificado).
-              Reprobado = promedio &lt; 66.
-            </span>
+            <span>Escala 0–100 · nota académica mínima: <strong>66</strong> en cada módulo. Notas centradas.</span>
+            @if (esBorrador()) {
+              <span>
+                <strong>Estado notas</strong>: Aprobadas si todas ≥ 66 · Reprobadas/Pendientes en caso contrario.
+                <strong>Estado pagos</strong>: Completo = sin cuotas pendientes. Los alumnos retirados se listan al final, marcados.
+              </span>
+            } @else {
+              <span>
+                <strong>Estado</strong> = cruce entre notas y pagos. <strong>Completo</strong>: todas las notas aprobadas y pagos al día (elegible para certificado).
+                Reprobado = promedio &lt; 66.
+              </span>
+            }
           </div>
         </section>
       }
@@ -212,8 +246,8 @@
             <span>F</span><span>I</span><span>C</span><span>H</span>
           </div>
           <div class="foot-text">
-            <strong>Facultad Integral del Chaco</strong>
-            <span>Unidad de Postgrado Chaco</span>
+            <strong>Unidad de Postgrado Chaco</strong>
+            <span>Facultad Integral del Chaco — FICH</span>
           </div>
         </div>
         <p class="foot-gen">{{ esBorrador()

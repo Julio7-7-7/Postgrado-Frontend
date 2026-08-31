@@ -22,6 +22,9 @@ export interface InformeMatrizFila {
   aprobada: boolean;
   elegible: boolean;
   estado: string;
+  estado_notas?: string | null;
+  estado_pagos?: string | null;
+  retirado?: boolean;
 }
 
 export interface InformeCarrera {
@@ -64,7 +67,7 @@ export interface InformeContenido {
 export interface InformeNotas {
   id_informe: number;
   id_programa_version_edicion: number;
-  numero_tanda: number;
+  numero_tanda: number | null;
   tipo: 'borrador' | 'final';
   fecha_emision: string;
   generado_at: string | null;

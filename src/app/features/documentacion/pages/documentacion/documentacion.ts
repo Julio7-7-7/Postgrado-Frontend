@@ -32,15 +32,20 @@ export class DocumentacionComponent implements OnInit {
 
   ediciones = signal<ProgramaVersionEdicionResponse[]>([]);
   isLoading = signal(true);
+  verFinalizadas = signal(false);
 
   edicionesActivas = computed(() =>
-    this.ediciones().filter(e => e.estado !== 'finalizado')
+    this.ediciones().filter(e => e.estado !== 'finalizado' && !e.es_historico)
+  );
+
+  edicionesFinalizadas = computed(() =>
+    this.ediciones().filter(e => e.estado === 'finalizado' || e.es_historico)
   );
 
   ngOnInit(): void {
     this.service.getEdiciones().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: data => {
-        this.ediciones.set(data.filter(e => e.estado !== 'finalizado'));
+        this.ediciones.set(data);
         this.isLoading.set(false);
       },
       error: () => {
@@ -70,6 +75,7 @@ export class DocumentacionComponent implements OnInit {
       programado: 'estado-programado',
       en_curso: 'estado-en_curso',
       reprogramado: 'estado-reprogramado',
+      finalizado: 'estado-finalizado',
     };
     return map[estado] || '';
   }

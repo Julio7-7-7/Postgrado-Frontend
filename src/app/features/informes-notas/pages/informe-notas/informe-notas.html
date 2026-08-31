@@ -3,7 +3,7 @@
     <div class="header-left">
       <div class="title-wrap">
         <h1>Informes de Notas</h1>
-        <p class="subtitle">Informe en formato horizontal (estudiantes × módulos), borradores y final con certificados</p>
+        <p class="subtitle">Informe de notas por edición: borradores para revisión y emisión oficial con certificados</p>
       </div>
     </div>
     <div class="header-tags">
@@ -77,8 +77,8 @@
                 @if (informes().length === 0) { Todavía no se generó ningún informe para esta edición }
                 @else {
                   <span>
-                    <span class="dot-badge borrador"></span> Borrador (ámbar) ·
-                    <span class="dot-badge final"></span> Informe final (verde, único por edición)
+                    <span class="dot-badge borrador"></span> Borrador ·
+                    <span class="dot-badge final"></span> Informe final (con certificados)
                   </span>
                 }
               </p>
@@ -108,16 +108,17 @@
                     }
                   </span>
                   <div class="informe-info">
-                    <span class="informe-line">Tanda {{ inf.numero_tanda }}</span>
+                    <span class="informe-line">
+                      @if (inf.tipo === 'final') {
+                        Tanda N° {{ inf.numero_tanda }}
+                      } @else {
+                        Borrador
+                      }
+                    </span>
                     <span class="informe-meta">
                       Emitido {{ inf.fecha_emision }}
                       @if (inf.emitido_por_nombre) { por {{ inf.emitido_por_nombre }} }
                       @if (inf.certificados_count > 0) { · {{ inf.certificados_count }} certificado(s) }
-                      @if (inf.tipo === 'final') {
-                        @for (c of inf.contenido?.carreras ?? []; track $index) {
-                          · {{ c.matriz_columnas.length }} módulos
-                        }
-                      }
                     </span>
                   </div>
                   <button mat-stroked-button (click)="verInforme(inf)" type="button">
@@ -127,14 +128,23 @@
               }
             </div>
           }
+
+          @if (!mostrarConfig()) {
+            <div class="generar-nuevo-bar">
+              <button mat-raised-button color="primary" (click)="abrirConfig()" type="button">
+                <mat-icon>add</mat-icon> Generar nuevo informe
+              </button>
+            </div>
+          }
         </div>
 
+        @if (mostrarConfig()) {
         <div class="informe-block">
           <div class="block-head">
             <mat-icon>grid_on</mat-icon>
             <div>
-              <h2>Configuración del borrador</h2>
-              <p class="block-sub">Formato horizontal: una columna por módulo, fila por estudiante + promedio y estado</p>
+              <h2>Nuevo informe</h2>
+              <p class="block-sub">Seleccioná qué módulos incluir y el tipo de informe</p>
             </div>
           </div>
 
@@ -157,9 +167,9 @@
             } @else if (modulos().length === 0) {
               <div class="empty-inline">Esta edición no tiene módulos asignados</div>
             } @else {
-              <div class="modulos-grid">
+              <div class="modulos-list">
                 @for (m of modulos(); track m.id_detalle_programa_modulo) {
-                  <label class="modulo-chip" [class.selected]="seleccionModulos().includes(m.id_detalle_programa_modulo)">
+                  <label class="modulo-row" [class.selected]="seleccionModulos().includes(m.id_detalle_programa_modulo)">
                     <mat-checkbox
                       [checked]="seleccionModulos().includes(m.id_detalle_programa_modulo)"
                       (change)="toggleModulo(m.id_detalle_programa_modulo)"
@@ -193,48 +203,45 @@
             </mat-form-field>
             <span class="hint-inline">Los alumnos sin carrera se agrupan en "Sin carrera"</span>
           </div>
-        </div>
 
-        <div class="action-bar">
-          <div class="action-left">
-            @if (puedeGenerar() && !finalDisponible()) {
-              @if (finalExistente()) {
-                <span class="hint-inline">
-                  <mat-icon class="hint-icon">check_circle</mat-icon> El informe final de esta edición ya fue generado (verde, arriba)
-                </span>
-              } @else if (!edicionFinalizada()) {
+          <div class="action-bar">
+            <div class="action-left">
+              @if (puedeGenerar() && !finalDisponible()) {
                 <span class="hint-inline">
                   <mat-icon class="hint-icon">lock</mat-icon> El informe final se habilita cuando la edición esté finalizada
                 </span>
               }
-            }
-          </div>
-          <div class="action-right">
-            @if (puedeGenerar()) {
-              <button mat-stroked-button (click)="generarFinal()"
-                      [disabled]="!finalDisponible() || !!generando()"
-                      matTooltip="Finaliza con el estado oficial de la edición y emite los certificados de notas" type="button">
-                @if (generando() === 'final') {
-                  <mat-spinner diameter="18"></mat-spinner>
-                } @else {
-                  <mat-icon>assignment_turned_in</mat-icon>
-                }
-                Generar informe final
-              </button>
-              <button mat-flat-button color="primary" (click)="generarBorrador()"
-                      [disabled]="!borradorValido()" type="button">
-                @if (generando() === 'borrador') {
-                  <mat-spinner diameter="18"></mat-spinner>
-                } @else {
-                  <mat-icon>summarize</mat-icon>
-                }
-                Generar borrador {{ seleccionModulos().length > 0 ? '(' + seleccionModulos().length + ' mód.)' : '' }}
-              </button>
-            } @else {
-              <span class="hint-inline">Requiere permiso pagos.registrar para generar</span>
-            }
+            </div>
+            <div class="action-right">
+              @if (puedeGenerar()) {
+                <button mat-stroked-button (click)="generarFinal()"
+                        [disabled]="!finalDisponible() || !!generando()"
+                        matTooltip="Emite una tanda del informe final con los alumnos completos y sus certificados de notas" type="button">
+                  @if (generando() === 'final') {
+                    <mat-spinner diameter="18"></mat-spinner>
+                  } @else {
+                    <mat-icon>assignment_turned_in</mat-icon>
+                  }
+                  Emitir informe final
+                </button>
+                <button mat-flat-button color="primary" (click)="generarBorrador()"
+                        [disabled]="!borradorValido()" type="button">
+                  @if (generando() === 'borrador') {
+                    <mat-spinner diameter="18"></mat-spinner>
+                  } @else {
+                    <mat-icon>summarize</mat-icon>
+                  }
+                  Generar borrador {{ seleccionModulos().length > 0 ? '(' + seleccionModulos().length + ' mód.)' : '' }}
+                </button>
+              } @else {
+                <span class="hint-inline">Requiere permiso pagos.registrar para generar</span>
+              }
+            </div>
           </div>
         </div>
+        } @else {
+          <div class="empty-inline padded">Usá "Generar nuevo informe" para crear un borrador o emitir una tanda del informe final.</div>
+        }
       } @else {
         <div class="informe-block">
           <div class="empty-inline padded">Elegí un programa, versión y edición para configurar el informe</div>

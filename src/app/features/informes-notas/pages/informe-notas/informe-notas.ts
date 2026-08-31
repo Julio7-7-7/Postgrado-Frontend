@@ -92,13 +92,22 @@ export class InformeNotasComponent implements OnInit {
 
   edicionFinalizada = computed(() => this.edicionSel()?.estado === 'finalizado');
 
-  finalExistente = computed(() => this.informes().some(i => i.tipo === 'final'));
-
   borradorValido = computed(() =>
     !!this.selEdicion() && this.seleccionModulos().length > 0 && !this.generando());
 
-  finalDisponible = computed(() =>
-    this.edicionFinalizada() && !this.finalExistente());
+  finalDisponible = computed(() => this.edicionFinalizada());
+
+  mostrarConfig = signal(false);
+
+  abrirConfig(): void {
+    this.mostrarConfig.set(true);
+  }
+
+  cerrarConfig(): void {
+    this.mostrarConfig.set(false);
+  }
+
+  tieneInformes = computed(() => this.informes().length > 0);
 
   ngOnInit(): void {
     const edicionParam = this.route.snapshot.queryParamMap.get('edicion');
@@ -174,6 +183,7 @@ export class InformeNotasComponent implements OnInit {
     this.modulos.set([]);
     this.seleccionModulos.set([]);
     this.informes.set([]);
+    this.mostrarConfig.set(false);
 
     this.detalleService.getAll(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: mods => {
@@ -191,7 +201,10 @@ export class InformeNotasComponent implements OnInit {
     });
 
     this.informeService.porEdicion(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: inf => this.informes.set(inf),
+      next: inf => {
+        this.informes.set(inf);
+        if (inf.length === 0) this.mostrarConfig.set(true);
+      },
     });
   }
 
@@ -226,7 +239,7 @@ export class InformeNotasComponent implements OnInit {
       width: '460px',
       data: {
         titulo: 'Generar Borrador',
-        mensaje: `Se guardará un borrador del informe (formato horizontal) con ${this.seleccionModulos().length} módulo(s) y los filtros elegidos. Se registrará una nueva tanda y quedará disponible para imprimir desde "Informes generados".`,
+        mensaje: `Se guardará un borrador con ${this.seleccionModulos().length} módulo(s). Quedará disponible para imprimir desde "Informes generados".`,
         confirmText: 'Generar borrador',
       },
     });
@@ -237,10 +250,6 @@ export class InformeNotasComponent implements OnInit {
 
   generarFinal(): void {
     if (!this.selEdicion()) return;
-    if (this.finalExistente()) {
-      this.snackBar.open('El informe final de esta edición ya fue generado', 'Cerrar', { duration: 4000 });
-      return;
-    }
     if (!this.edicionFinalizada()) {
       this.snackBar.open('El informe final requiere que la edición esté finalizada', 'Cerrar', { duration: 4000 });
       return;
@@ -249,9 +258,9 @@ export class InformeNotasComponent implements OnInit {
     const ref = this.dialog.open(ConfirmDialogComponent, {
       width: '480px',
       data: {
-        titulo: 'Generar Informe Final',
-        mensaje: 'Se generará el informe final con TODOS los módulos de la edición (único por edición). Los alumnos completos recibirán su certificado de notas. Esta acción no se puede revertir.',
-        confirmText: 'Generar informe final',
+        titulo: 'Emitir informe final',
+        mensaje: 'Se emitirá una tanda del informe final con TODOS los módulos de la edición. Cada alumno que cumple con la totalidad de notas y pagos recibirá su certificado. Quedará disponible para imprimir desde "Informes generados".',
+        confirmText: 'Emitir informe final',
       },
     });
     ref.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(confirmado => {
@@ -264,7 +273,7 @@ export class InformeNotasComponent implements OnInit {
     this.informeService.generar(this.armarRequest(tipo)).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: informe => {
         this.generando.set(null);
-        this.snackBar.open(tipo === 'final' ? 'Informe final generado' : 'Borrador generado', 'Cerrar', { duration: 3000 });
+        this.snackBar.open(tipo === 'final' ? 'Informe final emitido' : 'Borrador generado', 'Cerrar', { duration: 3000 });
         this.recargarInformes();
         this.router.navigate(['/informes-notas/preview'], { state: { informe } });
       },

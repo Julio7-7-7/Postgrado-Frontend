@@ -256,25 +256,37 @@ export class DetalleListComponent implements OnInit {
 
   verNotas(): void {
     this.navBack.setReturn(this.router.url);
-    const mods = this.detalles();
-    const actual = mods[this.currentIndex()];
+    this.router.navigate(['/notas', this.idEdicion()]);
+  }
+
+  verNotasModulo(detalle: DetalleProgramaModulo): void {
+    this.navBack.setReturn(this.router.url);
     this.router.navigate(['/notas', this.idEdicion()], {
-      queryParams: actual ? { modulo: actual.id_detalle_programa_modulo } : {},
+      queryParams: { modulo: detalle.id_detalle_programa_modulo },
     });
   }
 
-  puedeVerInformes(): boolean {
+  puedeVerAlumnos(): boolean {
+    return this.auth.hasPermiso('alumnos.ver');
+  }
+
+  puedeVerPagos(): boolean {
     return this.auth.hasPermiso('pagos.ver');
   }
 
-  verInforme(): void {
-    this.navBack.setReturn(this.router.url);
-    const mods = this.detalles();
-    const actual = mods[this.currentIndex()];
-    this.router.navigate(['/informes-notas'], {
-      queryParams: actual
-        ? { edicion: this.idEdicion(), modulo: actual.id_detalle_programa_modulo }
-        : { edicion: this.idEdicion() },
-    });
+  puedeVerDocumentacion(): boolean {
+    return this.auth.hasPermiso('documentos.revisar');
+  }
+
+  irAInscripciones(): void {
+    this.router.navigate(['/inscripciones', this.idEdicion()]);
+  }
+
+  irADocumentacion(): void {
+    this.router.navigate(['/documentacion', this.idEdicion()]);
+  }
+
+  irAPagos(): void {
+    this.router.navigate(['/pagos', this.idEdicion()]);
   }
 }
