@@ -2,6 +2,15 @@
   display: block;
 }
 
+.table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.table-scroll .full-width-table {
+  min-width: 760px;
+}
+
 .persona-name-cell {
   display: flex;
   align-items: center;

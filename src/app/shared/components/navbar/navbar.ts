@@ -25,6 +25,17 @@ export class NavbarComponent implements OnDestroy {
   auth = inject(AuthService);
 
   openModule = signal<string | null>(null);
+  menuAbierto = signal(false);
+
+  toggleMenu(): void {
+    this.menuAbierto.set(!this.menuAbierto());
+    if (this.menuAbierto()) this.openModule.set(null);
+  }
+
+  cerrarMenu(): void {
+    this.menuAbierto.set(false);
+    this.openModule.set(null);
+  }
 
   user = computed(() => this.auth.user());
   isLogged = computed(() => this.auth.isLogged());
@@ -117,6 +128,7 @@ export class NavbarComponent implements OnDestroy {
 
   onNavClick(): void {
     this.openModule.set(null);
+    this.menuAbierto.set(false);
   }
 
   ngOnDestroy(): void {}

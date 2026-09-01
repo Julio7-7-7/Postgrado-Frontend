@@ -192,10 +192,13 @@
   border: 1px solid var(--fich-border-light);
   border-radius: 12px;
   background: var(--fich-bg-card);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .matriz-table {
   width: 100%;
+  min-width: 900px;
   border-collapse: collapse;
   font-size: 0.85rem;
   table-layout: fixed;
