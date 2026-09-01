@@ -1,0 +1,108 @@
+<div class="page-container">
+  <div class="header-section">
+    <div class="header-left">
+      <h1>Backups</h1>
+      <p class="subtitle">Copias de seguridad de la base de datos y los archivos del sistema</p>
+    </div>
+  </div>
+
+  <!-- Estado / acciones -->
+  <div class="status-card">
+    <div class="status-grid">
+      <div class="status-item">
+        <span class="status-label">Último backup</span>
+        <span class="status-value">
+          <ng-container *ngIf="ultimoBackup(); else sinBackup">
+            {{ fmtFecha(ultimoBackup()?.created_at ?? null) }}
+          </ng-container>
+          <ng-template #sinBackup>Sin backups todavía</ng-template>
+        </span>
+        <span class="status-sub" *ngIf="ultimoBackup()">
+          {{ origenLabel(ultimoBackup()?.origen ?? '') }} · {{ fmtTamano(ultimoBackup()?.tamano_bytes ?? 0) }}
+        </span>
+      </div>
+      <div class="status-item">
+        <span class="status-label">Automatización</span>
+        <span class="status-value">Cada {{ intervaloHoras }} horas</span>
+        <span class="status-sub">Se conservan las últimas {{ retencion }} copias</span>
+      </div>
+      <div class="status-actions">
+        <button mat-flat-button class="btn-generar" (click)="generar()" [disabled]="generando()" *ngIf="puedeCrear()">
+          <mat-spinner *ngIf="generando()" diameter="18" class="btn-spinner"></mat-spinner>
+          <mat-icon *ngIf="!generando()">backup</mat-icon>
+          <span>Generar backup ahora</span>
+        </button>
+        <button mat-stroked-button class="btn-restaurar" (click)="restaurar()" *ngIf="puedeRestaurar()">
+          <mat-icon>restore</mat-icon>
+          <span>Restaurar backup</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Estado de carga / error -->
+  <div class="loading-state" *ngIf="cargando()">
+    <mat-spinner diameter="32"></mat-spinner>
+    <p>Cargando backups...</p>
+  </div>
+  <div class="empty-state error" *ngIf="!cargando() && error()">
+    <mat-icon>error_outline</mat-icon>
+    <p>{{ error() }}</p>
+    <button mat-stroked-button (click)="cargar()">Reintentar</button>
+  </div>
+
+  <!-- Tabla -->
+  <ng-container *ngIf="!cargando() && !error()">
+    <div class="table-card" *ngIf="backups().length > 0; else noBackups">
+      <table class="fich-table">
+        <thead>
+          <tr>
+            <th>Archivo</th>
+            <th>Fecha</th>
+            <th>Tamaño</th>
+            <th>Origen</th>
+            <th>Estado</th>
+            <th class="col-acciones">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let b of backups()">
+            <td class="cell-nombre">
+              <mat-icon class="file-icon" [class.previo]="contaminado(b)">inventory_2</mat-icon>
+              <span>{{ b.nombre }}</span>
+            </td>
+            <td>{{ fmtFecha(b.created_at) }}</td>
+            <td class="mono">{{ fmtTamano(b.tamano_bytes) }}</td>
+            <td>
+              <span class="pill" [class.pill-auto]="b.origen === 'auto'" [class.pill-previo]="contaminado(b)">
+                {{ origenLabel(b.origen) }}
+              </span>
+            </td>
+            <td>
+              <span class="pill" [class.pill-ok]="b.estado === 'ok'" [class.pill-err]="b.estado !== 'ok'">
+                {{ b.estado === 'ok' ? 'OK' : 'Error' }}
+              </span>
+            </td>
+            <td class="col-acciones">
+              <div class="acciones-wrap" *ngIf="puedeCrear() || puedeEliminar()">
+                <button mat-icon-button (click)="descargar(b)" matTooltip="Descargar" aria-label="Descargar">
+                  <mat-icon>download</mat-icon>
+                </button>
+                <button mat-icon-button (click)="eliminar(b)" matTooltip="Eliminar" aria-label="Eliminar" *ngIf="puedeEliminar() && !contaminado(b)">
+                  <mat-icon class="danger">delete_outline</mat-icon>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <ng-template #noBackups>
+      <div class="empty-state">
+        <mat-icon>backup</mat-icon>
+        <p>No hay backups todavía. Generá el primero con "Generar backup ahora".</p>
+      </div>
+    </ng-template>
+  </ng-container>
+</div>

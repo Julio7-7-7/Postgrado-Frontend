@@ -1,4 +1,4 @@
-export type NavModule = 'inicio' | 'programas' | 'docentes' | 'docente' | 'estudiantes' | 'notas' | 'pagos' | 'sistema' | 'oferta';
+export type NavModule = 'inicio' | 'programas' | 'docentes' | 'docente' | 'estudiantes' | 'notas' | 'pagos' | 'reportes' | 'sistema' | 'oferta';
 
 export interface NavItem {
   path: string;
@@ -220,6 +220,23 @@ export const NAV_MODULES: NavModuleGroup[] = [
     ],
   },
   {
+    key: 'reportes',
+    label: 'Reportes',
+    icon: 'monitoring',
+    permiso: 'reportes.ver',
+    items: [
+      {
+        path: '/reportes',
+        label: 'Reportes de Gestión',
+        icon: 'monitoring',
+        feature: 'reportes',
+        permiso: 'reportes.ver',
+        kind: 'children',
+        load: () => import('../../features/reportes/routes/reportes.routes').then(m => m.REPORTES_ROUTES),
+      },
+    ],
+  },
+  {
     key: 'sistema',
     label: 'Sistema',
     icon: 'settings',
@@ -251,6 +268,15 @@ export const NAV_MODULES: NavModuleGroup[] = [
         permiso: 'usuarios.gestionar',
         kind: 'children',
         load: () => import('../../features/persona/routes/persona.routes').then(m => m.PERSONA_ROUTES),
+      },
+      {
+        path: '/backups',
+        label: 'Backups',
+        icon: 'backup',
+        feature: 'backups',
+        permiso: 'backups.ver',
+        kind: 'children',
+        load: () => import('../../features/backups/routes/backups.routes').then(m => m.BACKUPS_ROUTES),
       },
     ],
   },

@@ -1,0 +1,51 @@
+<h2 mat-dialog-title class="dialog-title">
+  <span class="header-icon">restore</span>
+  Restaurar backup
+</h2>
+<mat-dialog-content class="dialog-content">
+  <div class="alerta">
+    <mat-icon>warning_amber</mat-icon>
+    <p><strong>Atención:</strong> restaurar sobrescribirá <strong>la base de datos y los archivos actuales</strong> con el contenido del backup. Antes de hacerlo se genera automáticamente un backup de seguridad de los datos actuales.</p>
+  </div>
+
+  <!-- Carga del archivo -->
+  <div class="campo">
+    <label>Archivo de backup (.bak)</label>
+    <div class="drop" (click)="fileInput.click()">
+      <input #fileInput type="file" accept=".bak" hidden (change)="onArchivoSeleccionado($event)" />
+      <ng-container *ngIf="!archivo(); else archivoCargado">
+        <mat-icon>upload_file</mat-icon>
+        <span class="drop-text">Toca para seleccionar un archivo .bak</span>
+      </ng-container>
+      <ng-template #archivoCargado>
+        <div class="archivo-pill">
+          <mat-icon>inventory_2</mat-icon>
+          <span class="archivo-nombre">{{ archivo()?.name }}</span>
+          <button mat-icon-button (click)="quitarArchivo(); $event.stopPropagation()" aria-label="Quitar archivo">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      </ng-template>
+    </div>
+  </div>
+
+  <!-- Confirmación reforzada -->
+  <div class="campo" *ngIf="archivo()">
+    <label>Escribí <strong>RESTAURAR</strong> para confirmar</label>
+    <input class="confirm-input" [(ngModel)]="confirmText" placeholder="RESTAURAR" />
+    <p class="hint" *ngIf="confirmText && !confirmacionValida()">El texto debe coincidir exactamente.</p>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="dialog-actions">
+  <button mat-stroked-button (click)="cancelar()" [disabled]="restaurando()" type="button">Cancelar</button>
+  <button
+    mat-flat-button
+    color="warn"
+    [disabled]="!archivo() || !confirmacionValida() || restaurando()"
+    (click)="restaurar()"
+    type="button">
+    <mat-spinner *ngIf="restaurando()" diameter="18" class="btn-spinner"></mat-spinner>
+    <span *ngIf="!restaurando()">Restaurar</span>
+  </button>
+</mat-dialog-actions>

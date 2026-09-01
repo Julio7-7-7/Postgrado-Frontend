@@ -320,3 +320,27 @@
     grid-template-columns: 1fr 1fr;
   }
 }
+
+@media (max-width: 640px) {
+  .cascada {
+    grid-template-columns: 1fr;
+    padding: 12px;
+  }
+  .cascada .mat-mdc-form-field,
+  .cascada .select-cell {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+  .cascada-toolbar {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .cascada-toolbar .buscador {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+  .btn-emitir {
+    min-width: 0;
+    width: 100%;
+  }
+}

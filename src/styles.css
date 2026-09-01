@@ -1125,3 +1125,92 @@ h1, h2, h3, h4, h5, h6 {
   color: #475569;
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   RESPONSIVE GLOBAL (2026-09-01)
+   Breakpoints: 1200 / 1024 / 768 / 640 / 480
+   El navbar drawer vive en navbar.css; aquí el contenido.
+   ═══════════════════════════════════════════════════════════════ */
+
+@media (max-width: 1200px) {
+  .page-container {
+    width: 94%;
+  }
+}
+
+@media (max-width: 1024px) {
+  .page-container {
+    padding: 20px 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .page-container {
+    width: 100%;
+    padding: 16px 12px;
+  }
+
+  .dialog-shell {
+    min-width: 0;
+    width: 100%;
+    padding: 16px;
+  }
+
+  .form-card {
+    width: 100%;
+    padding: 12px;
+  }
+
+  .form-page {
+    padding: 20px 12px;
+  }
+
+  .page-container .header-section {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .page-container .header-section .header-actions {
+    flex-wrap: wrap;
+  }
+
+  .header-section h1,
+  .header-section h2 {
+    font-size: 1.25rem;
+  }
+
+  .filters-bar {
+    padding: 12px;
+  }
+
+  .filters-bar .mat-mdc-form-field {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .form-actions {
+    flex-direction: column-reverse;
+    gap: 10px;
+  }
+
+  .form-actions button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-container .header-section h1,
+  .page-container .header-section h2 {
+    font-size: 1.1rem;
+  }
+
+  .mat-mdc-dialog-container {
+    max-width: 100vw !important;
+  }
+}
+
+

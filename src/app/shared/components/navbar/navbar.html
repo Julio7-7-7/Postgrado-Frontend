@@ -1,6 +1,16 @@
 @if (isLogged()) {
   <mat-toolbar class="navbar">
-    <div class="navbar-brand" routerLink="/">
+    <button
+      mat-icon-button
+      class="nav-hamburger"
+      (click)="toggleMenu()"
+      matTooltip="Menú"
+      aria-label="Abrir menú de navegación"
+    >
+      <mat-icon>{{ menuAbierto() ? 'close' : 'menu' }}</mat-icon>
+    </button>
+
+    <div class="navbar-brand" routerLink="/" (click)="cerrarMenu()">
       <div class="brand-emblem">
         <span class="brand-fich">FICH</span>
         <span class="brand-upc">UPC</span>
@@ -98,6 +108,69 @@
       </mat-menu>
     </div>
   </mat-toolbar>
+
+  @if (menuAbierto()) {
+    <div class="nav-overlay" (click)="cerrarMenu()"></div>
+    <aside class="nav-drawer" [class.nav-drawer-open]="menuAbierto()" (click)="$event.stopPropagation()">
+      <div class="nav-drawer-sections">
+        @for (mod of visibleModules(); track mod.key) {
+          <div class="drawer-section">
+            <div
+              class="drawer-section-head"
+              [class.active]="isModuleActive(mod)"
+              (click)="toggleModule(mod.key, $event)"
+            >
+              <mat-icon class="drawer-section-icon">{{ mod.icon }}</mat-icon>
+              <span class="drawer-section-label">{{ mod.label }}</span>
+              @if (mod.items.length > 1) {
+                <mat-icon class="drawer-chevron" [class.open]="openModule() === mod.key">expand_more</mat-icon>
+              }
+            </div>
+
+            @if (mod.items.length === 1) {
+              <a
+                class="drawer-item"
+                [class.drawer-item-active]="isItemActive(mod.items[0])"
+                [routerLink]="mod.items[0].path"
+                (click)="onNavClick()"
+              >
+                <mat-icon class="drawer-item-icon">{{ mod.items[0].icon }}</mat-icon>
+                <span>{{ mod.items[0].label }}</span>
+              </a>
+            } @else if (openModule() === mod.key) {
+              @for (item of mod.items; track item.path) {
+                <a
+                  class="drawer-item"
+                  [class.drawer-item-active]="isItemActive(item)"
+                  [routerLink]="item.path"
+                  (click)="onNavClick()"
+                >
+                  <mat-icon class="drawer-item-icon">{{ item.icon }}</mat-icon>
+                  <span>{{ item.label }}</span>
+                </a>
+              }
+            }
+          </div>
+        }
+      </div>
+
+      <div class="drawer-footer">
+        @if (profileRoute()) {
+          <button mat-button class="drawer-foot-btn" [routerLink]="profileRoute()" (click)="onNavClick()">
+            <mat-icon>person</mat-icon> Mi Perfil
+          </button>
+        }
+        @if (hasMultipleRoles()) {
+          <button mat-button class="drawer-foot-btn" (click)="cerrarMenu(); cambiarRol();">
+            <mat-icon>swap_horiz</mat-icon> Cambiar de rol
+          </button>
+        }
+        <button mat-button class="drawer-foot-btn drawer-foot-logout" (click)="logout()">
+          <mat-icon>logout</mat-icon> Cerrar sesión
+        </button>
+      </div>
+    </aside>
+  }
 } @else {
   <mat-toolbar class="navbar public-navbar">
     <div class="navbar-brand" routerLink="/">
