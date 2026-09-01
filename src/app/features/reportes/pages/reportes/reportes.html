@@ -1,0 +1,293 @@
+<div class="page-container reportes-page">
+  <header class="header-section">
+    <div class="header-left">
+      <div class="header-icon" style="background: linear-gradient(135deg, var(--fich-feature-reportes, #1e3a8a), #312e81)">
+        <mat-icon>monitoring</mat-icon>
+      </div>
+      <div>
+        <h1>Reportes de Gestión</h1>
+        <p class="header-sub">Indicadores para la toma de decisiones del director.</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <button mat-raised-button color="primary" class="btn-generar"
+        [disabled]="!puedeGenerar || !puedeImprimir()"
+        (click)="imprimir()">
+        <mat-icon>print</mat-icon> Imprimir reporte
+      </button>
+    </div>
+  </header>
+
+  <!-- Barra de filtros -->
+  <div class="filtros-bar">
+    <div class="filtro-grupo">
+      <span class="filtro-label">Periodo</span>
+      <mat-form-field appearance="outline" class="filtro-select">
+        <mat-select [ngModel]="periodo()" (ngModelChange)="periodo.set($event); onPeriodoChange()">
+          <mat-option value="anual">Anual</mat-option>
+          <mat-option value="semestral">Semestral</mat-option>
+          <mat-option value="rango">Rango de fechas</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    @if (periodo() === 'anual' || periodo() === 'semestral') {
+      <div class="filtro-grupo">
+        <span class="filtro-label">Año</span>
+        <mat-form-field appearance="outline" class="filtro-select filtro-anio">
+          <mat-select [ngModel]="anio()" (ngModelChange)="anio.set($event); onAnioChange()">
+            @for (a of aniosDisponibles(); track a) {
+              <mat-option [value]="a">{{ a }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+    }
+
+    @if (periodo() === 'semestral') {
+      <div class="filtro-grupo">
+        <span class="filtro-label">Semestre</span>
+        <mat-form-field appearance="outline" class="filtro-select filtro-semestre">
+          <mat-select [ngModel]="semestre()" (ngModelChange)="semestre.set($event); onSemestreChange()">
+            <mat-option [value]="1">1° Semestre</mat-option>
+            <mat-option [value]="2">2° Semestre</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    }
+
+    @if (periodo() === 'rango') {
+      <div class="filtro-grupo filtro-fechas">
+        <span class="filtro-label">Desde</span>
+        <mat-form-field appearance="outline" class="filtro-date">
+          <input matInput [matDatepicker]="dpDesde" [ngModel]="desde()" (ngModelChange)="desde.set($event)">
+          <mat-datepicker-toggle matSuffix [for]="dpDesde"></mat-datepicker-toggle>
+          <mat-datepicker #dpDesde></mat-datepicker>
+        </mat-form-field>
+        <span class="filtro-sep">al</span>
+        <span class="filtro-label">Hasta</span>
+        <mat-form-field appearance="outline" class="filtro-date">
+          <input matInput [matDatepicker]="dpHasta" [ngModel]="hasta()" (ngModelChange)="hasta.set($event)">
+          <mat-datepicker-toggle matSuffix [for]="dpHasta"></mat-datepicker-toggle>
+          <mat-datepicker #dpHasta></mat-datepicker>
+        </mat-form-field>
+        <button mat-stroked-button (click)="aplicarRango()">Generar</button>
+      </div>
+    }
+
+    @if (tab() === 'economico' && (opciones()?.carreras ?? []).length) {
+      <div class="filtro-grupo">
+        <span class="filtro-label">Segmentar por carrera</span>
+        <mat-form-field appearance="outline" class="filtro-select filtro-segmento">
+          <mat-select [ngModel]="idCarrera() ?? 0" (ngModelChange)="idCarrera.set($event === 0 ? null : $event); cargar()">
+            <mat-option [value]="0">Todas las carreras</mat-option>
+            @for (c of opciones()?.carreras; track c.id_carrera) {
+              <mat-option [value]="c.id_carrera">{{ c.nombre }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+    }
+
+    @if (tab() !== 'economico' && (opciones()?.programas ?? []).length) {
+      <div class="filtro-grupo">
+        <span class="filtro-label">Segmentar por programa</span>
+        <mat-form-field appearance="outline" class="filtro-select filtro-segmento">
+          <mat-select [ngModel]="idPrograma() ?? 0" (ngModelChange)="idPrograma.set($event === 0 ? null : $event); cargar()">
+            <mat-option [value]="0">Todos los programas</mat-option>
+            @for (p of opciones()?.programas; track p.id_programa) {
+              <mat-option [value]="p.id_programa">{{ p.nombre }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+    }
+  </div>
+
+  @if (error()) {
+    <div class="error-state">{{ error() }}</div>
+  }
+
+  <mat-tab-group [selectedIndex]="0" (selectedIndexChange)="onTabChange($event)" animationDuration="0ms"
+    class="reportes-tabs">
+    <mat-tab label="Económico">
+      <ng-template matTabContent>
+        <div class="tab-body">
+          @if (cargando()) {
+            <div class="loading-state">
+              <mat-spinner diameter="38" strokeWidth="4"></mat-spinner>
+              <span>Generando reporte económico…</span>
+            </div>
+          } @else if (eco()) {
+            <section class="kpis-strip">
+              <div class="kpi-card">
+                <span class="kpi-icon" style="background:#ecfdf5;color:#047857"><mat-icon>payments</mat-icon></span>
+                <div><b>{{ fmtBs(eco()!.ingresos.total) }}</b><span>Ingresos del periodo</span></div>
+              </div>
+              <div class="kpi-card">
+                <span class="kpi-icon" style="background:#fef2f2;color:#b91c1c"><mat-icon>account_balance</mat-icon></span>
+                <div><b>{{ fmtBs(eco()!.deuda.total) }}</b><span>Deuda pendiente</span></div>
+              </div>
+              <div class="kpi-card">
+                <span class="kpi-icon" style="background:#eff6ff;color:#1e3a8a"><mat-icon>people</mat-icon></span>
+                <div><b>{{ fmtEntero(eco()!.deuda.cantidad_deudores) }}</b><span>Deudores</span></div>
+              </div>
+              <div class="kpi-card">
+                <span class="kpi-icon" style="background:#faf5ff;color:#7c3aed"><mat-icon>tune</mat-icon></span>
+                <div><b>{{ pctDeuda() }}%</b><span>Peso de la deuda</span></div>
+              </div>
+            </section>
+
+            <div class="grid-2">
+              <section class="panel">
+                <div class="panel-head"><h3>Ingresos mensuales</h3></div>
+                <div class="chart-wrap">
+                  <canvas #canvasEconomico></canvas>
+                </div>
+              </section>
+              <section class="panel">
+                <div class="panel-head"><h3>Ingresos por programa</h3></div>
+                <table class="fich-table reporte-tabla">
+                  <thead><tr><th>Programa</th><th class="num">Bs</th></tr></thead>
+                  <tbody>
+                    @for (e of eco()!.ingresos.por_edicion; track $index) {
+                      <tr><td>{{ e.programa }}</td><td class="num positiva">{{ fmtBs(e.monto) }}</td></tr>
+                    }
+                  </tbody>
+                </table>
+              </section>
+            </div>
+
+            <section class="panel">
+              <div class="panel-head"><h3>Deudores por carrera (contacto)</h3></div>
+              @if (eco()!.deudores_por_carrera.length === 0) {
+                <div class="empty-state">No hay deudores en el periodo.</div>
+              } @else {
+                <div class="deudores-grupos">
+                  @for (g of eco()!.deudores_por_carrera; track g.carrera) {
+                    <div class="grupo-carrera">
+                      <div class="grupo-titulo">
+                        <span class="grupo-carrera-nombre">{{ g.carrera }}</span>
+                        <span class="grupo-meta">{{ g.cantidad }} deudor(es) · {{ fmtBs(g.deuda) }}</span>
+                      </div>
+                      <table class="fich-table reporte-tabla">
+                        <thead><tr><th>Apellido</th><th>Nombre</th><th>CI</th><th>Teléfono</th><th>Correo</th><th class="num">Deuda</th></tr></thead>
+                        <tbody>
+                          @for (d of g.deudores; track d.id_detalle_programa_alumno) {
+                            <tr>
+                              <td>{{ d.apellido }}</td>
+                              <td>{{ d.nombre }}</td>
+                              <td>{{ d.ci ?? '—' }}</td>
+                              <td>{{ d.celular ?? '—' }}</td>
+                              <td>{{ d.correo ?? '—' }}</td>
+                              <td class="num danger">{{ fmtBs(d.saldo) }}</td>
+                            </tr>
+                          }
+                        </tbody>
+                      </table>
+                    </div>
+                  }
+                </div>
+              }
+            </section>
+          }
+        </div>
+      </ng-template>
+    </mat-tab>
+
+    <mat-tab label="Población">
+      <ng-template matTabContent>
+        <div class="tab-body">
+          @if (cargando()) {
+            <div class="loading-state"><mat-spinner diameter="38" strokeWidth="4"></mat-spinner><span>Generando reporte de población…</span></div>
+          } @else if (pob()) {
+            <section class="kpis-strip">
+              <div class="kpi-card">
+                <span class="kpi-icon" style="background:#eff6ff;color:#1e3a8a"><mat-icon>groups</mat-icon></span>
+                <div><b>{{ fmtEntero(pob()!.total) }}</b><span>Inscripciones</span></div>
+              </div>
+              <div class="kpi-card">
+                <span class="kpi-icon" style="background:#ecfeff;color:#0e7490"><mat-icon>swap_horiz</mat-icon></span>
+                <div><b>{{ fmtEntero(pob()!.incorporaciones) }}</b><span>Incorporaciones</span></div>
+              </div>
+              <div class="kpi-card">
+                <span class="kpi-icon" style="background:#f5f3ff;color:#4338ca"><mat-icon>workspace_premium</mat-icon></span>
+                <div><b>{{ fmtEntero(pob()!.egresados.total) }}</b><span>Egresados</span></div>
+              </div>
+            </section>
+
+            <div class="grid-2">
+              <section class="panel">
+                <div class="panel-head"><h3>Distribución por estado</h3></div>
+                <div class="chart-wrap">
+                  <canvas #canvasPoblacion></canvas>
+                </div>
+              </section>
+              <section class="panel">
+                <div class="panel-head"><h3>Por programa</h3></div>
+                <table class="fich-table reporte-tabla">
+                  <thead><tr><th>Programa</th><th class="num">Inscritos</th><th class="num">Retirados</th><th class="num">Graduados</th></tr></thead>
+                  <tbody>
+                    @for (p of pob()!.por_programa; track p.programa) {
+                      <tr><td>{{ p.programa }}</td><td class="num">{{ fmtEntero(p.cantidad) }}</td><td class="num warning">{{ fmtEntero(p.retirados) }}</td><td class="num positiva">{{ fmtEntero(p.graduados) }}</td></tr>
+                    }
+                  </tbody>
+                </table>
+                <div class="panel-foot">Egresados · Educación Continua: {{ fmtEntero(pob()!.egresados.educacion_continua) }} · Profesionales: {{ fmtEntero(pob()!.egresados.profesionales) }}</div>
+              </section>
+            </div>
+          }
+        </div>
+      </ng-template>
+    </mat-tab>
+
+    <mat-tab label="Rendimiento">
+      <ng-template matTabContent>
+        <div class="tab-body">
+          @if (cargando()) {
+            <div class="loading-state"><mat-spinner diameter="38" strokeWidth="4"></mat-spinner><span>Generando reporte de rendimiento…</span></div>
+          } @else if (ren()) {
+            <section class="kpis-strip">
+              <div class="kpi-card">
+                <span class="kpi-icon" style="background:#f5f3ff;color:#4338ca"><mat-icon>insights</mat-icon></span>
+                <div><b>{{ ren()!.promedio_general.toFixed(2) }}</b><span>Promedio general</span></div>
+              </div>
+              <div class="kpi-card">
+                <span class="kpi-icon" style="background:#ecfdf5;color:#047857"><mat-icon>check_circle</mat-icon></span>
+                <div><b>{{ fmtEntero(ren()!.aprobados) }}</b><span>Aprobados</span></div>
+              </div>
+              <div class="kpi-card">
+                <span class="kpi-icon" style="background:#fef2f2;color:#b91c1c"><mat-icon>cancel</mat-icon></span>
+                <div><b>{{ fmtEntero(ren()!.reprobados) }}</b><span>Reprobados</span></div>
+              </div>
+              <div class="kpi-card">
+                <span class="kpi-icon" style="background:#eff6ff;color:#1e3a8a"><mat-icon>percent</mat-icon></span>
+                <div><b>{{ pctAprobados() }}%</b><span>Aprobación</span></div>
+              </div>
+            </section>
+
+            <div class="grid-2">
+              <section class="panel">
+                <div class="panel-head"><h3>Distribución por clasificación</h3></div>
+                <div class="chart-wrap">
+                  <canvas #canvasRendimiento></canvas>
+                </div>
+              </section>
+              <section class="panel">
+                <div class="panel-head"><h3>Promedio por módulo</h3></div>
+                <table class="fich-table reporte-tabla">
+                  <thead><tr><th>Módulo</th><th class="num">Promedio</th><th class="num">Apro.</th><th class="num">Repro.</th></tr></thead>
+                  <tbody>
+                    @for (m of ren()!.por_modulo; track m.id_detalle_programa_modulo) {
+                      <tr><td>{{ m.nombre }}</td><td class="num">{{ m.promedio }}</td><td class="num positiva">{{ m.aprobados }}</td><td class="num danger">{{ m.reprobados }}</td></tr>
+                    }
+                  </tbody>
+                </table>
+              </section>
+            </div>
+          }
+        </div>
+      </ng-template>
+    </mat-tab>
+  </mat-tab-group>
+</div>
